@@ -1,0 +1,9 @@
+.vault_pass
+.vscode
+.nvimrc
+.vimrc
+
+*~
+
+# custom kubeconfig
+tools/.kube
