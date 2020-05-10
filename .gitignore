@@ -1,0 +1,10 @@
+.vault_pass
+.vscode
+.nvimrc
+.vimrc
+
+*~
+
+# tools directory is not under version control
+# it is downloaded by our setup procedures
+tools
