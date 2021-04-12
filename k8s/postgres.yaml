@@ -1,0 +1,92 @@
+---
+#
+# PosgreSQL deployment
+#
+# For local development only!
+#
+# User/database/password are all 'artemis'.
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: artemis-postgres
+  labels:
+    app: artemis
+    service: artemis-postgres
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: artemis-postgres
+  selector:
+    service: artemis-postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artemis-postgres
+spec:
+  selector:
+    matchLabels:
+      service: artemis-postgres
+  template:
+    metadata:
+      labels:
+        service: artemis-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: centos/postgresql-12-centos7
+          env:
+            - name: POSTGRESQL_USER
+              value: artemis
+            - name: POSTGRESQL_PASSWORD
+              value: artemis
+            - name: POSTGRESQL_DATABASE
+              value: artemis
+          ports:
+            - containerPort: 5432
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 8Gi
+            requests:
+              cpu: 1000m
+              memory: 4Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: artemis-postgres-exporter
+  labels:
+    app: artemis
+    service: artemis-postgres-exporter
+spec:
+  ports:
+    - port: 80
+      targetPort: 9187
+      name: artemis-postgres-exporter
+  selector:
+    service: artemis-postgres-exporter
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artemis-postgres-exporter
+spec:
+  selector:
+    matchLabels:
+      service: artemis-postgres-exporter
+  template:
+    metadata:
+      labels:
+        service: artemis-postgres-exporter
+    spec:
+      containers:
+        - name: postgres-exporter
+          image: wrouesnel/postgres_exporter
+          env:
+            - name: DATA_SOURCE_NAME
+              value: postgres://artemis:artemis@artemis-postgres:5432/artemis?sslmode=disable
+          ports:
+            - containerPort: 9187

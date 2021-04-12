@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: artemis-api
+spec:
+  type: LoadBalancer
+  selector:
+    service: artemis-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8001
+  loadBalancerSourceRanges:
+    - "52.14.131.2/32"    # nomad server
+    - "3.129.244.87/32"   # nomad worker 01
+    - "3.137.140.191/32"  # nomad worker 02
+    - "3.136.97.243/32"   # noamd worker 03
+    - "18.222.171.2/32"   # nomad worker 04
+    - "3.12.85.77/32"     # nomad worker 05
+    - "46.135.64.0/22"    # thrix LTE
