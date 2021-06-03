@@ -113,7 +113,7 @@ if [ "$(command -v kubectl 2>/dev/null)" != "$PROJECT_ROOT/tools/kubectl" ]; the
 
     export AWS_ACCESS_KEY_ID="$(ansible-vault view --vault-password-file .vault_pass secrets/credentials.yml | yq -r .credentials.aws.fedora.access_key)"
     export AWS_SECRET_ACCESS_KEY="$(ansible-vault view --vault-password-file .vault_pass secrets/credentials.yml | yq -r .credentials.aws.fedora.secret_key)"
-    export AWS_DEFAULT_REGION="us-east-2"
+    export AWS_DEFAULT_REGION="us-east-1"
 
     info "Set up AWS credentials"
     echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $ACTIVATE_SCRIPT
@@ -122,6 +122,7 @@ if [ "$(command -v kubectl 2>/dev/null)" != "$PROJECT_ROOT/tools/kubectl" ]; the
 
     mkdir -p $PROJECT_ROOT/tools/.kube
     export KUBECONFIG="$PROJECT_ROOT/tools/.kube/config"
+    touch $KUBECONFIG
 
     info "Set up kubectl for EKS cluster 'testing-farm'"
     echo "export KUBECONFIG=$KUBECONFIG" >> $ACTIVATE_SCRIPT
