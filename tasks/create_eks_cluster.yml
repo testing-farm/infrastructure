@@ -1,0 +1,11 @@
+---
+- name: check if cluster exists
+  aws_eks_cluster:
+    aws_access_key: "{{ credentials.aws.fedora.access_key }}"
+    aws_secret_key: "{{ credentials.aws.fedora.secret_key }}"
+    name: "{{ eks_cluster_name }}"
+    role_arn: "{{ eks_cluster_role_arn }}"
+    subnets: "{{ eks_cluster_subnets }}"
+    security_groups: "{{ eks_cluster_security_groups }}"
+
+- debug: var=cluster

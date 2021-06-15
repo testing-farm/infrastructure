@@ -1,0 +1,12 @@
+---
+eks_cluster_name: testing-farm
+eks_cluster_version: 1.15
+eks_cluster_role_arn: arn:aws:iam::125523088429:role/fedora-ci-eks
+eks_cluster_subnets:
+    - subnet-03089904253762f32
+    - subnet-0b84fdcd88b5803c2
+eks_cluster_security_groups:
+    - sg-09af7135aa2c8c0e4
+eks_cluster_tags:
+    - name: FedoraGroup
+      value: ci
