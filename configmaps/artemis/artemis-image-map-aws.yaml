@@ -1,12 +1,12 @@
 ---
 # aws --profile fedora ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-32* | jq '.Images | .[] | .Name' | sort
-- 'Fedora-32': 'Fedora-Cloud-Base-32-20210525.0.x86_64-hvm-us-east-2-gp2-0'
+- 'Fedora-32': 'Fedora-Cloud-Base-32-1.6.x86_64-hvm-us-east-2-gp2-0'
 # aws --profile fedora ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-33* | jq '.Images | .[] | .Name' | sort
-- 'Fedora-33': 'Fedora-Cloud-Base-33-20210601.0.x86_64-hvm-us-east-2-gp2-0'
+- 'Fedora-33': 'Fedora-Cloud-Base-34-20210624.0.x86_64-hvm-us-east-2-gp2-0'
 # aws --profile fedora ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-34* | jq '.Images | .[] | .Name' | sort
 - 'Fedora-34': 'Fedora-Cloud-Base-34-1.2.x86_64-hvm-us-east-2-gp2-0'
 # aws --profile fedora ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-Rawhide* | jq '.Images | .[] | .Name' | sort
-- 'Fedora-Rawhide': 'Fedora-Cloud-Base-Rawhide-20210605.n.0.x86_64-hvm-us-east-2-gp2-0'
+- 'Fedora-Rawhide': 'Fedora-Cloud-Base-Rawhide-20210624.n.0.x86_64-hvm-us-east-2-gp2-0'
 - 'CentOS-6': 'CentOS-6-x86_64-GenericCloud-1907'
 - 'CentOS-7': 'CentOS 7.9.2009 x86_64'
 - 'CentOS-8': 'CentOS 8.3.2011 x86_64'
