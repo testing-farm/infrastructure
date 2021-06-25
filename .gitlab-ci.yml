@@ -1,0 +1,19 @@
+---
+default:
+  image: quay.io/testing-farm/python-ci-image
+
+.ansible-vault:
+  before_script:
+    - echo "$VAULT_PASSWORD" > .vault_pass
+    - dnf -y install direnv
+
+stages:
+  - 🔍
+
+direnv:
+  extends: .ansible-vault
+  stage: 🔍
+  script:
+    - direnv allow
+    - eval "$(direnv export bash)"
+    - kubectl cluster-info >/dev/null

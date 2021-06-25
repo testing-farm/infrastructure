@@ -1,0 +1,51 @@
+= Testing Farm Infrastructure
+:data-uri:
+:icons: font
+:showtitle:
+:source-highlighter: highlightjs
+:toc:
+
+This repository contains tools, configuration ands test used to maintain and setup Testing Farm's infrastrucutre. 
+
+The repository tries to bundle all required tools and provides an easy way how to set everything up for newcomers.
+
+== Installation
+
+The repository is managed via `direnv`.
+
+. Add `.vault_pass` file with the known secret
++
+[TIP]
+====
+Ask your colleagues if you are not sure what is the secret password.
+====
++
+[source,shell]
+....
+echo "SECRET_PASSWORD" > .vault_pass
+....
++
+. Install `direnv`
++
+[source,shell]
+....
+$ dnf -y install direnv
+....
+. Hook `direnv` to your shell, see the https://direnv.net/docs/hook.html[official guide for more information].
+. Allow `direnv` in this directory
++
+[source,shell]
+....
+$ direnv allow
+....
+
+=== Usage
+
+Enter this directory and `direnv` should take care of everything.
+
+You can check if kubectl works
+
+[source,shell]
+....
+$ kubectl version
+....
