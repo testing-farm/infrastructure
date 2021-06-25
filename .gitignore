@@ -1,10 +1,11 @@
-.vault_pass
+# editors
 .vscode
-.nvimrc
-.vimrc
 
+# vim backup files
 *~
 
-# tools directory is not under version control
-# it is downloaded by our setup procedures
+# secrets
+.vault_pass
+
+# tools directory contains tools not distributed via Python
 tools
