@@ -1,0 +1,16 @@
+client {
+    enabled = true
+
+    servers = [
+        {%- set comma = joiner(",") -%}
+        {%- for server in nomad_servers -%}
+            {{ comma() }}"{{ server }}"
+        {%- endfor -%}
+    ]
+}
+
+plugin "raw_exec" {
+    config {
+        enabled = true
+    }
+}

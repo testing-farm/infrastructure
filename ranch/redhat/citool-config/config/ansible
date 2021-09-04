@@ -1,0 +1,4 @@
+[default]
+interpreter-detection-order = /usr/bin/python3,
+                              /usr/bin/python2,
+                              /usr/libexec/platform-python

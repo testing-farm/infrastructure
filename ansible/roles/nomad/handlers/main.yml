@@ -1,0 +1,6 @@
+***REMOVED***
+- name: Restart Nomad
+  become: true
+  service:
+    name: nomad
+    state: restarted

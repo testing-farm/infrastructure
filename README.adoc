@@ -5,49 +5,43 @@
 :source-highlighter: highlightjs
 :toc:
 
-This repository contains tools, configuration ands test used to maintain and setup Testing Farm's infrastrucutre. 
+This repository contains tools, configuration ands test used to maintain and setup Testing Farm's infrastrucutre.
 
 The repository tries to bundle all required tools and provides an easy way how to set everything up for newcomers.
 
 == Installation
 
-The repository is managed via Poetry which installs all required Python dependencies. For non-Python requirements a bootstrap script is provided which adds additional dependencies. Hopefully this script will be in the future deprecated by `tft-admin init` command.
+The repository is managed via `direnv`.
 
-. https://python-poetry.org/docs/#installation[Install Poetry]
-. Install all Python requirements
-+
-[source,shell]
-....
-$ poetry install
-....
-+
 . Add `.vault_pass` file with the known secret
 +
 [TIP]
 ====
-Ask your colleagues if you are not sure what is the secret password.
+See `Testing Farm` Bitwarden collection for the Vault passphrase.
 ====
 +
 [source,shell]
 ....
-echo "SECRET_PASSWORD" > .vault_pass
+echo -n "VAULT_PASSWORD" > .vault_pass
 ....
 +
-. Run `bootstrap.sh` script, which make sure all other required tools work as expected
+. Install `direnv` and `poetry`
 +
 [source,shell]
 ....
-$ poetry run ./bootstrap.sh
+$ dnf -y install direnv poetry
+....
+. Hook `direnv` to your shell, see the https://direnv.net/docs/hook.html[official guide for more information].
+. Allow `direnv` in this directory
++
+[source,shell]
+....
+$ direnv allow
 ....
 
 === Usage
 
-Before working activate the virtual environment via Poetry
-
-[source,shell]
-....
-$ poetry shell
-....
+Enter this directory and `direnv` should take care of everything.
 
 You can check if kubectl works
 
