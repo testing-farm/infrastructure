@@ -7,5 +7,11 @@
 # secrets
 .vault_pass
 
-# tools directory contains tools not distributed via Python
-tools
+# data maintained by direnv
+.direnv
+
+# rendered template files
+**/.rendered
+
+# decrypted secrets
+**/*.decrypted

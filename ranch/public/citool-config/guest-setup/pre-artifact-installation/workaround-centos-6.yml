@@ -1,0 +1,8 @@
+- name: Fix repositories on EOLed CentOS 6
+  shell: |
+    sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Base.repo && \
+    sed -i 's/^#baseurl.*$/baseurl=https:\/\/vault.centos.org\/6.10\/os\/x86_64/g' \
+    /etc/yum.repos.d/CentOS-Base.repo
+  when:
+    - 'ansible_distribution == "CentOS"'
+    - 'ansible_distribution_major_version == "6"'

@@ -1,0 +1,8 @@
+# .ansible-lint
+warn_list:  # or 'skip_list' to silence them completely
+  - command-instead-of-module  # Using command rather than module
+  - deprecated-command-syntax  # Using command rather than an argument to e.g. file
+  - experimental  # all rules tagged as experimental
+  - no-changed-when  # Commands should not change things if nothing needs doing
+  - unnamed-task  # All tasks should be named
+  - yaml  # Violations reported by yamllint

@@ -1,0 +1,66 @@
+# container image with citool and modules
+citool_container_image: quay.io/testing-farm/gluetool-modules:testing-farm-demo
+
+# environment name, used to reference various environment specific configuration like
+# citool-config, artemis configuration, etc.
+deployment_environment: public
+
+# geerlingguy.security role settings
+security_ssh_password_authentication: "no"
+security_ssh_permit_root_login: "no"
+security_ssh_usedns: "no"
+security_ssh_permit_empty_password: "no"
+security_ssh_challenge_response_auth: "no"
+security_ssh_gss_api_authentication: "no"
+security_ssh_x11_forwarding: "no"
+security_sshd_state: started
+security_ssh_restart_handler_state: restarted
+security_sudoers_passwordless:
+  - fedora
+security_fail2ban_enabled: true
+security_fail2ban_custom_configuration_template: "{{ ansible_dir }}/templates/jail.local.j2"
+
+# ssh key
+ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker"
+ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker"
+
+# nomad
+nomad_servers: >
+  {% for host in groups['testing_farm_public_servers'] %}
+  - {{ hostvars[host].ansible_host }}
+  {% endfor %}
+
+# nomad role
+nomad_version: 0.12.1
+nomad_user: root
+nomad_group: root
+nomad_disable_update_check: true
+nomad_enabled_schedulers: batch
+nomad_node_role: client
+nomad_group_name: testing-farm-dev-nomad-clients
+nomad_data_dir: /data/nomad
+
+# disk role
+disk_additional_disks:
+  - disk: /dev/nvme1n1
+    part: /dev/nvme1n1p1
+    fstype: ext4
+    mount_options: defaults,noatime
+    mount: /data
+
+# gluetool-modules
+gluetool_modules_repository: "git@gitlab.com:gluetool/modules.git"
+gluetool_modules_branch: tft-service-demo
+
+# podman container storage
+container_storage_path: /data/containers
+
+# artemis
+artemis_ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_artemis"
+artemis_ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_artemis.pub"
+
+# jobs
+jobs:
+  - tf-tmt
+  - tf-tmt-container
+  - tf-sti

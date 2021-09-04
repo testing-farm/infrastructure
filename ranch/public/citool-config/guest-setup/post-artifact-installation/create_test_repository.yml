@@ -1,0 +1,32 @@
+- name: Check if RPMS available
+  shell: "ls *.rpm"
+  ignore_errors: true
+  register: rpms_available
+
+- block:
+    - name: Install Createrepo
+      package:
+        name:
+          - createrepo
+        state: present
+
+    - name: Create Repository Directory
+      file:
+        path: /var/share/test-artifacts
+        state: directory
+
+    - name: Copy RPMS to Repository Directory
+      shell: "cp -rf *.rpm /var/share/test-artifacts"
+
+    - name: Create Repository
+      command: "createrepo /var/share/test-artifacts"
+
+    - name: Add Artifacts Repository
+      yum_repository:
+        name: test-artifacts
+        description: Test artifacts repository
+        baseurl: file:///var/share/test-artifacts
+        priority: 1
+        gpgcheck: no
+
+  when: rpms_available.rc == 0
