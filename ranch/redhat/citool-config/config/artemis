@@ -1,0 +1,13 @@
+[default]
+api-url = http://artemis-production-02.osci.redhat.com/v0.0.19/
+api-version = v0.0.19
+ssh-options = UserKnownHostsFile=/dev/null, StrictHostKeyChecking=no
+ssh-key = /CONFIG/id_rsa_artemis
+key = master-key
+user-data-vars = COLDSTORE_URL
+
+# Provisioning a guest can take several hours, depending on the resources available to Artemis backend.
+ready-timeout = 86400
+
+# API call tick can be a bit bigger than 1 second, let's try with 5 seconds.
+api-call-tick = 5

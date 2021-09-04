@@ -1,0 +1,19 @@
+---
+- block:
+  - name: Make sure npm is present
+    package:
+      name:
+      - npm
+      - python3-lxml
+      state: present
+
+  - name: Install tfxunit2junit.py
+    get_url:
+      url: "https://raw.githubusercontent.com/fedora-ci/jenkins-pipeline-library-agent-image/master/scripts/tfxunit2junit.py"
+      dest: "/usr/local/bin/tfxunit2junit.py"
+      mode: "a+rwx"
+
+  - name: Install testing-farm-viewer
+    command: "npm i -g testing-farm-viewer"
+
+  become: true

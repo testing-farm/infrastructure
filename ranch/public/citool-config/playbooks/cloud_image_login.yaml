@@ -1,0 +1,23 @@
+- hosts: all
+  remote_user: fedora
+  gather_facts: false
+  tasks:
+  - name: Make sure root can login on Fedora
+    shell: "sudo sed -i 's/.*ssh-rsa/ssh-rsa/' /root/.ssh/authorized_keys"
+    when: "'fedora' in IMAGE_NAME|lower and 'coreos' not in IMAGE_NAME|lower"
+
+- hosts: all
+  remote_user: centos
+  gather_facts: false
+  tasks:
+  - name: Make sure root can login on CentOS
+    shell: "sudo sed -i 's/.*ssh-rsa/ssh-rsa/' /root/.ssh/authorized_keys"
+    when: "'centos' in IMAGE_NAME|lower"
+
+- hosts: all
+  remote_user: core
+  gather_facts: false
+  tasks:
+  - name: Make sure root can login on CoreOS
+    raw: "sudo cp -r ~/.ssh /root/.ssh"
+    when: "'coreos' in IMAGE_NAME|lower"

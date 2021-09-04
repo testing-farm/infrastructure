@@ -1,0 +1,38 @@
+---
+# container image with citool and modules
+citool_container_image: docker-registry.upshift.redhat.com/testing-farm/gluetool-modules:latest
+
+# environment name, used to reference various environment specific configuration, like
+# citool-config, artemis configuration, etc.
+deployment_environment: redhat
+
+# nomad
+nomad_version: 1.0.4
+nomad_user: root
+nomad_group: root
+nomad_disable_update_check: true
+nomad_enabled_schedulers: batch
+nomad_node_role: client
+nomad_group_name: testing-farm-dev-nomad-clients
+nomad_data_dir: /data/nomad
+nomad_servers: >
+  {% for host in groups['testing_farm_redhat_servers'] %}
+  - {{ hostvars[host].ansible_host }}
+  {% endfor %}
+
+# ssh key for connecting to workers
+ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_worker"
+ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_worker.pub"
+
+# podman container storage
+container_storage_path: /data/containers
+
+# ssh key for connecting to Artemis instance
+artemis_ssh_private_key: "{{ ansible_dir }}/ssh/id_rsa_redhat_artemis"
+artemis_ssh_public_key: "{{ ansible_dir }}/ssh/id_rsa_redhat_artemis.pub"
+
+# jobs
+jobs:
+  - tf-tmt
+  - tf-tmt-container
+  - tf-sti

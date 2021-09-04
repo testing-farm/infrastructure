@@ -1,0 +1,64 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: artemis-redis
+  labels:
+    app: artemis
+    service: artemis-redis
+spec:
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: artemis-redis
+  selector:
+    service: artemis-redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artemis-redis
+spec:
+  selector:
+    matchLabels:
+      service: artemis-redis
+  template:
+    metadata:
+      labels:
+        app: artemis
+        service: artemis-redis
+    spec:
+      containers:
+        - name: redis
+          image: quay.io/testing-farm/redis:alpine
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -xc
+                  - sleep 15 && redis-cli config set save ""
+          livenessProbe:
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 6379
+            timeoutSeconds: 5
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 6379
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 400m
+              memory: 48Mi
+            requests:
+              cpu: 200m
+              memory: 32Mi

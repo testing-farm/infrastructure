@@ -1,0 +1,7 @@
+---
+- rule: "True"
+  playbooks:
+  - /CONFIG/guest-setup/post-artifact-installation/entrypoint.yml
+
+- rule: COMPOSE.startswith('fedora-coreos')
+  playbooks: []

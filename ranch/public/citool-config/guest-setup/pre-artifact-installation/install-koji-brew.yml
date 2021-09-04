@@ -1,0 +1,20 @@
+- name: Install Koji
+  package:
+    name:
+      - koji
+    state: present
+  when: 'ansible_distribution == "Fedora"'
+
+- block:
+    - name: Add RCM Repository
+      yum_repository:
+        description: RCMTOOLS repository
+        name: rcmtools
+        state: present
+        baseurl: "http://download.devel.redhat.com/rel-eng/RCMTOOLS/latest-RCMTOOLS-2-RHEL-{{ ansible_distribution_major_version }}/compose/BaseOS/{{ ansible_architecture }}/os/"
+
+    - name: Install Brewkoji
+      package:
+        name: brewkoji
+
+  when: 'ansible_distribution == "RedHat"'

@@ -1,0 +1,80 @@
+#!/bin/bash -x
+
+printf "\n[pipeline-start] $(date)\n\n"
+
+export REQUEST_ID=$1
+RUN_DIR=$2
+TASK_NAME="sti"
+
+ARTIFACTS_RSYNC_HOST="rsync://artifacts.osci.redhat.com/artifacts/testing-farm"
+ARTIFACTS_ROOT=/archive
+
+[ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT=4h
+
+[ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
+[ -z "$RUN_DIR" ] && { echo "No run directory given"; exit 1; }
+
+REQUEST_ARCHIVE_DIR=${ARCHIVE_DIR}/${REQUEST_ID}
+
+archive() {
+    WHAT=$1
+    WHERE=$2
+
+    if [ ! -e $WHAT ]; then
+        echo "Artifact '$WHAT' not found, skipping archivation"
+        return
+    fi
+
+    rsync -Prpv $WHAT "${ARTIFACTS_RSYNC_HOST}/${REQUEST_ID}/${WHERE}"
+}
+
+# create archive directory
+if [ -z "$NO_ARCHIVE" ]; then
+    mkdir ${REQUEST_ID}
+    rsync -Prpv ${ARTIFACTS_RSYNC_HOST}/running.html ${REQUEST_ID}/index.html
+    rsync -Prpv ${REQUEST_ID} ${ARTIFACTS_RSYNC_HOST}
+fi
+
+# rpmlist on worker
+rpm -qa > rpmlist-worker.txt
+
+# run citool via container with a timeout
+timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
+citool-container.sh rules-engine-empty:rules-engine \
+                    testing-farm-request --request-id $REQUEST_ID \
+                    ansible \
+                    artemis \
+                    guest-setup-testing-farm:guest-setup \
+                    guess-environment-testing-farm-request:guess-environment \
+                    dist-git-testing-farm:dist-git \
+                    coldstore \
+                    testing-farm-request-state-reporter \
+                    install-koji-build-execute \
+                    test-scheduler-sti \
+                    test-schedule-runner-sti \
+                    test-scheduler \
+                    test-schedule-runner \
+                    test-schedule-report
+
+# skip archivation
+[ -n "$NO_ARCHIVE" ] && exit
+
+# citool exposes all output to stderr, archive it as the pipeline log
+archive ${RUN_DIR}/logs/${TASK_NAME}.stderr.0 pipeline.log
+
+# this job prints all stuff to stdout, this save it a job log
+archive ${RUN_DIR}/logs/${TASK_NAME}.stdout.0 job.log
+
+# sync task logs
+TASK_DIR=$(dirname $RUN_DIR)
+for path in ${TASK_DIR}/${TASK_NAME}/*; do
+    archive $path
+done
+
+# create index.html results page, best effort for now
+tfxunit2junit.py --issues-url http://projects.engineering.redhat.com/browse/TFT/issues results.xml > results-junit.xml || true
+testing-farm-viewer -r results-junit.xml -t "results" || true
+archive results-junit.xml
+archive index.html
+
+printf "\n[pipeline-end] $(date)"

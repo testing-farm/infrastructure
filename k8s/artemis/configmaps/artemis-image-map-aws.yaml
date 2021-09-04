@@ -1,0 +1,24 @@
+---
+# aws --profile fedora ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-32* | jq '.Images | .[] | .Name' | sort
+- '^Fedora-32$': 'Fedora-Cloud-Base-32-1.6.x86_64-hvm-us-east-2-gp2-0'
+- '^Fedora-32-aarch64$': 'Fedora-Cloud-Base-32-1.6.aarch64-hvm-us-east-2-gp2-0'
+# aws --profile fedora ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-33* | jq '.Images | .[] | .Name' | sort
+- '^Fedora-33$': 'Fedora-Cloud-Base-33-20210824.0.x86_64-hvm-us-east-2-gp2-0'
+- '^Fedora-33-aarch64$': 'Fedora-Cloud-Base-33-20210824.0.aarch64-hvm-us-east-2-gp2-0'
+# aws --profile fedora ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-34* | jq '.Images | .[] | .Name' | sort
+- '^Fedora-34$': 'Fedora-Cloud-Base-34-20210824.0.x86_64-hvm-us-east-2-gp2-0'
+- '^Fedora-34-aarch64$': 'Fedora-Cloud-Base-34-20210823.0.aarch64-hvm-us-east-2-gp2-0'
+# aws --profile fedora ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-35* | jq '.Images | .[] | .Name' | sort
+- '^Fedora-35$': 'Fedora-Cloud-Base-35-20210823.n.0.x86_64-hvm-us-east-2-gp2-0'
+- '^Fedora-35-aarch64$': 'Fedora-Cloud-Base-35-20210823.n.0.aarch64-hvm-us-east-2-gp2-0'
+# aws --profile fedora ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-Rawhide* | jq '.Images | .[] | .Name' | sort
+- '^Fedora-Rawhide$': 'Fedora-Cloud-Base-Rawhide-20210823.n.0.x86_64-hvm-us-east-2-gp2-0'
+- '^Fedora-Rawhide-aarch64$': 'Fedora-Cloud-Base-Rawhide-20210822.n.0.aarch64-hvm-us-east-2-gp2-0'
+- '^CentOS-6$': 'CentOS-6-x86_64-GenericCloud-1907'
+- '^CentOS-7$': 'CentOS 7.9.2009 x86_64'
+- '^CentOS-7-aarch64$': 'CentOS 7.9.2009 aarch64'
+- '^CentOS-8$': 'CentOS 8.4.2105 x86_64'
+- '^CentOS-8-aarch64$': 'CentOS 8.4.2105 aarch64'
+- '^CentOS-Stream-8$': 'CentOS Stream 8 x86_64'
+- '^CentOS-Stream-8-aarch64$': 'CentOS Stream 8 aarch64'
+- '^(.*)$': '\1'

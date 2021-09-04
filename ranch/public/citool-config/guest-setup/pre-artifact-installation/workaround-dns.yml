@@ -1,0 +1,28 @@
+---
+#
+# We are suspecting systemd-resolved causing instabilities when
+# running tests, this is popping up a lot. Trying this workaround
+# to confirm this is the problem.
+#
+- name: Check for rawhide
+  command: "rpm -q fedora-repos-rawhide"
+  ignore_errors: true
+  register: check_rawhide
+
+- block:
+    - name: disable systemd-resolved
+      command: "systemctl disable systemd-resolved"
+
+    - name: mask systemd-resolved
+      command: "systemctl mask systemd-resolved"
+
+    - name: remove /etc/resolv.conf
+      command: "rm -f /etc/resolv.conf"
+
+    - name: replace resolve.conf
+      copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 8.8.8.8
+          nameserver 8.8.4.4
+  when: check_rawhide.rc == 0

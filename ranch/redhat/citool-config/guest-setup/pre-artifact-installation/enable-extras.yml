@@ -1,0 +1,13 @@
+- block:
+  - name: Add RHEL7 Extras repository
+    yum_repository:
+      name: rhel-extras
+      description: rhel-extras
+      baseurl: "http://download.eng.brq.redhat.com/rhel-7/rel-eng/EXTRAS-7/latest-EXTRAS-{{ ansible_distribution_version }}-RHEL-7/compose/Server/x86_64/os/"
+      enabled: true
+      gpgcheck: false
+      skip_if_unavailable: true
+
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_major_version == "7"'
