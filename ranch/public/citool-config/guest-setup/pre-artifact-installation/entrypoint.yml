@@ -1,0 +1,11 @@
+- hosts: all
+  tasks:
+  # DO NOT ENABLE BY DEFAULT, IT BREAKS PYTHON TEST SUITE (and can others)
+  # - include_tasks: nosync.yml
+  - include_tasks: workaround-fedora-release.yml
+  - include_tasks: update-and-restart.yml
+  - include_tasks: workaround-dns.yml
+  - include_tasks: install-epel.yml
+  - include_tasks: enable-powertools.yml
+  - include_tasks: install-koji-brew.yml
+  - include_tasks: tag-repository.yml

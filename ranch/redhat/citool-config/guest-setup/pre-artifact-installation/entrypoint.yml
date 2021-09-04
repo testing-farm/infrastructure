@@ -1,0 +1,18 @@
+- hosts: all
+  tasks:
+  # workarounds
+  - include_tasks: workaround-disable-qa-tools.yml
+  # IT BREAKS PYTHON TEST SUITE, for example, but for RHEL we accept it as it speeds up a lot installability in PSI Openstack
+  # Disabled, as we test in AWS now anyway
+  # - include_tasks: nosync.yml
+  - include_tasks: install-koji-brew.yml
+  - include_tasks: enable-beaker-tasks.yml
+  - include_tasks: enable-crb.yml
+  # Tag repository must be enabled to bring in latest deps which passed gating
+  # https://projects.engineering.redhat.com/browse/TFT-640
+  - include_tasks: tag-repository.yml
+  # OAMG team needs rhel-extras around
+  - include_tasks: enable-extras.yml
+  # OSCI users expect buildroot to be enabled by default
+  # https://projects.engineering.redhat.com/browse/TFT-619
+  - include_tasks: enable-buildroot.yml

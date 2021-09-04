@@ -1,0 +1,95 @@
+---
+
+#
+# Add tag repository with low priority, for installing additional dependencies of tested artifacts.
+# The repository is DISABLED by default. We enable it only during artifact installation.
+#
+# The tag repository is updated by Koji. It contains all packages that got into a specific tag. The repository is sometimes
+# also referred to as buildroot repository.
+#
+# Examples for Fedora:
+# * rawhide contains all builds tagged into rawhide.
+# * f32-build contains all builds tagged into f32-candidate or f32-updates-candidate.
+#
+# The play gracefully skips adding a tag repository which is not reachable.
+#
+
+- block:
+
+    #
+    # The tag repository name can be determined from the Fedora version. Detect rawhide
+    # by checking for rawhide repository installed via 'fedora-repos-rawhide' rpm
+    #
+    - block:
+        - name: Check for rawhide
+          command: "rpm -q fedora-repos-rawhide"
+          ignore_errors: true
+          register: check_rawhide
+
+        - name: Transform build target to a tag repository name (Rawhide)
+          set_fact:
+            tag_repository_name: "rawhide"
+          when: check_rawhide.rc == 0
+
+        - name: Transform build target to a tag repository name (Fedora non-Rawhide)
+          set_fact:
+            tag_repository_name: "f{{ ansible_distribution_version }}-build"
+          when: check_rawhide.rc != 0
+
+        - name: Create tag repository base url (Fedora)
+          set_fact:
+            tag_repository_url: "https://kojipkgs.fedoraproject.org/repos/{{ tag_repository_name }}/latest/{{ ansible_architecture }}/"
+
+    #
+    # Check if tag repository exists.
+    #
+    # Note: We ignore the fact the repository does not exist and try to continue anyway. Note that not all builds
+    #       we encounter might have tag repository available.
+    #
+    - name: "Check if tag repository {{ tag_repository_url }} exists"
+      uri:
+        url: "{{ tag_repository_url }}"
+        method: HEAD
+        status_code: [200, 404]
+      register: http_response
+
+    #
+    # Add repository only if the repository is reachable
+    #
+    - block:
+        - name: Add tag repository
+          template:
+            src: "templates/tag.repo.j2"
+            dest: /etc/yum.repos.d/tag-repository.repo
+
+      when: http_response.status == 200
+
+    #
+    # block: end
+    #
+
+    #
+    # Be verbose about the fact the repository is unreachable
+    #
+    - debug:
+        msg: "Skipping adding tag repository, because location {{ tag_repository_url }} was not found"
+      when: http_response.status != 200
+
+  #
+  # Run block only on Fedora
+  #
+
+  when: ansible_distribution == "Fedora"
+
+  #
+  # block: end
+  #
+
+#
+# Be verbose about the fact we skipped this play
+#
+- debug:
+    msg: |
+      Skipping adding tag repository, because the distrubution is not Fedora.
+
+  when: ansible_distribution != "Fedora"

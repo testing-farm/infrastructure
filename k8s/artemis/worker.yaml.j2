@@ -1,0 +1,74 @@
+---
+#
+# Artemis worker
+#
+# Waits for artemis api to be available.
+#
+# For local development only!
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artemis-worker
+spec:
+  selector:
+    matchLabels:
+      service: artemis-worker
+  template:
+    metadata:
+      labels:
+        service: artemis-worker
+    spec:
+      initContainers:
+        - name: wait-for-api
+          image: quay.io/testing-farm/artemis:testing-farm-demo
+          command:
+            - /wait-for-api.sh
+          env:
+            - name: API_HOSTNAME
+              value: artemis-api
+            - name: API_PORT
+              value: "80"
+      containers:
+        - name: worker
+          image: quay.io/testing-farm/artemis:testing-farm-demo
+          command:
+            - /entrypoint.sh
+            - worker
+          env:
+            - name: ARTEMIS_BROKER_URL
+              value: {{ artemis_broker_url }}
+            - name: ARTEMIS_CONFIG_DIR
+              value: /configuration
+            - name: ARTEMIS_DB_URL
+              value: {{ aremis_broker_url }}
+            - name: ARTEMIS_LOG_JSON
+              value: "no"
+            - name: ARTEMIS_LOG_DB_POOL
+              value: "no"
+            - name: ARTEMIS_LOG_DB_QUERIES
+              value: "yes"
+            - name: ARTEMIS_VAULT_PASSWORD_FILE
+              value: /configuration/.vault_pass
+            - name: ARTEMIS_ACTOR_DEFAULT_RETRIES
+              value: "2"
+            - name: ARTEMIS_WORKER_PROCESSES
+              value: "12"
+            - name: ARTEMIS_WORKER_THREADS
+              value: "4"
+            - name: ARTEMIS_WORKER_OPTIONS
+              value: "--verbose"
+          volumeMounts:
+            - name: artemis-configuration
+              mountPath: /configuration
+          resources:
+            limits:
+              cpu: 4000m
+              memory: 6Gi
+            requests:
+              cpu: 2000m
+              memory: 2Gi
+      volumes:
+        - name: artemis-configuration
+          configMap:
+            name: artemis-configuration
