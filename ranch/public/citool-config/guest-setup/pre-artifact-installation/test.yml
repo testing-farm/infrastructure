@@ -1,3 +1,0 @@
-- hosts: all
-  tasks:
-  - include_tasks: workaround-centos-6.yml

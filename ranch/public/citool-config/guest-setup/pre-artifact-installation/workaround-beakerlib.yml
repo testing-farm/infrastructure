@@ -1,0 +1,10 @@
+---
+# https://issues.redhat.com/browse/TFT-838
+- block:
+  - name: Make sure dnf core plugins are installed
+    command: "dnf -y install dnf-plugins-core"
+
+  - name: Add beakerlib copr repository for CentOS 9
+    command: "dnf -y copr enable packit/beakerlib-beakerlib-master"
+
+  when: '"centos-stream-9" in IMAGE_NAME|lower'
