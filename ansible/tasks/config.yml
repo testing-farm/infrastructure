@@ -3,7 +3,7 @@
   become: true
   copy:
     # ending `/` is required to copy only contents over
-    src: "{{ root_dir }}/ranch/{{ deployment_environment }}/citool-config"
+    src: "{{ root_dir }}/ranch/{{ deployment_environment }}/citool-config/"
     dest: "/etc/citool.d"
     owner: "root"
     mode: "preserve"
