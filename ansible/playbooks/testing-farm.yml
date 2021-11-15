@@ -1,17 +1,17 @@
 ---
 
-- hosts: testing-farm-public-servers:testing-farm-public-workers
+- hosts: testing_farm_public_servers:testing_farm_public_workers
   become: true
   roles:
     - security
 
-- hosts: testing-farm-redhat-servers:testing-farm-redhat-workers
+- hosts: testing_farm_redhat_servers:testing_farm_redhat_workers
   vars_files:
     - ../secrets/credentials.yml
   tasks:
     - include: ../tasks/rh-certs.yml
 
-- hosts: testing-farm-public-workers:testing-farm-redhat-workers
+- hosts: testing_farm_public_workers:testing_farm_redhat_workers
   vars_files:
     - ../secrets/credentials.yml
   pre_tasks:
