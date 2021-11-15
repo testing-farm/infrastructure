@@ -7,12 +7,20 @@
     when: "'fedora' in IMAGE_NAME|lower and 'coreos' not in IMAGE_NAME|lower"
 
 - hosts: all
+  remote_user: ec2-user
+  gather_facts: false
+  tasks:
+  - name: Make sure root can login on CentOS Stream 9
+    shell: "sudo sed -i 's/.*ssh-rsa/ssh-rsa/' /root/.ssh/authorized_keys"
+    when: "'centos-stream-9' in IMAGE_NAME|lower"
+
+- hosts: all
   remote_user: centos
   gather_facts: false
   tasks:
   - name: Make sure root can login on CentOS
     shell: "sudo sed -i 's/.*ssh-rsa/ssh-rsa/' /root/.ssh/authorized_keys"
-    when: "'centos' in IMAGE_NAME|lower"
+    when: "'centos' in IMAGE_NAME|lower and 'centos-stream-9' not in IMAGE_NAME|lower"
 
 - hosts: all
   remote_user: core
