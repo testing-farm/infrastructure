@@ -14,6 +14,7 @@
 - hosts: testing_farm_public_workers:testing_farm_redhat_workers
   vars_files:
     - ../secrets/credentials.yml
+    - ../vars/common.yml
   pre_tasks:
     - include: ../tasks/dns.yml
       tags: update_dns
