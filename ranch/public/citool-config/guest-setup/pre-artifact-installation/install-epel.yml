@@ -1,6 +1,6 @@
-- name: Install EPEL
+- name: Install EPEL on CentOS (expect CentOS Stream 9)
   package:
     name:
       - epel-release
     state: present
-  when: 'ansible_distribution == "CentOS"'
+  when: 'ansible_distribution == "CentOS" and "centos-stream-9" not in IMAGE_NAME|lower'
