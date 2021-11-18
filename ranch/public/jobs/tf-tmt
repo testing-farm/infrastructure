@@ -38,6 +38,18 @@ fi
 # rpmlist on worker
 rpm -qa > rpmlist-worker.txt
 
+cat > results.xml <<EOF
+<testsuites overall-result="error">
+ <testsuite name="/pipeline">
+  <testcase name="/failure" result="error">
+   <logs>
+     <log name="pipeline.log" href="http://artifacts.dev.testing-farm.io/${REQUEST_ID}/pipeline.log"/>
+   </logs>
+  </testcase>
+ </testsuite>
+</testsuites>
+EOF
+
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
 citool-container.sh hide-secrets \
