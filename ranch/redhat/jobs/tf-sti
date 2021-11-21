@@ -52,8 +52,7 @@ EOF
 
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
-citool-container.sh hide-secrets \
-                    rules-engine-empty:rules-engine \
+citool-container.sh rules-engine-empty:rules-engine \
                     testing-farm-request --request-id $REQUEST_ID \
                     ansible \
                     artemis \
