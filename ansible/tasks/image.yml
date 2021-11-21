@@ -4,7 +4,7 @@
 
 - name: Install wrapper script
   copy:
-    src: "citool-container.sh"
+    src: "{{ ansible_dir }}/files/citool-container.sh"
     dest: "/usr/bin/citool-container.sh"
     mode: "ugo=rx"
 
