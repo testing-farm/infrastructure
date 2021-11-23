@@ -38,6 +38,11 @@ $ dnf -y install direnv
 ....
 $ direnv allow
 ....
++
+[TIP]
+====
+In case of errors, investigate the setup log in `.direnv/envrc.log`
+====
 
 === Usage
 
