@@ -2,18 +2,24 @@
 default:
   image: quay.io/testing-farm/python-ci-image
 
-.ansible-vault:
+.direnv:
   before_script:
-    - echo "$VAULT_PASSWORD" > .vault_pass
+    - echo -n "$VAULT_PASSWORD" > .vault_pass
+    - export ANSIBLE_VAULT_PASSWORD_FILE=.vault_pass
     - dnf -y install direnv
+    - direnv allow
+    - eval "$(direnv export bash)"
 
 stages:
   - 🔍
 
-direnv:
-  extends: .ansible-vault
+ansible-vault:
+  extends: .direnv
   stage: 🔍
   script:
-    - direnv allow
-    - eval "$(direnv export bash)"
-    - kubectl cluster-info >/dev/null
+    - dnf -y install ansible-lint
+    - ansible-vault decrypt secrets/credentials.yml
+    - ansible-lint secrets/credentials.yml
+  rules:
+    - changes:
+        - secrets/credentials.yml
