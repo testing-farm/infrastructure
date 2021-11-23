@@ -5,7 +5,7 @@
 :source-highlighter: highlightjs
 :toc:
 
-This repository contains tools, configuration ands test used to maintain and setup Testing Farm's infrastrucutre. 
+This repository contains tools, configuration ands test used to maintain and setup Testing Farm's infrastrucutre.
 
 The repository tries to bundle all required tools and provides an easy way how to set everything up for newcomers.
 
