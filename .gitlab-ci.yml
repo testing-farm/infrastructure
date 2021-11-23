@@ -23,3 +23,12 @@ ansible-vault:
   rules:
     - changes:
         - secrets/credentials.yml
+
+pre-commit:
+  extends: .direnv
+  stage: 🔍
+  script:
+    - dnf -y install pre-commit
+    - pre-commit run --all-files
+  rules:
+    - when: always
