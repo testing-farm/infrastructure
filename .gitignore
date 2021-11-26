@@ -15,3 +15,6 @@
 
 # decrypted secrets
 **/*.decrypted
+
+# ansible roles from galaxy
+ansible/roles/geerlingguy.swap
