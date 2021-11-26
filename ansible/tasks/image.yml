@@ -2,30 +2,33 @@
     msg: "Define citool_container_image variable."
   when: citool_container_image is not defined
 
-- name: Install wrapper script
-  copy:
-    src: "{{ ansible_dir }}/files/citool-container.sh"
-    dest: "/usr/bin/citool-container.sh"
-    mode: "ugo=rx"
+- block:
+    - name: Install wrapper script
+      copy:
+        src: "{{ ansible_dir }}/files/citool-container.sh"
+        dest: "/usr/bin/citool-container.sh"
+        mode: "ugo=rx"
 
-- name: Pull the required image
-  command: "podman pull {{ citool_container_image }}"
+    - name: Pull the required image
+      command: "podman pull {{ citool_container_image }}"
 
-- name: Tag the required image to `citool:latest`
-  command: "podman tag {{ citool_container_image }} citool:latest"
+    - name: Tag the required image to `citool:latest`
+      command: "podman tag {{ citool_container_image }} citool:latest"
 
-- name: Report available images
-  command: "podman images"
+    - name: Report available images
+      command: "podman images"
 
-- name: Make sure the image starts correctly
-  command: "podman run --rm --privileged citool:latest -l"
+    - name: Make sure the image starts correctly
+      command: "podman run --rm --privileged citool:latest -l"
 
-- name: Get dangling images
-  command: podman images -f "dangling=true" -q
-  register: dangling_images
+    - name: Get dangling images
+      command: podman images -f "dangling=true" -q
+      register: dangling_images
 
-- name: Cleanup dangling images
-  command: "podman rmi {{ item }}"
-  with_items:
-    - "{{ dangling_images.stdout_lines }}"
-  ignore_errors: true
+    - name: Cleanup dangling images
+      command: "podman rmi {{ item }}"
+      with_items:
+        - "{{ dangling_images.stdout_lines }}"
+      ignore_errors: true
+
+  become: true
