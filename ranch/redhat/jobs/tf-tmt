@@ -43,7 +43,7 @@ cat > results.xml <<EOF
  <testsuite name="/pipeline">
   <testcase name="/failure" result="error">
    <logs>
-     <log name="pipeline.log" href="http://artifacts.dev.testing-farm.io/${REQUEST_ID}/pipeline.log"/>
+     <log name="pipeline.log" href="http://artifacts.osci.redhat.com/testing-farm/${REQUEST_ID}/pipeline.log"/>
    </logs>
   </testcase>
  </testsuite>
