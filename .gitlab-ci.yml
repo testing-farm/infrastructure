@@ -32,3 +32,24 @@ pre-commit:
     - pre-commit run --all-files
   rules:
     - when: always
+
+terraform:
+  extends: .direnv
+  stage: 🔍
+  script:
+    - cd terraform/environments/dev
+    - export TF_VAR_cluster_name=testing-farm-gitlab-ci-$CI_COMMIT_REF_NAME
+    - terraform init
+    - terraform plan
+    - terraform apply -auto-approve
+    - aws eks --region us-east-2 update-kubeconfig --name $TF_VAR_cluster_name
+  after_script:
+    - eval "$(direnv export bash)"
+    - cd terraform/environments/dev
+    - terraform destroy -auto-approve
+  rules:
+    - changes:
+        - secrets/credentials.yml
+        - terraform/environments/dev
+        - terraform/modules
+        - .envrc
