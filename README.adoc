@@ -9,15 +9,15 @@ This repository contains tools, configuration ands test used to maintain and set
 
 The repository tries to bundle all required tools and provides an easy way how to set everything up for newcomers.
 
-== Installation
+== Setup
 
-The repository is managed via `direnv`.
+The repository is managed via `direnv`. For setup:
 
-. Add `.vault_pass` file with the known secret
+* Add `.vault_pass` file with the known secret
 +
 [TIP]
 ====
-Ask your colleagues if you are not sure what is the secret password.
+Check Bitwarden for the vault password.
 ====
 +
 [source,shell]
@@ -25,14 +25,14 @@ Ask your colleagues if you are not sure what is the secret password.
 echo "SECRET_PASSWORD" > .vault_pass
 ....
 +
-. Install `direnv`
+* Install `direnv`
 +
 [source,shell]
 ....
 $ dnf -y install direnv
 ....
-. Hook `direnv` to your shell, see the https://direnv.net/docs/hook.html[official guide for more information].
-. Allow `direnv` in this directory
+* Hook `direnv` to your shell, see the https://direnv.net/docs/hook.html[official guide for more information].
+* Allow `direnv` in this directory
 +
 [source,shell]
 ....
@@ -43,14 +43,54 @@ $ direnv allow
 ====
 In case of errors, investigate the setup log in `.direnv/envrc.log`
 ====
-
-=== Usage
-
-Enter this directory and `direnv` should take care of everything.
-
-You can check if kubectl works
-
++
+* Check if kubectl works and lists all available clusters:
++
 [source,shell]
 ....
-$ kubectl version
+$ kubectl ctx
+....
+
+== Terraform
+
+We use Terraform to provision infrastructure.
+
+=== AWS EKS
+
+To provision a infrastructure for development:
+
+* enter the Terraform `dev` environment directory and initialize Terraform
++
+[source,shell]
+....
+cd terraform/environments/dev
+terraform init
+....
++
+* your development cluster name is set in `.envrc` file via the TF_VAR_cluster_name environemnt variable
++
+[source,shell]
+....
+echo $TF_VAR_cluster_name
+....
++
+* create development environment with your own AWS EKS cluster
++
+[source,shell]
+....
+terraform plan
+terraform apply -auto-approve
+....
++
+* add cluster to your kubeconfig
++
+[source,shell]
+aws eks --region us-east-2 update-kubeconfig --name $TF_VAR_cluster_name
++
+* develop & have fun
+* tier down the infrastructure once happy
++
+[source,shell]
+....
+terraform destroy -auto-approve
 ....

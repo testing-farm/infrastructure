@@ -1,6 +1,10 @@
 .gitignore
 .direnv
-.vault_pass
 .vscode
+
+**/.terraform*
+**/terraform.tfstate*
+
+**/.vault_pass
 
 *~
