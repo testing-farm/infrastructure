@@ -41,7 +41,8 @@ $ direnv allow
 +
 [TIP]
 ====
-In case of errors, investigate the setup log in `.direnv/envrc.log`
+In case of errors, investigate the setup log in `.direnv/envrc.log`.
+You can try to reinstall the environment by removing the `.direnv` directory and running `direnv allow`.
 ====
 +
 * Check if kubectl works and lists all available clusters:
