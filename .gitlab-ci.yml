@@ -2,10 +2,14 @@
 default:
   image: quay.io/testing-farm/python-ci-image
 
+variables:
+  # GitLab CI runs in world writable directory, we need to explicitely set ANSIBLE_CONFIG
+  # https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
+  ANSIBLE_CONFIG: ansible.cfg
+
 .direnv:
   before_script:
     - echo -n "$VAULT_PASSWORD" > .vault_pass
-    - export ANSIBLE_VAULT_PASSWORD_FILE=.vault_pass
     - dnf -y install direnv
     - direnv allow
     - eval "$(direnv export bash)"
