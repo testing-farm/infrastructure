@@ -10,3 +10,4 @@
   - include_tasks: enable-powertools.yml
   - include_tasks: install-koji-brew.yml
   - include_tasks: tag-repository.yml
+    ignore_errors: true
