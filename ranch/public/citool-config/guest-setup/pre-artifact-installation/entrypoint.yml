@@ -9,5 +9,7 @@
   - include_tasks: install-epel.yml
   - include_tasks: enable-powertools.yml
   - include_tasks: install-koji-brew.yml
+  # For EOL distros this can fail, ignore the fact tag repo is not around
+  # It is considered a nice to have, but should not fail the setup.
   - include_tasks: tag-repository.yml
     ignore_errors: true
