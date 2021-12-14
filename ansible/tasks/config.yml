@@ -1,4 +1,25 @@
 ---
+# The stable tag of rawhide needs to be autodetected from Bodhi. The stable tag
+# is the place where packages land after they passed gating. See TFT-885 for more info
+- block:
+  - name: Get Rawhide version for Bodhi
+    shell: >
+      http GET https://bodhi.fedoraproject.org/releases/?exclude_archived=true | \
+      jq -r '.releases[] | select(.branch == "rawhide") | .stable_tag'
+    register: rawhide_version_output
+
+  - name: Set Rawhide version fact
+    copy:
+      dest: "{{ root_dir }}/ranch/{{ deployment_environment }}/citool-config/guest-setup/pre-artifact-installation/rawhide_version"
+      content: "{{ rawhide_version_output.stdout }}"
+
+  - name: Unlink rawhide_version temporary file
+    file:
+      state: absent
+      path: "{{ root_dir }}/ranch/{{ deployment_environment }}/citool-config/guest-setup/pre-artifact-installation/rawhide_version"
+  delegate_to: localhost
+  when: deployment_environment == "public"
+
 - name: Copy citool configuration
   become: true
   copy:
