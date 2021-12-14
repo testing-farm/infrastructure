@@ -20,6 +20,9 @@
     # The tag repository name can be determined from the Fedora version. Detect rawhide
     # by checking for rawhide repository installed via 'fedora-repos-rawhide' rpm
     #
+    # The stable tag of rawhide is detected from Bodhi during the deployment and stored
+    # in the `rawhide-version` file. See TFT-885 for details.
+    #
     - block:
         - name: Check for rawhide
           command: "rpm -q fedora-repos-rawhide"
@@ -28,7 +31,7 @@
 
         - name: Transform build target to a tag repository name (Rawhide)
           set_fact:
-            tag_repository_name: "rawhide"
+            tag_repository_name: "{{ lookup('file', 'rawhide_version') }}-build"
           when: check_rawhide.rc == 0
 
         - name: Transform build target to a tag repository name (Fedora non-Rawhide)
