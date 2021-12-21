@@ -54,6 +54,6 @@ terraform:
   rules:
     - changes:
         - secrets/credentials.yml
-        - terraform/environments/dev
-        - terraform/modules
+        - terraform/environments/dev/**/*
+        - terraform/modules/**/*
         - .envrc
