@@ -9,3 +9,4 @@
     - 'ansible_distribution == "CentOS"'
     - 'ansible_distribution_major_version >= "8"'
     - '"centos-stream-9" not in IMAGE_NAME|lower'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
