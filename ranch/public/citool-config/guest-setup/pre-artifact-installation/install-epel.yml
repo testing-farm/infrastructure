@@ -3,4 +3,7 @@
     name:
       - epel-release
     state: present
-  when: 'ansible_distribution == "CentOS" and "centos-stream-9" not in IMAGE_NAME|lower'
+  when:
+    - 'ansible_distribution == "CentOS"'
+    - '"centos-stream-9" not in IMAGE_NAME|lower'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
