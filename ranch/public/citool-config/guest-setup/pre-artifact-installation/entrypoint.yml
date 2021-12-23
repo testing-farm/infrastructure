@@ -6,6 +6,7 @@
   - include_tasks: update-and-restart.yml
   - include_tasks: workaround-dns.yml
   - include_tasks: workaround-beakerlib.yml
+  - include_tasks: workaround-automotive.yml
   - include_tasks: install-epel.yml
   - include_tasks: enable-powertools.yml
   - include_tasks: install-koji-brew.yml
