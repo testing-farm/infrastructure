@@ -33,11 +33,11 @@ export CITOOL_IMAGE_CTIME="$ctime"
 # --privileged is required to run container based workloads
 #
 # /CONFIG and /ARTIFACTS are the default mounts of the upstream citoool container
-podman run --init \
-           --rm \
-           --privileged \
-           --name ${REQUEST_ID:-no-request-$RANDOM} \
-           -v ${CITOOL_CONFIG_DIR}:/CONFIG:Z \
-           -v ${CITOOL_RUN_DIR}:/var/ARTIFACTS:Z \
-           ${CITOOL_EXTRA_PODMAN_ARGS} \
-           "$CITOOL_IMAGE" "$@"
+exec podman run --init \
+                --rm \
+                --privileged \
+                --name ${REQUEST_ID:-no-request-$RANDOM} \
+                -v ${CITOOL_CONFIG_DIR}:/CONFIG:Z \
+                -v ${CITOOL_RUN_DIR}:/var/ARTIFACTS:Z \
+                ${CITOOL_EXTRA_PODMAN_ARGS} \
+                "$CITOOL_IMAGE" "$@"
