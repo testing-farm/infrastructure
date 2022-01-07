@@ -4,6 +4,7 @@
       file:
         path: "nomad"
         state: directory
+        mode: "a+rwx"
 
     - name: Copy nomad job definitions
       copy:

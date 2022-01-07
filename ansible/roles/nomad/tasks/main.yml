@@ -77,6 +77,7 @@
         name: nomad
         enabled: true
         state: started
+      when: skip_nomad_start is not defined
 
   # root is required to install nomad as a system service
   become: true
