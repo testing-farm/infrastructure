@@ -1,0 +1,7 @@
+---
+- name: "Add ssh from '{{ public_ip_address }}' to security group '{{ aws_sg_public_test_environment_name }}'"
+  command: >
+    aws --region {{ aws_region }} ec2 authorize-security-group-ingress
+      --group-id {{ aws_sg_public_test_environment_id }}
+      --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges="[{CidrIp={{ public_ip_address }}/32"}]
+  delegate_to: localhost

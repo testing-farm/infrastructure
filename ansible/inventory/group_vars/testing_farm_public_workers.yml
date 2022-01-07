@@ -26,9 +26,11 @@ ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker"
 
 # nomad
 nomad_servers: >
-  {% for host in groups['testing_farm_public_servers'] %}
-  - {{ hostvars[host].ansible_host }}
-  {% endfor %}
+  [
+    {% for host in groups["testing_farm_public_servers"] %}
+      "{{ hostvars[host].ansible_host }}"{{ "," if not loop.last else "" }}
+    {% endfor %}
+  ]
 
 # nomad role
 nomad_version: 0.12.1
@@ -42,8 +44,8 @@ nomad_data_dir: /data/nomad
 
 # disk role
 disk_additional_disks:
-  - disk: /dev/nvme1n1
-    part: /dev/nvme1n1p1
+  - disk: /dev/nvme0n1
+    part: /dev/nvme0n1p1
     fstype: ext4
     mount_options: defaults,noatime
     mount: /data
@@ -64,3 +66,6 @@ jobs:
   - tf-tmt
   - tf-tmt-container
   - tf-sti
+
+# artifacts
+artifacts_hostname: artifacts.dev.testing-farm.io

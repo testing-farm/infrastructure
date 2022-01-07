@@ -1,0 +1,98 @@
+---
+- hosts: localhost
+  vars_files:
+    - ../secrets/credentials.yml
+  tasks:
+    - name: Provision new EC2 instance
+      amazon.aws.ec2_instance:
+        state: running
+        tags:
+          Name: "testing_farm_worker_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
+          FedoraGroup: ci
+        region: us-east-2
+        aws_access_key: "{{ credentials.aws.fedora.access_key }}"
+        aws_secret_key: "{{ credentials.aws.fedora.secret_key }}"
+        key_name: testing-farm
+        instance_type: i3.2xlarge
+        # Fedora-Cloud-Base-35-1.2.x86_64-hvm-us-east-2-gp2-0
+        image_id: ami-0133ad8c5d900ddef
+        wait: true
+        count: 1
+        network:
+          subnet_id: subnet-4f971734
+          assign_public_ip: true
+        instance_initiated_shutdown_behavior: terminate
+        security_group: sg-0040a2477d37dd6d0
+      register: ec2
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip_address }}"
+        groupname: testing_farm_public_workers
+      loop: "{{ ec2.instances }}"
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip_address }}"
+        groupname: new_workers
+      loop: "{{ ec2.instances }}"
+
+#
+# Wait for ssh connection
+#
+- hosts: new_workers
+  gather_facts: false
+  remote_user: fedora
+  tasks:
+    - name: Wait for SSH to come up
+      wait_for_connection:
+        delay: 10
+        timeout: 600
+
+#
+# Setup storage
+#
+- hosts: new_workers
+  gather_facts: false
+  remote_user: fedora
+  become: true
+  vars:
+    volume_attached_device: /dev/nvme0n1
+    volume_attached_device_mount_path: /data
+    volume_attached_device_owner: root
+    volume_attached_device_group: root
+  roles:
+    - volume
+
+#
+# Setup worker
+#
+- hosts: new_workers
+  remote_user: fedora
+  vars_files:
+    - ../secrets/credentials.yml
+    - ../vars/common.yml
+  pre_tasks:
+    - include: ../tasks/dns.yml
+    - include: ../tasks/ssh-key.yml
+    - include: ../tasks/artifacts.yml
+    - include: ../tasks/podman.yml
+    - include: ../tasks/jobs.yml
+    - include: ../tasks/config.yml
+    - include: ../tasks/xunit-viewer.yml
+    - include: ../tasks/image.yml
+    - name: "Manual action required to update Artemis loabalancer - kubectl edit svc/artemis-api"
+      pause:
+        prompt: "Make sure Artemis accepts connections from {{ ansible_host }}"
+    - include: ../tasks/security-group.yml
+  roles:
+    - name: geerlingguy.swap
+      vars:
+        swap_file_path: /data/swapfile
+        swap_file_size_mb: "16384"
+        swap_file_state: present
+      become: true
+    - name: nomad
+  tasks:
+    - include: ../tasks/jobs-register.yml
+      when: skip_nomad_start is not defined

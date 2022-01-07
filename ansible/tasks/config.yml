@@ -9,12 +9,13 @@
     mode: "preserve"
 
 - name: Render config templates
+  become: true
   template:
     src: "{{ item }}"
     dest: "/etc/citool.d/config/{{ item | basename | regex_replace('.j2','') }}"
     mode: 0644
   with_fileglob:
-    - "{{ root_dir }}/citool-config/{{ deployment_environment }}/config/*.j2"
+    - "{{ root_dir }}/ranch/{{ deployment_environment }}/citool-config/config/*.j2"
 
 - name: Copy Artemis Private Key
   become: true

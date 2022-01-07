@@ -1,8 +1,11 @@
 ---
 - block:
-  - name: "Make sure podman is installed"
+  - name: "Install required packages podman, cronie and policycoreutils-python-utils"
     package:
-        name: podman
+        name:
+            - cronie
+            - podman
+            - policycoreutils-python-utils
         state: present
 
   - name: "Create container storage path {{ container_storage_path }}"
