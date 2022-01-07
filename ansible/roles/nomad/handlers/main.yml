@@ -4,3 +4,4 @@
   service:
     name: nomad
     state: restarted
+  when: skip_nomad_start is not defined

@@ -15,7 +15,7 @@
 
 - name: Copy over shared ssh key
   copy:
-    src: "{{ ssh_key }}"
+    src: "{{ ssh_private_key }}"
     dest: "{{ user_registered.home }}/.ssh/id_rsa"
     owner: "{{ user_registered.name }}"
     group: "{{ user_registered.name }}"
@@ -23,7 +23,7 @@
 
 - name: Copy over shared ssh public key
   copy:
-    src: "{{ ssh_key }}.pub"
+    src: "{{ ssh_public_key }}.pub"
     dest: "{{ user_registered.home }}/.ssh/id_rsa.pub"
     owner: "{{ user_registered.name }}"
     group: "{{ user_registered.name }}"
@@ -41,7 +41,7 @@
 - name: Copy over shared ssh key (root)
   become: true
   copy:
-    src: "{{ ssh_key }}"
+    src: "{{ ssh_private_key }}"
     dest: "/root/.ssh/id_rsa"
     owner: "root"
     group: "root"

@@ -1,1 +1,5 @@
-- src: geerlingguy.swap
+***REMOVED***
+collections:
+  - amazon.aws
+roles:
+  - src: geerlingguy.swap

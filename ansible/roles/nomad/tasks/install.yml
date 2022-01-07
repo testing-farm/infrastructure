@@ -10,6 +10,7 @@
   file:
     state: directory
     path: "nomad-download"
+    mode: 0755
   register: download
 
 - name: Download Nomad

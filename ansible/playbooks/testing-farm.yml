@@ -18,7 +18,8 @@
   pre_tasks:
     - include: ../tasks/dns.yml
       tags: update_dns
-    - include: ../tasks/ssh_key.yml
+    - include: ../tasks/ssh-key.yml
+    - include: ../tasks/artifacts.yml
     - include: ../tasks/podman.yml
     - include: ../tasks/jobs.yml
       tags: update_jobs
@@ -28,9 +29,9 @@
       tags: update_xunit_viewer
     - include: ../tasks/image.yml
       tags: update_image
+    - include: ../tasks/security-group.yml
+      tags: update_security_group
   roles:
-    - name: disk
-      become: true
     - name: geerlingguy.swap
       vars:
         swap_file_path: /data/swapfile
