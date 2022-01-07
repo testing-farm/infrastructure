@@ -1,0 +1,18 @@
+---
+
+# !test-tag: instruction-map
+
+- rule: >
+    FAILURE and FAILURE.exc_info and "Failed to checkout ref" in FAILURE.exc_info[1].message
+  state: complete
+
+- rule: >
+    FAILURE and FAILURE.exc_info and "Failed to list plans" in FAILURE.exc_info[1].message
+  state: complete
+
+- rule: >
+    FAILURE and FAILURE.exc_info and "Did not find any plans" in FAILURE.exc_info[1].message
+  state: complete
+
+
+# Default hard-coded rules apply for the rest - "error" when FAILURE exists, "complete" otherwise
