@@ -14,6 +14,8 @@ jinja2 = "^2.11.2"
 ansible-vault = "^1.2.0"
 cryptography = "^2.9.2"
 yq = "^2.10.0"
+botocore = "^1.23.26"
+boto3 = "^1.20.26"
 
 [tool.poetry.dev-dependencies]
 

@@ -16,9 +16,11 @@ nomad_node_role: client
 nomad_group_name: testing-farm-dev-nomad-clients
 nomad_data_dir: /data/nomad
 nomad_servers: >
-  {% for host in groups['testing_farm_redhat_servers'] %}
-  - {{ hostvars[host].ansible_host }}
-  {% endfor %}
+  [
+    {% for host in groups["testing_farm_redhat_servers"] %}
+      "{{ hostvars[host].ansible_host }}"{{ "," if not loop.last else "" }}
+    {% endfor %}
+  ]
 
 # ssh key for connecting to workers
 ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_worker"
