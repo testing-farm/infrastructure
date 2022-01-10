@@ -3,6 +3,7 @@
 #
 # * fix yum repositories, seems $stream is not expanded correctly
 # * install rsync, because tmt requires it ...
+# * install latest tmt until 1.10 is not released - TFT-961
 #
 
 - block:
@@ -19,5 +20,13 @@
       wait_for_connection:
         delay: 5
         timeout: 300
+
+    - block:
+        - name: Enable tmt copr repository
+          command: "dnf -y copr enable psss/tmt"
+
+        - name: Install latest tmt
+          command: "dnf -y update tmt-provision-container tmt-provision-virtual"
+      delegate_to: localhost
 
   when: '"auto-osbuild" in IMAGE_NAME|lower'
