@@ -21,12 +21,24 @@
         delay: 5
         timeout: 300
 
+    - name: Name lock file to mitigate race condition in updating worker
+      set_fact:
+        lock_file_path: /var/tmp/workaround-automotive.lock
+
+    - name: Create lock file
+      stat: path={{ lock_file_path }}
+      register: lock_file
+      retries: 3
+      delay: 5
+      until: lock_file.rc == 0
+
     - block:
         - name: Enable tmt copr repository
           command: "dnf -y copr enable psss/tmt"
 
         - name: Install latest tmt
           command: "dnf -y update tmt-provision-container tmt-provision-virtual"
+      when: not lock_file.stat.exists|bool
       delegate_to: localhost
 
   when: '"auto-osbuild" in IMAGE_NAME|lower'
