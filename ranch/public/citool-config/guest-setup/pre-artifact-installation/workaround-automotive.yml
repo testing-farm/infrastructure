@@ -21,24 +21,20 @@
         delay: 5
         timeout: 300
 
-    - name: Name lock file to mitigate race condition in updating worker
-      set_fact:
-        lock_file_path: /var/tmp/workaround-automotive.lock
-
-    - name: Create lock file
-      stat: path={{ lock_file_path }}
-      register: lock_file
-      retries: 3
-      delay: 5
-      until: lock_file.rc == 0
-
+    # TODO: remove once tmt 1.10 is out
     - block:
         - name: Enable tmt copr repository
           command: "dnf -y copr enable psss/tmt"
 
+        # there is a race condition here, we would like to delegate this task only
+        # to be done once, otherwise we saw rpm failures. As this is a temporary
+        # workaround, just simply retry to get through this
         - name: Install latest tmt
           command: "dnf -y update tmt-provision-container tmt-provision-virtual"
-      when: not lock_file.stat.exists|bool
+          register: update_tmt
+          retries: 5
+          delay: 10
+          until: update_tmt.rc == 0
       delegate_to: localhost
 
   when: '"auto-osbuild" in IMAGE_NAME|lower'
