@@ -1,0 +1,10 @@
+---
+
+# !test-tag: instruction-map
+
+- rule: >
+    FAILURE
+    and FAILURE.exc_info
+    and  FAILURE.exc_info[0].__name__ == 'FailedToCheckoutRef'
+  reason: >-
+    {{ ERROR_MESSAGE }} The git branch was probably deleted before the testing was ran.
