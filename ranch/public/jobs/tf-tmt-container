@@ -10,7 +10,7 @@ ARTIFACTS_HOSTNAME=artifacts.dev.testing-farm.io
 ARTIFACTS_ROOT=/archive
 TEMPLATE_RUNNING=/templates/running/index.html
 
-[ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT=4h
+[ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT=12h
 
 [ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
 [ -z "$RUN_DIR" ] && { echo "No run directory given"; exit 1; }
