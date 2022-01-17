@@ -30,8 +30,8 @@ ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_worker.pub"
 container_storage_path: /data/containers
 
 # ssh key for connecting to Artemis instance
-artemis_ssh_private_key: "{{ ansible_dir }}/ssh/id_rsa_redhat_artemis"
-artemis_ssh_public_key: "{{ ansible_dir }}/ssh/id_rsa_redhat_artemis.pub"
+artemis_ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_artemis"
+artemis_ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_artemis.pub"
 
 # jobs
 jobs:
