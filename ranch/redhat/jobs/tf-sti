@@ -9,7 +9,7 @@ TASK_NAME="sti"
 ARTIFACTS_RSYNC_HOST="rsync://artifacts.osci.redhat.com/artifacts/testing-farm"
 ARTIFACTS_ROOT=/archive
 
-[ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT=4h
+[ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT=12h
 
 [ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
 [ -z "$RUN_DIR" ] && { echo "No run directory given"; exit 1; }
