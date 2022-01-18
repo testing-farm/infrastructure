@@ -37,3 +37,13 @@ repos:
     rev: v1.0.2
     hooks:
       - id: gitlab-ci-linter
+
+  # Disallow `.yaml` files in the repo, i.e. assume usage of `.yml` for YAML
+  - repo: local
+    hooks:
+      - id: no-yaml-extension
+        name: no-yaml-extension
+        language: fail
+        files: \.yaml$
+        entry: "bash -c 'find . -ina'"
+        exclude: .pre-commit-config.yaml
