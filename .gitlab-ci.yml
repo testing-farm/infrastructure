@@ -33,7 +33,10 @@ pre-commit:
   stage: 🔍
   script:
     - dnf -y install pre-commit
-    - pre-commit run --all-files
+    - PRE_COMMIT_HOME=$CI_PROJECT_DIR/.cache/pre-commit pre-commit run --all-files
+  cache:
+    paths:
+      - $CI_PROJECT_DIR/.cache
   rules:
     - when: always
 
