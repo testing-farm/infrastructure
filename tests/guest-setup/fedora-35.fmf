@@ -1,0 +1,11 @@
+---
+summary: Test guest-setup on Fedora 35
+
+provision:
+  how: virtual
+  image: Fedora-35
+
+prepare:
+  how: ansible
+  playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
+  extra-args: "-e IMAGE_NAME=Fedora-35"

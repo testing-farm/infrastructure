@@ -1,0 +1,11 @@
+---
+summary: Test guest-setup on Fedora Rawhide
+
+provision:
+  how: virtual
+  image: Fedora-Rawhide
+
+prepare:
+  how: ansible
+  playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
+  extra-args: "-e IMAGE_NAME=Fedora-Rawhide"
