@@ -8,5 +8,5 @@
   when:
     - 'ansible_distribution == "CentOS"'
     - 'ansible_distribution_major_version >= "8"'
-    - "not IMAGE_NAME|lower|search('centos.stream.9')"
+    - "not IMAGE_NAME|lower|regex_search('centos.stream.9')"
     - '"auto-osbuild" not in IMAGE_NAME|lower'

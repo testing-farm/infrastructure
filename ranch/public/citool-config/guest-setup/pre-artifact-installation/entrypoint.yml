@@ -8,6 +8,7 @@
   - include_tasks: workaround-beakerlib.yml
   - include_tasks: workaround-automotive.yml
   - include_tasks: install-epel.yml
+  - include_tasks: enable-crb.yml
   - include_tasks: enable-powertools.yml
   - include_tasks: install-koji-brew.yml
   # For EOL distros this can fail, ignore the fact tag repo is not around
