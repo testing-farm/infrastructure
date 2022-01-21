@@ -29,7 +29,7 @@ echo -n "VAULT_PASSWORD" > .vault_pass
 +
 [source,shell]
 ....
-$ dnf -y install direnv poetry
+$ sudo dnf -y install direnv poetry
 ....
 . Hook `direnv` to your shell, see the https://direnv.net/docs/hook.html[official guide for more information].
 . Allow `direnv` in this directory
@@ -48,4 +48,29 @@ You can check if kubectl works
 [source,shell]
 ....
 $ kubectl version
+....
+
+== Tests
+
+Tests are described via https://tmt.readthedocs.io/[`tmt`].
+
+* to install tmt
++
+[source,shell]
+....
+$ sudo dnf -y install tmt tmt-provision-virtual
+....
++
+* to list all available tests run
++
+[source,shell]
+....
+$ tmt plan show
+....
++
+* to run all tests
++
+[source,shell]
+....
+$ tmt run
 ....
