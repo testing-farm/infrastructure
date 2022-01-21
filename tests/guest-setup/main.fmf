@@ -1,0 +1,11 @@
+---
+summary: Generic tests for guest-setup
+
+discover:
+  how: shell
+  tests:
+    - name: Try dnf makecache
+      test: dnf makecache
+
+execute:
+  how: tmt

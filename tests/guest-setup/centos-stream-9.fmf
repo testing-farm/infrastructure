@@ -1,0 +1,11 @@
+---
+summary: Test guest-setup on CentOS Stream 9
+
+provision:
+  how: virtual
+  image: CentOS-Stream-9
+
+prepare:
+  how: ansible
+  playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
+  extra-args: "-e IMAGE_NAME=CentOS-Stream-9"
