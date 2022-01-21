@@ -7,4 +7,4 @@
   - name: Add beakerlib copr repository for CentOS Stream 9
     command: "dnf -y copr enable packit/beakerlib-beakerlib-master"
 
-  when: "IMAGE_NAME|lower|search('centos.stream.9')"
+  when: "IMAGE_NAME|lower|regex_search('centos.stream.9')"

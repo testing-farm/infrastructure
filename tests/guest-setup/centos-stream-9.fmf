@@ -6,6 +6,7 @@ provision:
   image: CentOS-Stream-9
 
 prepare:
-  how: ansible
-  playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
-  extra-args: "-e IMAGE_NAME=CentOS-Stream-9"
+  - name: pre-artifact-installation
+    how: ansible
+    playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
+    extra-args: "-e IMAGE_NAME=CentOS-Stream-9"
