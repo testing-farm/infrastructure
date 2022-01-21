@@ -4,7 +4,7 @@
   - name: Make sure dnf core plugins are installed
     command: "dnf -y install dnf-plugins-core"
 
-  - name: Add beakerlib copr repository for CentOS 9
+  - name: Add beakerlib copr repository for CentOS Stream 9
     command: "dnf -y copr enable packit/beakerlib-beakerlib-master"
 
-  when: '"centos-stream-9" in IMAGE_NAME|lower'
+  when: "IMAGE_NAME|lower|search('centos.stream.9')"
