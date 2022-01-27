@@ -1,0 +1,26 @@
+---
+#
+# For documentation see:
+# https://docs.ansible.com/ansible/latest/collections/amazon/aws/aws_ec2_inventory.html
+#
+
+plugin: amazon.aws.aws_ec2
+
+cache: true
+cache_plugin: ansible.builtin.jsonfile
+cache_connection: .direnv/aws-cache
+
+boto_profile: fedora_us_east_2
+
+include_filters:
+  - tag:Name:
+      - "testing_farm_worker_*"
+
+hostnames:
+  - "tag:Name"
+
+compose:
+  ansible_host: public_ip_address
+
+groups:
+  testing_farm_public_workers: true

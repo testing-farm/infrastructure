@@ -22,7 +22,7 @@ security_fail2ban_custom_configuration_template: "{{ ansible_dir }}/templates/ja
 
 # ssh key
 ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker"
-ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker"
+ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker.pub"
 
 # nomad
 nomad_servers: >

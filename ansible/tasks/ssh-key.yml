@@ -23,7 +23,7 @@
 
 - name: Copy over shared ssh public key
   copy:
-    src: "{{ ssh_public_key }}.pub"
+    src: "{{ ssh_public_key }}"
     dest: "{{ user_registered.home }}/.ssh/id_rsa.pub"
     owner: "{{ user_registered.name }}"
     group: "{{ user_registered.name }}"

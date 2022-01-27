@@ -5,33 +5,37 @@
   tasks:
     - name: Provision new EC2 instance
       amazon.aws.ec2_instance:
+        profile: redhat_us_east_1
         state: running
-        profile: fedora_us_east_2
         tags:
           Name: "testing_farm_worker_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
-          FedoraGroup: ci
-        key_name: testing-farm
+          AppCode: ARR-001
+          ServiceOwner: TFT
+          ServicePhase: Prod
+          ServiceName: TestingFarm
+          ServiceComponent: Worker
+        key_name:  tft-artemis-master-key
         instance_type: i3.2xlarge
-        # Fedora-Cloud-Base-35-1.2.x86_64-hvm-us-east-2-gp2-0
-        image_id: ami-0133ad8c5d900ddef
+        # 1MT-Fedora-35
+        image_id: ami-05d30c1f88eee9588
         wait: true
         count: 1
         network:
-          subnet_id: subnet-4f971734
-          assign_public_ip: true
+          assign_public_ip: false
         instance_initiated_shutdown_behavior: terminate
-        security_group: sg-0040a2477d37dd6d0
+        security_group: sg-0a27e72b0135ea078
+        vpc_subnet_id: subnet-0b853a752f0f7eba5
       register: ec2
 
     - name: Add new instance to host group
       add_host:
-        hostname: "{{ item.public_ip_address }}"
-        groupname: testing_farm_public_workers
+        hostname: "{{ item.private_ip_address }}"
+        groupname: testing_farm_redhat_workers
       loop: "{{ ec2.instances }}"
 
     - name: Add new instance to host group
       add_host:
-        hostname: "{{ item.public_ip_address }}"
+        hostname: "{{ item.private_ip_address }}"
         groupname: new_workers
       loop: "{{ ec2.instances }}"
 
@@ -73,16 +77,12 @@
   pre_tasks:
     - include: ../tasks/dns.yml
     - include: ../tasks/ssh-key.yml
-    - include: ../tasks/artifacts.yml
     - include: ../tasks/podman.yml
     - include: ../tasks/jobs.yml
     - include: ../tasks/config.yml
     - include: ../tasks/xunit-viewer.yml
     - include: ../tasks/image.yml
-    - name: "Manual action required to update Artemis loabalancer - kubectl edit svc/artemis-api"
-      pause:
-        prompt: "Make sure Artemis accepts connections from {{ ansible_host }}"
-    - include: ../tasks/security-group.yml
+    - include: ../tasks/rh-certs.yml
   roles:
     - name: geerlingguy.swap
       vars:

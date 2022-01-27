@@ -1,10 +1,13 @@
 ---
 - block:
+  - name: Install nodejs 14, xunit-viewer does not work on newer
+    command: "dnf -y module install nodejs:14"
+
   - name: Make sure npm is present
     package:
       name:
-      - npm
-      - python3-lxml
+        - npm
+        - python3-lxml
       state: present
 
   - name: Install tfxunit2junit.py

@@ -61,11 +61,26 @@ if [ ! -e "$TOOLS_PATH/helm" ]; then
 fi
 
 #
+# setup AWS profiles
+#
+
+if [ ! -e "$DIRENV_PATH/.aws" ]; then
+    info "setup AWS profiles"
+
+    mkdir -p "$DIRENV_PATH/.aws"
+    export AWS_CONFIG_FILE="$DIRENV_PATH/.aws/config"
+    export AWS_SHARED_CREDENTIALS_FILE="$DIRENV_PATH/.aws/credentials"
+    for profile in $(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | yq -r ".credentials.aws.profiles | keys[]"); do
+        access_key="$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | yq -r .credentials.aws.profiles.$profile.access_key)"
+        secret_key="$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | yq -r .credentials.aws.profiles.$profile.secret_key)"
+        region="$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | yq -r .credentials.aws.profiles.$profile.region)"
+        printf "$access_key\n$secret_key\n$region\n\n\n" | aws --profile $profile configure &>> $LOG
+    done
+fi
+
+#
 # download and setup kubectl
 #
-export AWS_ACCESS_KEY_ID="$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | yq -r .credentials.aws.fedora.access_key)"
-export AWS_SECRET_ACCESS_KEY="$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | yq -r .credentials.aws.fedora.secret_key)"
-export AWS_DEFAULT_REGION="us-east-1"
 export KUBECONFIG="$DIRENV_PATH/.kube/config"
 
 if [ ! -e "$TOOLS_PATH/kubectl" ]; then
@@ -94,8 +109,9 @@ if [ ! -e "$TOOLS_PATH/kubectl" ]; then
     mkdir -p $DIRENV_PATH/.kube
     touch $KUBECONFIG
 
-    info "EKS cluster 'testing-farm'"
-    aws eks update-kubeconfig --name testing-farm &>> $LOG
+    # add production cluster
+    info "EKS cluster 'testing-farm' (production)"
+    aws eks --profile fedora-us-east-1 update-kubeconfig --name testing-farm &>> $LOG
 fi
 
 #

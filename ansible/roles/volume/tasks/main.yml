@@ -41,7 +41,6 @@
         opts: defaults
         passno: '2'
         state: mounted
-        mode: 0755
 
     - name: Make sure mounting directory has appropriate permissions
       file:
