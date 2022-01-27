@@ -6,8 +6,11 @@
 
 plugin: amazon.aws.aws_ec2
 
-regions:
-  - us-east-2
+cache: true
+cache_plugin: ansible.builtin.jsonfile
+cache_connection: .direnv/aws-cache
+
+boto_profile: redhat_us_east_1
 
 include_filters:
   - tag:Name:
@@ -17,7 +20,7 @@ hostnames:
   - "tag:Name"
 
 compose:
-  ansible_host: public_ip_address
+  ansible_host: private_ip_address
 
 groups:
-  testing_farm_public_workers: true
+  testing_farm_redhat_workers: true
