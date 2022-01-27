@@ -3,7 +3,6 @@
 #
 # * fix yum repositories, seems $stream is not expanded correctly
 # * install rsync, because tmt requires it ...
-# * install latest tmt until 1.10 is not released - TFT-961
 #
 
 - block:
@@ -20,21 +19,5 @@
       wait_for_connection:
         delay: 5
         timeout: 300
-
-    # TODO: remove once tmt 1.10 is out
-    - block:
-        - name: Enable tmt copr repository
-          command: "dnf -y copr enable psss/tmt"
-
-        # there is a race condition here, we would like to delegate this task only
-        # to be done once, otherwise we saw rpm failures. As this is a temporary
-        # workaround, just simply retry to get through this
-        - name: Install latest tmt
-          command: "dnf -y update tmt-provision-container tmt-provision-virtual"
-          register: update_tmt
-          retries: 5
-          delay: 10
-          until: update_tmt.rc == 0
-      delegate_to: localhost
 
   when: '"auto-osbuild" in IMAGE_NAME|lower'
