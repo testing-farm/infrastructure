@@ -12,7 +12,6 @@
       url: "https://raw.githubusercontent.com/fedora-ci/jenkins-pipeline-library-agent-image/master/scripts/tfxunit2junit.py"
       dest: "/usr/local/bin/tfxunit2junit.py"
       mode: "a+rwx"
-      force: true
 
   - name: Install testing-farm-viewer
     command: "npm i -g testing-farm-viewer"
