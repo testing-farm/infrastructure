@@ -8,3 +8,13 @@
     and  FAILURE.exc_info[0].__name__ == 'FailedToCheckoutRef'
   reason: >-
     {{ ERROR_MESSAGE }} The git branch was probably deleted before the testing was ran.
+
+# The 'Failed to list plan' exception is caught
+# and 'Failed to get plan details, TMT metadata are absent or corrupted' is raised.
+# That's why we are checking for the latter string in ERROR_MESSAGE
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Failed to get plan details" in ERROR_MESSAGE
+  reason: >-
+    Unsupported format of the fmf file.
