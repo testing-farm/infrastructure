@@ -3,6 +3,7 @@
   # workarounds
   - include_tasks: workaround-beaker-client-repo-unavailable.yml
   - include_tasks: workaround-disable-qa-tools.yml
+  - include_tasks: workaround-centos-8.yml
   # IT BREAKS PYTHON TEST SUITE, for example, but for RHEL we accept it as it speeds up a lot installability in PSI Openstack
   # Disabled, as we test in AWS now anyway
   # - include_tasks: nosync.yml
