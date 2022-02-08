@@ -1,0 +1,12 @@
+---
+summary: Test guest-setup on CentOS Stream 8
+
+provision:
+  how: virtual
+  image: CentOS-Stream-8
+
+prepare:
+  - name: pre-artifact-installation
+    how: ansible
+    playbook: ranch/redhat/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
+    extra-args: "-e IMAGE_NAME=CentOS-Stream-8"
