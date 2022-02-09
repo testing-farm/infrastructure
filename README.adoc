@@ -39,6 +39,25 @@ $ sudo dnf -y install direnv poetry
 $ direnv allow
 ....
 
+=== Reinstall
+
+In some cases you might want to reinstall all the tools including the Python virtual environment.
+
+. To reinstall the whole environment you can run:
++
+[source,shell]
+....
+$ make clean
+$ direnv allow
+....
++
+. To install only new python dependencies, use `poetry`
++
+[source,shell]
+....
+$ poetry install
+....
+
 === Usage
 
 Enter this directory and `direnv` should take care of everything.
