@@ -18,3 +18,10 @@
     and "Failed to get plan details" in ERROR_MESSAGE
   reason: >-
     Unsupported format of the fmf file.
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Condition 'ip_ready' failed to pass within given time" in ERROR_MESSAGE
+  reason: >-
+    Failed to provision test environment. Please check https://status.testing-farm.io for possible outages. If the situation persists after retrying, please report an issue.
