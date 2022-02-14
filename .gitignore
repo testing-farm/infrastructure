@@ -2,7 +2,7 @@
 .direnv
 .vscode
 
-**/.terraform*
+**/.terraform/
 **/terraform.tfstate*
 
 **/.vault_pass
