@@ -1,5 +1,10 @@
+# TODO: workaround, plugins need to be fixed to put the artifacts to /var/share/test-artifacts
+- name: Copy RPMS to Repository Directory
+  shell: "cp -rf *.rpm /var/share/test-artifacts"
+  ignore_errors: true
+
 - name: Check if RPMS available
-  shell: "ls *.rpm"
+  shell: "ls /var/share/test-artifacts/*.rpm"
   ignore_errors: true
   register: rpms_available
 
@@ -14,9 +19,6 @@
       file:
         path: /var/share/test-artifacts
         state: directory
-
-    - name: Copy RPMS to Repository Directory
-      shell: "cp -rf *.rpm /var/share/test-artifacts"
 
     - name: Create Repository
       command: "createrepo /var/share/test-artifacts"
