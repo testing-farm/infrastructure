@@ -1,3 +1,10 @@
+- name: Create /var/share/test-artifacts
+  file:
+    path: /var/share/test-artifacts
+    state: directory
+    mode: '0775'
+  ignore_errors: true
+
 # TODO: workaround, plugins need to be fixed to put the artifacts to /var/share/test-artifacts
 - name: Copy RPMS to Repository Directory
   shell: "cp -rf *.rpm /var/share/test-artifacts"
