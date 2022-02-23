@@ -8,7 +8,8 @@ TASK_NAME="tmt"
 
 ARTIFACTS_HOSTNAME=artifacts.dev.testing-farm.io
 ARTIFACTS_ROOT=/archive
-TEMPLATE_RUNNING=/templates/running/index.html
+
+PROGRESS_TICK=30
 
 [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT=12h
 
@@ -29,19 +30,14 @@ archive() {
     rsync -avrz $WHAT ${ARTIFACTS_HOSTNAME}:${ARTIFACTS_ROOT}/${REQUEST_ID}/${WHERE}
 }
 
-# create progress page
-if [ -z "$NO_ARCHIVE" ]; then
-    ssh $ARTIFACTS_HOSTNAME mkdir -p ${ARTIFACTS_ROOT}/${REQUEST_ID}
-    ssh $ARTIFACTS_HOSTNAME cp $TEMPLATE_RUNNING ${ARTIFACTS_ROOT}/${REQUEST_ID}
-fi
+create_results_xml() {
+    STATE=$1
+    RESULT=$2
 
-# rpmlist on worker
-rpm -qa > rpmlist-worker.txt
-
-cat > results.xml <<EOF
-<testsuites overall-result="error">
+    cat > results.xml <<EOF
+<testsuites overall-result="$RESULT">
  <testsuite name="/pipeline">
-  <testcase name="/failure" result="error">
+  <testcase name="/$STATE" result="$RESULT">
    <logs>
      <log name="pipeline.log" href="http://artifacts.dev.testing-farm.io/${REQUEST_ID}/pipeline.log"/>
    </logs>
@@ -49,6 +45,36 @@ cat > results.xml <<EOF
  </testsuite>
 </testsuites>
 EOF
+}
+
+create_results_html() {
+    # citool exposes all output to stderr, archive it as the pipeline log
+    archive ${RUN_DIR}/logs/${TASK_NAME}.stderr.0 pipeline.log
+
+    tfxunit2junit.py --issues-url https://gitlab.com/testing-farm/general/-/issues results.xml > results-junit.xml || true
+    testing-farm-viewer -r results-junit.xml -t "results" || true
+    archive results-junit.xml
+    archive index.html
+}
+
+# create archive directory
+if [ -z "$NO_ARCHIVE" ]; then
+    ssh $ARTIFACTS_HOSTNAME mkdir -p ${ARTIFACTS_ROOT}/${REQUEST_ID}
+fi
+
+# rpmlist on worker
+rpm -qa > rpmlist-worker.txt
+
+# create in progress page
+create_results_xml in-progress passed
+
+# disable bash debug until we run tmt with the progress reporting
+set +x
+
+# start syncing in background
+if [ -z "$NO_ARCHIVE" ]; then
+    { while true; do create_results_html &>> progress.log; sleep $PROGRESS_TICK; done; } &
+fi
 
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
@@ -69,8 +95,16 @@ citool-container.sh hide-secrets \
 # skip archivation
 [ -n "$NO_ARCHIVE" ] && exit
 
-# citool exposes all output to stderr, archive it as the pipeline log
-archive ${RUN_DIR}/logs/${TASK_NAME}.stderr.0 pipeline.log
+# kill the progress
+kill $!
+
+# progress is over, enable back bash debug mode
+set -x
+
+# create pipeline error if no results.xml available
+if [ ! -e "results.xml" ]; then
+    create_results_xml failure error
+fi
 
 # this job prints all stuff to stdout, this save it a job log
 archive ${RUN_DIR}/logs/${TASK_NAME}.stdout.0 job.log
@@ -81,10 +115,6 @@ for path in ${TASK_DIR}/${TASK_NAME}/*; do
     archive $path
 done
 
-# create index.html results page, best effort for now
-tfxunit2junit.py --issues-url https://gitlab.com/testing-farm/general/-/issues results.xml > results-junit.xml || true
-testing-farm-viewer -r results-junit.xml -t "results" || true
-archive results-junit.xml
-archive index.html
+create_results_html
 
 printf "\n[pipeline-end] $(date)"
