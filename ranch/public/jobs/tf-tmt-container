@@ -39,7 +39,7 @@ create_results_xml() {
  <testsuite name="/pipeline">
   <testcase name="/$STATE" result="$RESULT">
    <logs>
-     <log name="pipeline.log" href="http://artifacts.dev.testing-farm.io/${REQUEST_ID}/pipeline.log"/>
+     <log name="pipeline.log" href="https://artifacts.dev.testing-farm.io/${REQUEST_ID}/pipeline.log"/>
    </logs>
   </testcase>
  </testsuite>
