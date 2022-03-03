@@ -106,3 +106,11 @@ if [ ! -e "${TOOLS_PATH}/terraform" ]; then
     popd &>> $LOG
     rm -rf $TEMPDIR
 fi
+
+#
+# setup git goodies
+#
+if ! grep '\[include\]' .git/config &> /dev/null; then
+    info "configure git"
+    git config --local include.path ../.gitconfig &>> $LOG
+fi
