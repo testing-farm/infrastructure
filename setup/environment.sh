@@ -154,3 +154,11 @@ EOF
     echo "/usr/bin/scp -F $PROJECT_ROOT/.direnv/ssh_config \$@" > $TOOLS_PATH/scp
     chmod +x $TOOLS_PATH/scp
 fi
+
+#
+# setup git goodies
+#
+if ! grep '\[include\]' .git/config &> /dev/null; then
+    info "configure git"
+    git config --local include.path ../.gitconfig &>> $LOG
+fi
