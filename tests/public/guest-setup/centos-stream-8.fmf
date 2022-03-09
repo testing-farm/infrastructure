@@ -10,3 +10,9 @@ prepare:
     how: ansible
     playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
     extra-args: "-e IMAGE_NAME=CentOS-Stream-8"
+
+discover+:
+  how: shell
+  tests+:
+    - name: Test installed koji package
+      test: rpm -qi koji
