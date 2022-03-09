@@ -4,8 +4,8 @@ summary: Generic tests for guest-setup
 discover:
   how: shell
   tests:
-    - name: Try dnf makecache
-      test: dnf makecache
+    - name: Try yum makecache
+      test: yum makecache
 
 execute:
   how: tmt
