@@ -10,3 +10,9 @@ prepare:
     how: ansible
     playbook: ranch/redhat/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
     extra-args: "-e IMAGE_NAME=CentOS-8"
+
+discover+:
+  how: shell
+  tests+:
+    - name: Test installed brewkoji package
+      test: rpm -qi brewkoji
