@@ -112,9 +112,6 @@ if [ ! -e "results.xml" ]; then
     create_results_xml failure error
 fi
 
-# this job prints all stuff to stdout, this save it a job log
-archive ${RUN_DIR}/logs/${TASK_NAME}.stdout.0 job.log
-
 # sync task logs
 TASK_DIR=$(dirname $RUN_DIR)
 for path in ${TASK_DIR}/${TASK_NAME}/*; do
@@ -124,3 +121,7 @@ done
 create_results_html
 
 printf "\n[pipeline-end] $(date)"
+
+# save stdout and stderr at the end
+archive ${RUN_DIR}/logs/${TASK_NAME}.stdout.0 job.log
+archive ${RUN_DIR}/logs/${TASK_NAME}.stderr.0 pipeline.log
