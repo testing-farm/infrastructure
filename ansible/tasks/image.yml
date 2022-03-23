@@ -1,4 +1,5 @@
-- fail:
+- name: Check for citool_container_image variable
+  fail:
     msg: "Define citool_container_image variable."
   when: citool_container_image is not defined
 
@@ -30,5 +31,7 @@
       with_items:
         - "{{ dangling_images.stdout_lines }}"
       ignore_errors: true
+      tags:
+        - skip_ansible_lint
 
   become: true

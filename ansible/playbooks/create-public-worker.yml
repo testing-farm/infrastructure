@@ -82,7 +82,6 @@
     - name: "Manual action required to update Artemis loabalancer - kubectl edit svc/artemis-api"
       pause:
         prompt: "Make sure Artemis accepts connections from {{ ansible_host }}"
-    - include: ../tasks/security-group.yml
   roles:
     - name: geerlingguy.swap
       vars:
