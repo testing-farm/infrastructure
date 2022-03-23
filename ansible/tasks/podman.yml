@@ -23,6 +23,8 @@
   - name: "Set semanage context correctly"
     command: "semanage fcontext -a -e /var/lib/containers/storage {{ container_storage_path }}"
     ignore_errors: true
+    tags:
+        - skip_ansible_lint
 
   - name: "Relabel all files"
     command: "restorecon -RvvF {{ container_storage_path }}"
