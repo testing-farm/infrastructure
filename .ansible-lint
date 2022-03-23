@@ -3,6 +3,9 @@
 exclude_paths:
   # roles from ansible-galaxy
   - ansible/roles/geerlingguy.swap
+  - k8s/
+  - ranch/
+  - terraform/
 
 warn_list:  # or 'skip_list' to silence them completely
   - command-instead-of-module  # Using command rather than module

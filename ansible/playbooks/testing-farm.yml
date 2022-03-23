@@ -29,8 +29,6 @@
       tags: update_xunit_viewer
     - include: ../tasks/image.yml
       tags: update_image
-    - include: ../tasks/security-group.yml
-      tags: update_security_group
   roles:
     - name: geerlingguy.swap
       vars:
