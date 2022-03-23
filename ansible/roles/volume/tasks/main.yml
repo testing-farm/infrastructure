@@ -48,3 +48,4 @@
         state: directory
         owner: "{{ volume_attached_device_owner }}"
         group: "{{ volume_attached_device_group }}"
+        mode: 0755

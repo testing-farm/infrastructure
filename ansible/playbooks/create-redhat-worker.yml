@@ -14,7 +14,7 @@
           ServicePhase: Prod
           ServiceName: TestingFarm
           ServiceComponent: Worker
-        key_name:  tft-artemis-master-key
+        key_name: tft-artemis-master-key
         instance_type: i3.2xlarge
         # 1MT-Fedora-35
         image_id: ami-05d30c1f88eee9588
