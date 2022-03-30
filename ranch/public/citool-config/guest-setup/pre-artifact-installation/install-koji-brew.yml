@@ -7,6 +7,8 @@
   - 'ansible_distribution == "Fedora" or
      ansible_distribution == "CentOS" or
      ansible_distribution == "OracleLinux"'
+  # we do not want to install Koji on Automotive images
+  - '"auto-osbuild" not in IMAGE_NAME|lower'
 
 - block:
     - name: Add RCM Repository for RHEL7 and earlier
