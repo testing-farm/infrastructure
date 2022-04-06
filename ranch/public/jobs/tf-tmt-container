@@ -112,6 +112,10 @@ for path in ${TASK_DIR}/${TASK_NAME}/*; do
     archive $path
 done
 
+# sync kernel buffers on artifacts storage
+# TFT-894
+ssh artifacts.dev.testing-farm.io sync
+
 create_results_html
 
 printf "\n[pipeline-end] $(date)"
