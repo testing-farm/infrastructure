@@ -1,11 +1,15 @@
 ---
 
 #
-# Add tag repository with low priority, for installing additional dependencies of tested artifacts.
-# The repository is DISABLED by default. We enable it only during artifact installation.
+# Add tag repository with HIGH priority, for installing latest dependencies of tested artifacts.
 #
 # The tag repository is updated by Koji. It contains all packages that got into a specific tag. The repository is sometimes
-# also referred to as buildroot repository.
+# also referred to as buildroot repository. The repo contains packages newer then the official repositories, they get these
+# updates later.
+#
+# The reason for HIGH priority was based on discussion here: https://pagure.io/fedora-ci/general/issue/252#comment-737145
+#
+# The repository is ENABLED by default for the whole run of the test.
 #
 # Examples for Fedora:
 # * rawhide contains all builds tagged into rawhide.
