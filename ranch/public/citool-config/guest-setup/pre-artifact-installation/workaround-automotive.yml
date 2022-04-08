@@ -9,8 +9,15 @@
     - name: Fix unexpanded $stream in yum repositories
       shell: "sed -i 's/$stream/9-stream/' /etc/yum.repos.d/*"
 
+    - name: "Check if 'rsync' package is already present"
+      command: rpm -q rsync
+      register: rsync_package_check
+      changed_when: false
+      ignore_errors: true
+
     - name: Install rsync via rpm-ostree
       command: "rpm-ostree install rsync"
+      when: rsync_package_check is failed
 
     - name: Restart
       reboot:
