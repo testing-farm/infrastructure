@@ -2,3 +2,4 @@
   tasks:
   - include_tasks: create_test_repository.yml
   - include_tasks: workaround-openssh.yml
+  - include_tasks: install-doggo.yml

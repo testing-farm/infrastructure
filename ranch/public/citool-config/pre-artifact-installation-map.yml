@@ -2,6 +2,9 @@
 - rule: "True"
   playbooks:
   - /CONFIG/guest-setup/pre-artifact-installation/entrypoint.yml
+  extra_vars:
+    TESTING_FARM_REQUEST_ID: "{{ TESTING_FARM_REQUEST_ID }}"
+
 
 - rule: COMPOSE.startswith('fedora-coreos')
   playbooks: []

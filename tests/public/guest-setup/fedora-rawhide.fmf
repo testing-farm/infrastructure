@@ -6,12 +6,22 @@ provision:
   image: Fedora-Rawhide
 
 prepare:
-  how: ansible
-  playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
-  extra-args: "-e IMAGE_NAME=Fedora-Rawhide"
+  - name: pre-artifact-installation
+    how: ansible
+    playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
+    extra-args: "-e IMAGE_NAME=Fedora-Rawhide -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
+
+  - name: post-artifact-installation
+    how: ansible
+    playbook: ranch/public/citool-config/guest-setup/post-artifact-installation/entrypoint.yml
+    extra-args: "-e IMAGE_NAME=Fedora-Rawhide -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
+
 
 discover+:
   how: shell
   tests+:
     - name: Test installed koji package
       test: rpm -qi koji
+
+    - name: Test doggo running
+      test: ps ax | egrep -o '[S]l.*/usr/local/bin/doggo --pushgateway-url http://pushgateway.dev.testing-farm.io:9091/ --request-id 43e75b22-7fc5-4492-92a7-d24f469a7eba'
