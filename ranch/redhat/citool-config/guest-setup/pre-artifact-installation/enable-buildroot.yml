@@ -4,6 +4,8 @@
 
   - name: Enable Buildroot repository
     command: "dnf config-manager --enable rhel-buildroot"
+    # TODO: this does not work on Beaker, we need better playbooks here
+    ignore_errors: true
 
   when:
     - 'ansible_distribution == "RedHat"'
