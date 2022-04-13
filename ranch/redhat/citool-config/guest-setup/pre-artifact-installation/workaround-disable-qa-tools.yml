@@ -7,3 +7,5 @@
   when:
     - 'ansible_distribution == "RedHat"'
     - 'ansible_distribution_version == "8.1"'
+  # TODO: this will not work with Beaker, needs more <3
+  ignore_errors: true
