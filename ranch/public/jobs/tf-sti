@@ -48,13 +48,18 @@ EOF
 }
 
 create_results_html() {
+    echo "started creating results html"
+
     # citool exposes all output to stderr, archive it as the pipeline log
     archive ${RUN_DIR}/logs/${TASK_NAME}.stderr.0 pipeline.log
 
     tfxunit2junit.py --issues-url https://gitlab.com/testing-farm/general/-/issues results.xml > results-junit.xml || true
     testing-farm-viewer -r results-junit.xml -t "results" || true
+
     archive results-junit.xml
     archive index.html
+
+    echo "finished creating results html"
 }
 
 # create archive directory
@@ -101,8 +106,10 @@ citool-container.sh hide-secrets \
 # skip archivation
 [ -n "$NO_ARCHIVE" ] && exit
 
-# kill the progress
+# kill the progress and wait for the process to finish
+echo "stopping process progress generation (PID $!)"
 kill $!
+wait $!
 
 # progress is over, enable back bash debug mode
 set -x
@@ -118,9 +125,10 @@ for path in ${TASK_DIR}/${TASK_NAME}/*; do
     archive $path
 done
 
-# sync kernel buffers on artifacts storage
+# wait a bit for the archiving to settle
+# tried sync on remote host, no luck ...
 # TFT-894
-ssh artifacts.dev.testing-farm.io sync
+sleep 5
 
 create_results_html
 
