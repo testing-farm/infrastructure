@@ -8,12 +8,19 @@
 #
 # Examples for RHEL:
 # * rhel-8.1.0-build contains all builds tagged into rhel-8.1.0-candidate
+# * rhel-8.1.0-z-build contains all builds tagged into rhel-8.1.0-z-candidate
 # * rhel-7.7-build contains all builds tagged into rhel-7.7-candidate
 # * rhel-9.0.0-beta-build contains all builds tagged into rhel-9.0.0-beta-candidate
 #
 # Note that *-build tags inherit from *-candidate tags
 #
 # The play gracefully skips adding a tag repository which is not reachable.
+#
+# Testing Farm needs to deduce the tag repository according to the tested image name.
+# For now we try first adding the Z-Stream tag repository and fallback to non Z-Stream.
+#
+# Issues:
+# * TFT-1256 (Z-stream support)
 #
 
 - block:
@@ -23,11 +30,13 @@
     #
     - name: Transform build target to a tag repository name (RHEL)
       set_fact:
-        tag_repository_name: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+\\.\\d+(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-build') | lower }}"
+        tag_repository_name_mainline: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+\\.\\d+(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-build') | lower }}"
+        tag_repository_name_z_stream: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+\\.\\d+(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-z-build') | lower }}"
 
     - name: Create tag repository base url (RHEL)
       set_fact:
-        tag_repository_url: "http://download.devel.redhat.com/brewroot/repos/{{ tag_repository_name }}/latest/{{ ansible_architecture }}/"
+        tag_repository_url_mainline: "http://download.devel.redhat.com/brewroot/repos/{{ tag_repository_name_mainline }}/latest/{{ ansible_architecture }}/"
+        tag_repository_url_z_stream: "http://download.devel.redhat.com/brewroot/repos/{{ tag_repository_name_z_stream }}/latest/{{ ansible_architecture }}/"
 
     #
     # Set the priority to lowest, this will make sure latest updates are not pulled in instead of default repository
@@ -42,12 +51,24 @@
     # Note: We ignore the fact the repository does not exist and try to continue anyway. Note that not all builds
     #       we encounter might have tag repository available.
     #
-    - name: "Check if tag repository {{ tag_repository_url }} exists"
-      uri:
-        url: "{{ tag_repository_url }}"
-        method: HEAD
-        status_code: [200, 404]
-      register: http_response
+    - block:
+        - name: "Check if tag repository {{ tag_repository_url_z_stream }} exists"
+          uri:
+            url: "{{ item }}"
+            method: HEAD
+            status_code: [200, 404]
+          register: http_response
+          when: http_response is not defined or http_response.status != 200
+          with_items:
+            # NOTE: order is important, we prefer Z-Stream tag repository if exists
+            - "{{ tag_repository_url_z_stream }}"
+            - "{{ tag_repository_url_mainline }}"
+
+        - name: Set tag_repository_url fact
+          set_fact:
+            tag_repository_url: "{{ item.url }}"
+          when: item.url is defined and item.status == 200
+          with_items: "{{ http_response.results }}"
 
     #
     # Add repository only if the repository is reachable
@@ -68,7 +89,7 @@
             src: "../templates/tag.repo.j2"
             dest: /etc/yum.repos.d/tag-repository.repo
 
-      when: http_response.status == 200
+      when: tag_repository_url is defined
 
     #
     # block: end
@@ -78,8 +99,8 @@
     # Be verbose about the fact the repository is unreachable
     #
     - debug:
-        msg: "Skipping adding tag repository, because location {{ tag_repository_url }} was not found"
-      when: http_response.status != 200
+        msg: "Skipping adding tag repository, because no available tag repository was found"
+      when: tag_repository_url is not defined
 
   #
   # Run block if BUILD_TARGET and PRIMARY_TASK variables are available.
