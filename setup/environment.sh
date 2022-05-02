@@ -111,7 +111,7 @@ if [ ! -e "$TOOLS_PATH/kubectl" ]; then
 
     # add production cluster
     info "EKS cluster 'testing-farm' (production)"
-    aws eks --profile fedora-us-east-1 update-kubeconfig --name testing-farm &>> $LOG
+    aws eks --profile fedora_us_east_1 update-kubeconfig --name testing-farm &>> $LOG
 fi
 
 #
