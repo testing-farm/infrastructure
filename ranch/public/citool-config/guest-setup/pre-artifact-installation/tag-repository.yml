@@ -44,6 +44,30 @@
           set_fact:
             tag_repository_url: "https://kojipkgs.fedoraproject.org/repos/{{ tag_repository_name }}/latest/{{ ansible_architecture }}/"
 
+      #
+      # Run block only on Fedora
+      #
+
+      when: ansible_distribution == "Fedora"
+
+    #
+    # Add tag repository for CentOS Stream 8
+    #
+    - name: Create tag repository base url (CentOS Stream 8)
+      set_fact:
+        tag_repository_name: "c8s-build"
+        tag_repository_url: "https://koji.mbox.centos.org/kojifiles/repos/dist-c8-stream-build/latest//{{ ansible_architecture }}/"
+      when: IMAGE_NAME|lower|regex_search('centos.stream.8')
+
+    #
+    # Add tag repository for CentOS Stream 8
+    #
+    - name: Create tag repository base url (CentOS Stream 9)
+      set_fact:
+        tag_repository_name: "c9s-build"
+        tag_repository_url: "https://kojihub.stream.centos.org/kojifiles/repos/c9s-build/latest/{{ ansible_architecture }}/"
+      when: IMAGE_NAME|lower|regex_search('centos.stream.9')
+
     #
     # Check if tag repository exists.
     #
@@ -80,12 +104,6 @@
       when: http_response.status != 200
 
   #
-  # Run block only on Fedora
-  #
-
-  when: ansible_distribution == "Fedora"
-
-  #
   # block: end
   #
 
@@ -96,4 +114,4 @@
     msg: |
       Skipping adding tag repository, because the distrubution is not Fedora.
 
-  when: ansible_distribution != "Fedora"
+  when: ansible_distribution != "Fedora" and not IMAGE_NAME|lower|regex_search('centos.stream')
