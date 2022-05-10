@@ -16,3 +16,6 @@ discover+:
   tests+:
     - name: Test installed koji package
       test: rpm -qi koji
+
+    - name: Test if tag repository added
+      test: test -e /etc/yum.repos.d/tag-repository.repo
