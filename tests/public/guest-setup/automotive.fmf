@@ -1,0 +1,12 @@
+---
+summary: Test guest-setup on fake automotive image
+
+provision:
+  how: virtual
+  image: CentOS-Stream-9
+
+prepare:
+  - name: pre-artifact-installation
+    how: ansible
+    playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
+    extra-args: "-e IMAGE_NAME=auto-osbuild-qemu-cs9-qa-ostree-aarch64-49"
