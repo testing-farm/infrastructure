@@ -93,10 +93,6 @@
       when: http_response.status == 200
 
     #
-    # block: end
-    #
-
-    #
     # Be verbose about the fact the repository is unreachable
     #
     - debug:
@@ -106,12 +102,13 @@
   #
   # block: end
   #
+  when: ansible_distribution == "Fedora" or IMAGE_NAME|lower|regex_search('centos.stream')
 
 #
 # Be verbose about the fact we skipped this play
 #
 - debug:
     msg: |
-      Skipping adding tag repository, because the distrubution is not Fedora.
+      Skipping adding tag repository, because the distrubution is not Fedora or CentOS Stream.
 
   when: ansible_distribution != "Fedora" and not IMAGE_NAME|lower|regex_search('centos.stream')
