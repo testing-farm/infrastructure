@@ -4,6 +4,13 @@
   when: citool_container_image is not defined
 
 - block:
+    - name: Install required packages
+      package:
+        name:
+            - curl
+            - jq
+        state: present
+
     - name: Install wrapper script
       copy:
         src: "{{ ansible_dir }}/files/citool-container.sh"
