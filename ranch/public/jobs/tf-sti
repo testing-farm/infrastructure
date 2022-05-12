@@ -81,6 +81,10 @@ if [ -z "$NO_ARCHIVE" ]; then
     { while true; do create_results_html &>> progress.log; sleep $PROGRESS_TICK; done; } &
 fi
 
+# get citool container image from request
+CITOOL_IMAGE=$(curl -s https://api.dev.testing-farm.io/v0.1/requests/$REQUEST_ID | jq -r '.settings.worker.image | select (.!=null)')
+[ -n "$CITOOL_IMAGE" ] && export CITOOL_IMAGE
+
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
 citool-container.sh hide-secrets \
