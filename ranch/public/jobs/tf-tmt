@@ -4,6 +4,7 @@ printf "\n[pipeline-start] $(date)\n\n"
 
 export REQUEST_ID=$1
 RUN_DIR=$2
+REQUEST_TIMEOUT=$3
 TASK_NAME="tmt"
 
 ARTIFACTS_HOSTNAME=artifacts.dev.testing-farm.io
@@ -37,8 +38,8 @@ create_results_xml() {
 
     cat > $RESULTS_XML <<EOF
 <testsuites overall-result="$RESULT">
- <testsuite name="/pipeline">
-  <testcase name="/$STATE" result="$RESULT">
+ <testsuite name="pipeline">
+  <testcase name="$STATE" result="$RESULT">
    <logs>
      <log name="pipeline.log" href="https://artifacts.dev.testing-farm.io/${REQUEST_ID}/pipeline.log"/>
    </logs>
@@ -74,7 +75,7 @@ fi
 rpm -qa > rpmlist-worker.txt
 
 # create in progress page
-create_results_xml in-progress passed progress.xml
+create_results_xml in-progress skipped progress.xml
 
 # disable bash debug until we run tmt with the progress reporting
 set +x
