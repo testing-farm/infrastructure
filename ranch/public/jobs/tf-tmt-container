@@ -4,6 +4,7 @@ printf "\n[pipeline-start] $(date)\n\n"
 
 export REQUEST_ID=$1
 RUN_DIR=$2
+REQUEST_TIMEOUT=$3
 TASK_NAME="tmt"
 
 ARTIFACTS_HOSTNAME=artifacts.dev.testing-farm.io
@@ -33,11 +34,12 @@ archive() {
 create_results_xml() {
     STATE=$1
     RESULT=$2
+    RESULTS_XML=${3:-results.xml}
 
-    cat > results.xml <<EOF
+    cat > $RESULTS_XML <<EOF
 <testsuites overall-result="$RESULT">
- <testsuite name="/pipeline">
-  <testcase name="/$STATE" result="$RESULT">
+ <testsuite name="pipeline">
+  <testcase name="$STATE" result="$RESULT">
    <logs>
      <log name="pipeline.log" href="https://artifacts.dev.testing-farm.io/${REQUEST_ID}/pipeline.log"/>
    </logs>
@@ -50,10 +52,12 @@ EOF
 create_results_html() {
     echo "started creating results html"
 
+    RESULTS_XML=${1:-results.xml}
+
     # citool exposes all output to stderr, archive it as the pipeline log
     archive ${RUN_DIR}/logs/${TASK_NAME}.stderr.0 pipeline.log
 
-    tfxunit2junit.py --issues-url https://gitlab.com/testing-farm/general/-/issues results.xml > results-junit.xml || true
+    tfxunit2junit.py --issues-url https://gitlab.com/testing-farm/general/-/issues $RESULTS_XML > results-junit.xml || true
     testing-farm-viewer -r results-junit.xml -t "results" || true
 
     archive results-junit.xml
@@ -71,14 +75,14 @@ fi
 rpm -qa > rpmlist-worker.txt
 
 # create in progress page
-create_results_xml in-progress passed
+create_results_xml in-progress skipped progress.xml
 
 # disable bash debug until we run tmt with the progress reporting
 set +x
 
 # start syncing in background
 if [ -z "$NO_ARCHIVE" ]; then
-    { while true; do create_results_html &>> progress.log; sleep $PROGRESS_TICK; done; } &
+    { while true; do create_results_html progress.xml &>> progress.log; sleep $PROGRESS_TICK; done; } &
 fi
 
 # get citool container image from request
