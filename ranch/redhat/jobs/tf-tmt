@@ -8,6 +8,12 @@ REQUEST_TIMEOUT=$3
 TASK_NAME="tmt"
 
 ARTIFACTS_RSYNC_HOST="rsync://artifacts.osci.redhat.com/artifacts/testing-farm"
+ARTIFACTS_ROOT=/archive
+
+ARTIFACTS_URL="http://artifacts.osci.redhat.com/testing-farm"
+ISSUES_URL="http://projects.engineering.redhat.com/browse/TFT/issues"
+
+PROGRESS_TICK=30
 
 [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT=12h
 
@@ -28,31 +34,63 @@ archive() {
     rsync -Prpv $WHAT "${ARTIFACTS_RSYNC_HOST}/${REQUEST_ID}/${WHERE}"
 }
 
-# create archive directory
-if [ -z "$NO_ARCHIVE" ]; then
-    mkdir ${REQUEST_ID}
-    rsync -Prpv ${ARTIFACTS_RSYNC_HOST}/running.html ${REQUEST_ID}/index.html
-    rsync -Prpv ${REQUEST_ID} ${ARTIFACTS_RSYNC_HOST}
-fi
+create_results_xml() {
+    STATE=$1
+    RESULT=$2
+    RESULTS_XML=${3:-results.xml}
 
-# rpmlist on worker
-rpm -qa > rpmlist-worker.txt
-
-cat > results.xml <<EOF
-<testsuites overall-result="error">
- <testsuite name="/pipeline">
-  <testcase name="/failure" result="error">
+    cat > $RESULTS_XML <<EOF
+<testsuites overall-result="$RESULT">
+ <testsuite name="pipeline">
+  <testcase name="$STATE" result="$RESULT">
    <logs>
-     <log name="pipeline.log" href="http://artifacts.osci.redhat.com/testing-farm/${REQUEST_ID}/pipeline.log"/>
+     <log name="pipeline.log" href="${ARTIFACTS_URL}/${REQUEST_ID}/pipeline.log"/>
    </logs>
   </testcase>
  </testsuite>
 </testsuites>
 EOF
+}
+
+create_results_html() {
+    echo "started creating results html"
+
+    RESULTS_XML=${1:-results.xml}
+
+    # citool exposes all output to stderr, archive it as the pipeline log
+    archive ${RUN_DIR}/logs/${TASK_NAME}.stderr.0 pipeline.log
+
+    tfxunit2junit.py --issues-url $ISSUES_URL $RESULTS_XML > results-junit.xml || true
+    testing-farm-viewer -r results-junit.xml -t "results" || true
+
+    archive results-junit.xml
+    archive index.html
+
+    echo "finished creating results html"
+}
+
+# rpmlist on worker
+rpm -qa > rpmlist-worker.txt
+
+# create in progress page
+create_results_xml in-progress skipped progress.xml
+
+# disable bash debug until we run tmt with the progress reporting
+set +x
+
+# start syncing in background
+if [ -z "$NO_ARCHIVE" ]; then
+    { while true; do create_results_html progress.xml &>> progress.log; sleep $PROGRESS_TICK; done; } &
+fi
+
+# get citool container image from request
+CITOOL_IMAGE=$(curl -s https://api.dev.testing-farm.io/v0.1/requests/$REQUEST_ID | jq -r '.settings.worker.image | select (.!=null)')
+[ -n "$CITOOL_IMAGE" ] && export CITOOL_IMAGE
 
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
-citool-container.sh rules-engine-empty:rules-engine \
+citool-container.sh hide-secrets \
+                    rules-engine-empty:rules-engine \
                     testing-farm-request --request-id $REQUEST_ID \
                     ansible \
                     artemis \
@@ -73,11 +111,18 @@ citool-container.sh rules-engine-empty:rules-engine \
 # skip archivation
 [ -n "$NO_ARCHIVE" ] && exit
 
-# citool exposes all output to stderr, archive it as the pipeline log
-archive ${RUN_DIR}/logs/${TASK_NAME}.stderr.0 pipeline.log
+# kill the progress and wait for the process to finish
+echo "stopping process progress generation (PID $!)"
+kill $!
+wait $!
 
-# this job prints all stuff to stdout, this save it a job log
-archive ${RUN_DIR}/logs/${TASK_NAME}.stdout.0 job.log
+# progress is over, enable back bash debug mode
+set -x
+
+# create pipeline error if no results.xml available
+if [ ! -e "results.xml" ]; then
+    create_results_xml failure error
+fi
 
 # sync task logs
 TASK_DIR=$(dirname $RUN_DIR)
@@ -85,10 +130,15 @@ for path in ${TASK_DIR}/${TASK_NAME}/*; do
     archive $path
 done
 
-# create index.html results page, best effort for now
-tfxunit2junit.py --issues-url http://projects.engineering.redhat.com/browse/TFT/issues results.xml > results-junit.xml || true
-testing-farm-viewer -r results-junit.xml -t "results" || true
-archive results-junit.xml
-archive index.html
+# wait a bit for the archiving to settle
+# tried sync on remote host, no luck ...
+# TFT-894
+sleep 5
+
+create_results_html
 
 printf "\n[pipeline-end] $(date)"
+
+# save stdout and stderr at the end
+archive ${RUN_DIR}/logs/${TASK_NAME}.stdout.0 job.log
+archive ${RUN_DIR}/logs/${TASK_NAME}.stderr.0 pipeline.log

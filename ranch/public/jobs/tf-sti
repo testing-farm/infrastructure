@@ -10,6 +10,9 @@ TASK_NAME="sti"
 ARTIFACTS_HOSTNAME=artifacts.dev.testing-farm.io
 ARTIFACTS_ROOT=/archive
 
+ARTIFACTS_URL="https://artifacts.dev.testing-farm.io"
+ISSUES_URL="https://gitlab.com/testing-farm/general/-/issues"
+
 PROGRESS_TICK=30
 
 [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT=12h
@@ -41,7 +44,7 @@ create_results_xml() {
  <testsuite name="pipeline">
   <testcase name="$STATE" result="$RESULT">
    <logs>
-     <log name="pipeline.log" href="https://artifacts.dev.testing-farm.io/${REQUEST_ID}/pipeline.log"/>
+     <log name="pipeline.log" href="${ARTIFACTS_URL}/${REQUEST_ID}/pipeline.log"/>
    </logs>
   </testcase>
  </testsuite>
@@ -57,7 +60,7 @@ create_results_html() {
     # citool exposes all output to stderr, archive it as the pipeline log
     archive ${RUN_DIR}/logs/${TASK_NAME}.stderr.0 pipeline.log
 
-    tfxunit2junit.py --issues-url https://gitlab.com/testing-farm/general/-/issues $RESULTS_XML > results-junit.xml || true
+    tfxunit2junit.py --issues-url $ISSUES_URL $RESULTS_XML > results-junit.xml || true
     testing-farm-viewer -r results-junit.xml -t "results" || true
 
     archive results-junit.xml
