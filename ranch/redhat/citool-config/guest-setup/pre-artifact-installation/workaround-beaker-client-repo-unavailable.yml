@@ -26,11 +26,15 @@
   #
   # Run block only if file exists
   #
-  when: beaker_client_repo_file_status.stat.exists
+  when:
+    - beaker_client_repo_file_status.stat.exists
+    - 'not IMAGE_NAME|lower|regex_search("^auto-")'
 
 #
 # Be verbose about the fact we skipped the workaround
 #
 - debug:
     msg: "Skipping workaround, because beaker_client_repo_file does not exist"
-  when: not beaker_client_repo_file_status.stat.exists
+  when:
+    - not beaker_client_repo_file_status.stat.exists
+    - 'IMAGE_NAME|lower|regex_search("^auto-")'
