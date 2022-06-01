@@ -13,3 +13,4 @@
     baseurl: http://beaker.engineering.redhat.com/rpms/
     gpgcheck: false
     enabled: true
+  when: 'not IMAGE_NAME|lower|regex_search("^auto-")'

@@ -110,6 +110,7 @@
   when:
     - IMAGE_NAME is defined
     - ansible_distribution == "RedHat"
+    - 'not IMAGE_NAME|lower|regex_search("^auto-")'
 
   #
   # block: end
@@ -123,4 +124,6 @@
       Skipping adding tag repository, because IMAGE_NAME variable is undefined,
       or it is unsupported.
 
-  when: IMAGE_NAME is undefined
+  when:
+    - IMAGE_NAME is undefined
+    - 'IMAGE_NAME|lower|regex_search("^auto-")'

@@ -2,7 +2,7 @@
 summary: Test guest-setup on CentOS 7
 
 provision:
-  how: virtual
+  how: minute
   image: CentOS-7
 
 prepare:
