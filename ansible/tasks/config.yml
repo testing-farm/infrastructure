@@ -1,12 +1,12 @@
 ---
 - name: Copy citool configuration
   become: true
-  copy:
+  synchronize:
     # ending `/` is required to copy only contents over
     src: "{{ root_dir }}/ranch/{{ deployment_environment }}/citool-config/"
     dest: "/etc/citool.d"
-    owner: "root"
-    mode: "preserve"
+    archive: false
+    recursive: true
 
 - name: Render config templates
   become: true
