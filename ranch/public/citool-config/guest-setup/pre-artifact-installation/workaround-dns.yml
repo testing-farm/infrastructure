@@ -1,14 +1,10 @@
 ---
 #
-# We are suspecting systemd-resolved causing instabilities when
-# running tests, this is popping up a lot. Trying this workaround
-# to confirm this is the problem.
+# systemd-resolved is not mature enough, for some tests it even
+# causes problems in default configuration, like unbound (dnssec)
 #
-- name: Check for rawhide
-  command: "rpm -q fedora-repos-rawhide"
-  ignore_errors: true
-  register: check_rawhide
-
+# 2022-06-07 on request from pemensik
+#
 - block:
     - name: disable systemd-resolved
       command: "systemctl disable systemd-resolved"
@@ -25,4 +21,4 @@
         content: |
           nameserver 8.8.8.8
           nameserver 8.8.4.4
-  when: check_rawhide.rc == 0
+  when: 'ansible_distribution == "Fedora"'
