@@ -49,7 +49,7 @@ PATH_add "$TOOLS_PATH"
 if [ ! -e "$TOOLS_PATH/helm" ]; then
     info "install helm"
     TEMPDIR=$(mktemp -d)
-    curl -sLo $TEMPDIR/helm.tar.gz https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+    curl -sLo $TEMPDIR/helm.tar.gz https://get.helm.sh/helm-v3.8.2-linux-amd64.tar.gz
     tar -xC $TEMPDIR -f $TEMPDIR/helm.tar.gz
     mv $TEMPDIR/linux-amd64/helm $TOOLS_PATH/helm
     rm -rf $TEMPDIR
