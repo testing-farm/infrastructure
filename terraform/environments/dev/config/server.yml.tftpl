@@ -1,0 +1,109 @@
+---
+
+users:
+  - name: admin
+    role: admin
+
+  - name: artemis
+    role: user
+
+ssh-keys:
+  ${indent(2, yamlencode(ssh_keys))}
+
+priority-groups:
+  - name: default-priority
+
+guest_tags:
+  FedoraGroup: "ci"
+  ServiceName: "Artemis"
+  ServiceOwner: "TFT"
+  ServicePhase: Dev
+
+pools:
+  - name: fedora-aws-x86_64
+    driver: aws
+    parameters:
+      access-key-id: "${aws_access_key_id}"
+      secret-access-key: "${aws_secret_access_key}"
+
+      default-region: us-east-2
+
+      command: aws
+      master-key-name: testing-farm-worker
+
+      # set default root disk size to 40GB
+      default-root-disk-size: 40
+
+      # availability zone match chosen subnet
+      availability-zone: us-east-2c
+
+      # seems 4k machines
+      subnet-id: subnet-4f971734
+
+      # security group for test environment
+      security-group: sg-0f4c1a7c071bb9f59
+
+      # instance details
+      default-instance-type: t3.medium
+
+      # wait timeout/tick for fulfilling spot request
+      # spot-request-timeout: 60
+      # spot-request-tick: 1
+
+      # wait timeout/tick for instance becoming running
+      # instance-running-timeout: 120
+      # instance-running-tick: 1
+
+      # image owners - Automotive QE and our images
+      image-owners:
+        - self
+        - "587138297281"
+
+      capabilities:
+        supports-snapshots: false
+        supported-architectures:
+          - x86_64
+
+  - name: fedora-aws-aarch64
+    driver: aws
+    parameters:
+      access-key-id: "${aws_access_key_id}"
+      secret-access-key: "${aws_secret_access_key}"
+
+      default-region: us-east-2
+
+      command: aws
+      master-key-name: testing-farm-worker
+
+      # set default root disk size to 40GB
+      default-root-disk-size: 40
+
+      # availability zone match chosen subnet
+      availability-zone: us-east-2c
+
+      # seems 4k machines
+      subnet-id: subnet-4f971734
+
+      # security group for test environment
+      security-group: sg-0f4c1a7c071bb9f59
+
+      # instance details
+      default-instance-type: t4g.medium
+
+      # wait timeout/tick for fulfilling spot request
+      #spot-request-timeout: 60
+      #spot-request-tick: 1
+
+      # wait timeout/tick for instance becoming running
+      #instance-running-timeout: 120
+      #instance-running-tick: 1
+
+      # image owners - Automotive QE and our images
+      image-owners:
+        - self
+        - "587138297281"
+
+      capabilities:
+        supports-snapshots: false
+        supported-architectures:
+          - aarch64

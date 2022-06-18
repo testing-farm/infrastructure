@@ -1,0 +1,68 @@
+## Artemis-specific options
+##
+artemis:
+  image:
+    tag: latest
+
+  config:
+    server: ${jsonencode(yamldecode(artemis_server_config))}
+    extraFiles: ${jsonencode(artemis_extra_files)}
+
+  initdb:
+    resources: ${jsonencode(artemis_initdb_resources)}
+
+  api:
+    processes: ${artemis_api_processes}
+    threads: ${artemis_api_threads}
+    resources: ${jsonencode(artemis_api_resources)}
+    service:
+      type: LoadBalancer
+      port: 80
+      loadBalancerSourceRanges: ${jsonencode(artemis_lb_source_ranges)}
+
+  dispatcher:
+    resources: ${jsonencode(artemis_dispatcher_resources)}
+
+  scheduler:
+    resources: ${jsonencode(artemis_scheduler_resources)}
+
+  workers:
+    list:
+      - replicaCount: ${artemis_worker_replicas}
+        processes: ${artemis_worker_processes}
+        threads: ${artemis_worker_threads}
+        resources: ${jsonencode(artemis_worker_resources)}
+
+  initContainers:
+    resources: ${jsonencode(artemis_init_containers_resources)}
+
+  logging:
+    method: stdout
+    level: info
+    json: false
+    dbPool: false
+    dbSlowQueries: true
+
+postgresql:
+  resources: ${jsonencode(postgresql_resources)}
+  metrics:
+    enabled: true
+    resources: ${jsonencode(postgresql_exporter_resources)}
+
+adminer:
+  install: false
+
+rabbitmq:
+  install: true
+  auth:
+    username: "artemis"
+  resources: ${jsonencode(rabbitmq_resources)}
+  metrics:
+    enabled: true
+
+redis:
+  install: true
+  resources: ${jsonencode(redis_resources)}
+  metrics:
+    enabled: true
+    resources: ${jsonencode(redis_exporter_resources)}
