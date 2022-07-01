@@ -6,8 +6,8 @@ authors = ["Miroslav Vadkerti <<mvadkert@redhat.com>>"]
 license = "Apache-2.0"
 
 [tool.poetry.dependencies]
-python = "^3.7"
-awscli = "^1.18.56"
+python = "^3.9"
+awscli = "^1.23.1"
 ansible = "^4.0.0"
 ansible-lint = "^4.0.0"
 jinja2 = "^2.11.2"
@@ -16,6 +16,8 @@ cryptography = "^2.9.2"
 yq = "^2.10.0"
 botocore = "^1.23.26"
 boto3 = "^1.20.26"
+tft-cli = "^0.0.5"
+markupsafe = "~2.0.1"
 
 [tool.poetry.dev-dependencies]
 

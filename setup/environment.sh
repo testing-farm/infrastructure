@@ -162,3 +162,22 @@ if ! grep '\[include\]' .git/config &> /dev/null; then
     info "configure git"
     git config --local include.path ../.gitconfig &>> $LOG
 fi
+
+#
+# setup testing-farm CLI
+#
+if [ ! -e "$DIRENV_PATH/.testing-farm" ]; then
+    mkdir -p "$DIRENV_PATH/.testing-farm"
+
+    # testing-farm-public
+    TOKEN=$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | \
+        yq -r ".credentials.testing_farm.ranch.public.api_key")
+    printf "export TESTING_FARM_API_TOKEN=$TOKEN\ntesting-farm \"\$@\"" > $TOOLS_PATH/testing-farm-public
+    chmod +x $TOOLS_PATH/testing-farm-public
+
+    # testing-farm-redhat
+    TOKEN=$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | \
+        yq -r ".credentials.testing_farm.ranch.redhat.api_key")
+    printf "export TESTING_FARM_API_TOKEN=$TOKEN\ntesting-farm \"\$@\"" > $TOOLS_PATH/testing-farm-redhat
+    chmod +x $TOOLS_PATH/testing-farm-redhat
+fi
