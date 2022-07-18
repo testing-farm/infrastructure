@@ -49,3 +49,11 @@ resource "aws_route53_record" "eks-friendly-endpoint" {
   ttl     = "300"
   records = [trimprefix(module.eks.cluster_endpoint, "https://")]
 }
+
+resource "aws_ec2_tag" "subnet_tag" {
+   count       = length(var.cluster_subnets)
+
+   resource_id = var.cluster_subnets[count.index]
+   key         = "kubernetes.io/cluster/${module.eks.cluster_id}"
+   value       = "shared"
+ }
