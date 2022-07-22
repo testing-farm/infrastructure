@@ -17,7 +17,7 @@ workflow:
 .direnv:
   before_script:
     - echo -n "$VAULT_PASSWORD" > .vault_pass
-    - dnf -y install direnv
+    - dnf -y install direnv libffi libffi-devel
     - direnv allow
     - eval "$(direnv export bash)"
 
