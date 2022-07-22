@@ -134,32 +134,4 @@ variable "resources" {
   type        = map(map(map(string)))
 
   default = {}
-
-  validation {
-    condition     = alltrue([
-      for key, val in var.resources :
-      contains([
-        "artemis_api",
-        "artemis_dispatcher",
-        "artemis_initdb",
-        "artemis_init_containers",
-        "artemis_scheduler",
-        "artemis_worker",
-        "rabbitmq",
-        "postgresql",
-        "postgresql_exporter",
-        "redis",
-        "redis_exporter"
-      ], key) &&
-      alltrue([
-        for quota, resources in val :
-        contains(["limits", "requests"], quota) &&
-        alltrue([
-          for resource in keys(resources) :
-          contains(["cpu", "memory"], resource)
-        ])
-      ])
-    ])
-    error_message = "Unknown key in 'resources'."
-  }
 }

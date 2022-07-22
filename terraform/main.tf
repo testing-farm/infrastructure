@@ -88,93 +88,62 @@ module "testing-farm-eks-devel" {
   cluster_version    = "1.21"
 }
 
-resource "helm_release" "artemis" {
-  name          = var.artemis_release_name
-  repository    = "https://gitlab.com/api/v4/projects/30361172/packages/helm/dev"
-  chart         = "artemis-core"
-  version       = "0.0.3"
-  namespace     = var.artemis_namespace
+module "artemis" {
+  source = "./modules/artemis"
 
-  atomic        = true
-  timeout       = 600
-  wait          = true
-  wait_for_jobs = true
+  server_config = templatefile(
+    "${var.artemis_config_root}/server.yml.tftpl",
+    {
+      aws_access_key_id     = sensitive(data.ansiblevault_path.pool_access_key_aws.value)
+      aws_secret_access_key = sensitive(data.ansiblevault_path.pool_secret_key_aws.value)
+      ssh_keys              = [
+        for i in range(length(var.artemis_ssh_keys)) :
+          merge(
+            {
+              name        = var.artemis_ssh_keys[i].name
+              owner       = var.artemis_ssh_keys[i].owner
+            },
+            yamldecode(sensitive(data.ansiblevault_path.vault_ssh_key[i].value))
+          )
+      ]
+    }
+  )
 
-  lint          = true
+  extra_files = merge(
+    {
+      for filename in var.artemis_config_extra_files :
+      filename => file(
+        fileexists("${var.artemis_config_root}/${filename}") ?
+          "${var.artemis_config_root}/${filename}" : "${var.artemis_config_common}/${filename}"
+      )
+    }, {
+      for template in var.artemis_config_extra_templates :
+        template.target => templatefile(
+          fileexists("${var.artemis_config_root}/${template.source}") ?
+            "${var.artemis_config_root}/${template.source}" :
+            "${var.artemis_config_common}/${template.source}",
+          merge(
+            {template_vars_sources=template.vars},
+            [for varfile in template.vars : yamldecode(file(varfile))]...
+          )
+      )
+    }
+  )
 
-  values        = [
-    templatefile(
-      "values.yml.tftpl",
-      {
-        artemis_server_config    = templatefile(
-          "${var.artemis_config_root}/server.yml.tftpl",
-          {
-            aws_access_key_id     = sensitive(data.ansiblevault_path.pool_access_key_aws.value)
-            aws_secret_access_key = sensitive(data.ansiblevault_path.pool_secret_key_aws.value)
-            ssh_keys              = [
-              for i in range(length(var.artemis_ssh_keys)) :
-                merge(
-                  {
-                    name        = var.artemis_ssh_keys[i].name
-                    owner       = var.artemis_ssh_keys[i].owner
-                  },
-                  yamldecode(sensitive(data.ansiblevault_path.vault_ssh_key[i].value))
-                )
-            ]
-          }
-        )
+  vault_password = sensitive(data.ansiblevault_path.vault_password.value)
 
-        artemis_extra_files      = merge(
-          {
-            for filename in var.artemis_config_extra_files :
-            filename => file(
-              fileexists("${var.artemis_config_root}/${filename}") ?
-                "${var.artemis_config_root}/${filename}" : "${var.artemis_config_common}/${filename}"
-            )
-          }, {
-            for template in var.artemis_config_extra_templates :
-              template.target => templatefile(
-                fileexists("${var.artemis_config_root}/${template.source}") ?
-                  "${var.artemis_config_root}/${template.source}" :
-                  "${var.artemis_config_common}/${template.source}",
-                merge(
-                  {template_vars_sources=template.vars},
-                  [for varfile in template.vars : yamldecode(file(varfile))]...
-                )
-            )
-          }
-        )
-
-        artemis_lb_source_ranges = [
-          for ip in concat(jsondecode(data.external.ansible_inventory.result.output), var.artemis_additional_lb_source_ips) :
-          "${ip}/32"
-          if ip != null
-        ]
-
-        artemis_api_processes    = var.artemis_api_processes
-        artemis_api_threads      = var.artemis_api_threads
-
-        artemis_worker_replicas  = var.artemis_worker_replicas
-        artemis_worker_processes = var.artemis_worker_processes
-        artemis_worker_threads   = var.artemis_worker_threads
-
-        artemis_api_resources             = try(var.resources.artemis_api, {})
-        artemis_dispatcher_resources      = try(var.resources.artemis_dispatcher, {})
-        artemis_initdb_resources          = try(var.resources.artemis_initdb, {})
-        artemis_init_containers_resources = try(var.resources.artemis_init_containers, {})
-        artemis_scheduler_resources       = try(var.resources.artemis_scheduler, {})
-        artemis_worker_resources          = try(var.resources.artemis_worker, {})
-        rabbitmq_resources                = try(var.resources.rabbitmq, {})
-        postgresql_resources              = try(var.resources.postgresql, {})
-        postgresql_exporter_resources     = try(var.resources.postgresql_exporter, {})
-        redis_resources                   = try(var.resources.redis, {})
-        redis_exporter_resources          = try(var.resources.redis_exporter, {})
-      }
-    )
+  lb_source_ranges = [
+    for ip in concat(jsondecode(data.external.ansible_inventory.result.output), var.artemis_additional_lb_source_ips) :
+    "${ip}/32"
+    if ip != null
   ]
 
-  set_sensitive {
-    name  = "artemis.vaultPassword"
-    value = data.ansiblevault_path.vault_password.value
-  }
+  api_processes    = var.artemis_api_processes
+  api_threads      = var.artemis_api_threads
+
+  worker_replicas  = var.artemis_worker_replicas
+  worker_processes = var.artemis_worker_processes
+  worker_threads   = var.artemis_worker_threads
+
+  resources        = var.resources
 }
