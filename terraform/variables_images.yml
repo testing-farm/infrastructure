@@ -8,9 +8,9 @@ fedora_34:
 # aws --profile fedora_us_east_2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-35* | jq '.Images | .[] | .Name' | sort
 fedora_35:
   x86_64:
-    image: 'Fedora-Cloud-Base-35-1.2.x86_64-hvm-us-east-2-gp2-0'
+    image: 'Fedora-Cloud-Base-35-20220719.0.x86_64-hvm-us-east-2-gp2-0'
   aarch64:
-    image: 'Fedora-Cloud-Base-35-1.2.aarch64-hvm-us-east-2-standard-0'  # NOTE: no gp2 image found :(
+    image: 'Fedora-Cloud-Base-35-20220718.0.aarch64-hvm-us-east-2-gp2-0'
 
 # aws --profile fedora_us_east_2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-36* | jq '.Images | .[] | .Name' | sort
 fedora_36: &fedora_latest_ref
@@ -25,9 +25,9 @@ fedora_latest: *fedora_latest_ref
 # aws --profile fedora_us_east_2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-Rawhide* | jq '.Images | .[] | .Name' | sort
 fedora_rawhide:
   x86_64:
-    image: 'Fedora-Cloud-Base-Rawhide-20220619.n.0.x86_64-hvm-us-east-2-gp2-0'
+    image: 'Fedora-Cloud-Base-Rawhide-20220717.n.0.x86_64-hvm-us-east-2-gp2-0'
   aarch64:
-    image: 'Fedora-Cloud-Base-Rawhide-20220619.n.0.aarch64-hvm-us-east-2-gp2-0'
+    image: 'Fedora-Cloud-Base-Rawhide-20220717.n.0.aarch64-hvm-us-east-2-gp2-0'
 
 centos_6:
   x86_64:
