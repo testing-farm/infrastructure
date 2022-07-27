@@ -124,10 +124,23 @@ resource "helm_release" "artemis" {
           }
         )
 
-        artemis_extra_files      = {
-          for filename in var.artemis_config_extra_files :
-          filename => file("${var.artemis_config_root}/${filename}")
-        }
+        artemis_extra_files      = merge(
+          {
+            for filename in var.artemis_config_extra_files :
+            filename => file(
+              fileexists("${var.artemis_config_root}/${filename}") ?
+                "${var.artemis_config_root}/${filename}" : "${var.artemis_config_common}/${filename}"
+            )
+          }, {
+            for template in var.artemis_config_extra_templates :
+              template.target => templatefile(
+                fileexists("${var.artemis_config_root}/${template.source}") ?
+                  "${var.artemis_config_root}/${template.source}" :
+                  "${var.artemis_config_common}/${template.source}",
+                merge([for varfile in template.vars : yamldecode(file(varfile))]...)
+            )
+          }
+        )
 
         artemis_lb_source_ranges = [
           for ip in concat(jsondecode(data.external.ansible_inventory.result.output), var.artemis_additional_lb_source_ips) :

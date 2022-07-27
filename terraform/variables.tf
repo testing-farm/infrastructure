@@ -61,6 +61,12 @@ variable "artemis_namespace" {
   default     = "default"
 }
 
+variable "artemis_config_common" {
+  description = "Path to configuration directory containing common files across environments."
+  type        = string
+  default     = "./environments/common/config"
+}
+
 variable "artemis_config_root" {
   description = "Path of the artemis configuration directory."
   type        = string
@@ -75,8 +81,16 @@ variable "artemis_config_extra_files" {
     "ARTEMIS_HOOK_BEAKER_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_OPENSTACK_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_ROUTE.py",
-    "artemis-image-map-aws.yml",
   ]
+}
+
+variable "artemis_config_extra_templates" {
+  description = "List of files to template and include with artemis configuration."
+  type        = list(object({
+    source = string
+    target = string
+    vars   = list(string)
+  }))
 }
 
 variable "artemis_additional_lb_source_ips" {

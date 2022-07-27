@@ -6,16 +6,20 @@ cluster_subnets        = ["subnet-010f90da92f36876e", "subnet-0a704a759f7671044"
 artemis_release_name = "artemis"
 artemis_namespace    = "default"
 
-artemis_config_root        = "./environments/dev/config"
-artemis_config_extra_files = [
+artemis_config_root            = "./environments/dev/config"
+artemis_config_extra_files     = [
 	"ARTEMIS_HOOK_AWS_ENVIRONMENT_TO_IMAGE.py",
 	"ARTEMIS_HOOK_AZURE_ENVIRONMENT_TO_IMAGE.py",
 	"ARTEMIS_HOOK_BEAKER_ENVIRONMENT_TO_IMAGE.py",
 	"ARTEMIS_HOOK_OPENSTACK_ENVIRONMENT_TO_IMAGE.py",
 	"ARTEMIS_HOOK_ROUTE.py",
-	"artemis-image-map-aws.yml",
 ]
-artemis_ssh_keys           = [{
+artemis_config_extra_templates = [{
+  source = "artemis-image-map-aws.yml.tftpl"
+  target = "artemis-image-map-aws.yml"
+  vars = ["./variables_images.yml"]
+}]
+artemis_ssh_keys               = [{
   name  = "master-key"
   owner = "artemis"
   path  = "master-key.yml"

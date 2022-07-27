@@ -73,6 +73,7 @@ terraform:
   rules:
     - changes:
         - secrets/credentials.yml
+        - terraform/environments/common/**/*
         - terraform/environments/dev/**/*
         - terraform/modules/**/*
         - terraform/*.tf
