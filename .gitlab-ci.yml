@@ -7,6 +7,13 @@ variables:
   # https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
   ANSIBLE_CONFIG: ansible.cfg
 
+workflow:
+  rules:
+    # for merge requests
+    - if: $CI_MERGE_REQUEST_ID
+    # for the tip of the default branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 .direnv:
   before_script:
     - echo -n "$VAULT_PASSWORD" > .vault_pass
