@@ -44,7 +44,7 @@ data "aws_route53_zone" "testing_farm_zone" {
 
 resource "aws_route53_record" "eks-friendly-endpoint" {
   zone_id = data.aws_route53_zone.testing_farm_zone.zone_id
-  name    = "https://api.${module.eks.cluster_id}.eks.${data.aws_route53_zone.testing_farm_zone.name}"
+  name    = "api.${module.eks.cluster_id}.eks.${data.aws_route53_zone.testing_farm_zone.name}"
   type    = "CNAME"
   ttl     = "300"
   records = [trimprefix(module.eks.cluster_endpoint, "https://")]
