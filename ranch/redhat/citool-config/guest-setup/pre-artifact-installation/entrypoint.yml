@@ -1,4 +1,7 @@
 - hosts: all
+  vars:
+    pkg_retry_count: 5
+    pkg_retry_delay: 30
   tasks:
   # workarounds
   - include_tasks: workaround-beaker-client-repo-unavailable.yml

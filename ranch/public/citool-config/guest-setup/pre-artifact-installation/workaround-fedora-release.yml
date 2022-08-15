@@ -4,3 +4,7 @@
 - name: Workaround - update Fedora release and related packages
   command: "dnf -y update --nogpgcheck fedora*"
   when: 'ansible_distribution == "Fedora"'
+  retries: "{{ pkg_retry_count }}"
+  delay: "{{ pkg_retry_delay }}"
+  until: result_package is succeeded
+  register: result_package

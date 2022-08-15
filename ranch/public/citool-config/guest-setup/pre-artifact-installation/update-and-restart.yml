@@ -8,6 +8,9 @@
     - name: Update to latest packages
       command: "dnf -y update *"
       register: update_packages
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: update_packages is succeeded
 
     - block:
         - name: Restart if kernel updated
