@@ -1,4 +1,7 @@
 - hosts: all
+  vars:
+    pkg_retry_count: 5
+    pkg_retry_delay: 30
   tasks:
   # DO NOT ENABLE BY DEFAULT, IT BREAKS PYTHON TEST SUITE (and can others)
   # - include_tasks: nosync.yml
