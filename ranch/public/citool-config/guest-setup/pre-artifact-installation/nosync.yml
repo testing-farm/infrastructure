@@ -26,6 +26,10 @@
       package:
         name: policycoreutils
         state: present
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
 
     - name: Fix selinux context of /usr/lib64/nosync.so
       command: "restorecon -RvvF /usr/lib64/nosync.so"
