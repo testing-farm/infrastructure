@@ -9,6 +9,10 @@
      ansible_distribution == "OracleLinux"'
   # we do not want to install Koji on Automotive images
   - '"auto-osbuild" not in IMAGE_NAME|lower'
+  retries: "{{ pkg_retry_count }}"
+  delay: "{{ pkg_retry_delay }}"
+  until: result_package is succeeded
+  register: result_package
 
 - block:
     - name: Add RCM Repository for RHEL7 and earlier
@@ -22,6 +26,10 @@
     - name: Install Brewkoji
       package:
         name: brewkoji
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
 
   when:
     - 'ansible_distribution == "RedHat"'
@@ -39,6 +47,10 @@
     - name: Install Brewkoji
       package:
         name: brewkoji
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
 
   when:
     - 'ansible_distribution == "RedHat"'

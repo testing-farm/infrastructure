@@ -18,6 +18,10 @@
     - name: Install rsync via rpm-ostree
       command: "rpm-ostree install rsync"
       when: rsync_package_check is failed
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
 
     - name: Restart
       reboot:
