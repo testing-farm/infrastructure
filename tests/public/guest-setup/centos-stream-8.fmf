@@ -22,3 +22,6 @@ discover+:
 
     - name: Test if incorrect beakerlib version not installed (TFT-1284)
       test: test "$(rpm -q beakerlib)" != beakerlib-1.17-19.el8.x86_64
+
+    - name: Test for correct koji version
+      test: rpm -q koji | grep koji-1\.28\.1
