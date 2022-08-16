@@ -137,7 +137,10 @@ resource "helm_release" "artemis" {
                 fileexists("${var.artemis_config_root}/${template.source}") ?
                   "${var.artemis_config_root}/${template.source}" :
                   "${var.artemis_config_common}/${template.source}",
-                merge([for varfile in template.vars : yamldecode(file(varfile))]...)
+                merge(
+                  {template_vars_sources=template.vars},
+                  [for varfile in template.vars : yamldecode(file(varfile))]...
+                )
             )
           }
         )
