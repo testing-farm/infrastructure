@@ -13,11 +13,12 @@ artemis_config_extra_files     = [
 	"ARTEMIS_HOOK_BEAKER_ENVIRONMENT_TO_IMAGE.py",
 	"ARTEMIS_HOOK_OPENSTACK_ENVIRONMENT_TO_IMAGE.py",
 	"ARTEMIS_HOOK_ROUTE.py",
+  "variables_images.yml"
 ]
 artemis_config_extra_templates = [{
   source = "artemis-image-map-aws.yml.tftpl"
   target = "artemis-image-map-aws.yml"
-  vars = ["./variables_images.yml"]
+  vars = ["./environments/dev/config/variables_images.yml"]
 }]
 artemis_ssh_keys               = [{
   name  = "master-key"
