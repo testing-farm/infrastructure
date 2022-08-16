@@ -27,3 +27,6 @@ discover+:
 
     - name: Test kernel updated
       test: dnf install -y kernel-devel-$(uname -r)
+
+    - name: Test for correct koji version
+      test: rpm -q koji | grep koji-1\.28\.1
