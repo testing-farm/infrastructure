@@ -19,3 +19,6 @@ discover+:
 
     - name: Test if tag repository added
       test: test -e /etc/yum.repos.d/tag-repository.repo
+
+    - name: Test for correct koji version
+      test: rpm -q koji | grep koji-1\.28\.1

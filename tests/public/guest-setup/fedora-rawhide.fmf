@@ -25,3 +25,6 @@ discover+:
 
     - name: Test doggo running
       test: ps ax | egrep -o '[S]l.*/usr/local/bin/doggo --pushgateway-url http://pushgateway.dev.testing-farm.io:9091/ --request-id 43e75b22-7fc5-4492-92a7-d24f469a7eba'
+
+    - name: Test for correct koji version
+      test: rpm -q koji | grep koji-1\.28\.1
