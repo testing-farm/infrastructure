@@ -1,6 +1,4 @@
 terraform {
-  backend "local" {}
-
   required_providers {
     ansiblevault = {
       source = "MeilleursAgents/ansiblevault"
