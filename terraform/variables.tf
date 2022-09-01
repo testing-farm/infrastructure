@@ -96,7 +96,7 @@ variable "artemis_config_extra_templates" {
 variable "artemis_additional_lb_source_ips" {
   description = "List of additional IP addresses"
   type        = list(string)
-  default     = []
+  default     = ["127.0.0.1"]
 }
 
 variable "artemis_api_processes" {
