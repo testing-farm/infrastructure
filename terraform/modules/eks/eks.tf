@@ -1,4 +1,12 @@
+provider "kubernetes" {
+  alias = "eks"
+}
+
 module "eks" {
+  providers = {
+    kubernetes = kubernetes.eks
+  }
+
   source          = "terraform-aws-modules/eks/aws"
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version

@@ -37,6 +37,23 @@ provider "helm" {
   }
 }
 
+provider "kubernetes" {
+  host                   = module.testing-farm-eks-devel.cluster.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.testing-farm-eks-devel.cluster.cluster_certificate_authority_data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1alpha1"
+    args        = [
+      "--region",
+      var.cluster_default_region,
+      "eks",
+      "get-token",
+      "--cluster-name",
+      module.testing-farm-eks-devel.cluster.cluster_id
+    ]
+    command     = "aws"
+  }
+}
+
 data "ansiblevault_path" "pool_access_key_aws" {
   path = var.ansible_vault_credentials
   key  = "credentials.aws.fedora.access_key"
@@ -144,4 +161,91 @@ module "artemis" {
   worker_threads   = var.artemis_worker_threads
 
   resources        = var.resources
+}
+
+locals {
+  external_dns_namespace = "kube-addons"
+}
+
+resource "kubernetes_namespace" "kube-addons-ns" {
+  metadata {
+    name = local.external_dns_namespace
+  }
+}
+
+resource "kubernetes_secret" "aws-credentials-secret" {
+  depends_on = [kubernetes_namespace.kube-addons-ns]
+
+  metadata {
+    name = "aws-credentials"
+    namespace = local.external_dns_namespace
+  }
+
+  data = {
+    "credentials" = <<EOF
+[default]
+aws_access_key_id = ${sensitive(data.ansiblevault_path.pool_access_key_aws.value)}
+aws_secret_access_key = ${sensitive(data.ansiblevault_path.pool_secret_key_aws.value)}
+EOF
+  }
+}
+
+resource "helm_release" "external-dns" {
+  depends_on = [
+    kubernetes_namespace.kube-addons-ns,
+    kubernetes_secret.aws-credentials-secret
+  ]
+
+  name       = "external-dns"
+  repository = "https://kubernetes-sigs.github.io/external-dns/"
+  chart      = "external-dns"
+  version    = "1.11.0"
+
+  namespace  = local.external_dns_namespace
+
+  set {
+    name  = "provider"
+    value = "aws"
+  }
+
+  set {
+    name  = "txtOwnerId"
+    value = "${var.cluster_name}-external-dns"
+  }
+
+  set {
+    name  = "domainFilters"
+    value = "{testing-farm.io}"
+  }
+
+  set {
+    name  = "policy"
+    value = "sync"
+  }
+
+  values = [
+    <<EOF
+env:
+  - name: AWS_SHARED_CREDENTIALS_FILE
+    value: /.aws/credentials
+extraVolumes:
+  - name: aws-credentials
+    secret:
+      secretName: aws-credentials
+extraVolumeMounts:
+  - name: aws-credentials
+    mountPath: /.aws
+    readOnly: true
+EOF
+  ]
+
+  #set {
+  #  name  = "policy"
+  #  value = "sync"
+  #}
+
+  set {
+    name  = "extraArgs"
+    value = "{--aws-zone-type=public}"
+  }
 }
