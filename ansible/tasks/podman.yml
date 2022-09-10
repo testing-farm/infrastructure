@@ -14,6 +14,13 @@
         state: directory
         mode: 0700
 
+  - name: "Copy system storage configuration"
+    copy:
+        src: /usr/share/containers/storage.conf
+        dest: /etc/containers/storage.conf
+        remote_src: true
+    ignore_errors: true
+
   - name: "Set containers storage to {{ container_storage_path }}"
     lineinfile:
         path: /etc/containers/storage.conf
