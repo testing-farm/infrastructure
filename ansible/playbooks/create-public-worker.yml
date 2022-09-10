@@ -15,7 +15,7 @@
         # Fedora-Cloud-Base-36-1.5.x86_64-hvm-us-east-2-gp2-0
         image_id: ami-0f734524c1fd28fc8
         wait: true
-        count: 1
+        count: "{{ count|default(1) }}"
         network:
           subnet_id: subnet-4f971734
           assign_public_ip: true
@@ -79,7 +79,7 @@
     - include: ../tasks/config.yml
     - include: ../tasks/xunit-viewer.yml
     - include: ../tasks/image.yml
-    - name: "Manual action required to update Artemis loabalancer - kubectl edit svc/artemis-api"
+    - name: "Manual action required to update Artemis loabalancer - kubectl edit svc/artemis-api and worker security group"
       pause:
         prompt: "Make sure Artemis accepts connections from {{ ansible_host }}"
   roles:
