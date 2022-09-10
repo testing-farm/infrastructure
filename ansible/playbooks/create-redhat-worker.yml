@@ -16,10 +16,10 @@
           ServiceComponent: Worker
         key_name: tft-artemis-master-key
         instance_type: i3.2xlarge
-        # 1MT-Fedora-35
-        image_id: ami-05d30c1f88eee9588
+        # Fedora-Cloud-Base-36-1.5.x86_64-hvm-us-east-2-gp2-0
+        image_id: ami-0f734524c1fd28fc8
         wait: true
-        count: 1
+        count: "{{ count|default(1) }}"
         network:
           assign_public_ip: false
         instance_initiated_shutdown_behavior: terminate
