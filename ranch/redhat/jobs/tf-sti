@@ -116,6 +116,7 @@ citool-container.sh hide-secrets \
 echo "stopping process progress generation (PID $!)"
 kill $!
 wait $!
+pkill -9 rsync
 
 # progress is over, enable back bash debug mode
 set -x
