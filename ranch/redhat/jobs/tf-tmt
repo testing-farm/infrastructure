@@ -52,6 +52,7 @@ create_results_xml() {
 EOF
 }
 
+# obsolete, replaced by https://gitlab.com/testing-farm/oculus
 create_results_html() {
     echo "started creating results html"
 
@@ -74,6 +75,10 @@ rpm -qa > rpmlist-worker.txt
 
 # create in progress page
 create_results_xml in-progress skipped progress.xml
+
+# deploy new oculus viewer; move this over to index.html when deprecating create_results_html()
+curl -s --fail --show-error -O https://gitlab.com/testing-farm/oculus/-/raw/main/results.html
+archive results.html
 
 # disable bash debug until we run tmt with the progress reporting
 set +x
