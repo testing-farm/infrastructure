@@ -21,6 +21,7 @@ resource "helm_release" "artemis" {
 
         artemis_api_processes             = var.api_processes
         artemis_api_threads               = var.api_threads
+        artemis_api_domain                = var.api_domain
 
         artemis_worker_replicas           = var.worker_replicas
         artemis_worker_processes          = var.worker_processes

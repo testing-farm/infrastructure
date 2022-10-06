@@ -16,6 +16,8 @@ artemis:
     threads: ${artemis_api_threads}
     resources: ${jsonencode(artemis_api_resources)}
     service:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: ${artemis_api_domain}
       type: LoadBalancer
       port: 80
       loadBalancerSourceRanges: ${jsonencode(artemis_lb_source_ranges)}
