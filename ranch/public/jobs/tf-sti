@@ -60,7 +60,7 @@ create_results_html() {
 
     # citool exposes all output to stderr, archive it as the pipeline log
     # TFT-894 nomad splits the stderr and stdout into multiple files in case of big logs
-    tail -q ${RUN_DIR}/logs/${TASK_NAME}.stderr.[0-9]* > pipeline.log
+    cat ${RUN_DIR}/logs/${TASK_NAME}.stderr.[0-9]* > pipeline.log
     archive pipeline.log
 
     tfxunit2junit.py --issues-url $ISSUES_URL $RESULTS_XML > results-junit.xml || true
@@ -148,7 +148,7 @@ create_results_html
 printf "\n[pipeline-end] $(date)"
 
 # save stdout and stderr at the very end
-tail ${TASK_NAME}.stdout.[0-9]* job.log
+cat ${RUN_DIR}/logs/${TASK_NAME}.stdout.[0-9]* > job.log
 archive job.log
-tail ${TASK_NAME}.stderr.[0-9]* pipeline.log
+cat ${RUN_DIR}/logs/${TASK_NAME}.stderr.[0-9]* > pipeline.log
 archive pipeline.log
