@@ -103,6 +103,12 @@ module "testing-farm-eks-devel" {
   cluster_version    = "1.21"
 }
 
+locals {
+  domain_base            = "${var.cluster_name}.eks.testing-farm.io"
+  artemis_api_domain     = "artemis.${local.domain_base}"
+  external_dns_namespace = "kube-addons"
+}
+
 module "artemis" {
   source = "./modules/artemis"
 
@@ -155,16 +161,13 @@ module "artemis" {
 
   api_processes    = var.artemis_api_processes
   api_threads      = var.artemis_api_threads
+  api_domain       = local.artemis_api_domain
 
   worker_replicas  = var.artemis_worker_replicas
   worker_processes = var.artemis_worker_processes
   worker_threads   = var.artemis_worker_threads
 
   resources        = var.resources
-}
-
-locals {
-  external_dns_namespace = "kube-addons"
 }
 
 resource "kubernetes_namespace" "kube-addons-ns" {
@@ -210,12 +213,12 @@ resource "helm_release" "external-dns" {
 
   set {
     name  = "txtOwnerId"
-    value = "${var.cluster_name}-external-dns"
+    value = "${var.cluster_name}"
   }
 
   set {
     name  = "domainFilters"
-    value = "{testing-farm.io}"
+    value = "{${local.domain_base}}"
   }
 
   set {
@@ -238,11 +241,6 @@ extraVolumeMounts:
     readOnly: true
 EOF
   ]
-
-  #set {
-  #  name  = "policy"
-  #  value = "sync"
-  #}
 
   set {
     name  = "extraArgs"

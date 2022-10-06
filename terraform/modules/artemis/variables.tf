@@ -44,6 +44,12 @@ variable "api_threads" {
   default     = 1
 }
 
+variable "api_domain" {
+  description = "Domain the API service should be available on"
+  type        = string
+  default     = ""
+}
+
 variable "worker_replicas" {
   description = "Number of worker replicas"
   type        = number
