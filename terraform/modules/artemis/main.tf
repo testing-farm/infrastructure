@@ -1,6 +1,6 @@
 resource "helm_release" "artemis" {
   name          = var.release_name
-  repository    = "https://gitlab.com/api/v4/projects/30361172/packages/helm/dev"
+  repository    = "https://testing-farm.gitlab.io/artemis-helm/dev"
   chart         = "artemis-core"
   version       = "0.0.3"
   namespace     = var.namespace
