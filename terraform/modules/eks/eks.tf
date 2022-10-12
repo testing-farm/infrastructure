@@ -47,7 +47,7 @@ module "eks" {
 }
 
 data "aws_route53_zone" "testing_farm_zone" {
-  name = "testing-farm.io"
+  name = var.route53_zone
 }
 
 resource "aws_route53_record" "eks-friendly-endpoint" {

@@ -6,6 +6,11 @@ variable "vpc_id" {
   description = "ID of the VPC where the cluster and its nodes will be provisioned"
 }
 
+variable "route53_zone" {
+  description = "Name of AWS Route53 zone to create a subdomain for the cluster in"
+  type        = string
+}
+
 variable "cluster_name" {
   description = "EKS cluster name to create."
 }
