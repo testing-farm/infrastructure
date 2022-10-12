@@ -98,13 +98,15 @@ module "testing-farm-eks-devel" {
 
   aws_default_region = var.cluster_default_region
   vpc_id             = var.cluster_vpc_id
+  route53_zone       = local.zone_name
 
   cluster_subnets    = var.cluster_subnets
   cluster_version    = "1.21"
 }
 
 locals {
-  domain_base            = "${var.cluster_name}.eks.testing-farm.io"
+  zone_name              = "testing-farm.io"
+  domain_base            = "${var.cluster_name}.eks.${local.zone_name}"
   artemis_api_domain     = "artemis.${local.domain_base}"
   external_dns_namespace = "kube-addons"
 }
@@ -218,7 +220,7 @@ resource "helm_release" "external-dns" {
 
   set {
     name  = "domainFilters"
-    value = "{${local.domain_base}}"
+    value = "{${local.zone_name}}"
   }
 
   set {
