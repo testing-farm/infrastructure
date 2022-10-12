@@ -52,9 +52,8 @@ create_results_xml() {
 EOF
 }
 
-# obsolete, replaced by https://gitlab.com/testing-farm/oculus
-create_results_html() {
-    echo "started creating results html"
+create_results() {
+    echo "started creating results artifacts"
 
     RESULTS_XML=${1:-results.xml}
 
@@ -64,12 +63,13 @@ create_results_html() {
     archive pipeline.log
 
     tfxunit2junit.py --issues-url $ISSUES_URL $RESULTS_XML > results-junit.xml || true
-    testing-farm-viewer -r results-junit.xml -t "results" || true
-
     archive results-junit.xml
-    archive index.html
 
-    echo "finished creating results html"
+    # obsolete, replaced by https://gitlab.com/testing-farm/oculus
+    testing-farm-viewer -r results-junit.xml -o old.html -t "results" || true
+    archive old.html
+
+    echo "finished creating results artifacts"
 }
 
 # create archive directory
@@ -83,16 +83,16 @@ rpm -qa > rpmlist-worker.txt
 # create in progress page
 create_results_xml in-progress skipped progress.xml
 
-# deploy new oculus viewer; move this over to index.html when deprecating create_results_html()
-curl -s --fail --show-error -O https://gitlab.com/testing-farm/oculus/-/raw/main/results.html
-archive results.html
+# deploy oculus viewer
+curl -s --fail --show-error -o index.html https://gitlab.com/testing-farm/oculus/-/raw/main/results.html
+archive index.html
 
 # disable bash debug until we run tmt with the progress reporting
 set +x
 
 # start syncing in background
 if [ -z "$NO_ARCHIVE" ]; then
-    { while true; do create_results_html progress.xml &>> progress.log; sleep $PROGRESS_TICK; done; } &
+    { while true; do create_results progress.xml &>> progress.log; sleep $PROGRESS_TICK; done; } &
 fi
 
 # get citool container image from request
@@ -137,7 +137,7 @@ for path in ${TASK_DIR}/${TASK_NAME}/*; do
     archive $path
 done
 
-create_results_html
+create_results
 
 printf "\n[pipeline-end] $(date)"
 
