@@ -18,6 +18,22 @@ variable "cluster_subnets" {
   type        = list(string)
 }
 
+variable "cluster_node_group_instance_types" {
+  default = ["t3.medium"]
+}
+
+variable "cluster_node_group_disk_size" {
+  default = 50
+}
+
+variable "cluster_node_group_scaling" {
+  default = {
+    desired_size = 1
+    min_size     = 1
+    max_size     = 1
+  }
+}
+
 variable "ansible_vault_password_file" {
   description = "Path to ansible vault password file."
   type        = string

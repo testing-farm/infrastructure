@@ -99,17 +99,21 @@ data "external" "ansible_inventory" {
 }
 
 module "testing-farm-eks-devel" {
-  source             = "./modules/eks"
+  source                    = "./modules/eks"
 
   # NOTE: cluster_name is set by direnv
-  cluster_name       = var.cluster_name
+  cluster_name              = var.cluster_name
 
-  aws_default_region = var.cluster_default_region
-  vpc_id             = var.cluster_vpc_id
-  route53_zone       = local.zone_name
+  aws_default_region        = var.cluster_default_region
+  vpc_id                    = var.cluster_vpc_id
+  route53_zone              = local.zone_name
 
-  cluster_subnets    = var.cluster_subnets
-  cluster_version    = "1.21"
+  cluster_subnets           = var.cluster_subnets
+  cluster_version           = "1.21"                                # => Requires helm provider <2.6.0
+
+  node_group_instance_types = var.cluster_node_group_instance_types
+  node_group_disk_size      = var.cluster_node_group_disk_size
+  node_group_scaling        = var.cluster_node_group_scaling
 }
 
 locals {
