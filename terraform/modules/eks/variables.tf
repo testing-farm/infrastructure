@@ -41,6 +41,20 @@ variable "node_group_disk_size" {
   default     = 50
 }
 
+variable "node_group_scaling" {
+  description = "AWS EC2 nodes scaling."
+  type        = object({
+    desired_size = number
+    min_size     = number
+    max_size     = number
+  })
+  default     = {
+    desired_size = 1
+    min_size     = 1
+    max_size     = 1
+  }
+}
+
 variable "resource_tags" {
   description = "An dictionary of tags applied to cluster and nodes."
   type        = map
