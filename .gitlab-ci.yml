@@ -29,8 +29,8 @@ ansible-vault:
   stage: 🔍
   script:
     - dnf -y install ansible-lint
-    - ansible-vault decrypt secrets/credentials.yml
-    - ansible-lint secrets/credentials.yml
+    - >
+      ansible-vault view secrets/credentials.yml | yamllint -d "rules: {line-length: {level: warning}}" -
   rules:
     - changes:
         - secrets/credentials.yml
