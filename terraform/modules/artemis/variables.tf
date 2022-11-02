@@ -71,10 +71,10 @@ variable "worker_threads" {
 variable "resources" {
   description = "Configure resources for pods"
   type        = map(map(map(string)))
-  default = {}
+  default     = {}
 
   validation {
-    condition     = alltrue([
+    condition = alltrue([
       for key, val in var.resources :
       contains([
         "artemis_api",

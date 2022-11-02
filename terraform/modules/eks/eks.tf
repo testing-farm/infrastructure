@@ -62,9 +62,9 @@ resource "aws_route53_record" "eks-friendly-endpoint" {
 }
 
 resource "aws_ec2_tag" "subnet_tag" {
-   count       = length(var.cluster_subnets)
+  count = length(var.cluster_subnets)
 
-   resource_id = var.cluster_subnets[count.index]
-   key         = "kubernetes.io/cluster/${module.eks.cluster_id}"
-   value       = "shared"
- }
+  resource_id = var.cluster_subnets[count.index]
+  key         = "kubernetes.io/cluster/${module.eks.cluster_id}"
+  value       = "shared"
+}
