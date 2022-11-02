@@ -107,6 +107,23 @@ if [ ! -e "${TOOLS_PATH}/terraform" ]; then
     rm -rf $TEMPDIR
 fi
 
+if [ ! -e "${TOOLS_PATH}/tflint" ]; then
+    info "install tflint"
+    TEMPDIR=$(mktemp -d)
+    pushd $TEMPDIR &>> $LOG
+    curl -sLo tflint.zip https://github.com/terraform-linters/tflint/releases/download/v0.42.2/tflint_linux_amd64.zip
+    unzip tflint.zip &>> $LOG
+    mv tflint ${TOOLS_PATH}/tflint
+    popd &>> $LOG
+    rm -rf $TEMPDIR
+fi
+
+if [ ! -e "${TOOLS_PATH}/tfsec" ]; then
+    info "install tfsec"
+    curl -sLo ${TOOLS_PATH}/tfsec https://github.com/aquasecurity/tfsec/releases/download/v1.28.1/tfsec-linux-amd64
+    chmod +x ${TOOLS_PATH}/tfsec
+fi
+
 #
 # setup git goodies
 #

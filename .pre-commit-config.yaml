@@ -47,3 +47,13 @@ repos:
         files: \.yaml$
         entry: "bash -c 'find . -ina'"
         exclude: .pre-commit-config.yaml
+
+  # Terraform linters
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.76.0
+    hooks:
+      - id: terraform_fmt
+        args:
+          - --args=-diff
+      - id: terraform_tflint
+      - id: terraform_tfsec
