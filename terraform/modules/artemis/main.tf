@@ -1,31 +1,31 @@
 resource "helm_release" "artemis" {
-  name          = var.release_name
-  repository    = "https://testing-farm.gitlab.io/artemis-helm/dev"
-  chart         = "artemis-core"
-  version       = "0.0.3"
-  namespace     = var.namespace
+  name       = var.release_name
+  repository = "https://testing-farm.gitlab.io/artemis-helm/dev"
+  chart      = "artemis-core"
+  version    = "0.0.3"
+  namespace  = var.namespace
 
   atomic        = true
   timeout       = 600
   wait          = true
   wait_for_jobs = true
 
-  values        = [
+  values = [
     templatefile(
       "${path.module}/values.yml.tftpl",
       {
-        artemis_server_config             = var.server_config
-        artemis_extra_files               = var.extra_files
+        artemis_server_config = var.server_config
+        artemis_extra_files   = var.extra_files
 
-        artemis_lb_source_ranges          = var.lb_source_ranges
+        artemis_lb_source_ranges = var.lb_source_ranges
 
-        artemis_api_processes             = var.api_processes
-        artemis_api_threads               = var.api_threads
-        artemis_api_domain                = var.api_domain
+        artemis_api_processes = var.api_processes
+        artemis_api_threads   = var.api_threads
+        artemis_api_domain    = var.api_domain
 
-        artemis_worker_replicas           = var.worker_replicas
-        artemis_worker_processes          = var.worker_processes
-        artemis_worker_threads            = var.worker_threads
+        artemis_worker_replicas  = var.worker_replicas
+        artemis_worker_processes = var.worker_processes
+        artemis_worker_threads   = var.worker_threads
 
         artemis_api_resources             = try(var.resources.artemis_api, {})
         artemis_dispatcher_resources      = try(var.resources.artemis_dispatcher, {})

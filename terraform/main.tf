@@ -4,11 +4,11 @@ terraform {
       source = "MeilleursAgents/ansiblevault"
     }
     helm = {
-      source = "hashicorp/helm"
+      source  = "hashicorp/helm"
       version = ">=2.4.0,<=2.5.1"
     }
     kubernetes = {
-      source = "hashicorp/kubernetes"
+      source  = "hashicorp/kubernetes"
       version = ">=2.2.0,<=2.14.0"
     }
   }
@@ -20,7 +20,7 @@ provider "ansiblevault" {
 }
 
 provider "ansiblevault" {
-  alias       = "artemis_config"
+  alias = "artemis_config"
 
   vault_path  = var.ansible_vault_password_file
   root_folder = var.artemis_config_root
@@ -32,7 +32,7 @@ provider "helm" {
     cluster_ca_certificate = base64decode(module.testing-farm-eks-devel.cluster.cluster_certificate_authority_data)
     exec {
       api_version = "client.authentication.k8s.io/v1alpha1"
-      args        = [
+      args = [
         "--region",
         var.cluster_default_region,
         "eks",
@@ -40,7 +40,7 @@ provider "helm" {
         "--cluster-name",
         module.testing-farm-eks-devel.cluster.cluster_id
       ]
-      command     = "aws"
+      command = "aws"
     }
   }
 }
@@ -50,7 +50,7 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.testing-farm-eks-devel.cluster.cluster_certificate_authority_data)
   exec {
     api_version = "client.authentication.k8s.io/v1alpha1"
-    args        = [
+    args = [
       "--region",
       var.cluster_default_region,
       "eks",
@@ -58,7 +58,7 @@ provider "kubernetes" {
       "--cluster-name",
       module.testing-farm-eks-devel.cluster.cluster_id
     ]
-    command     = "aws"
+    command = "aws"
   }
 }
 
@@ -78,7 +78,7 @@ data "ansiblevault_path" "vault_password" {
 }
 
 data "ansiblevault_path" "vault_ssh_key" {
-  count    = length(var.artemis_ssh_keys)
+  count = length(var.artemis_ssh_keys)
 
   provider = ansiblevault.artemis_config
   path     = var.artemis_ssh_keys[count.index].path
@@ -99,17 +99,17 @@ data "external" "ansible_inventory" {
 }
 
 module "testing-farm-eks-devel" {
-  source                    = "./modules/eks"
+  source = "./modules/eks"
 
   # NOTE: cluster_name is set by direnv
-  cluster_name              = var.cluster_name
+  cluster_name = var.cluster_name
 
-  aws_default_region        = var.cluster_default_region
-  vpc_id                    = var.cluster_vpc_id
-  route53_zone              = local.zone_name
+  aws_default_region = var.cluster_default_region
+  vpc_id             = var.cluster_vpc_id
+  route53_zone       = local.zone_name
 
-  cluster_subnets           = var.cluster_subnets
-  cluster_version           = "1.21"                                # => Requires helm provider <2.6.0
+  cluster_subnets = var.cluster_subnets
+  cluster_version = "1.21" # => Requires helm provider <2.6.0
 
   node_group_instance_types = var.cluster_node_group_instance_types
   node_group_disk_size      = var.cluster_node_group_disk_size
@@ -131,15 +131,15 @@ module "artemis" {
     {
       aws_access_key_id     = sensitive(data.ansiblevault_path.pool_access_key_aws.value)
       aws_secret_access_key = sensitive(data.ansiblevault_path.pool_secret_key_aws.value)
-      ssh_keys              = [
+      ssh_keys = [
         for i in range(length(var.artemis_ssh_keys)) :
-          merge(
-            {
-              name        = var.artemis_ssh_keys[i].name
-              owner       = var.artemis_ssh_keys[i].owner
-            },
-            yamldecode(sensitive(data.ansiblevault_path.vault_ssh_key[i].value))
-          )
+        merge(
+          {
+            name  = var.artemis_ssh_keys[i].name
+            owner = var.artemis_ssh_keys[i].owner
+          },
+          yamldecode(sensitive(data.ansiblevault_path.vault_ssh_key[i].value))
+        )
       ]
     }
   )
@@ -149,18 +149,18 @@ module "artemis" {
       for filename in var.artemis_config_extra_files :
       filename => file(
         fileexists("${var.artemis_config_root}/${filename}") ?
-          "${var.artemis_config_root}/${filename}" : "${var.artemis_config_common}/${filename}"
+        "${var.artemis_config_root}/${filename}" : "${var.artemis_config_common}/${filename}"
       )
-    }, {
+      }, {
       for template in var.artemis_config_extra_templates :
-        template.target => templatefile(
-          fileexists("${var.artemis_config_root}/${template.source}") ?
-            "${var.artemis_config_root}/${template.source}" :
-            "${var.artemis_config_common}/${template.source}",
-          merge(
-            {template_vars_sources=template.vars},
-            [for varfile in template.vars : yamldecode(file(varfile))]...
-          )
+      template.target => templatefile(
+        fileexists("${var.artemis_config_root}/${template.source}") ?
+        "${var.artemis_config_root}/${template.source}" :
+        "${var.artemis_config_common}/${template.source}",
+        merge(
+          { template_vars_sources = template.vars },
+          [for varfile in template.vars : yamldecode(file(varfile))]...
+        )
       )
     }
   )
@@ -173,15 +173,15 @@ module "artemis" {
     if ip != null
   ]
 
-  api_processes    = var.artemis_api_processes
-  api_threads      = var.artemis_api_threads
-  api_domain       = local.artemis_api_domain
+  api_processes = var.artemis_api_processes
+  api_threads   = var.artemis_api_threads
+  api_domain    = local.artemis_api_domain
 
   worker_replicas  = var.artemis_worker_replicas
   worker_processes = var.artemis_worker_processes
   worker_threads   = var.artemis_worker_threads
 
-  resources        = var.resources
+  resources = var.resources
 }
 
 resource "kubernetes_namespace" "kube-addons-ns" {
@@ -194,7 +194,7 @@ resource "kubernetes_secret" "aws-credentials-secret" {
   depends_on = [kubernetes_namespace.kube-addons-ns]
 
   metadata {
-    name = "aws-credentials"
+    name      = "aws-credentials"
     namespace = local.external_dns_namespace
   }
 
@@ -218,7 +218,7 @@ resource "helm_release" "external-dns" {
   chart      = "external-dns"
   version    = "1.11.0"
 
-  namespace  = local.external_dns_namespace
+  namespace = local.external_dns_namespace
 
   set {
     name  = "provider"
@@ -227,7 +227,7 @@ resource "helm_release" "external-dns" {
 
   set {
     name  = "txtOwnerId"
-    value = "${var.cluster_name}"
+    value = var.cluster_name
   }
 
   set {

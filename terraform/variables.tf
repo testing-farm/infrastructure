@@ -51,13 +51,13 @@ variable "ansible_vault_secrets_root" {
 
 variable "artemis_ssh_keys" {
   description = "SSH keys to configure artemis with"
-  type        = list(object({
+  type = list(object({
     name  = string
     owner = string
     path  = string
     key   = string
   }))
-  default     = [{
+  default = [{
     name  = "master-key"
     owner = "artemis"
     path  = "master-key.yml"
@@ -91,7 +91,7 @@ variable "artemis_config_root" {
 variable "artemis_config_extra_files" {
   description = "List of files to include with artemis configuration."
   type        = list(string)
-  default     = [
+  default = [
     "ARTEMIS_HOOK_AWS_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_AZURE_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_BEAKER_ENVIRONMENT_TO_IMAGE.py",
@@ -102,7 +102,7 @@ variable "artemis_config_extra_files" {
 
 variable "artemis_config_extra_templates" {
   description = "List of files to template and include with artemis configuration."
-  type        = list(object({
+  type = list(object({
     source = string
     target = string
     vars   = list(string)

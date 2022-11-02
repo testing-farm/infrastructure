@@ -18,22 +18,22 @@ module "devel-cluster" {
   artemis_release_name = "artemis"
   artemis_namespace    = "default"
 
-  artemis_config_root            = "./config"
-  artemis_config_common          = "../common/config"
-  artemis_config_extra_files     = [
-  	"ARTEMIS_HOOK_AWS_ENVIRONMENT_TO_IMAGE.py",
-  	"ARTEMIS_HOOK_AZURE_ENVIRONMENT_TO_IMAGE.py",
-  	"ARTEMIS_HOOK_BEAKER_ENVIRONMENT_TO_IMAGE.py",
-  	"ARTEMIS_HOOK_OPENSTACK_ENVIRONMENT_TO_IMAGE.py",
-  	"ARTEMIS_HOOK_ROUTE.py",
+  artemis_config_root   = "./config"
+  artemis_config_common = "../common/config"
+  artemis_config_extra_files = [
+    "ARTEMIS_HOOK_AWS_ENVIRONMENT_TO_IMAGE.py",
+    "ARTEMIS_HOOK_AZURE_ENVIRONMENT_TO_IMAGE.py",
+    "ARTEMIS_HOOK_BEAKER_ENVIRONMENT_TO_IMAGE.py",
+    "ARTEMIS_HOOK_OPENSTACK_ENVIRONMENT_TO_IMAGE.py",
+    "ARTEMIS_HOOK_ROUTE.py",
     "variables_images.yml"
   ]
   artemis_config_extra_templates = [{
     source = "artemis-image-map-aws.yml.tftpl"
     target = "artemis-image-map-aws.yml"
-    vars = ["./config/variables_images.yml"]
+    vars   = ["./config/variables_images.yml"]
   }]
-  artemis_ssh_keys               = [{
+  artemis_ssh_keys = [{
     name  = "master-key"
     owner = "artemis"
     path  = "master-key.yml"
@@ -59,7 +59,7 @@ module "devel-cluster" {
     }
 
     artemis_dispatcher = {
-      limits   = {
+      limits = {
         memory = "128Mi"
       }
       requests = {
@@ -89,7 +89,7 @@ module "devel-cluster" {
     }
 
     artemis_scheduler = {
-      limits   = {
+      limits = {
         memory = "128Mi"
       }
       requests = {
@@ -109,7 +109,7 @@ module "devel-cluster" {
     }
 
     rabbitmq = {
-      limits   = {
+      limits = {
         memory = "512Mi"
       }
       requests = {
@@ -129,7 +129,7 @@ module "devel-cluster" {
     }
 
     postgresql_exporter = {
-      limits   = {
+      limits = {
         memory = "32Mi"
       }
       requests = {
@@ -149,7 +149,7 @@ module "devel-cluster" {
     }
 
     redis_exporter = {
-      limits   = {
+      limits = {
         memory = "32Mi"
       }
       requests = {
