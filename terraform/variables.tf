@@ -18,15 +18,15 @@ variable "cluster_subnets" {
   type        = list(string)
 }
 
-variable "cluster_node_group_instance_types" {
+variable "cluster_node_group_instance_types" { # tflint-ignore: terraform_typed_variables
   default = ["t3.medium"]
 }
 
-variable "cluster_node_group_disk_size" {
+variable "cluster_node_group_disk_size" { # tflint-ignore: terraform_typed_variables
   default = 50
 }
 
-variable "cluster_node_group_scaling" {
+variable "cluster_node_group_scaling" { # tflint-ignore: terraform_typed_variables
   default = {
     desired_size = 1
     min_size     = 1

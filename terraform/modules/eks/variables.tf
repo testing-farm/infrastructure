@@ -1,9 +1,11 @@
 variable "aws_default_region" {
   description = "AWS default region."
+  type        = string
 }
 
 variable "vpc_id" {
   description = "ID of the VPC where the cluster and its nodes will be provisioned"
+  type        = string
 }
 
 variable "route53_zone" {
@@ -13,19 +15,23 @@ variable "route53_zone" {
 
 variable "cluster_name" {
   description = "EKS cluster name to create."
+  type        = string
 }
 
 variable "cluster_version" {
   description = "EKS cluster version."
+  type        = string
 }
 
 variable "cluster_role_arn" {
   description = "ARN of the IAM role that provides permissions for the Kubernetes control plane to make calls to AWS APIs on your behalf."
+  type        = string
   default     = "arn:aws:iam::125523088429:role/fedora-ci-eks"
 }
 
 variable "node_group_role_arn" {
   description = "ARN of the IAM role that provides permissions for the Kubernetes node kubelet to make calls to AWS APIs on your behalf."
+  type        = string
   default     = "arn:aws:iam::125523088429:role/aws-fedora-ci"
 }
 
