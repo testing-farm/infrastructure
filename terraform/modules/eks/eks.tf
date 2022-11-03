@@ -1,13 +1,30 @@
+terraform {
+  required_version = ">=1.0.9"
+  required_providers {
+    aws = {
+      version = ">=4.0.0"
+    }
+  }
+}
+
 provider "kubernetes" {
   alias = "eks"
 }
 
-module "eks" {
+# Ignore these checks while we want to have public access to the cluster enabled
+# tfsec:ignore:aws-eks-no-public-cluster-access
+# tfsec:ignore:aws-eks-no-public-cluster-access-to-cidr
+# tfsec:ignore:aws-ec2-no-public-egress-sgr # HTTPS egress from nodes (should be tightened to port 443)
+# tfsec:ignore:aws-eks-enable-control-plane-logging # TODO logging and metrics
+# tfsec:ignore:aws-eks-encrypt-secrets # Missing permission to create encryption keys
+module "eks" { # tflint-ignore: terraform_required_providers
   providers = {
     kubernetes = kubernetes.eks
   }
 
-  source          = "terraform-aws-modules/eks/aws"
+  source  = "terraform-aws-modules/eks/aws"
+  version = ">=v18.26.0"
+
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
 
@@ -15,6 +32,16 @@ module "eks" {
 
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
+
+  node_security_group_ntp_ipv4_cidr_block = ["169.254.169.123/32"]
+  node_security_group_ntp_ipv6_cidr_block = ["fd00:ec2::123/128"]
+
+  # We do not have the permission to create KMS keys
+  #cluster_encryption_config = [{
+  #  resources = ["secrets"]
+  #}]
+  #create_kms_key = true
+  #kms_key_description = "${var.cluster_name} EKS cluster secrets encryption key"
 
   create_iam_role = false
   iam_role_arn    = var.cluster_role_arn
@@ -38,9 +65,9 @@ module "eks" {
   eks_managed_node_groups = {
     default_node_group = {
       create_iam_role = false
-      iam_role_arn    = "${var.node_group_role_arn}"
+      iam_role_arn    = var.node_group_role_arn
 
-      tags = "${var.resource_tags}"
+      tags = var.resource_tags
 
       # NOTE: this will make sure we use the Amazon provided lunch templates
       create_launch_template = false

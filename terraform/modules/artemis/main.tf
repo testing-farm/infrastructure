@@ -1,3 +1,12 @@
+terraform {
+  required_version = ">=1.0.9"
+  required_providers {
+    helm = {
+      version = ">=2.0.0"
+    }
+  }
+}
+
 resource "helm_release" "artemis" {
   name       = var.release_name
   repository = "https://testing-farm.gitlab.io/artemis-helm/dev"

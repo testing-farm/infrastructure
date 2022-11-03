@@ -1,7 +1,10 @@
 terraform {
+  required_version = ">=1.2.0"
+
   required_providers {
     ansiblevault = {
-      source = "MeilleursAgents/ansiblevault"
+      source  = "MeilleursAgents/ansiblevault"
+      version = "2.2.0"
     }
     helm = {
       source  = "hashicorp/helm"
@@ -10,6 +13,9 @@ terraform {
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = ">=2.2.0,<=2.14.0"
+    }
+    external = {
+      version = ">=2.2.0"
     }
   }
 }
@@ -125,6 +131,9 @@ locals {
 
 module "artemis" {
   source = "./modules/artemis"
+
+  release_name = var.artemis_release_name
+  namespace    = var.artemis_namespace
 
   server_config = templatefile(
     "${var.artemis_config_root}/server.yml.tftpl",
