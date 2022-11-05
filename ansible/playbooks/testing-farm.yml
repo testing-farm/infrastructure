@@ -25,8 +25,8 @@
       tags: update_jobs
     - include: ../tasks/config.yml
       tags: update_config
-    - include: ../tasks/xunit-viewer.yml
-      tags: update_xunit_viewer
+    - include: ../tasks/xunit-converter.yml
+      tags: update_xunit_converter
     - include: ../tasks/image.yml
       tags: update_image
   roles:

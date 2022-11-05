@@ -77,7 +77,7 @@
     - include: ../tasks/podman.yml
     - include: ../tasks/jobs.yml
     - include: ../tasks/config.yml
-    - include: ../tasks/xunit-viewer.yml
+    - include: ../tasks/xunit-converter.yml
     - include: ../tasks/image.yml
     - name: "Manual action required to update Artemis loabalancer - kubectl edit svc/artemis-api and worker security group"
       pause:
