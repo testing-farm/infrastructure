@@ -1,12 +1,8 @@
 ---
 - block:
-  - name: Install nodejs 14, xunit-viewer does not work on newer
-    command: "dnf -y module install nodejs:14"
-
-  - name: Make sure npm is present
+  - name: Make sure python3-lxml is present
     package:
       name:
-        - npm
         - python3-lxml
       state: present
 
@@ -15,8 +11,5 @@
       url: "https://raw.githubusercontent.com/fedora-ci/jenkins-pipeline-library-agent-image/master/scripts/tfxunit2junit.py"
       dest: "/usr/local/bin/tfxunit2junit.py"
       mode: "a+rwx"
-
-  - name: Install testing-farm-viewer
-    command: "npm i -g testing-farm-viewer"
 
   become: true

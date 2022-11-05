@@ -80,7 +80,7 @@
     - include: ../tasks/podman.yml
     - include: ../tasks/jobs.yml
     - include: ../tasks/config.yml
-    - include: ../tasks/xunit-viewer.yml
+    - include: ../tasks/xunit-converter.yml
     - include: ../tasks/image.yml
     - include: ../tasks/rh-certs.yml
   roles:
