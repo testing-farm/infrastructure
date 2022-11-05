@@ -65,10 +65,6 @@ create_results() {
     tfxunit2junit.py --issues-url $ISSUES_URL $RESULTS_XML > results-junit.xml || true
     archive results-junit.xml
 
-    # obsolete, replaced by https://gitlab.com/testing-farm/oculus
-    testing-farm-viewer -r results-junit.xml -o old.html -t "results" || true
-    archive old.html
-
     echo "finished creating results artifacts"
 }
 
