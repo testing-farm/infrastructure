@@ -16,8 +16,8 @@
           ServiceComponent: Worker
         key_name: tft-artemis-master-key
         instance_type: i3.2xlarge
-        # Fedora-Cloud-Base-36-1.5.x86_64-hvm-us-east-2-gp2-0
-        image_id: ami-0f734524c1fd28fc8
+        # Fedora-Cloud-Base-36-1.5.x86_64-hvm-us-east-1-gp2-0
+        image_id: ami-08b7bda26f4071b80
         wait: true
         count: "{{ count|default(1) }}"
         network:
@@ -75,6 +75,7 @@
     - ../secrets/credentials.yml
     - ../vars/common.yml
   pre_tasks:
+    - include: ../tasks/rh-certs.yml
     - include: ../tasks/dns.yml
     - include: ../tasks/ssh-key.yml
     - include: ../tasks/podman.yml
@@ -82,7 +83,6 @@
     - include: ../tasks/config.yml
     - include: ../tasks/xunit-converter.yml
     - include: ../tasks/image.yml
-    - include: ../tasks/rh-certs.yml
   roles:
     - name: geerlingguy.swap
       vars:

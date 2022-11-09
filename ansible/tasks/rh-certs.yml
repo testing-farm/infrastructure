@@ -1,7 +1,6 @@
 ---
 - name: Install RH CA Certificates
   become: true
-  dnf:
-    name: https://hdn.corp.redhat.com/rhel7-csb-stage/RPMS/noarch/redhat-internal-cert-install-0.1-25.el7.noarch.rpm
-    state: present
-    disable_gpg_check: true
+  ansible.builtin.shell: |
+    curl -kLO https://hdn.corp.redhat.com/rhel7-csb-stage/RPMS/noarch/redhat-internal-cert-install-0.1-25.el7.noarch.rpm
+    rpm -ivh --nodeps redhat-internal-cert-install-0.1-25.el7.noarch.rpm
