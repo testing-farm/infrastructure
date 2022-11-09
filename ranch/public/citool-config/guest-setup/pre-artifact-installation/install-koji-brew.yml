@@ -1,31 +1,19 @@
 ---
-- name:
-  block:
-    - name: Install dnf-utils, need for the next workaround task
-      package:
-        name:
-          - dnf-utils
-        state: present
-
-    - name: Enable copr with koji workarounding pagure.io/koji/issue/3461
-      command: "dnf -y copr enable @osci/koji"
-
-    - name: Install Koji
-      package:
-        name:
-          - koji-1.28.1
-        state: present
-      when:
-      retries: "{{ pkg_retry_count }}"
-      delay: "{{ pkg_retry_delay }}"
-      until: result_package is succeeded
-      register: result_package
+- name: Install Koji
+  package:
+    name:
+      - koji
+    state: present
   when:
-    - 'ansible_distribution == "Fedora" or
-       ansible_distribution == "CentOS" or
-       ansible_distribution == "OracleLinux"'
-    # we do not want to install Koji on Automotive images
-    - '"auto-osbuild" not in IMAGE_NAME|lower'
+  - 'ansible_distribution == "Fedora" or
+     ansible_distribution == "CentOS" or
+     ansible_distribution == "OracleLinux"'
+  # we do not want to install Koji on Automotive images
+  - '"auto-osbuild" not in IMAGE_NAME|lower'
+  retries: "{{ pkg_retry_count }}"
+  delay: "{{ pkg_retry_delay }}"
+  until: result_package is succeeded
+  register: result_package
 
 - block:
     - name: Add RCM Repository for RHEL7 and earlier
