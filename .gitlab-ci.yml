@@ -14,91 +14,137 @@ workflow:
     # for the tip of the default branch
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
-.direnv:
+.rules:
+  not_default_branch:
+    # do not run for default branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+
+  only_default_branch:
+    # run only for default branch
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      when: never
+
+  gitlab_ci:
+    - changes:
+        - .gitlab-ci.yml
+
+  secrets:
+    - changes:
+        - secrets/credentials.yaml
+
+  terraform_infra:
+    - !reference [.rules, secrets]
+    - !reference [.rules, gitlab_ci]
+    - changes:
+        - terraform/environments/common/**/*
+        - terraform/modules/**/*
+        - terraform/*.tf
+        - terraform/*.tftpl
+        - .envrc
+
+  terraform_dev:
+    - !reference [.rules, terraform_infra]
+    - changes:
+        - terraform/environments/dev/**/*
+
+  terraform_staging:
+    - !reference [.rules, terraform_infra]
+    - changes:
+        - terraform/environments/staging/**/*
+
+direnv_prepare:
+  stage: .pre
   before_script:
-    - echo -n "$VAULT_PASSWORD" > .vault_pass
     - dnf -y install direnv libffi libffi-devel
+    - echo -n "$VAULT_PASSWORD" > .vault_pass
+  script:
     - direnv allow
     - eval "$(direnv export bash)"
+  cache:
+    paths:
+      - .venv
+  artifacts:
+    public: false
+    paths:
+      - .direnv
+      - .venv
 
-stages:
-  - 🔍
+.direnv:
+  before_script:
+    - dnf -y install direnv libffi libffi-devel
+    - echo -n "$VAULT_PASSWORD" > .vault_pass
+    - direnv allow
+    - eval "$(direnv export bash)"
+  script:
+    - eval "$(direnv export bash)"
+  dependencies:
+    - direnv_prepare
+
+# Workaround for after_script timing-out
+.script_with_cleanup:
+  script:
+    - env -C "${CI_PROJECT_DIR}/${SCRIPT_DIR}" /bin/bash -c "${SCRIPT}" && EXIT_CODE=$? || EXIT_CODE=$?
+    - env -C "${CI_PROJECT_DIR}/${SCRIPT_DIR}" /bin/bash -c "${AFTER_SCRIPT}"
+    - "[ ${EXIT_CODE} = 0 ]"
 
 ansible-vault:
   extends: .direnv
-  stage: 🔍
+  stage: test
   script:
+    - !reference [.direnv, script]
     - dnf -y install ansible-lint
     - >
       ansible-vault view secrets/credentials.yaml | yamllint -d "rules: {line-length: {level: warning}}" -
   rules:
-    - changes:
-      - secrets/credentials.yaml
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, secrets]
 
 pre-commit:
   extends: .direnv
-  stage: 🔍
+  stage: test
   script:
-    - dnf -y install pre-commit
+    - !reference [.direnv, script]
     - PRE_COMMIT_HOME=$CI_PROJECT_DIR/.cache/pre-commit pre-commit run --all-files
   cache:
     paths:
-      - $CI_PROJECT_DIR/.cache
+      - .cache
   rules:
+    - !reference [.rules, not_default_branch]
     - when: always
 
-terraform:
+test/dev:
   extends: .direnv
-  stage: 🔍
+  stage: test
   script:
     # TODO: tmt run -e cluster_name=testing-farm-gitlab-ci-$CI_COMMIT_REF_NAME plan --name /terraform/environments/dev
-    - export TF_VAR_cluster_name=testing-farm-gitlab-ci-${CI_COMMIT_REF_NAME:0:10}-$CI_JOB_ID
-    - cd terraform/environments/dev
-    - terraform init
-    - terraform plan -out tfplan
-    - terraform apply tfplan
-    - context=$(aws eks --region us-east-2 update-kubeconfig --name $TF_VAR_cluster_name | grep -o "arn[^ ]*")
-    - kubectl ctx $context
-    - kubectl ns default
-    - kubectl run fedora --image fedora:35 -- sleep infinity
-    - kubectl wait --for=condition=Ready pod/fedora
-    - kubectl exec pod/fedora -- cat /etc/os-release | grep '^ID=fedora$'
-    - kubectl delete pod/fedora
-    # Destroy all created resources. Note that for success case this can take long
-    # and after_script has timeout hardcoded to 5 mins, keeping leftovers.
-    - terraform destroy -auto-approve
-  after_script:
-    - eval "$(direnv export bash)"
-    - export TF_VAR_cluster_name=testing-farm-gitlab-ci-${CI_COMMIT_REF_NAME:0:10}-$CI_JOB_ID
-    - cd terraform/environments/dev
-    - terraform destroy -auto-approve
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    TF_VAR_cluster_name: testing-farm-gitlab-ci-${CI_COMMIT_REF_NAME:0:10}-$CI_JOB_ID
+    SCRIPT_DIR: terraform/environments/dev
+    SCRIPT: >-
+      terraform init &&
+      terraform plan -out tfplan &&
+      terraform apply tfplan
+    AFTER_SCRIPT: terraform destroy -auto-approve
   rules:
-    - changes:
-        - secrets/credentials.yaml
-        - terraform/environments/common/**/*
-        - terraform/environments/dev/**/*
-        - terraform/modules/**/*
-        - terraform/*.tf
-        - terraform/*.tftpl
-        - .envrc
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, terraform_dev]
 
 deploy/staging:
   extends: .direnv
-  stage: 🔍
+  stage: deploy
+  when: manual
   script:
-    - cd terraform/environments/staging
-    - terraform init
-    - terraform plan -out tfplan
-    - terraform apply tfplan
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    SCRIPT_DIR: terraform/environments/staging
+    SCRIPT: >-
+      terraform init &&
+      terraform plan -out tfplan &&
+      terraform apply tfplan
   rules:
-    # Only default branch
-    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
-      when: never
-    - changes:
-        - secrets/credentials.yaml
-        - terraform/environments/common/**/*
-        - terraform/environments/staging/**/*
-        - terraform/modules/**/*
-        - terraform/*.tf
-        - terraform/*.tftpl
-        - .envrc
+    - !reference [.rules, only_default_branch]
+    - !reference [.rules, terraform_staging]
