@@ -79,3 +79,24 @@ terraform:
         - terraform/*.tf
         - terraform/*.tftpl
         - .envrc
+
+deploy/staging:
+  extends: .direnv
+  stage: 🔍
+  script:
+    - cd terraform/environments/staging
+    - terraform init
+    - terraform plan -out tfplan
+    - terraform apply tfplan
+  rules:
+    # Only default branch
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      when: never
+    - changes:
+        - secrets/credentials.yml
+        - terraform/environments/common/**/*
+        - terraform/environments/staging/**/*
+        - terraform/modules/**/*
+        - terraform/*.tf
+        - terraform/*.tftpl
+        - .envrc
