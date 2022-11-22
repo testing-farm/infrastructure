@@ -3,10 +3,10 @@ api-url = http://a2f77d7ab5fdb4b60a42d8e9e3b47831-882451766.us-east-1.elb.amazon
 api-version = v0.0.24
 skip-prepare-verify-ssh = true
 ssh-options = UserKnownHostsFile=/dev/null, StrictHostKeyChecking=no
-ssh-key = /etc/citool.d/id_rsa_artemis
+ssh-key = ${config_root}/id_rsa_artemis
 key = master-key
 user-data-vars = COLDSTORE_URL,NOMAD_ALLOC_NAME,NOMAD_META_REQUEST_ID,NOMAD_JOB_NAME
-playbook = /etc/citool.d/playbooks/cloud_image_login.yaml
+playbook = ${config_root}/playbooks/cloud_image_login.yaml
 
 # Provisioning a guest in AWS should not take more then 30 minutes (artemis needs to become quicker)
 ready-timeout = 1800
