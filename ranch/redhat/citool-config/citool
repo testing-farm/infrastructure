@@ -11,4 +11,4 @@ pid = yes
 
 no-sentry-exceptions = gluetool_modules.infrastructure.koji_fedora.NoArtifactsError
 
-module-config-path = /CONFIG/config
+module-config-path = ${config_root}/config
