@@ -136,7 +136,17 @@ fi
 # sync task logs
 TASK_DIR=$(dirname $RUN_DIR)
 for path in ${TASK_DIR}/${TASK_NAME}/*; do
-    archive $path '' '--recursive'
+    fname="$(basename "$path")"
+    if [ -f "$path" ]; then
+        # all files in the top-level directory, like ansible-output.txt or progress.xml
+        archive $path
+    elif [ "${fname#guest-setup}" != "$fname" ]; then
+        # all guest setup logs
+        archive $path '' '--recursive'
+    elif [ "${fname#work-}" != "$fname" ]; then
+        # all TMT plan results
+        archive $path '' '--recursive'
+    fi
 done
 
 create_results
