@@ -133,7 +133,8 @@ if [ ! -e "results.xml" ]; then
     create_results_xml failure error
 fi
 
-# sync task logs
+# sync task logs; we need to be picky here to avoid copying multipe copies of the built/unbuilt source tree
+# until tmt does that by itself: https://github.com/teemtee/tmt/issues/1707
 TASK_DIR=$(dirname $RUN_DIR)
 for path in ${TASK_DIR}/${TASK_NAME}/*; do
     fname="$(basename "$path")"
@@ -145,7 +146,7 @@ for path in ${TASK_DIR}/${TASK_NAME}/*; do
         archive $path '' '--recursive'
     elif [ "${fname#work-}" != "$fname" ]; then
         # all TMT plan results
-        archive $path '' '--recursive'
+        archive $path '' '--recursive --exclude tree --exclude discover'
     fi
 done
 
