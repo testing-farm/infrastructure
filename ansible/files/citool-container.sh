@@ -36,6 +36,7 @@ export CITOOL_IMAGE_CTIME="$ctime"
 exec podman run --init \
                 --rm \
                 --privileged \
+                --network=host \
                 --name ${REQUEST_ID:-no-request-$RANDOM} \
                 -v ${CITOOL_CONFIG_DIR}:/CONFIG:Z \
                 -v ${CITOOL_RUN_DIR}:/var/ARTIFACTS:Z \
