@@ -23,8 +23,9 @@
         network:
           assign_public_ip: false
         instance_initiated_shutdown_behavior: terminate
-        security_group: sg-0a27e72b0135ea078
-        vpc_subnet_id: subnet-0b853a752f0f7eba5
+        # TFT-1755 - use ARR-TestingFarm-US-East-1, which has correctly setup DNS
+        security_group: sg-0cb20f3b88c57fa30
+        vpc_subnet_id: subnet-036ad213c3fb0eb7e
       register: ec2
 
     - name: Add new instance to host group
