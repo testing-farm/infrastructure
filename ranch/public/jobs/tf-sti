@@ -23,15 +23,16 @@ PROGRESS_TICK=30
 REQUEST_ARCHIVE_DIR=${ARCHIVE_DIR}/${REQUEST_ID}
 
 archive() {
-    WHAT=$1
-    WHERE=$2
+    WHAT="$1"
+    WHERE="$2"
+    OPTIONS="$3"
 
     if [ ! -e $WHAT ]; then
         echo "Artifact '$WHAT' not found, skipping archivation"
         return
     fi
 
-    rsync -avrz $WHAT ${ARTIFACTS_HOSTNAME}:${ARTIFACTS_ROOT}/${REQUEST_ID}/${WHERE}
+    rsync --links --perms --times --verbose --compress $OPTIONS "$WHAT" ${ARTIFACTS_HOSTNAME}:${ARTIFACTS_ROOT}/${REQUEST_ID}/${WHERE}
 }
 
 create_results_xml() {
@@ -136,7 +137,7 @@ fi
 # sync task logs
 TASK_DIR=$(dirname $RUN_DIR)
 for path in ${TASK_DIR}/${TASK_NAME}/*; do
-    archive $path
+    archive $path '' '--recursive'
 done
 
 create_results
