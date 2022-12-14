@@ -26,7 +26,7 @@ job "tf-tmt" {
 
       resources {
         cpu    = 500
-        memory = 512
+        memory = 2048
       }
 
       config {
