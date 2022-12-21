@@ -4,7 +4,7 @@ api-version = v0.0.38
 ssh-options = UserKnownHostsFile=/dev/null, StrictHostKeyChecking=no
 ssh-key = ${config_root}/id_rsa_artemis
 key = master-key
-user-data-vars = COLDSTORE_URL
+user-data-vars = COLDSTORE_URL, ServiceName
 
 # Provisioning a guest can take several hours, depending on the resources available to Artemis backend.
 ready-timeout = 86400

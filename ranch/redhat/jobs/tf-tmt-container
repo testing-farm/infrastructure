@@ -94,7 +94,7 @@ CITOOL_IMAGE=$(curl -s --retry 5 https://api.dev.testing-farm.io/v0.1/requests/$
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
 citool-container.sh hide-secrets \
-                    rules-engine-empty:rules-engine \
+                    rules-engine \
                     testing-farm-request --request-id $REQUEST_ID \
                     ansible \
                     static-guest --guest=localhost \
