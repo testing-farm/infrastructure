@@ -34,7 +34,7 @@
     - 'not IMAGE_NAME|lower|regex_search("^auto-")'
 
 - block:
-    - name: Add RCM Repository for RHEL8+
+    - name: Add RCM Repository for RHEL8
       yum_repository:
         description: RCMTOOLS repository
         name: rcmtools
@@ -54,4 +54,18 @@
     - 'ansible_distribution == "RedHat" or
        ansible_distribution == "CentOS" or
        ansible_distribution == "OracleLinux"'
+    - 'ansible_distribution_major_version == "8"'
+    - 'not IMAGE_NAME|lower|regex_search("^auto-")'
+
+- block:
+    - name: Install brewkoji from Fedora 33 for RHEL9 (workaround)
+      command: "dnf -y install --nogpgcheck https://kojipkgs.fedoraproject.org//packages/koji/1.23.0/2.fc33/noarch/koji-1.23.0-2.fc33.noarch.rpm https://kojipkgs.fedoraproject.org//packages/koji/1.23.0/2.fc33/noarch/python3-koji-1.23.0-2.fc33.noarch.rpm http://download.devel.redhat.com/rel-eng/RCMTOOLS/RCMTOOLS-2.0-updates-F-33-20210105.0/compose/Everything/x86_64/os/Packages/brewkoji-1.26-1.fc33eng.noarch.rpm http://download.devel.redhat.com/rel-eng/RCMTOOLS/RCMTOOLS-2.0-updates-F-33-20210105.0/compose/Everything/x86_64/os/Packages/python3-brewkoji-1.26-1.fc33eng.noarch.rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/pyOpenSSL/20.0.1/2.el9/noarch/python3-pyOpenSSL-20.0.1-2.el9.noarch.rpm"
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
+
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_major_version == "9"'
     - 'not IMAGE_NAME|lower|regex_search("^auto-")'
