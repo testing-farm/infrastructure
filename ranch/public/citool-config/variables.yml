@@ -11,4 +11,4 @@
 # Currently `artemis` module uses this variable to set it as a guest tag to all provisioned machines.
 # See `config/artemis` for details.
 #
-ServiceName: Testing Farm
+ServiceName: TestingFarm
