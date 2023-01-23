@@ -32,3 +32,9 @@ repos:
     rev: v1.1.0
     hooks:
       - id: detect-secrets
+
+  - repo: https://github.com/zricethezav/gitleaks
+    rev: v8.15.3
+    hooks:
+      - id: gitleaks
+        entry: gitleaks protect --verbose --redact --staged

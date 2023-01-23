@@ -171,13 +171,13 @@ if [ ! -e "$DIRENV_PATH/.testing-farm" ]; then
 
     # testing-farm-public
     TOKEN=$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | \
-        yq -r ".credentials.testing_farm.ranch.public.api_key")
+        yq -r ".credentials.testing_farm.ranch.public.bot_api_key")
     printf "export TESTING_FARM_API_TOKEN=$TOKEN\ntesting-farm \"\$@\"" > $TOOLS_PATH/testing-farm-public
     chmod +x $TOOLS_PATH/testing-farm-public
 
     # testing-farm-redhat
     TOKEN=$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | \
-        yq -r ".credentials.testing_farm.ranch.redhat.api_key")
+        yq -r ".credentials.testing_farm.ranch.redhat.bot_api_key")
     printf "export TESTING_FARM_API_TOKEN=$TOKEN\ntesting-farm \"\$@\"" > $TOOLS_PATH/testing-farm-redhat
     chmod +x $TOOLS_PATH/testing-farm-redhat
 fi

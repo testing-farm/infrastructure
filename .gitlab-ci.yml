@@ -23,9 +23,8 @@ ansible-vault:
   extends: .direnv
   stage: 🔍
   script:
-    - dnf -y install ansible-lint
-    - ansible-vault decrypt ansible/secrets/credentials.yml
-    - ansible-lint ansible/secrets/credentials.yml
+    - >
+      ansible-vault view ansible/secrets/credentials.yml | yamllint -d "rules: {line-length: {level: warning}}" -
   rules:
     - changes:
         - ansible/secrets/credentials.yml
