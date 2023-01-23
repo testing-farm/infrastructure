@@ -18,6 +18,7 @@ botocore = "^1.23.26"
 boto3 = "^1.20.26"
 tft-cli = "^0.0.5"
 markupsafe = "~2.0.1"
+yamllint = "^1.29.0"
 
 [tool.poetry.dev-dependencies]
 
