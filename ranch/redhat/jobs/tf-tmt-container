@@ -98,12 +98,12 @@ citool-container.sh hide-secrets \
                     testing-farm-request --request-id $REQUEST_ID \
                     ansible \
                     static-guest --guest=localhost \
-                    guest-setup-no-playbooks:guest-setup guess-environment --distro-method=force --distro localhost --compose-method=force --compose localhost \
-                    dist-git-testing-farm:dist-git \
+                    guest-setup-no-playbooks:guest-setup \
+                    git-testing-farm:git \
                     coldstore \
                     testing-farm-request-state-reporter \
                     test-schedule-tmt \
-                    test-scheduler \
+                    test-scheduler-testing-farm \
                     test-schedule-runner \
                     test-schedule-report
 
