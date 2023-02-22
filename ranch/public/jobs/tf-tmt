@@ -146,7 +146,7 @@ for path in ${TASK_DIR}/${TASK_NAME}/*; do
         archive $path '' '--recursive'
     elif [ "${fname#work-}" != "$fname" ]; then
         # all TMT plan results
-        archive $path '' '--recursive --exclude tree --exclude discover'
+        archive $path '' '--recursive --exclude tree'
     fi
 done
 
