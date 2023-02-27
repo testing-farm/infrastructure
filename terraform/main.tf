@@ -100,7 +100,7 @@ data "external" "ansible_inventory" {
   program = [
     "/bin/sh",
     "-c",
-    "ansible-inventory --list | jq '[._meta.hostvars[].public_ip_address]' | jq -n --arg output \"$(cat)\" '{$output}'"
+    "env -C ../../.. ansible-inventory --list | jq '[._meta.hostvars[].public_ip_address]' | jq -n --arg output \"$(cat)\" '{$output}'"
   ]
 }
 

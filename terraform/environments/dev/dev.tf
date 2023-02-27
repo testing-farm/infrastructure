@@ -1,6 +1,21 @@
 terraform {
   required_version = ">=1.0.9"
   backend "local" {}
+
+  required_providers {
+    external = {
+      version = ">=2.2.0"
+    }
+  }
+}
+
+data "external" "localhost_public_ip" {
+  # Public IP of localhost, used for development Artemis IP access whitelist
+  program = [
+    "sh",
+    "-c",
+    "jq -n --arg output \"$(curl -s icanhazip.com)\" '{$output}'"
+  ]
 }
 
 module "devel-cluster" {
@@ -25,6 +40,8 @@ module "devel-cluster" {
 
   artemis_release_name = "artemis"
   artemis_namespace    = "default"
+
+  artemis_additional_lb_source_ips = [data.external.localhost_public_ip.result.output]
 
   artemis_config_root   = "./config"
   artemis_config_common = "../common/config"
