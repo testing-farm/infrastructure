@@ -23,7 +23,7 @@ module "eks" { # tflint-ignore: terraform_required_providers
   }
 
   source  = "terraform-aws-modules/eks/aws"
-  version = ">=v18.26.0"
+  version = "~>v18.26.0"
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
