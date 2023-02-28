@@ -23,7 +23,7 @@ module "eks" { # tflint-ignore: terraform_required_providers
   }
 
   source  = "terraform-aws-modules/eks/aws"
-  version = "~>v18.26.0"
+  version = ">=v19.10.0"
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
@@ -33,15 +33,19 @@ module "eks" { # tflint-ignore: terraform_required_providers
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
 
-  node_security_group_ntp_ipv4_cidr_block = ["169.254.169.123/32"]
-  node_security_group_ntp_ipv6_cidr_block = ["fd00:ec2::123/128"]
+  cluster_addons = {
+    aws-ebs-csi-driver = {
+      most_recent = true
+    }
+  }
+
+  # NOTE: Removed in 19.x, see https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/docs/UPGRADE-19.0.md
+  # node_security_group_ntp_ipv4_cidr_block = ["169.254.169.123/32"] */
+  # node_security_group_ntp_ipv6_cidr_block = ["fd00:ec2::123/128"] */
 
   # We do not have the permission to create KMS keys
-  #cluster_encryption_config = [{
-  #  resources = ["secrets"]
-  #}]
-  #create_kms_key = true
-  #kms_key_description = "${var.cluster_name} EKS cluster secrets encryption key"
+  create_kms_key            = false
+  cluster_encryption_config = []
 
   create_iam_role = false
   iam_role_arn    = var.cluster_role_arn
@@ -70,8 +74,7 @@ module "eks" { # tflint-ignore: terraform_required_providers
       tags = var.resource_tags
 
       # NOTE: this will make sure we use the Amazon provided lunch templates
-      create_launch_template = false
-      launch_template_name   = ""
+      use_custom_launch_template = false
     }
   }
 }
@@ -82,7 +85,7 @@ data "aws_route53_zone" "testing_farm_zone" {
 
 resource "aws_route53_record" "eks-friendly-endpoint" {
   zone_id = data.aws_route53_zone.testing_farm_zone.zone_id
-  name    = "api.${module.eks.cluster_id}.eks.${data.aws_route53_zone.testing_farm_zone.name}"
+  name    = "api.${module.eks.cluster_name}.eks.${data.aws_route53_zone.testing_farm_zone.name}"
   type    = "CNAME"
   ttl     = "300"
   records = [trimprefix(module.eks.cluster_endpoint, "https://")]
@@ -92,6 +95,6 @@ resource "aws_ec2_tag" "subnet_tag" {
   count = length(var.cluster_subnets)
 
   resource_id = var.cluster_subnets[count.index]
-  key         = "kubernetes.io/cluster/${module.eks.cluster_id}"
+  key         = "kubernetes.io/cluster/${module.eks.cluster_name}"
   value       = "shared"
 }

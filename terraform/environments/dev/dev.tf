@@ -7,10 +7,17 @@ module "devel-cluster" {
   source = "../../"
 
   # TODO: move to staging subnets once working
-  cluster_default_region = "us-east-2"
-  cluster_vpc_id         = "vpc-0f6baa3d6bae8d912"
-  cluster_subnets        = ["subnet-010f90da92f36876e", "subnet-0a704a759f7671044"]
-  cluster_name           = var.cluster_name
+  cluster_default_region            = "us-east-2"
+  cluster_vpc_id                    = "vpc-0f6baa3d6bae8d912"
+  cluster_subnets                   = ["subnet-010f90da92f36876e", "subnet-0a704a759f7671044"]
+  cluster_name                      = var.cluster_name
+  cluster_node_group_instance_types = ["c5.2xlarge"]
+  cluster_node_group_disk_size      = 500
+  cluster_node_group_scaling = {
+    desired_size = 1
+    max_size     = 2
+    min_size     = 1
+  }
 
   ansible_vault_password_file = var.ansible_vault_password_file
   ansible_vault_credentials   = var.ansible_vault_credentials
