@@ -8,11 +8,11 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = ">=2.4.0,<=2.5.1"
+      version = ">=2.9.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">=2.2.0,<=2.14.0"
+      version = ">=2.18.1"
     }
     external = {
       version = ">=2.2.0"
@@ -37,14 +37,14 @@ provider "helm" {
     host                   = module.testing-farm-eks-devel.cluster.cluster_endpoint
     cluster_ca_certificate = base64decode(module.testing-farm-eks-devel.cluster.cluster_certificate_authority_data)
     exec {
-      api_version = "client.authentication.k8s.io/v1alpha1"
+      api_version = "client.authentication.k8s.io/v1beta1"
       args = [
         "--region",
         var.cluster_default_region,
         "eks",
         "get-token",
         "--cluster-name",
-        module.testing-farm-eks-devel.cluster.cluster_id
+        module.testing-farm-eks-devel.cluster.cluster_name
       ]
       command = "aws"
     }
@@ -55,14 +55,14 @@ provider "kubernetes" {
   host                   = module.testing-farm-eks-devel.cluster.cluster_endpoint
   cluster_ca_certificate = base64decode(module.testing-farm-eks-devel.cluster.cluster_certificate_authority_data)
   exec {
-    api_version = "client.authentication.k8s.io/v1alpha1"
+    api_version = "client.authentication.k8s.io/v1beta1"
     args = [
       "--region",
       var.cluster_default_region,
       "eks",
       "get-token",
       "--cluster-name",
-      module.testing-farm-eks-devel.cluster.cluster_id
+      module.testing-farm-eks-devel.cluster.cluster_name
     ]
     command = "aws"
   }
@@ -115,7 +115,7 @@ module "testing-farm-eks-devel" {
   route53_zone       = local.zone_name
 
   cluster_subnets = var.cluster_subnets
-  cluster_version = "1.21" # => Requires helm provider <2.6.0
+  cluster_version = "1.25"
 
   node_group_instance_types = var.cluster_node_group_instance_types
   node_group_disk_size      = var.cluster_node_group_disk_size

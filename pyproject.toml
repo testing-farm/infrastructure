@@ -6,14 +6,13 @@ authors = ["Miroslav Vadkerti <<mvadkert@redhat.com>>"]
 license = "Apache-2.0"
 
 [tool.poetry.dependencies]
-python = "^3.7"
-awscli = "^1.18.56"
-ansible = "^2.9.7"
-jinja2 = "^2.11.2"
-ansible-vault = "^1.2.0"
+python = "^3.9"
+awscli = "^1.27.80"
+ansible-core = "^2.14.3"
+jinja2 = "^3.1.2"
 cryptography = "^2.9.2"
 yq = "^2.10.0"
-boto3 = "^1.13.6"
+boto3 = "^1.26.80"
 
 [tool.poetry.dev-dependencies]
 yamllint = "^1.28.0"
