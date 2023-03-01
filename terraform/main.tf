@@ -186,6 +186,7 @@ module "artemis" {
   api_threads   = var.artemis_api_threads
   api_domain    = local.artemis_api_domain
 
+  worker_extra_env = var.artemis_worker_extra_env
   worker_replicas  = var.artemis_worker_replicas
   worker_processes = var.artemis_worker_processes
   worker_threads   = var.artemis_worker_threads

@@ -5,6 +5,7 @@ artemis:
     tag: latest
 
   config:
+    mountPath: /configuration
     server: ${jsonencode(yamldecode(artemis_server_config))}
     extraFiles: ${jsonencode(artemis_extra_files)}
 
@@ -29,6 +30,7 @@ artemis:
     resources: ${jsonencode(artemis_scheduler_resources)}
 
   workers:
+    extraEnv: ${jsonencode(artemis_worker_extra_env)}
     list:
       - replicaCount: ${artemis_worker_replicas}
         processes: ${artemis_worker_processes}

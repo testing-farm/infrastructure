@@ -68,6 +68,16 @@ module "devel-cluster" {
   artemis_api_processes = 2
   artemis_api_threads   = 1
 
+  artemis_worker_extra_env = [
+    {
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_x86_64",
+      value = "/configuration/artemis-image-map-aws.yml"
+    },
+    {
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_aarch64",
+      value = "/configuration/artemis-image-map-aws.yml"
+    }
+  ]
   artemis_worker_replicas  = 1
   artemis_worker_processes = 2
   artemis_worker_threads   = 1
