@@ -64,6 +64,9 @@ terraform:
     - kubectl wait --for=condition=Ready pod/fedora
     - kubectl exec pod/fedora -- cat /etc/os-release | grep '^ID=fedora$'
     - kubectl delete pod/fedora
+    # Destroy all created resources. Note that for success case this can take long
+    # and after_script has timeout hardcoded to 5 mins, keeping leftovers.
+    - terraform destroy -auto-approve
   after_script:
     - eval "$(direnv export bash)"
     - export TF_VAR_cluster_name=testing-farm-gitlab-ci-${CI_COMMIT_REF_NAME:0:10}-$CI_JOB_ID
