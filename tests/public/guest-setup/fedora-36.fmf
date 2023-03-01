@@ -1,20 +1,20 @@
 ---
-summary: Test guest-setup on Fedora 35
+summary: Test guest-setup on Fedora 36
 
 provision:
   how: virtual
-  image: Fedora-35
+  image: Fedora-36
 
 prepare:
   - name: pre-artifact-installation
     how: ansible
     playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
-    extra-args: "-e IMAGE_NAME=Fedora-35 -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
+    extra-args: "-e IMAGE_NAME=Fedora-36 -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
 
   - name: post-artifact-installation
     how: ansible
     playbook: ranch/public/citool-config/guest-setup/post-artifact-installation/entrypoint.yml
-    extra-args: "-e IMAGE_NAME=Fedora-35 -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
+    extra-args: "-e IMAGE_NAME=Fedora-36 -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
 
 discover+:
   how: shell
@@ -27,3 +27,6 @@ discover+:
 
     - name: Test kernel updated
       test: dnf install -y kernel-devel-$(uname -r)
+
+    - name: Make sure tag repository is NOT present
+      test: ! test -e /etc/yum.repos.d/tag-repository.repo

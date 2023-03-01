@@ -13,23 +13,23 @@
 #
 # Examples for Fedora:
 # * rawhide contains all builds tagged into rawhide.
-# * f32-build contains all builds tagged into f32-candidate or f32-updates-candidate.
 #
 # The play gracefully skips adding a tag repository which is not reachable.
 #
+# Tag repository is enabled only on Fedora Rawhide and CentOS Stream. See https://pagure.io/fedora-ci/general/issue/376.
+#
+
+- name: Check for rawhide
+  command: "rpm -q fedora-repos-rawhide"
+  ignore_errors: true
+  register: check_rawhide
 
 - block:
-
     #
     # The tag repository name can be determined from the Fedora version. Detect rawhide
     # by checking for rawhide repository installed via 'fedora-repos-rawhide' rpm
     #
     - block:
-        - name: Check for rawhide
-          command: "rpm -q fedora-repos-rawhide"
-          ignore_errors: true
-          register: check_rawhide
-
         - name: Transform build target to a tag repository name (Rawhide)
           set_fact:
             tag_repository_name: "rawhide"
@@ -102,7 +102,9 @@
   #
   # block: end
   #
-  when: ansible_distribution == "Fedora" or IMAGE_NAME|lower|regex_search('centos.stream')
+  when:
+    - (ansible_distribution == "Fedora" and check_rawhide.rc == 0)
+      or IMAGE_NAME|lower|regex_search('centos.stream')
 
 #
 # Be verbose about the fact we skipped this play
