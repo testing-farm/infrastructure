@@ -68,6 +68,12 @@ variable "worker_threads" {
   default     = 4
 }
 
+variable "worker_extra_env" {
+  description = "Extra environment variables for worker"
+  type        = list(map(string))
+  default     = []
+}
+
 variable "resources" {
   description = "Configure resources for pods"
   type        = map(map(map(string)))
