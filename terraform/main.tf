@@ -136,7 +136,7 @@ module "artemis" {
   namespace    = var.artemis_namespace
 
   server_config = templatefile(
-    "${var.artemis_config_root}/server.yml.tftpl",
+    "${var.artemis_config_root}/server.yaml.tftpl",
     {
       aws_access_key_id     = sensitive(data.ansiblevault_path.pool_access_key_aws.value)
       aws_secret_access_key = sensitive(data.ansiblevault_path.pool_secret_key_aws.value)

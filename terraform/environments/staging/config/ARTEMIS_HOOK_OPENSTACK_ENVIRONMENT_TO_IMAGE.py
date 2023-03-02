@@ -15,5 +15,5 @@ def hook_OPENSTACK_ENVIRONMENT_TO_IMAGE(
         pool,
         environment,
         '{{ os.compose }}',
-        mapping_filename='artemis-image-map-openstack.yml'
+        mapping_filename='artemis-image-map-openstack.yaml'
     )

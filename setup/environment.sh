@@ -58,8 +58,8 @@ fi
 #
 # download and setup kubectl
 #
-export AWS_ACCESS_KEY_ID="$(ansible-vault view --vault-password-file .vault_pass secrets/credentials.yml | yq -r .credentials.aws.fedora.access_key)"
-export AWS_SECRET_ACCESS_KEY="$(ansible-vault view --vault-password-file .vault_pass secrets/credentials.yml | yq -r .credentials.aws.fedora.secret_key)"
+export AWS_ACCESS_KEY_ID="$(ansible-vault view --vault-password-file .vault_pass secrets/credentials.yaml | yq -r .credentials.aws.fedora.access_key)"
+export AWS_SECRET_ACCESS_KEY="$(ansible-vault view --vault-password-file .vault_pass secrets/credentials.yaml | yq -r .credentials.aws.fedora.secret_key)"
 export AWS_DEFAULT_REGION="us-east-1"
 export KUBECONFIG="$DIRENV_PATH/.kube/config"
 

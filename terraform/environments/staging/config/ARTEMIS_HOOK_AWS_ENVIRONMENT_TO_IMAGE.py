@@ -20,6 +20,6 @@ def hook_AWS_ENVIRONMENT_TO_IMAGE(
             pool,
             environment,
             '{{ os.compose }}',
-            mapping_filepath='/configuration/artemis-image-map-aws.yml'
+            mapping_filepath='/configuration/artemis-image-map-aws.yaml'
         )
     )

@@ -51,17 +51,17 @@ module "devel-cluster" {
     "ARTEMIS_HOOK_BEAKER_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_OPENSTACK_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_ROUTE.py",
-    "variables_images.yml"
+    "variables_images.yaml"
   ]
   artemis_config_extra_templates = [{
-    source = "artemis-image-map-aws.yml.tftpl"
-    target = "artemis-image-map-aws.yml"
-    vars   = ["./config/variables_images.yml"]
+    source = "artemis-image-map-aws.yaml.tftpl"
+    target = "artemis-image-map-aws.yaml"
+    vars   = ["./config/variables_images.yaml"]
   }]
   artemis_ssh_keys = [{
     name  = "master-key"
     owner = "artemis"
-    path  = "master-key.yml"
+    path  = "master-key.yaml"
     key   = ""
   }]
 
@@ -71,11 +71,11 @@ module "devel-cluster" {
   artemis_worker_extra_env = [
     {
       name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_x86_64",
-      value = "/configuration/artemis-image-map-aws.yml"
+      value = "/configuration/artemis-image-map-aws.yaml"
     },
     {
       name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_aarch64",
-      value = "/configuration/artemis-image-map-aws.yml"
+      value = "/configuration/artemis-image-map-aws.yaml"
     }
   ]
   artemis_worker_replicas  = 1
