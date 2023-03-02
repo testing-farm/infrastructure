@@ -29,4 +29,4 @@ discover+:
       test: dnf install -y kernel-devel-$(uname -r)
 
     - name: Make sure tag repository is NOT present
-      test: ! test -e /etc/yum.repos.d/tag-repository.repo
+      test: "! test -e /etc/yum.repos.d/tag-repository.repo"
