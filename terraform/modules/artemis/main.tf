@@ -7,6 +7,10 @@ terraform {
   }
 }
 
+locals {
+  api_domain = length(helm_release.artemis.metadata) > 0 ? var.api_domain : null
+}
+
 resource "helm_release" "artemis" {
   name       = var.release_name
   repository = "https://testing-farm.gitlab.io/artemis-helm/dev"
