@@ -71,7 +71,6 @@ terraform:
     - eval "$(direnv export bash)"
     - export TF_VAR_cluster_name=testing-farm-gitlab-ci-${CI_COMMIT_REF_NAME:0:10}-$CI_JOB_ID
     - cd terraform/environments/dev
-    # NOTE: return code can be non-zero in case of warnings
     - terraform destroy -auto-approve
   rules:
     - changes:
