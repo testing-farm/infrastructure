@@ -16,5 +16,5 @@ def hook_BEAKER_ENVIRONMENT_TO_IMAGE(
         pool,
         environment,
         '{{ os.compose }}',
-        mapping_filename='artemis-image-map-beaker.yml'
+        mapping_filename='artemis-image-map-beaker.yaml'
     )

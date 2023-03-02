@@ -30,10 +30,10 @@ ansible-vault:
   script:
     - dnf -y install ansible-lint
     - >
-      ansible-vault view secrets/credentials.yml | yamllint -d "rules: {line-length: {level: warning}}" -
+      ansible-vault view secrets/credentials.yaml | yamllint -d "rules: {line-length: {level: warning}}" -
   rules:
     - changes:
-        - secrets/credentials.yml
+      - secrets/credentials.yaml
 
 pre-commit:
   extends: .direnv
@@ -74,7 +74,7 @@ terraform:
     - terraform destroy -auto-approve
   rules:
     - changes:
-        - secrets/credentials.yml
+        - secrets/credentials.yaml
         - terraform/environments/common/**/*
         - terraform/environments/dev/**/*
         - terraform/modules/**/*
@@ -95,7 +95,7 @@ deploy/staging:
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
       when: never
     - changes:
-        - secrets/credentials.yml
+        - secrets/credentials.yaml
         - terraform/environments/common/**/*
         - terraform/environments/staging/**/*
         - terraform/modules/**/*

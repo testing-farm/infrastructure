@@ -42,17 +42,17 @@ module "staging-cluster" {
     "ARTEMIS_HOOK_BEAKER_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_OPENSTACK_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_ROUTE.py",
-    "variables_images.yml"
+    "variables_images.yaml"
   ]
   artemis_config_extra_templates = [{
-    source = "artemis-image-map-aws.yml.tftpl"
-    target = "artemis-image-map-aws.yml"
-    vars   = ["./config/variables_images.yml"]
+    source = "artemis-image-map-aws.yaml.tftpl"
+    target = "artemis-image-map-aws.yaml"
+    vars   = ["./config/variables_images.yaml"]
   }]
   artemis_ssh_keys = [{
     name  = "master-key"
     owner = "artemis"
-    path  = "master-key.yml"
+    path  = "master-key.yaml"
     key   = ""
   }]
 

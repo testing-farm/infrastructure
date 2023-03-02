@@ -38,15 +38,15 @@ repos:
     hooks:
       - id: gitlab-ci-linter
 
-  # Disallow `.yaml` files in the repo, i.e. assume usage of `.yml` for YAML
+  # Disallow `.yml` files in the repo, i.e. assume usage of `.yaml` for YAML
   - repo: local
     hooks:
-      - id: no-yaml-extension
-        name: no-yaml-extension
+      - id: no-yml-extension
+        name: no-yml-extension
         language: fail
-        files: \.yaml$
+        files: \.yml$
         entry: "bash -c 'find . -ina'"
-        exclude: .pre-commit-config.yaml
+        exclude: .gitlab-ci.yml
 
   # Terraform linters
   - repo: https://github.com/antonbabenko/pre-commit-terraform

@@ -25,7 +25,7 @@ resource "helm_release" "artemis" {
 
   values = [
     templatefile(
-      "${path.module}/values.yml.tftpl",
+      "${path.module}/values.yaml.tftpl",
       {
         artemis_server_config = var.server_config
         artemis_extra_files   = var.extra_files

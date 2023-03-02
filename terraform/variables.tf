@@ -60,7 +60,7 @@ variable "artemis_ssh_keys" {
   default = [{
     name  = "master-key"
     owner = "artemis"
-    path  = "master-key.yml"
+    path  = "master-key.yaml"
     key   = ""
   }]
 }

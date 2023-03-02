@@ -15,5 +15,5 @@ def hook_AZURE_ENVIRONMENT_TO_IMAGE(
         pool,
         environment,
         '{{ os.compose }}',
-        mapping_filename='artemis-image-map-azure.yml'
+        mapping_filename='artemis-image-map-azure.yaml'
     )
