@@ -13,6 +13,7 @@ jinja2 = "^3.1.2"
 cryptography = "^2.9.2"
 yq = "^2.10.0"
 boto3 = "^1.26.80"
+"ruamel.yaml" = "^0.17.21"
 
 [tool.poetry.dev-dependencies]
 yamllint = "^1.28.0"

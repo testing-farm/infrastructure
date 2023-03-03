@@ -1,6 +1,5 @@
 [default]
-# TODO: URL should point to artemis in the dev cluster
-api-url = http://a2f77d7ab5fdb4b60a42d8e9e3b47831-882451766.us-east-1.elb.amazonaws.com/v0.0.38/
+api-url = {{ artemis_api_url }}
 api-version = v0.0.38
 ssh-options = UserKnownHostsFile=/dev/null, StrictHostKeyChecking=no
 ssh-key = ${config_root}/id_rsa_artemis
