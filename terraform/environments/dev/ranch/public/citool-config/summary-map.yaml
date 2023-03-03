@@ -1,0 +1,28 @@
+---
+
+# !test-tag: instruction-map
+
+- rule: >
+    FAILURE
+    and FAILURE.exc_info
+    and  FAILURE.exc_info[0].__name__ == 'FailedToCheckoutRef'
+  reason: >-
+    {{ ERROR_MESSAGE }} The git branch was probably deleted before the testing was ran.
+
+# The 'Failed to list plan' exception is caught
+# and 'Failed to get plan details, TMT metadata are absent or corrupted' is raised.
+# That's why we are checking for the latter string in ERROR_MESSAGE
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Failed to get plan details" in ERROR_MESSAGE
+  reason: >-
+    Unsupported format of the fmf file.
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Condition 'ip_ready' failed to pass within given time" in ERROR_MESSAGE
+  reason: >-
+    Failed to provision test environment. Please check https://status.testing-farm.io for possible outages. \
+    If the situation persists after retrying, please report an issue.

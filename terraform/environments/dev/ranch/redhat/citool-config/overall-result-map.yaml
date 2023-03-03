@@ -1,0 +1,30 @@
+---
+
+# !test-tag: instruction-map
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Failed to checkout ref" in ERROR_MESSAGE
+  result: error
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Failed to list plans" in ERROR_MESSAGE
+  result: error
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Did not find any plans" in ERROR_MESSAGE
+  result: error
+
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Failed to get plan details" in ERROR_MESSAGE
+  result: skipped
+
+# Default hard-coded rules apply for the rest, based on the test results.

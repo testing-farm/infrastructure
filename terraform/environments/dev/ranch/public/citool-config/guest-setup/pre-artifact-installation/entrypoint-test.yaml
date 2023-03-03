@@ -1,0 +1,4 @@
+---
+- hosts: all
+  tasks:
+    - include_tasks: enable-powertools.yaml

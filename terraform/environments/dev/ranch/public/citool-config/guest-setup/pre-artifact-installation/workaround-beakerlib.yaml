@@ -1,0 +1,22 @@
+---
+# https://issues.redhat.com/browse/TFT-838
+- block:
+    - name: Make sure dnf core plugins are installed
+      command: "dnf -y install dnf-plugins-core"
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
+
+    - name: Add beakerlib copr repository for CentOS Stream
+      command: "dnf -y copr enable packit/beakerlib-beakerlib-master"
+
+    # workaround TFT-1284
+    - name: Install beakerlib
+      command: "dnf -y install beakerlib"
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
+
+  when: "IMAGE_NAME|lower|regex_search('centos.stream')"
