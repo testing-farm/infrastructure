@@ -61,13 +61,9 @@ direnv_prepare:
   script:
     - direnv allow
     - eval "$(direnv export bash)"
+    - make generate-environment-variables
   cache:
     paths:
-      - .venv
-  artifacts:
-    public: false
-    paths:
-      - .direnv
       - .venv
 
 .direnv:

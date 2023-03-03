@@ -8,3 +8,5 @@
 **/.vault_pass
 
 *~
+
+terraform/environments/*/ranch/*/citool-config/environment.yaml
