@@ -96,6 +96,9 @@ ansible-vault:
     - dnf -y install ansible-lint
     - >
       ansible-vault view secrets/credentials.yml | yamllint -d "rules: {line-length: {level: warning}}" -
+  rules:
+    - !reference [.rules, gitlab_ci]
+    - !reference [.rules, ansible_vault]
 
 pre-commit:
   extends: .direnv
