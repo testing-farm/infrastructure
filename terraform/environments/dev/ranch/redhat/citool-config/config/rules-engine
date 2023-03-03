@@ -1,0 +1,2 @@
+[default]
+variables = ${config_root}/variables.yaml

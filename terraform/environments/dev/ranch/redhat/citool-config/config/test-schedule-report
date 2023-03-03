@@ -1,0 +1,2 @@
+[default]
+xunit-file = results.xml
