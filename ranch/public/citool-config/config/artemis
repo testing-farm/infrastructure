@@ -5,7 +5,7 @@ skip-prepare-verify-ssh = true
 ssh-options = UserKnownHostsFile=/dev/null, StrictHostKeyChecking=no
 ssh-key = ${config_root}/id_rsa_artemis
 key = master-key
-user-data-vars = COLDSTORE_URL, ServiceName
+user-data-vars-template-file = ${config_root}/artemis-user-data.yaml
 playbook = ${config_root}/playbooks/cloud_image_login.yaml
 
 # Provisioning a guest in AWS should not take more then 30 minutes (artemis needs to become quicker)
