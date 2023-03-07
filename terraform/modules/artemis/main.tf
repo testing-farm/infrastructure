@@ -36,6 +36,8 @@ resource "helm_release" "artemis" {
         artemis_api_threads   = var.api_threads
         artemis_api_domain    = var.api_domain
 
+        artemis_db_schema_revision = var.db_schema_revision
+
         artemis_worker_extra_env = var.worker_extra_env
         artemis_worker_replicas  = var.worker_replicas
         artemis_worker_processes = var.worker_processes

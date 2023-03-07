@@ -50,6 +50,12 @@ variable "api_domain" {
   default     = ""
 }
 
+variable "db_schema_revision" {
+  description = "Database schema revision to use"
+  type        = string
+  default     = "head"
+}
+
 variable "worker_replicas" {
   description = "Number of worker replicas"
   type        = number
