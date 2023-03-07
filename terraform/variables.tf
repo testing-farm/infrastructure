@@ -151,6 +151,11 @@ variable "artemis_worker_extra_env" {
   default     = []
 }
 
+variable "artemis_guest_security_group_id" {
+  description = "Security group for aws guests"
+  type        = string
+}
+
 variable "resources" {
   description = "Configure resources for pods"
   type        = map(map(map(string)))
