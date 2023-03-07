@@ -6,7 +6,14 @@ terraform {
     external = {
       version = ">=2.2.0"
     }
+    aws = {
+      version = ">=4.0.0"
+    }
   }
+}
+
+provider "aws" {
+  region = "us-east-2"
 }
 
 data "external" "localhost_public_ip" {
@@ -67,6 +74,8 @@ module "devel-cluster" {
 
   artemis_api_processes = 2
   artemis_api_threads   = 1
+
+  artemis_guest_security_group_id = aws_security_group.allow_inbound_traffic.id
 
   artemis_worker_extra_env = [
     {
@@ -192,5 +201,23 @@ module "devel-cluster" {
         memory = "32Mi"
       }
     }
+  }
+}
+
+resource "aws_security_group" "allow_inbound_traffic" {
+  name        = "${var.cluster_name}-allow-inbound-traffic"
+  description = "Allow inbound traffic for development from localhost"
+  vpc_id      = "vpc-a4f084cd"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["${data.external.localhost_public_ip.result.output}/32"]
+    description = "Allow SSH traffic"
+  }
+
+  tags = {
+    FedoraGroup = "ci"
   }
 }

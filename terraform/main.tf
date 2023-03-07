@@ -150,6 +150,7 @@ module "artemis" {
           yamldecode(sensitive(data.ansiblevault_path.vault_ssh_key[i].value))
         )
       ]
+      aws_security_group_id = var.artemis_guest_security_group_id
     }
   )
 
