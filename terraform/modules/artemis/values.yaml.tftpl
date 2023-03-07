@@ -12,6 +12,8 @@ artemis:
   initdb:
     resources: ${jsonencode(artemis_initdb_resources)}
 
+  dbSchemaRevision: ${artemis_db_schema_revision}
+
   api:
     processes: ${artemis_api_processes}
     threads: ${artemis_api_threads}
