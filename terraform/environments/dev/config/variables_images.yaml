@@ -63,9 +63,9 @@ composes:
     compose: 'CentOS-Stream-8'
 
     x86_64:
-      image: 'CentOS Stream 8 x86_64'
+      image: 'CentOS Stream 8 x86_64 20230308'
     aarch64:
-      image: 'CentOS Stream 8 aarch64'
+      image: 'CentOS Stream 8 aarch64 20230308'
 
   centos_stream_9:
     compose: 'CentOS-Stream-9'
