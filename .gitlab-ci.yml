@@ -53,6 +53,11 @@ workflow:
     - changes:
         - terraform/environments/staging/**/*
 
+  terraform_production:
+    - !reference [.rules, terraform_infra]
+    - changes:
+        - terraform/environments/production/**/*
+
 direnv:
   stage: test
   before_script:
@@ -139,6 +144,21 @@ test/staging:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, terraform_staging]
 
+test/production:
+  extends: .direnv
+  stage: test
+  script:
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    SCRIPT_DIR: terraform/environments/production
+    SCRIPT: >-
+      terraform -chdir=$SCRIPT_DIR init &&
+      terraform -chdir=$SCRIPT_DIR plan
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, terraform_production]
+
 deploy/staging:
   extends: .direnv
   stage: deploy
@@ -153,3 +173,21 @@ deploy/staging:
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, terraform_staging]
+
+deploy/production:
+  extends: .direnv
+  stage: deploy
+  needs:
+    - job: deploy/staging
+      optional: true
+  script:
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    SCRIPT_DIR: terraform/environments/production
+    SCRIPT: >-
+      terraform -chdir=$SCRIPT_DIR init &&
+      terraform -chdir=$SCRIPT_DIR apply -auto-approve
+  rules:
+    - !reference [.rules, only_default_branch]
+    - !reference [.rules, terraform_production]

@@ -1,0 +1,76 @@
+composes:
+
+  # aws --profile fedora_us_east_2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-36* | jq '.Images | .[] | .Name' | sort
+  fedora_36:
+    compose: 'Fedora-36'
+
+    x86_64:
+      image: 'Fedora-Cloud-Base-36-20230317.0.x86_64-hvm-us-east-2-gp2-0'
+    aarch64:
+      image: 'Fedora-Cloud-Base-36-20230317.0.aarch64-hvm-us-east-2-gp2-0'
+
+  fedora_37: &fedora_latest_ref
+    compose: 'Fedora-37'
+
+    x86_64:
+      image: 'Fedora-Cloud-Base-37-20230317.0.x86_64-hvm-us-east-2-gp2-0'
+    aarch64:
+      image: 'Fedora-Cloud-Base-37-20230317.0.aarch64-hvm-us-east-2-gp2-0'
+
+  fedora_38:
+    compose: 'Fedora-38'
+
+    x86_64:
+      image: 'Fedora-Cloud-Base-38-20230317.n.0.x86_64-hvm-us-east-2-gp2-0'
+    aarch64:
+      image: 'Fedora-Cloud-Base-38-20230317.n.0.aarch64-hvm-us-east-2-gp2-0'
+
+  # TFT-1221
+  fedora_latest: *fedora_latest_ref
+
+  # aws --profile fedora_us_east_2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-Rawhide* | jq '.Images | .[] | .Name' | sort
+  fedora_rawhide:
+    compose: 'Fedora-Rawhide'
+
+    x86_64:
+      image: 'Fedora-Cloud-Base-Rawhide-20230317.n.0.x86_64-hvm-us-east-2-gp2-0'
+    aarch64:
+      image: 'Fedora-Cloud-Base-Rawhide-20230317.n.0.aarch64-hvm-us-east-2-gp2-0'
+
+  centos_6:
+    compose: 'CentOS-6'
+
+    x86_64:
+      image: 'CentOS-6-x86_64-GenericCloud-1907'
+
+  centos_7:
+    compose: 'CentOS-7'
+
+    x86_64:
+      image: 'CentOS 7.9.2009 x86_64'
+    aarch64:
+      image: 'CentOS 7.9.2009 aarch64'
+
+  centos_8:
+    compose: 'CentOS-8'
+
+    x86_64:
+      image: 'CentOS 8.4.2105 x86_64'
+    aarch64:
+      image: 'CentOS 8.4.2105 aarch64'
+
+  centos_stream_8:
+    compose: 'CentOS-Stream-8'
+
+    x86_64:
+      image: 'CentOS Stream 8 x86_64 20230308'
+    aarch64:
+      image: 'CentOS Stream 8 aarch64 20230308'
+
+  centos_stream_9:
+    compose: 'CentOS-Stream-9'
+
+    x86_64:
+      image: 'CentOS Stream 9 x86_64 20230227'
+    aarch64:
+      image: 'CentOS Stream 9 aarch64 20230227'
