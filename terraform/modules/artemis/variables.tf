@@ -32,6 +32,12 @@ variable "lb_source_ranges" {
   default     = []
 }
 
+variable "image_tag" {
+  description = "Artemis container image tag"
+  type        = string
+  default     = "latest"
+}
+
 variable "api_processes" {
   description = "Desired number of API service processes"
   type        = number

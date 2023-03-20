@@ -1,6 +1,6 @@
 ---
 default:
-  image: quay.io/testing-farm/python-ci-image:2022-09-22-f36b4b1c
+  image: quay.io/testing-farm/python-ci-image:811256161
 
 variables:
   # GitLab CI runs in world writable directory, we need to explicitely set ANSIBLE_CONFIG
@@ -65,10 +65,11 @@ direnv_prepare:
   cache:
     paths:
       - .venv
+      - .direnv
 
 .direnv:
   before_script:
-    - dnf -y install direnv libffi libffi-devel
+    - dnf -y install direnv libffi libffi-devel podman
     - echo -n "$VAULT_PASSWORD" > .vault_pass
     - direnv allow
     - eval "$(direnv export bash)"
@@ -76,12 +77,16 @@ direnv_prepare:
     - eval "$(direnv export bash)"
   dependencies:
     - direnv_prepare
+  cache:
+    paths:
+      - .venv
+      - .direnv
 
 # Workaround for after_script timing-out
 .script_with_cleanup:
   script:
-    - env -C "${CI_PROJECT_DIR}/${SCRIPT_DIR}" /bin/bash -c "${SCRIPT}" && EXIT_CODE=$? || EXIT_CODE=$?
-    - env -C "${CI_PROJECT_DIR}/${SCRIPT_DIR}" /bin/bash -c "${AFTER_SCRIPT}"
+    - /bin/bash -c "${SCRIPT}" && EXIT_CODE=$? || EXIT_CODE=$?
+    - /bin/bash -c "${AFTER_SCRIPT}"
     - "[ ${EXIT_CODE} = 0 ]"
 
 ansible-vault:
@@ -117,13 +122,14 @@ test/dev:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
-    TF_VAR_cluster_name: testing-farm-gitlab-ci-${CI_COMMIT_REF_NAME:0:10}-$CI_JOB_ID
+    TF_VAR_cluster_name: testing-farm-gitlab-ci-$CI_JOB_ID
     SCRIPT_DIR: terraform/environments/dev
     SCRIPT: >-
-      terraform init &&
-      terraform plan -out tfplan &&
-      terraform apply tfplan
-    AFTER_SCRIPT: terraform destroy -auto-approve
+      terraform -chdir=$SCRIPT_DIR init &&
+      terraform -chdir=$SCRIPT_DIR plan -out tfplan &&
+      terraform -chdir=$SCRIPT_DIR apply tfplan &&
+      PYTEST_OPTIONS="-k 'not container'" make test-worker-public
+    AFTER_SCRIPT: terraform -chdir=$SCRIPT_DIR destroy -auto-approve
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, terraform_dev]
@@ -138,9 +144,9 @@ deploy/staging:
   variables:
     SCRIPT_DIR: terraform/environments/staging
     SCRIPT: >-
-      terraform init &&
-      terraform plan -out tfplan &&
-      terraform apply tfplan
+      terraform -chdir=$SCRIPT_DIR init &&
+      terraform -chdir=$SCRIPT_DIR plan -out tfplan &&
+      terraform -chdir=$SCRIPT_DIR apply tfplan
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, terraform_staging]

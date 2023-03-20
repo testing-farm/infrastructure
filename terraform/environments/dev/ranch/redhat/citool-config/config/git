@@ -1,0 +1,3 @@
+[default]
+clone-url = {{ TESTING_FARM_REQUEST_TEST_URL }}
+ref = {{ TESTING_FARM_REQUEST_TEST_REF }}

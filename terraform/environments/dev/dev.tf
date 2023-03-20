@@ -75,7 +75,7 @@ module "devel-cluster" {
   artemis_api_processes = 2
   artemis_api_threads   = 1
 
-  artemis_guest_security_group_id = aws_security_group.allow_inbound_traffic.id
+  artemis_guest_security_group_id = aws_security_group.allow_guest_traffic.id
 
   artemis_worker_extra_env = [
     {
@@ -204,9 +204,9 @@ module "devel-cluster" {
   }
 }
 
-resource "aws_security_group" "allow_inbound_traffic" {
-  name        = "${var.cluster_name}-allow-inbound-traffic"
-  description = "Allow inbound traffic for development from localhost"
+resource "aws_security_group" "allow_guest_traffic" {
+  name        = "${var.cluster_name}-allow-guest-traffic"
+  description = "Allow traffic for development from localhost"
   vpc_id      = "vpc-a4f084cd"
 
   ingress {
@@ -214,7 +214,16 @@ resource "aws_security_group" "allow_inbound_traffic" {
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["${data.external.localhost_public_ip.result.output}/32"]
-    description = "Allow SSH traffic"
+    description = "Allow SSH inbound traffic"
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
+    ipv6_cidr_blocks = ["::/0"]      #tfsec:ignore:aws-ec2-no-public-egress-sgr
+    description      = "Allow all outbound traffic"
   }
 
   tags = {

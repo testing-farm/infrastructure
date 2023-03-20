@@ -5,25 +5,25 @@ composes:
     compose: 'Fedora-36'
 
     x86_64:
-      image: 'Fedora-Cloud-Base-36-20230301.0.x86_64-hvm-us-east-2-gp2-0'
+      image: 'Fedora-Cloud-Base-36-20230317.0.x86_64-hvm-us-east-2-gp2-0'
     aarch64:
-      image: 'Fedora-Cloud-Base-36-20230301.0.aarch64-hvm-us-east-2-gp2-0'
+      image: 'Fedora-Cloud-Base-36-20230317.0.aarch64-hvm-us-east-2-gp2-0'
 
   fedora_37: &fedora_latest_ref
     compose: 'Fedora-37'
 
     x86_64:
-      image: 'Fedora-Cloud-Base-37-20230301.0.x86_64-hvm-us-east-2-gp2-0'
+      image: 'Fedora-Cloud-Base-37-20230317.0.x86_64-hvm-us-east-2-gp2-0'
     aarch64:
-      image: 'Fedora-Cloud-Base-37-20230301.0.aarch64-hvm-us-east-2-gp2-0'
+      image: 'Fedora-Cloud-Base-37-20230317.0.aarch64-hvm-us-east-2-gp2-0'
 
   fedora_38:
     compose: 'Fedora-38'
 
     x86_64:
-      image: 'Fedora-Cloud-Base-38-20230301.n.0.x86_64-hvm-us-east-2-gp2-0'
+      image: 'Fedora-Cloud-Base-38-20230317.n.0.x86_64-hvm-us-east-2-gp2-0'
     aarch64:
-      image: 'Fedora-Cloud-Base-38-20230301.n.0.aarch64-hvm-us-east-2-gp2-0'
+      image: 'Fedora-Cloud-Base-38-20230317.n.0.aarch64-hvm-us-east-2-gp2-0'
 
   # TFT-1221
   fedora_latest: *fedora_latest_ref
@@ -33,9 +33,9 @@ composes:
     compose: 'Fedora-Rawhide'
 
     x86_64:
-      image: 'Fedora-Cloud-Base-Rawhide-20230228.n.0.x86_64-hvm-us-east-2-gp2-0'
+      image: 'Fedora-Cloud-Base-Rawhide-20230317.n.0.x86_64-hvm-us-east-2-gp2-0'
     aarch64:
-      image: 'Fedora-Cloud-Base-Rawhide-20230228.n.0.aarch64-hvm-us-east-2-gp2-0'
+      image: 'Fedora-Cloud-Base-Rawhide-20230317.n.0.aarch64-hvm-us-east-2-gp2-0'
 
   centos_6:
     compose: 'CentOS-6'
