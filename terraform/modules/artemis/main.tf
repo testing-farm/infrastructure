@@ -43,6 +43,8 @@ resource "helm_release" "artemis" {
         artemis_worker_processes = var.worker_processes
         artemis_worker_threads   = var.worker_threads
 
+        artemis_image_tag = var.image_tag
+
         artemis_api_resources             = try(var.resources.artemis_api, {})
         artemis_dispatcher_resources      = try(var.resources.artemis_dispatcher, {})
         artemis_initdb_resources          = try(var.resources.artemis_initdb, {})

@@ -10,3 +10,21 @@
 *~
 
 terraform/environments/*/ranch/*/citool-config/environment.yaml
+
+# secrets
+.vault_pass
+
+# data maintained by direnv
+.direnv
+
+# pytest basedir
+.pytest
+
+# rendered template files
+**/.rendered
+
+# decrypted secrets
+**/*.decrypted
+
+# ansible roles from galaxy
+ansible/roles/geerlingguy.swap

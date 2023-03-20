@@ -127,6 +127,12 @@ variable "artemis_api_threads" {
   default     = 4
 }
 
+variable "artemis_image_tag" {
+  description = "Artemis container image tag"
+  type        = string
+  default     = "aws-user-data-for-regular-instances"
+}
+
 variable "artemis_worker_replicas" {
   description = "Number of worker replicas"
   type        = number

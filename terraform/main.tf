@@ -192,6 +192,8 @@ module "artemis" {
   worker_processes = var.artemis_worker_processes
   worker_threads   = var.artemis_worker_threads
 
+  image_tag = var.artemis_image_tag
+
   resources = var.resources
 }
 
