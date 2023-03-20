@@ -14,6 +14,14 @@ terraform {
 
 provider "aws" {
   region = "us-east-2"
+
+  default_tags {
+    tags = {
+      FedoraGroup  = "ci"
+      ServiceOwner = "TFT"
+      ServicePhase = "Dev"
+    }
+  }
 }
 
 data "external" "localhost_public_ip" {
@@ -87,6 +95,7 @@ module "devel-cluster" {
       value = "/configuration/artemis-image-map-aws.yaml"
     }
   ]
+
   artemis_worker_replicas  = 1
   artemis_worker_processes = 2
   artemis_worker_threads   = 1
@@ -224,9 +233,5 @@ resource "aws_security_group" "allow_guest_traffic" {
     cidr_blocks      = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
     ipv6_cidr_blocks = ["::/0"]      #tfsec:ignore:aws-ec2-no-public-egress-sgr
     description      = "Allow all outbound traffic"
-  }
-
-  tags = {
-    FedoraGroup = "ci"
   }
 }

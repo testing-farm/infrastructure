@@ -1,3 +1,6 @@
+# Copyright Contributors to the Testing Farm project.
+# SPDX-License-Identifier: Apache-2.0
+
 """
 Routing script, for picking suitable pools for a given guest request. It is called by Artemis every time it needs to
 decide which pool to ask for the actual provisioning.
@@ -20,6 +23,7 @@ from tft.artemis.drivers import PoolDriver
 from tft.artemis.routing_policies import (
     PolicyReturnType,
     create_preferrence_filter_by_driver_class,
+    policy_can_acquire,
     policy_enough_resources,
     policy_least_crowded,
     policy_match_pool_name,
@@ -27,9 +31,11 @@ from tft.artemis.routing_policies import (
     policy_pool_enabled,
     policy_prefer_spot_instances,
     policy_supports_architecture,
+    policy_supports_guest_logs,
     policy_supports_snapshots,
     policy_supports_spot_instances,
     policy_timeout_reached,
+    policy_use_only_when_addressed,
     run_routing_policies,
 )
 
@@ -58,13 +64,19 @@ policy_prefer_clouds = create_preferrence_filter_by_driver_class(
 POLICIES = [
     policy_timeout_reached,
     policy_pool_enabled,
+    policy_use_only_when_addressed,
     policy_match_pool_name,
+    policy_can_acquire,
     policy_supports_architecture,
     policy_supports_snapshots,
     policy_supports_spot_instances,
+    policy_supports_guest_logs,
+    policy_one_attempt_forgiving,
     policy_enough_resources,
     policy_prefer_clouds,
     policy_prefer_aws,
+    # or:
+    # policy_prefer_openstack,
     policy_prefer_spot_instances,
     policy_least_crowded,
 ]

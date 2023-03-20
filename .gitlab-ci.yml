@@ -120,10 +120,9 @@ test/dev:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, terraform_dev]
 
-deploy/staging:
+test/staging:
   extends: .direnv
-  stage: deploy
-  when: manual
+  stage: test
   script:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
@@ -131,8 +130,22 @@ deploy/staging:
     SCRIPT_DIR: terraform/environments/staging
     SCRIPT: >-
       terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR plan -out tfplan &&
-      terraform -chdir=$SCRIPT_DIR apply tfplan
+      terraform -chdir=$SCRIPT_DIR plan
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, terraform_staging]
+
+deploy/staging:
+  extends: .direnv
+  stage: deploy
+  script:
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    SCRIPT_DIR: terraform/environments/staging
+    SCRIPT: >-
+      terraform -chdir=$SCRIPT_DIR init &&
+      terraform -chdir=$SCRIPT_DIR apply -auto-approve
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, terraform_staging]
