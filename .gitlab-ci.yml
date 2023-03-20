@@ -53,8 +53,8 @@ workflow:
     - changes:
         - terraform/environments/staging/**/*
 
-direnv_prepare:
-  stage: .pre
+direnv:
+  stage: test
   before_script:
     - dnf -y install direnv libffi libffi-devel
     - echo -n "$VAULT_PASSWORD" > .vault_pass
@@ -62,10 +62,6 @@ direnv_prepare:
     - direnv allow
     - eval "$(direnv export bash)"
     - make generate-environment-variables
-  cache:
-    paths:
-      - .venv
-      - .direnv
 
 .direnv:
   before_script:
@@ -75,12 +71,6 @@ direnv_prepare:
     - eval "$(direnv export bash)"
   script:
     - eval "$(direnv export bash)"
-  dependencies:
-    - direnv_prepare
-  cache:
-    paths:
-      - .venv
-      - .direnv
 
 # Workaround for after_script timing-out
 .script_with_cleanup:
@@ -107,9 +97,6 @@ pre-commit:
   script:
     - !reference [.direnv, script]
     - PRE_COMMIT_HOME=$CI_PROJECT_DIR/.cache/pre-commit pre-commit run --all-files
-  cache:
-    paths:
-      - .cache
   rules:
     - !reference [.rules, not_default_branch]
     - when: always
