@@ -1,5 +1,0 @@
-[default]
-compose-method = testing-farm-request
-image-method = testing-farm-request
-distro-method = testing-farm-request
-product-method = testing-farm-request
