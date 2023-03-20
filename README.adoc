@@ -56,42 +56,28 @@ $ kubectl ctx
 
 We use Terraform to provision infrastructure.
 
-=== AWS EKS
+=== Development Environment
 
 To provision a infrastructure for development:
 
-* enter the Terraform `dev` environment directory and initialize Terraform
+* initialize the Terraform `dev` environment
 +
 [source,shell]
 ....
-cd terraform/environments/dev
-terraform init
+make init-dev
 ....
 +
-* your development cluster name is set in `.envrc` file via the TF_VAR_cluster_name environemnt variable
+* create development environment with your own AWS EKS cluster and all available services in development mode
 +
 [source,shell]
 ....
-echo $TF_VAR_cluster_name
+make build-dev
 ....
-+
-* create development environment with your own AWS EKS cluster
-+
-[source,shell]
-....
-terraform plan
-terraform apply -auto-approve
-....
-+
-* add cluster to your kubeconfig
-+
-[source,shell]
-aws eks --region us-east-2 update-kubeconfig --name $TF_VAR_cluster_name
 +
 * develop & have fun
 * tier down the infrastructure once happy
 +
 [source,shell]
 ....
-terraform destroy -auto-approve
+make destroy-dev
 ....

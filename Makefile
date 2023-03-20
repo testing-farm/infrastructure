@@ -11,7 +11,7 @@ DEV_ENVIRONMENT_KEYS := terraform/environments/dev/ranch/public/citool-config/id
 DEV_ENVIRONMENT_FILES := $(DEV_ENVIRONMENT_VARIABLES) $(DEV_ENVIRONMENT_KEYS)
 
 # pull image by default
-CITOOL_EXTRA_DOCKER_ARGS ?= --pull newer --security-opt label=disable
+CITOOL_EXTRA_DOCKER_ARGS ?= --pull newer
 
 # default worker image
 WORKER_IMAGE ?= quay.io/testing-farm/worker:latest
@@ -19,9 +19,21 @@ WORKER_IMAGE ?= quay.io/testing-farm/worker:latest
 # run in parallel 5 tests
 PYTEST_PARALLEL_OPTIONS ?= -d --tx 5*popen//python=python3.9
 
+##@ Infrastructure
+
+init-dev:  ## Initialize the development environment
+	terraform -chdir=terraform/environments/dev init
+
+build-dev:  ## Build the development environment
+	terraform -chdir=terraform/environments/dev apply -auto-approve
+	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
+
+destroy-dev:  ## Destroy the development environment
+	terraform -chdir=terraform/environments/dev destroy -auto-approve
+
 ##@ Tests
 
-test-worker-public: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch
+test-worker-public: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
 	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m public -v --basetemp $$PROJECT_ROOT/.pytest \
 	--citool-extra-docker-args "$(CITOOL_EXTRA_DOCKER_ARGS)" \
 	--citool-config terraform/environments/dev/ranch/public/citool-config --citool-image $(WORKER_IMAGE) \
@@ -30,7 +42,7 @@ test-worker-public: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests fo
 	--variables tests/common.yaml \
 	--html report.html tests/worker/test_pipeline.py
 
-test-worker-redhat: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for redhat ranch
+test-worker-redhat: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for redhat ranch against dev environment
 	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m redhat -v --basetemp $$PROJECT_ROOT/.pytest \
 	--citool-extra-docker-args "$(CITOOL_EXTRA_DOCKER_ARGS)" \
 	--citool-config terraform/environments/dev/ranch/redhat/citool-config --citool-image $(WORKER_IMAGE) \
