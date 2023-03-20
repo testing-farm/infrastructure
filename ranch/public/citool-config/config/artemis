@@ -1,12 +1,11 @@
 [default]
-api-url = http://a2f77d7ab5fdb4b60a42d8e9e3b47831-882451766.us-east-1.elb.amazonaws.com/v0.0.24/
-api-version = v0.0.24
-skip-prepare-verify-ssh = true
+api-url = http://artemis.production.testing-farm.io/v0.0.38/
+api-version = v0.0.38
 ssh-options = UserKnownHostsFile=/dev/null, StrictHostKeyChecking=no
 ssh-key = ${config_root}/id_rsa_artemis
 key = master-key
 user-data-vars-template-file = ${config_root}/artemis-user-data.yaml
-playbook = ${config_root}/playbooks/cloud_image_login.yaml
+post-install-script = ${config_root}/post-install-scripts/enable-root.sh
 
 # Provisioning a guest in AWS should not take more then 30 minutes (artemis needs to become quicker)
 ready-timeout = 1800
@@ -21,3 +20,6 @@ api-call-tick = 5
 # These options set the connection timeout for the checks also.
 boot-tick = 30
 echo-tick = 30
+
+# TODO: to get rid of this, we need to allow connection from the artemis cluster to the guests
+skip-prepare-verify-ssh = true

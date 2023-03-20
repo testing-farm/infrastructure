@@ -108,12 +108,11 @@ citool-container.sh hide-secrets \
                     install-copr-build \
                     install-koji-build-execute \
                     install-repository \
-                    guess-environment-testing-farm-request:guess-environment \
-                    dist-git-testing-farm:dist-git \
+                    git \
                     coldstore \
                     testing-farm-request-state-reporter \
                     test-schedule-tmt-connect:test-schedule-tmt \
-                    test-scheduler \
+                    test-scheduler-testing-farm \
                     test-schedule-runner \
                     test-schedule-report
 
