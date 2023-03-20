@@ -48,7 +48,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
           - CREATED
           - OK
           - UNDEFINED
@@ -58,7 +58,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
           - GUEST_PROVISIONING
           - OK
           - UNDEFINED
@@ -68,7 +68,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
           - GUEST_SETUP
           - OK
           - UNDEFINED
@@ -78,7 +78,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
           - RUNNING
           - OK
           - UNDEFINED
@@ -88,7 +88,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
           - CLEANUP
           - OK
           - PASSED
@@ -98,7 +98,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
           - COMPLETE
           - OK
           - PASSED

@@ -125,11 +125,10 @@ test/dev:
     TF_VAR_cluster_name: testing-farm-gitlab-ci-$CI_JOB_ID
     SCRIPT_DIR: terraform/environments/dev
     SCRIPT: >-
-      terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR plan -out tfplan &&
-      terraform -chdir=$SCRIPT_DIR apply tfplan &&
+      make init-dev &&
+      make build-dev &&
       PYTEST_OPTIONS="-k 'not container'" make test-worker-public
-    AFTER_SCRIPT: terraform -chdir=$SCRIPT_DIR destroy -auto-approve
+    AFTER_SCRIPT: make destroy-dev
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, terraform_dev]
