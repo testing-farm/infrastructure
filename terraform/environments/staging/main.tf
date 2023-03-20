@@ -1,6 +1,13 @@
 terraform {
   required_version = ">=1.0.9"
-  backend "local" {}
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "testing-farm"
+
+    workspaces {
+      name = "staging"
+    }
+  }
 
   required_providers {
     external = {
@@ -12,27 +19,51 @@ terraform {
   }
 }
 
+locals {
+  workers = {
+    security_group = "sg-0040a2477d37dd6d0"
+  }
+
+  cluster = {
+    vpc_id = "vpc-0896aedab4753e76f"
+    subnet_ids = [
+      "subnet-029d836119c84a77e",
+      "subnet-03089904253762f32"
+    ]
+  }
+
+  tags = {
+    FedoraGroup  = "ci"
+    ServiceOwner = "TFT"
+    ServicePhase = "Staging"
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+
+  default_tags {
+    tags = local.tags
+  }
+}
+
 provider "aws" {
   region = "us-east-2"
+  alias  = "us-east-2"
+
+  default_tags {
+    tags = local.tags
+  }
 }
 
-data "external" "localhost_public_ip" {
-  # Public IP of localhost, used for development Artemis IP access whitelist
-  program = [
-    "sh",
-    "-c",
-    "jq -n --arg output \"$(curl -s icanhazip.com)\" '{$output}'"
-  ]
-}
-
-module "devel-cluster" {
+module "staging-cluster" {
   source = "../../"
 
   # TODO: move to staging subnets once working
-  cluster_default_region            = "us-east-2"
-  cluster_vpc_id                    = "vpc-0f6baa3d6bae8d912"
-  cluster_subnets                   = ["subnet-010f90da92f36876e", "subnet-0a704a759f7671044"]
-  cluster_name                      = var.cluster_name
+  cluster_default_region            = "us-east-1"
+  cluster_vpc_id                    = local.cluster.vpc_id
+  cluster_subnets                   = local.cluster.subnet_ids
+  cluster_name                      = "testing-farm-staging"
   cluster_node_group_instance_types = ["c5.2xlarge"]
   cluster_node_group_disk_size      = 500
   cluster_node_group_scaling = {
@@ -48,7 +79,7 @@ module "devel-cluster" {
   artemis_release_name = "artemis"
   artemis_namespace    = "default"
 
-  artemis_additional_lb_source_ips = [data.external.localhost_public_ip.result.output]
+  artemis_additional_lb_source_ips = data.aws_instances.workers.public_ips
 
   artemis_config_root   = "./config"
   artemis_config_common = "../common/config"
@@ -87,14 +118,15 @@ module "devel-cluster" {
       value = "/configuration/artemis-image-map-aws.yaml"
     }
   ]
-  artemis_worker_replicas  = 1
+
+  artemis_worker_replicas  = 2
   artemis_worker_processes = 2
-  artemis_worker_threads   = 1
+  artemis_worker_threads   = 2
 
   resources = {
     artemis_api = {
       limits = {
-        memory = "512Mi"
+        memory = "2Gi"
       }
       requests = {
         cpu    = "100m"
@@ -104,7 +136,7 @@ module "devel-cluster" {
 
     artemis_dispatcher = {
       limits = {
-        memory = "128Mi"
+        memory = "1Gi"
       }
       requests = {
         cpu    = "100m"
@@ -134,7 +166,7 @@ module "devel-cluster" {
 
     artemis_scheduler = {
       limits = {
-        memory = "128Mi"
+        memory = "2Gi"
       }
       requests = {
         cpu    = "50m"
@@ -144,7 +176,7 @@ module "devel-cluster" {
 
     artemis_worker = {
       limits = {
-        memory = "512Mi"
+        memory = "6Gi"
       }
       requests = {
         cpu    = "150m"
@@ -154,7 +186,7 @@ module "devel-cluster" {
 
     rabbitmq = {
       limits = {
-        memory = "512Mi"
+        memory = "4Gi"
       }
       requests = {
         cpu    = "200m"
@@ -164,7 +196,7 @@ module "devel-cluster" {
 
     postgresql = {
       limits = {
-        memory = "256Mi"
+        memory = "8Gi"
       }
       requests = {
         cpu    = "100m"
@@ -184,7 +216,7 @@ module "devel-cluster" {
 
     redis = {
       limits = {
-        memory = "48Mi"
+        memory = "256Mi"
       }
       requests = {
         cpu    = "100m"
@@ -204,17 +236,30 @@ module "devel-cluster" {
   }
 }
 
+data "aws_instances" "workers" {
+  provider = aws.us-east-2
+
+  filter {
+    name   = "instance.group-id"
+    values = [local.workers.security_group]
+  }
+
+  instance_state_names = ["running"]
+}
+
 resource "aws_security_group" "allow_guest_traffic" {
   name        = "${var.cluster_name}-allow-guest-traffic"
-  description = "Allow traffic for development from localhost"
+  description = "Security group for Artemis guests"
   vpc_id      = "vpc-a4f084cd"
+
+  provider = aws.us-east-2
 
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${data.external.localhost_public_ip.result.output}/32"]
-    description = "Allow SSH inbound traffic"
+    cidr_blocks = [for public_ip in data.aws_instances.workers.public_ips : "${public_ip}/32"]
+    description = "Allow SSH inbound traffic from workers"
   }
 
   egress {
@@ -224,9 +269,5 @@ resource "aws_security_group" "allow_guest_traffic" {
     cidr_blocks      = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
     ipv6_cidr_blocks = ["::/0"]  ***REMOVED***tfsec:ignore:aws-ec2-no-public-egress-sgr
     description      = "Allow all outbound traffic"
-  }
-
-  tags = {
-    FedoraGroup = "ci"
   }
 }

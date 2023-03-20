@@ -91,19 +91,6 @@ data "ansiblevault_path" "vault_ssh_key" {
   key      = var.artemis_ssh_keys[count.index].key
 }
 
-data "external" "ansible_inventory" {
-  # Parse public ips from ansible-inventory, and return dummy json, storing
-  # the list as string. This is done due to the limitation of the `external`
-  # data source not being able to parse complex JSON, only string->string
-  # mapping. The list can be decoded from JSON, by calling `jsondecode` function
-  # with the string stored in attribute `output` as its parameter.
-  program = [
-    "/bin/sh",
-    "-c",
-    "env -C ../../.. ansible-inventory --list | jq '[._meta.hostvars[].public_ip_address]' | jq -n --arg output \"$(cat)\" '{$output}'"
-  ]
-}
-
 module "testing-farm-eks-devel" {
   source = "./modules/eks"
 
@@ -124,7 +111,7 @@ module "testing-farm-eks-devel" {
 
 locals {
   zone_name              = "testing-farm.io"
-  domain_base            = "${var.cluster_name}.eks.${local.zone_name}"
+  domain_base            = "${trimprefix(var.cluster_name, "testing-farm-")}.${local.zone_name}"
   artemis_api_domain     = "artemis.${local.domain_base}"
   external_dns_namespace = "kube-addons"
 }
@@ -178,7 +165,7 @@ module "artemis" {
   vault_password = sensitive(data.ansiblevault_path.vault_password.value)
 
   lb_source_ranges = [
-    for ip in concat(jsondecode(data.external.ansible_inventory.result.output), var.artemis_additional_lb_source_ips) :
+    for ip in var.artemis_additional_lb_source_ips :
     "${ip}/32"
     if ip != null
   ]
