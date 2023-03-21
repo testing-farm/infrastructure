@@ -28,7 +28,7 @@ job "tf-tmt-container" {
 
       resources {
         cpu    = 2000
-        memory = 1024
+        memory = 8192
       }
 
       config {
