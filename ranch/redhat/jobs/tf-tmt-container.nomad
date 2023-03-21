@@ -26,8 +26,8 @@ job "tf-tmt-container" {
       driver = "raw_exec"
 
       resources {
-        cpu    = 1000
-        memory = 4096
+        cpu    = 2000
+        memory = 8192
       }
 
       config {

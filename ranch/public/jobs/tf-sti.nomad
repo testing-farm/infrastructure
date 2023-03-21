@@ -26,7 +26,7 @@ job "tf-sti" {
 
       resources {
         cpu    = 500
-        memory = 2048
+        memory = 3072
       }
 
       config {
