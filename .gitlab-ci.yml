@@ -140,7 +140,7 @@ test/staging:
     SCRIPT_DIR: terraform/environments/staging
     SCRIPT: >-
       terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR plan
+      terraform -chdir=$SCRIPT_DIR plan -lock-timeout=5m
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, terraform_staging]
@@ -155,7 +155,8 @@ test/production:
     SCRIPT_DIR: terraform/environments/production
     SCRIPT: >-
       terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR plan
+      terraform -chdir=$SCRIPT_DIR plan -lock-timeout=5m
+
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, terraform_production]
