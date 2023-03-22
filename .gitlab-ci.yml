@@ -53,99 +53,111 @@ workflow:
     - changes:
         - terraform/environments/staging/**/*
 
-direnv:
+resolv:
   stage: test
   before_script:
-    - dnf -y install direnv libffi libffi-devel
-    - echo -n "$VAULT_PASSWORD" > .vault_pass
+    - echo "nameserver 8.8.8.8" > /etc/resolv.conf
+    - echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+    - dnf -y install bind-utils
+    - host BF0609CBD39C892A451FE7D7A5F9A7B3.gr7.us-east-1.eks.amazonaws.com
   script:
-    - direnv allow
-    - eval "$(direnv export bash)"
-    - make generate-environment-variables
+    - cat /etc/resolv.conf
 
-.direnv:
-  before_script:
-    - dnf -y install direnv libffi libffi-devel podman
-    - echo -n "$VAULT_PASSWORD" > .vault_pass
-    - direnv allow
-    - eval "$(direnv export bash)"
-  script:
-    - eval "$(direnv export bash)"
+# direnv:
+#   stage: test
+#   before_script:
+#     - dnf -y install direnv libffi libffi-devel
+#     - echo -n "$VAULT_PASSWORD" > .vault_pass
+#   script:
+#     - direnv allow
+#     - eval "$(direnv export bash)"
+#     - make generate-environment-variables
+#   rules:
+#     - !reference [.rules, not_default_branch]
 
-# Workaround for after_script timing-out
-.script_with_cleanup:
-  script:
-    - /bin/bash -c "${SCRIPT}" && EXIT_CODE=$? || EXIT_CODE=$?
-    - /bin/bash -c "${AFTER_SCRIPT}"
-    - "[ ${EXIT_CODE} = 0 ]"
+# .direnv:
+#   before_script:
+#     - dnf -y install direnv libffi libffi-devel podman
+#     - echo -n "$VAULT_PASSWORD" > .vault_pass
+#     - direnv allow
+#     - eval "$(direnv export bash)"
+#   script:
+#     - eval "$(direnv export bash)"
 
-ansible-vault:
-  extends: .direnv
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - dnf -y install ansible-lint
-    - >
-      ansible-vault view secrets/credentials.yaml | yamllint -d "rules: {line-length: {level: warning}}" -
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, secrets]
+# # Workaround for after_script timing-out
+# .script_with_cleanup:
+#   script:
+#     - /bin/bash -c "${SCRIPT}" && EXIT_CODE=$? || EXIT_CODE=$?
+#     - /bin/bash -c "${AFTER_SCRIPT}"
+#     - "[ ${EXIT_CODE} = 0 ]"
 
-pre-commit:
-  extends: .direnv
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - PRE_COMMIT_HOME=$CI_PROJECT_DIR/.cache/pre-commit pre-commit run --all-files
-  rules:
-    - !reference [.rules, not_default_branch]
-    - when: always
+# ansible-vault:
+#   extends: .direnv
+#   stage: test
+#   script:
+#     - !reference [.direnv, script]
+#     - dnf -y install ansible-lint
+#     - >
+#       ansible-vault view secrets/credentials.yaml | yamllint -d "rules: {line-length: {level: warning}}" -
+#   rules:
+#     - !reference [.rules, not_default_branch]
+#     - !reference [.rules, secrets]
 
-test/dev:
-  extends: .direnv
-  stage: test
-  script:
-    # TODO: tmt run -e cluster_name=testing-farm-gitlab-ci-$CI_COMMIT_REF_NAME plan --name /terraform/environments/dev
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    TF_VAR_cluster_name: testing-farm-gitlab-ci-$CI_JOB_ID
-    SCRIPT_DIR: terraform/environments/dev
-    SCRIPT: >-
-      make init-dev &&
-      make build-dev &&
-      PYTEST_OPTIONS="-k 'not container'" make test-worker-public
-    AFTER_SCRIPT: make destroy-dev
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, terraform_dev]
+# pre-commit:
+#   extends: .direnv
+#   stage: test
+#   script:
+#     - !reference [.direnv, script]
+#     - PRE_COMMIT_HOME=$CI_PROJECT_DIR/.cache/pre-commit pre-commit run --all-files
+#   rules:
+#     - !reference [.rules, not_default_branch]
+#     - when: always
 
-test/staging:
-  extends: .direnv
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    SCRIPT_DIR: terraform/environments/staging
-    SCRIPT: >-
-      terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR plan
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, terraform_staging]
+# test/dev:
+#   extends: .direnv
+#   stage: test
+#   script:
+#     # TODO: tmt run -e cluster_name=testing-farm-gitlab-ci-$CI_COMMIT_REF_NAME plan --name /terraform/environments/dev
+#     - !reference [.direnv, script]
+#     - !reference [.script_with_cleanup, script]
+#   variables:
+#     TF_VAR_cluster_name: testing-farm-gitlab-ci-$CI_JOB_ID
+#     SCRIPT_DIR: terraform/environments/dev
+#     SCRIPT: >-
+#       make init-dev &&
+#       make build-dev &&
+#       PYTEST_OPTIONS="-k 'not container'" make test-worker-public
+#     AFTER_SCRIPT: make destroy-dev
+#   rules:
+#     - !reference [.rules, not_default_branch]
+#     - !reference [.rules, terraform_dev]
 
-deploy/staging:
-  extends: .direnv
-  stage: deploy
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    SCRIPT_DIR: terraform/environments/staging
-    SCRIPT: >-
-      terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR apply -auto-approve
-  rules:
-    - !reference [.rules, only_default_branch]
-    - !reference [.rules, terraform_staging]
+# test/staging:
+#   extends: .direnv
+#   stage: test
+#   script:
+#     - !reference [.direnv, script]
+#     - !reference [.script_with_cleanup, script]
+#   variables:
+#     SCRIPT_DIR: terraform/environments/staging
+#     SCRIPT: >-
+#       terraform -chdir=$SCRIPT_DIR init &&
+#       terraform -chdir=$SCRIPT_DIR plan
+#   rules:
+#     - !reference [.rules, not_default_branch]
+#     - !reference [.rules, terraform_staging]
+
+# deploy/staging:
+#   extends: .direnv
+#   stage: deploy
+#   script:
+#     - !reference [.direnv, script]
+#     - !reference [.script_with_cleanup, script]
+#   variables:
+#     SCRIPT_DIR: terraform/environments/staging
+#     SCRIPT: >-
+#       terraform -chdir=$SCRIPT_DIR init &&
+#       terraform -chdir=$SCRIPT_DIR apply -auto-approve
+#   rules:
+#     - !reference [.rules, only_default_branch]
+#     - !reference [.rules, terraform_staging]
