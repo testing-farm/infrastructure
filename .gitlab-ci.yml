@@ -69,6 +69,10 @@ direnv:
     - echo -n "$VAULT_PASSWORD" > .vault_pass
     - direnv allow
     - eval "$(direnv export bash)"
+    # WORKAROUND: gitlab runner is hosted on the same network as staging/production
+    #             what is breaking DNS resolving, as AWS DNS resolves k8s API locally
+    - echo "nameserver 8.8.8.8" > /etc/resolv.conf
+    - echo "nameserver 8.8.4.4" >> /etc/resolv.conf
   script:
     - eval "$(direnv export bash)"
 
