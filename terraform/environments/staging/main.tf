@@ -20,22 +20,25 @@ terraform {
 }
 
 locals {
-  workers = {
-    security_group = "sg-0040a2477d37dd6d0"
-  }
-
   cluster = {
+    name = "testing-farm-staging"
+
     vpc_id = "vpc-0896aedab4753e76f"
+
     subnet_ids = [
       "subnet-029d836119c84a77e",
       "subnet-03089904253762f32"
     ]
   }
 
+  workers = {
+    security_group = "sg-0040a2477d37dd6d0"
+  }
+
   tags = {
     FedoraGroup  = "ci"
     ServiceOwner = "TFT"
-    ServicePhase = "Staging"
+    ServicePhase = "Stage"
   }
 }
 
@@ -63,7 +66,7 @@ module "staging-cluster" {
   cluster_default_region            = "us-east-1"
   cluster_vpc_id                    = local.cluster.vpc_id
   cluster_subnets                   = local.cluster.subnet_ids
-  cluster_name                      = "testing-farm-staging"
+  cluster_name                      = local.cluster.name
   cluster_node_group_instance_types = ["c5.2xlarge"]
   cluster_node_group_disk_size      = 500
   cluster_node_group_scaling = {
@@ -248,7 +251,7 @@ data "aws_instances" "workers" {
 }
 
 resource "aws_security_group" "allow_guest_traffic" {
-  name        = "${var.cluster_name}-allow-guest-traffic"
+  name        = "${local.cluster.name}-allow-guest-traffic"
   description = "Security group for Artemis guests"
   vpc_id      = "vpc-a4f084cd"
 
