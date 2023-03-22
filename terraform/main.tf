@@ -68,6 +68,11 @@ provider "kubernetes" {
   }
 }
 
+data "ansiblevault_path" "artemis_additional_ips" {
+  path = var.ansible_vault_credentials
+  key  = "artemis.additional_ips"
+}
+
 data "ansiblevault_path" "pool_access_key_aws" {
   path = var.ansible_vault_credentials
   key  = "credentials.aws.fedora.access_key"
@@ -165,7 +170,10 @@ module "artemis" {
   vault_password = sensitive(data.ansiblevault_path.vault_password.value)
 
   lb_source_ranges = [
-    for ip in var.artemis_additional_lb_source_ips :
+    for ip in concat(
+      var.artemis_additional_lb_source_ips,
+      split("\n", trimspace(data.ansiblevault_path.artemis_additional_ips.value))
+    ) :
     "${ip}/32"
     if ip != null
   ]
