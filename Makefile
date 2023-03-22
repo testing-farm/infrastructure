@@ -24,7 +24,10 @@ PYTEST_PARALLEL_OPTIONS ?= -d --tx 5*popen//python=python3.9
 init-dev:  ## Initialize the development environment
 	terraform -chdir=terraform/environments/dev init
 
-build-dev:  ## Build the development environment
+plan-dev:  ## Plan the building of the development environment
+	terraform -chdir=terraform/environments/dev plan
+
+apply-dev:  ## Build the development environment
 	terraform -chdir=terraform/environments/dev apply -auto-approve
 	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
 
