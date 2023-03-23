@@ -2,13 +2,9 @@
 
 .PHONY: clean help test-worker-redhat test-worker-public generate-environment-variables
 
-DEV_ENVIRONMENT_VARIABLES := terraform/environments/dev/ranch/public/citool-config/environment.yaml \
-                             terraform/environments/dev/ranch/redhat/citool-config/environment.yaml
+TEMPLATED_FILES := terraform/environments/*/ranch/*/citool-config/environment.yaml.j2
 
-DEV_ENVIRONMENT_KEYS := terraform/environments/dev/ranch/public/citool-config/id_rsa_artemis.decrypted \
-                        terraform/environments/dev/ranch/redhat/citool-config/id_rsa_artemis.decrypted
-
-DEV_ENVIRONMENT_FILES := $(DEV_ENVIRONMENT_VARIABLES) $(DEV_ENVIRONMENT_KEYS)
+ENCRYPTED_FILES := terraform/environments/*/ranch/*/citool-config/id_rsa_artemis
 
 # pull image by default
 CITOOL_EXTRA_DOCKER_ARGS ?= --pull newer
@@ -33,7 +29,7 @@ destroy-dev:  ## Destroy the development environment
 
 ##@ Tests
 
-test-worker-public: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
+test-worker-public: $(TEMPLATED_FILES)  ## Run worker integration tests for public ranch against dev environment
 	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m public -v --basetemp $$PROJECT_ROOT/.pytest \
 	--citool-extra-docker-args "$(CITOOL_EXTRA_DOCKER_ARGS)" \
 	--citool-config terraform/environments/dev/ranch/public/citool-config --citool-image $(WORKER_IMAGE) \
@@ -42,7 +38,7 @@ test-worker-public: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests fo
 	--variables tests/common.yaml \
 	--html report.html tests/worker/test_pipeline.py
 
-test-worker-redhat: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for redhat ranch against dev environment
+test-worker-redhat: $(TEMPLATED_FILES)  ## Run worker integration tests for redhat ranch against dev environment
 	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m redhat -v --basetemp $$PROJECT_ROOT/.pytest \
 	--citool-extra-docker-args "$(CITOOL_EXTRA_DOCKER_ARGS)" \
 	--citool-config terraform/environments/dev/ranch/redhat/citool-config --citool-image $(WORKER_IMAGE) \
@@ -53,24 +49,24 @@ test-worker-redhat: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests fo
 
 ##@ Utility
 
-$(DEV_ENVIRONMENT_FILES):
+$(TEMPLATED_FILES) $(ENCRYPTED_FILES).decrypted:
 	# Generate `environment.yaml` variable files
-	poetry run python setup/generate_environment.py
+	poetry run python setup/generate_environment.py $(TEMPLATED_FILES)
 
 	# Decrypt ssh keys
-	for key in $(DEV_ENVIRONMENT_KEYS); do \
+	for key in $(ENCRYPTED_FILES); do \
 		echo "Decrypting $${key%.decrypted}..."; \
-		ansible-vault decrypt --vault-password-file .vault_pass --output $${key} $${key%.decrypted}; \
+		ansible-vault decrypt --vault-password-file .vault_pass --output $${key}.decrypted $${key}; \
 	done
 
 generate-environment-files:  ## Generate credential files used in each citool configuration.
 	# Generate `environment.yaml` variable files
-	poetry run python setup/generate_environment.py
+	poetry run python setup/generate_environment.py $(TEMPLATED_FILES)
 
 	# Decrypt ssh keys
-	for key in $(DEV_ENVIRONMENT_KEYS); do \
-		echo "Decrypting $${key%.decrypted}..."; \
-		ansible-vault decrypt --vault-password-file .vault_pass --output $${key} $${key%.decrypted}; \
+	for key in $(ENCRYPTED_FILES); do \
+		echo "Decrypting $${key}..."; \
+		ansible-vault decrypt --vault-password-file .vault_pass --output $${key}.decrypted $${key}; \
 	done
 
 list-worker-tests:  ## List available worker integration tests
