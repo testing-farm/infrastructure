@@ -47,6 +47,15 @@ test-worker-redhat: $(TEMPLATED_FILES)  ## Run worker integration tests for redh
 	--variables tests/common.yaml \
 	--html report.html tests/worker/test_pipeline.py
 
+test-worker-public-production: $(TEMPLATED_FILES)  ## Run worker integration tests for public ranch against production environment
+	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m public -v --basetemp $$PROJECT_ROOT/.pytest \
+	--citool-extra-docker-args "$(CITOOL_EXTRA_DOCKER_ARGS)" \
+	--citool-config terraform/environments/production/ranch/public/citool-config --citool-image $(WORKER_IMAGE) \
+	--test-assets tests/worker \
+	--variables terraform/environments/production/ranch/public/citool-config/variables.yaml \
+	--variables tests/common.yaml \
+	--html report.html tests/worker/test_pipeline.py
+
 ##@ Utility
 
 $(TEMPLATED_FILES) $(ENCRYPTED_FILES).decrypted:

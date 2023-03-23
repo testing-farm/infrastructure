@@ -1,0 +1,2 @@
+[default]
+playbooks = pre-artifact-installation:${config_root}/guest-setup/pre-artifact-installation/entrypoint.yaml,post-artifact-installation:${config_root}/guest-setup/post-artifact-installation/entrypoint.yaml
