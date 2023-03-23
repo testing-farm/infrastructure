@@ -9,12 +9,12 @@ composes:
     aarch64:
       image: 'Fedora-Cloud-Base-36-20230317.0.aarch64-hvm-us-east-2-gp2-0'
 
-  fedora_37: &fedora_latest_ref
+  fedora_37:
     compose: 'Fedora-37'
 
-    x86_64:
+    x86_64: &fedora_latest_ref_x86_64
       image: 'Fedora-Cloud-Base-37-20230317.0.x86_64-hvm-us-east-2-gp2-0'
-    aarch64:
+    aarch64: &fedora_latest_ref_aarch64
       image: 'Fedora-Cloud-Base-37-20230317.0.aarch64-hvm-us-east-2-gp2-0'
 
   fedora_38:
@@ -26,7 +26,11 @@ composes:
       image: 'Fedora-Cloud-Base-38-20230317.n.0.aarch64-hvm-us-east-2-gp2-0'
 
   # TFT-1221
-  fedora_latest: *fedora_latest_ref
+  fedora_latest:
+    compose: 'Fedora-latest'
+
+    x86_64: *fedora_latest_ref_x86_64
+    aarch64: *fedora_latest_ref_aarch64
 
   # aws --profile fedora_us_east_2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-Rawhide* | jq '.Images | .[] | .Name' | sort
   fedora_rawhide:
