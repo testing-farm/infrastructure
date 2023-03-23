@@ -172,7 +172,8 @@ module "artemis" {
   lb_source_ranges = [
     for ip in concat(
       var.artemis_additional_lb_source_ips,
-      split("\n", trimspace(data.ansiblevault_path.artemis_additional_ips.value))
+      # we accept a string with comma or newline delimited IPs
+      split("\n", replace(trimspace(data.ansiblevault_path.artemis_additional_ips.value), " ", "\n"))
     ) :
     "${ip}/32"
     if ip != null
