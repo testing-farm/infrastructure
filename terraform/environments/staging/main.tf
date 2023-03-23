@@ -258,11 +258,14 @@ resource "aws_security_group" "allow_guest_traffic" {
   provider = aws.us-east-2
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [for public_ip in data.aws_instances.workers.public_ips : "${public_ip}/32"]
-    description = "Allow SSH inbound traffic from workers"
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+    cidr_blocks = concat(
+      module.staging-cluster.artemis_lb_source_ranges,
+      [for public_ip in data.aws_instances.workers.public_ips : "${public_ip}/32"]
+    )
+    description = "Allow SSH inbound traffic from workers and additional IPs"
   }
 
   egress {
