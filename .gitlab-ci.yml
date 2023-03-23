@@ -47,6 +47,7 @@ workflow:
     - !reference [.rules, terraform_infra]
     - changes:
         - terraform/environments/dev/**/*
+        - Makefile
 
   terraform_staging:
     - !reference [.rules, terraform_infra]
@@ -122,7 +123,7 @@ test/dev:
     SCRIPT_DIR: terraform/environments/dev
     SCRIPT: >-
       make init-dev &&
-      make build-dev &&
+      make apply-dev &&
       PYTEST_OPTIONS="-k 'not container'" make test-worker-public
     AFTER_SCRIPT: make destroy-dev
   rules:
