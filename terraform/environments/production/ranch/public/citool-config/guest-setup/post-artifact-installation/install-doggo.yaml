@@ -1,0 +1,24 @@
+---
+
+- block:
+    - name: Install libpcap
+      package:
+        name:
+          - libpcap
+        state: present
+
+    - name: Download doggo binary
+      get_url:
+        url: "https://gitlab.com/testing-farm/doggo/-/releases/permalink/latest/downloads/doggo-amd64"
+        dest: "/usr/local/bin/doggo"
+        timeout: 30
+        mode: +x
+      retries: 5
+      until: result_download_doggo is succeeded
+      register: result_download_doggo
+
+    - name: "Start doggo"
+      shell: nohup /usr/local/bin/doggo --pushgateway-url http://pushgateway.dev.testing-farm.io:9091/ \
+             --request-id {{ TESTING_FARM_REQUEST_ID }} &>/var/tmp/doggo.log &
+
+  when: ansible_distribution == "Fedora"
