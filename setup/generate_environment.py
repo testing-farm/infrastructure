@@ -3,6 +3,7 @@
 # This script can be executed using `make`.
 
 import os
+import sys
 import ruamel.yaml
 
 from ansible.constants import DEFAULT_VAULT_ID_MATCH
@@ -25,19 +26,17 @@ def main() -> None:
     vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(vault_pass.encode()))])
     credentials_decrypted: SecretsType = ruamel.yaml.safe_load(vault.decrypt(credentials_encrypted))
 
-    for ranch in ['redhat', 'public']:
-        template_dirpath = os.path.join('terraform', 'environments', 'dev', 'ranch', ranch, 'citool-config')
-        template_filepath = os.path.join(template_dirpath, 'environment.yaml.j2')
-        result_template_filepath = os.path.join(template_dirpath, 'environment.yaml')
+    for template_file in sys.argv[1:]:
+        generated_template_file = template_file.rstrip('.j2')
 
-        print('Generating `{}`...'.format(result_template_filepath))
+        print('Generating `{}`...'.format(generated_template_file))
 
-        with open(template_filepath, 'r') as f:
+        with open(template_file, 'r') as f:
             template = f.read()
 
         template_rendered = Template(template).render({**credentials_decrypted, **dict(os.environ)})
 
-        with open(result_template_filepath, 'w') as f:
+        with open(generated_template_file, 'w') as f:
             print(template_rendered, file=f)
 
 
