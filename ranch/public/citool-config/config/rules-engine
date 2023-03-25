@@ -1,3 +1,2 @@
 [default]
-functions = ${config_root}/functions.py
 variables = ${config_root}/variables.yml
