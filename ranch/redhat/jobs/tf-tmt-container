@@ -122,21 +122,9 @@ if [ ! -e "results.xml" ]; then
     create_results_xml failure error
 fi
 
-# sync task logs; we need to be picky here to avoid copying multipe copies of the built/unbuilt source tree
-# until tmt does that by itself: https://github.com/teemtee/tmt/issues/1707
 TASK_DIR=$(dirname $RUN_DIR)
 for path in ${TASK_DIR}/${TASK_NAME}/*; do
-    fname="$(basename "$path")"
-    if [ -f "$path" ]; then
-        # all files in the top-level directory, like ansible-output.txt or progress.xml
-        archive $path
-    elif [ "${fname#guest-setup}" != "$fname" ]; then
-        # all guest setup logs
-        archive $path '' '--recursive'
-    elif [ "${fname#work-}" != "$fname" ]; then
-        # all TMT plan results
-        archive $path '' '--recursive --exclude tree'
-    fi
+    archive $path '' '--recursive'
 done
 
 create_results
