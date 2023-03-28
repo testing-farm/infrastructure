@@ -79,9 +79,9 @@
     - include: ../tasks/config.yml
     - include: ../tasks/xunit-converter.yml
     - include: ../tasks/image.yml
-    - name: "Manual action required to update Artemis loabalancer - kubectl edit svc/artemis-api and worker security group"
+    - name: "Manual action required to update Artemis and guest access - run terraform for production Testing Farm!"
       pause:
-        prompt: "Make sure Artemis accepts connections from {{ ansible_host }}"
+        prompt: "Make sure Artemis and guests accept connections from {{ ansible_host }}"
   roles:
     - name: geerlingguy.swap
       vars:
