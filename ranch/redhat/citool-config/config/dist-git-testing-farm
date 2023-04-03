@@ -1,0 +1,3 @@
+[default]
+method = request
+clone-args = --recurse-submodules
