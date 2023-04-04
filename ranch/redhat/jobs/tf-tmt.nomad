@@ -6,12 +6,6 @@ job "tf-tmt" {
       meta_required = ["REQUEST_ID"]
   }
 
-  /* constraint { */
-  /*     attribute = "${meta.tests}" */
-  /*     operator  = "set_contains" */
-  /*     value     = "functional" */
-  /* } */
-
   group "tmt" {
 
     # Restart up to 2 times
