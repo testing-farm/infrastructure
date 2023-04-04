@@ -26,6 +26,4 @@
     and "Failed to get plan details" in ERROR_MESSAGE
   state: complete
 
-
-
 # Default hard-coded rules apply for the rest - "error" when FAILURE exists, "complete" otherwise

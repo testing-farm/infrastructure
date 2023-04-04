@@ -69,6 +69,11 @@ create_results() {
     echo "finished creating results artifacts"
 }
 
+# create archive directory
+if [ -z "$NO_ARCHIVE" ]; then
+    ssh $ARTIFACTS_HOSTNAME mkdir -p ${ARTIFACTS_ROOT}/${REQUEST_ID}
+fi
+
 # rpmlist on worker
 rpm -qa > rpmlist-worker.txt
 
@@ -98,12 +103,12 @@ citool-container.sh hide-secrets \
                     testing-farm-request --request-id $REQUEST_ID \
                     ansible \
                     static-guest --guest=localhost \
-                    guest-setup-no-playbooks:guest-setup guess-environment --distro-method=force --distro localhost --compose-method=force --compose localhost \
-                    dist-git-testing-farm:dist-git \
+                    guest-setup-no-playbooks:guest-setup \
+                    git \
                     coldstore \
                     testing-farm-request-state-reporter \
                     test-schedule-tmt \
-                    test-scheduler \
+                    test-scheduler-testing-farm \
                     test-schedule-runner \
                     test-schedule-report
 

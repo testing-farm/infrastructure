@@ -69,6 +69,11 @@ create_results() {
     echo "finished creating results artifacts"
 }
 
+# create archive directory
+if [ -z "$NO_ARCHIVE" ]; then
+    ssh $ARTIFACTS_HOSTNAME mkdir -p ${ARTIFACTS_ROOT}/${REQUEST_ID}
+fi
+
 # rpmlist on worker
 rpm -qa > rpmlist-worker.txt
 
@@ -103,13 +108,12 @@ citool-container.sh hide-secrets \
                     install-copr-build \
                     install-koji-build-execute \
                     install-repository \
-                    guess-environment-testing-farm-request:guess-environment \
-                    dist-git-testing-farm:dist-git \
+                    git \
                     coldstore \
                     testing-farm-request-state-reporter \
                     test-scheduler-sti \
                     test-schedule-runner-sti \
-                    test-scheduler \
+                    test-scheduler-testing-farm \
                     test-schedule-runner \
                     test-schedule-report
 
