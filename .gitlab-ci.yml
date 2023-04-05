@@ -60,6 +60,10 @@ workflow:
     - changes:
         - terraform/environments/production/**/*
 
+  public_tests:
+    - changes:
+        - tests/worker/public/**/*
+
 direnv:
   stage: test
   before_script:
@@ -130,6 +134,7 @@ test/dev:
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, terraform_dev]
+    - !reference [.rules, public_tests]
 
 test/staging:
   extends: .direnv
