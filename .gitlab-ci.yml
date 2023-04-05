@@ -46,8 +46,9 @@ workflow:
   terraform_dev:
     - !reference [.rules, terraform_infra]
     - changes:
-        - terraform/environments/dev/**/*
         - Makefile
+        - poetry.lock
+        - terraform/environments/dev/**/*
 
   terraform_staging:
     - !reference [.rules, terraform_infra]
