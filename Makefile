@@ -38,7 +38,7 @@ destroy-dev:  ## Destroy the development environment
 
 test-worker-public: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
 	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m public -v --basetemp $$PROJECT_ROOT/.pytest \
-	--citool-extra-docker-args "$(CITOOL_EXTRA_DOCKER_ARGS)" \
+	--citool-extra-podman-args "$(CITOOL_EXTRA_DOCKER_ARGS)" \
 	--citool-config terraform/environments/dev/ranch/public/citool-config --citool-image $(WORKER_IMAGE) \
 	--test-assets tests/worker \
 	--variables terraform/environments/dev/ranch/public/citool-config/variables.yaml \
@@ -47,7 +47,7 @@ test-worker-public: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests fo
 
 test-worker-redhat: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for redhat ranch against dev environment
 	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m redhat -v --basetemp $$PROJECT_ROOT/.pytest \
-	--citool-extra-docker-args "$(CITOOL_EXTRA_DOCKER_ARGS)" \
+	--citool-extra-podman-args "$(CITOOL_EXTRA_DOCKER_ARGS)" \
 	--citool-config terraform/environments/dev/ranch/redhat/citool-config --citool-image $(WORKER_IMAGE) \
 	--test-assets tests/worker \
 	--variables terraform/environments/dev/ranch/redhat/citool-config/variables.yaml \
