@@ -55,6 +55,7 @@ module "devel-cluster" {
 
   artemis_release_name = "artemis"
   artemis_namespace    = "default"
+  artemis_image_tag    = "v0.0.54"
 
   artemis_additional_lb_source_ips = [data.external.localhost_public_ip.result.output]
 
