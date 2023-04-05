@@ -1,0 +1,103 @@
+---
+
+marks:
+  - public
+
+pipeline: |
+  hide-secrets
+  rules-engine
+  testing-farm-request --request-id da940b92-fc2f-4e9f-8b4c-d3f152b20be4
+  ansible
+  artemis
+  fedora-copr:copr
+  guest-setup-testing-farm:guest-setup
+  install-copr-build
+  install-koji-build-execute
+  install-repository
+  git
+  coldstore
+  testing-farm-request-state-reporter
+  test-schedule-tmt-connect:test-schedule-tmt
+  test-scheduler-testing-farm
+  test-schedule-runner
+  test-schedule-report
+
+checks:
+  literal-strings:
+    - "[testing-farm-request] Connected to Testing Farm Service"
+    - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
+    - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/da940b92-fc2f-4e9f-8b4c-d3f152b20be4"
+    - "[testing-farm-request-state-reporter] pipeline complete"
+    - "[test-schedule-tmt-connect] cloning repo https://gitlab.com/testing-farm/tests (branch not specified, ref main)"
+    - "[test-schedule-tmt-connect] tmt exited with code 0"
+    - "[test-schedule-tmt-connect] cloning repo"
+    - "[test-schedule-runner] running test schedule of 1 entries"
+    - "[test-schedule-report] Result of testing: PASSED"
+
+
+  literal-patterns:
+    - "[artemis] [{{ artemis_guestname_pattern }}] Guest is being provisioned"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Guest is ready"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Guest has become alive"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Guest provisioned"
+    - "[artemis] [{{ artemis_guestname_pattern }}] destroying guest"
+    - "[artemis] [{{ artemis_guestname_pattern }}] successfully released"
+
+    - table:
+        -
+          - "Fedora-37:x86_64:/testing-farm/filter"
+          - CREATED
+          - OK
+          - UNDEFINED
+          - "x86_64 Fedora-37 S-"
+          - ""
+          - tmt
+
+    - table:
+        -
+          - "Fedora-37:x86_64:/testing-farm/filter"
+          - GUEST_SETUP
+          - OK
+          - UNDEFINED
+          - "x86_64 Fedora-37 S-"
+          - "x86_64 Fedora-37 S-"
+          - tmt
+
+    - table:
+        -
+          - "Fedora-37:x86_64:/testing-farm/filter"
+          - RUNNING
+          - OK
+          - UNDEFINED
+          - "x86_64 Fedora-37 S-"
+          - "x86_64 Fedora-37 S-"
+          - tmt
+
+    - table:
+        -
+          - "Fedora-37:x86_64:/testing-farm/filter"
+          - CLEANUP
+          - OK
+          - PASSED
+          - "x86_64 Fedora-37 S-"
+          - "x86_64 Fedora-37 S-"
+          - tmt
+
+    - table:
+        -
+          - "Fedora-37:x86_64:/testing-farm/filter"
+          - COMPLETE
+          - OK
+          - PASSED
+          - "x86_64 Fedora-37 S-"
+          - "x86_64 Fedora-37 S-"
+          - tmt
+
+  artifacts:
+    - "guest-setup-{{ artemis_guestname_pattern }}"
+    - "guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-pre-artifact-installation.txt"
+    - "guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-post-artifact-installation.txt"
+    - "citool-debug\\.txt"
+    - "citool-debug\\.verbose\\.txt"
+    - "results\\.xml"
+    - "work-filter[a-z0-9_]+/tmt-reproducer.sh"
