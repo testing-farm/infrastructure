@@ -31,9 +31,6 @@ pools:
       command: aws
       master-key-name: testing-farm-worker
 
-      # set default root disk size to 40GB
-      default-root-disk-size: 40
-
       # availability zone match chosen subnet
       availability-zone: us-east-2c
 
@@ -42,9 +39,6 @@ pools:
 
       # security group for test environment
       security-group: "${aws_security_group_id}"
-
-      # instance details
-      default-instance-type: c6a.large
 
       # wait timeout/tick for fulfilling spot request
       # spot-request-timeout: 60
@@ -66,6 +60,126 @@ pools:
 
       use-public-ip: true
 
+      #
+      # Flavors
+      #
+      # Default instance type.
+      default-instance-type: c6a.large
+
+      # Default root disk size.
+      default-root-disk-size: 50
+
+      # Control the subset of flavors available for provisioning.
+      flavor-regex: ^c6a\..+$
+
+      # Do not use the default instance when no suitable can be found. When not having a suitable flavor,
+      # pool simply cannot satisfy the request.
+      use-default-flavor-when-no-suitable: false
+
+      # Create custom flavors.
+      custom-flavors:
+        - name: c6a.large-50
+          base: c6a.large
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+      # Create custom flavors.
+      custom-flavors:
+        - name: c6a.large-50
+          base: c6a.large
+          disk:
+            - size: "50 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.large-250
+          base: c6a.large
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.large-500
+          base: c6a.large
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.large-50
+          base: c6a.large
+          disk:
+            - size: "50 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.xlarge-250
+          base: c6a.xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.xlarge-500
+          base: c6a.xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.2xlarge-50
+          base: c6a.2xlarge
+          disk:
+            - size: "50 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.2xlarge-250
+          base: c6a.2xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.2xlarge-500
+          base: c6a.2xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+      # Provide flavor info we cannot extract from API.
+      # Based on AWS documentation, https://aws.amazon.com/ec2/instance-types/
+      patch-flavors:
+        - name-regex: 'c6a\..+'
+          cpu:
+            family: 25
+            family-name: Hygon Dhyana
+            model: 1
+            model-name: AMD EPYC 7R13 Processor
+
   - name: fedora-aws-aarch64
     driver: aws
     parameters:
@@ -77,9 +191,6 @@ pools:
       command: aws
       master-key-name: testing-farm-worker
 
-      # set default root disk size to 40GB
-      default-root-disk-size: 40
-
       # availability zone match chosen subnet
       availability-zone: us-east-2c
 
@@ -88,9 +199,6 @@ pools:
 
       # security group for test environment
       security-group: "${aws_security_group_id}"
-
-      # instance details
-      default-instance-type: m6g.medium
 
       # wait timeout/tick for fulfilling spot request
       #spot-request-timeout: 60
@@ -111,3 +219,121 @@ pools:
           - aarch64
 
       use-public-ip: true
+
+      #
+      # Flavors
+      #
+      # Default instance type.
+      default-instance-type: c6g.large
+
+      # Default root disk size.
+      default-root-disk-size: 50
+
+      # Control the subset of flavors available for provisioning.
+      flavor-regex: ^c6g\..+$
+
+      # Do not use the default instance when no suitable can be found. When not having a suitable flavor,
+      # pool simply cannot satisfy the request.
+      use-default-flavor-when-no-suitable: false
+
+      # Create custom flavors.
+      custom-flavors:
+        - name: c6g.large-50
+          base: c6g.large
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+      # Create custom flavors.
+      custom-flavors:
+        - name: c6g.large-50
+          base: c6g.large
+          disk:
+            - size: "50 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.large-250
+          base: c6g.large
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.large-500
+          base: c6g.large
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.large-50
+          base: c6g.large
+          disk:
+            - size: "50 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.xlarge-250
+          base: c6g.xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.xlarge-500
+          base: c6g.xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.2xlarge-50
+          base: c6g.2xlarge
+          disk:
+            - size: "50 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.2xlarge-250
+          base: c6g.2xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.2xlarge-500
+          base: c6g.2xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+      # Provide flavor info we cannot extract from API.
+      # Based on AWS documentation, https://aws.amazon.com/ec2/instance-types/
+      patch-flavors:
+        - name-regex: 'c6g\..+'
+          cpu:
+            model: 1
+            model-name: AWS Graviton2
