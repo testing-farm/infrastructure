@@ -8,7 +8,10 @@
 
 %{~ for key, compose in composes }
   %{~ for arch in [for k in keys(compose): k if k != "compose"] }
-- '^{{ composes.${key}.compose }}%{if arch != "x86_64"}-${arch}%{endif}$': '{{ composes.${key}.${arch}.image }}'
+- '^{{ composes.${key}.compose }}:${arch}$': '{{ composes.${key}.${arch}.image }}'
+    %{if arch != "x86_64"}
+- '^{{ composes.${key}.compose }}-${arch}:${arch}$': '{{ composes.${key}.${arch}.image }}'
+    %{endif}
   %{~ endfor }
 %{~ endfor }
 
