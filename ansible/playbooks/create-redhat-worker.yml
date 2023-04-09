@@ -5,7 +5,7 @@
   tasks:
     - name: Provision new EC2 instance
       amazon.aws.ec2_instance:
-        profile: redhat_us_east_1
+        profile: redhat_us_east_1_create_worker
         state: running
         tags:
           Name: "testing_farm_worker_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
