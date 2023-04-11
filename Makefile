@@ -11,7 +11,7 @@ DEV_ENVIRONMENT_KEYS := terraform/environments/dev/ranch/public/citool-config/id
 DEV_ENVIRONMENT_FILES := $(DEV_ENVIRONMENT_VARIABLES) $(DEV_ENVIRONMENT_KEYS)
 
 # pull image by default
-CITOOL_EXTRA_DOCKER_ARGS ?= --pull newer
+CITOOL_EXTRA_PODMAN_ARGS ?= --pull newer
 
 # default worker image
 WORKER_IMAGE ?= quay.io/testing-farm/worker:latest
