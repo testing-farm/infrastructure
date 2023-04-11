@@ -99,4 +99,4 @@ checks:
     - "citool-debug\\.verbose\\.txt"
     - "git-main[a-z0-9]+"
     - "results\\.xml"
-    - "work-sanity[a-z0-9]+/tmt-reproducer\\.sh"
+    - "work-sanity[a-z0-9_]+/tmt-reproducer\\.sh"

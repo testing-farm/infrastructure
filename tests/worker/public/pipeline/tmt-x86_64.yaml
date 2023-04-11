@@ -101,4 +101,4 @@ checks:
     - "citool-debug\\.txt"
     - "citool-debug\\.verbose\\.txt"
     - "results\\.xml"
-    - "work-sanity[a-z0-9_]+/tmt-reproducer.sh"
+    - "work-sanity[a-z0-9_]+/tmt-reproducer\\.sh"
