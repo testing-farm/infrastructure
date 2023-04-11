@@ -4,7 +4,7 @@ marks:
   - public
 
 variables:
-  REQUEST_ID: e18543bb-8147-47d5-9598-734280d78e43
+  REQUEST_ID: 9e72a39e-2785-43b6-b862-e7e7fa2166ea  # TODO: use a test in the official tests repo
 
 pipeline: |
   hide-secrets
@@ -26,11 +26,11 @@ checks:
     - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.dev.testing-farm.io'"
     - "[testing-farm-request] Initialized with {{ REQUEST_ID }}:"
     - "[static-guest] added guest 'localhost' with architecture "
-    - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
+    - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/janhavlin/tests, branch=not specified, ref=main)>"
     - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}"
     - "[testing-farm-request-state-reporter] pipeline complete"
-    - "[test-schedule-tmt] cloning repo https://gitlab.com/testing-farm/tests (branch not specified, ref main)"
-    - "[test-schedule-report] Result of testing: PASSED"
+    - "[test-schedule-tmt] cloning repo https://gitlab.com/janhavlin/tests (branch not specified, ref main)"
+    - "[test-schedule-report] Result of testing: FAILED"
     - "[test-schedule-runner] 1 entries pending:"
     - "[test-schedule-runner] 0 entries pending:"
     - "[test-schedule-runner] finished schedule:"
@@ -83,7 +83,7 @@ checks:
           - "None:x86_64:/testing-farm/sanity"
           - CLEANUP
           - OK
-          - PASSED
+          - FAILED
           - "x86_64 None S-"
           - "x86_64 container S-"
           - tmt
@@ -93,7 +93,7 @@ checks:
           - "None:x86_64:/testing-farm/sanity"
           - COMPLETE
           - OK
-          - PASSED
+          - FAILED
           - "x86_64 None S-"
           - "x86_64 container S-"
           - tmt
@@ -101,20 +101,20 @@ checks:
   literal-patterns[results-testing-farm-xunit.xml]:
     - |
       <?xml version="1.0" encoding="UTF-8"?>
-      <testsuites overall-result="passed">
+      <testsuites overall-result="failed">
        <properties>
-        <property name="baseosci.overall-result" value="passed"/>
+        <property name="baseosci.overall-result" value="failed"/>
        </properties>
-       <testsuite name="None:x86_64:/testing-farm/sanity" result="passed" tests="1">
+       <testsuite name="None:x86_64:/testing-farm/sanity" result="failed" tests="1">
         <logs>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/tmt-run.log" name="tmt-log"/>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}" name="workdir"/>
         </logs>
         <properties>
-         <property name="baseosci.result" value="passed"/>
+         <property name="baseosci.result" value="failed"/>
         </properties>
-        <testcase name="/testing-farm/script" result="passed">
+        <testcase name="/testing-farm/script" result="failed">
          <properties>
           <property name="baseosci.arch" value="x86_64"/>
           <property name="baseosci.connectable_host" value="localhost"/>
@@ -127,6 +127,7 @@ checks:
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/testing-farm/sanity/execute/data/guest/default-0/testing-farm/script-1" name="log_dir" schedule-entry="None:x86_64:/testing-farm/sanity" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/testing-farm/sanity/execute/data/guest/default-0/testing-farm/script-1/output.txt" name="testout.log" schedule-entry="None:x86_64:/testing-farm/sanity" schedule-stage="running"/>
          </logs>
+         <failure/>
          <testing-environment name="requested">
           <property name="arch" value="x86_64"/>
           <property name="snapshots" value="False"/>
@@ -144,7 +145,7 @@ checks:
     - |
       <?xml version="1.0" encoding="UTF-8"?>
       <testsuites>
-       <testsuite name="None:x86_64:/testing-farm/sanity" tests="1" failures="0" errors="0" skipped="0">
+       <testsuite name="None:x86_64:/testing-farm/sanity" tests="1" failures="1" errors="0" skipped="0">
         <testcase name="/testing-farm/script" classname="tests">
          <system-out>+ '[' -z '' ']'
       + SCRIPT='cat /etc/os-release'
@@ -172,7 +173,9 @@ checks:
       SUPPORT_END=2024-05-14
       VARIANT="Container Image"
       VARIANT_ID=container
+      + false
       </system-out>
+         <failure type="FAIL" message='Test "/testing-farm/script" failed.'/>
         </testcase>
        </testsuite>
       </testsuites>
