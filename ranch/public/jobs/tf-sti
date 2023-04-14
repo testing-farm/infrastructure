@@ -6,6 +6,7 @@ export REQUEST_ID=$1
 RUN_DIR=$2
 REQUEST_TIMEOUT=$3
 TASK_NAME="sti"
+TASK_DIR=$(dirname $RUN_DIR)
 
 ARTIFACTS_HOSTNAME=artifacts.dev.testing-farm.io
 ARTIFACTS_ROOT=/archive
@@ -98,7 +99,7 @@ CITOOL_IMAGE=$(curl -s --retry 5 https://api.dev.testing-farm.io/v0.1/requests/$
 
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
-citool-container.sh hide-secrets \
+citool-container.sh hide-secrets --search-path $TASK_DIR \
                     rules-engine \
                     testing-farm-request --request-id $REQUEST_ID \
                     ansible \
@@ -133,21 +134,8 @@ if [ ! -e "results.xml" ]; then
     create_results_xml failure error
 fi
 
-# sync task logs; we need to be picky here to avoid copying the dist-git checkout, secrets/, tmp/
-# and other umimportant/large stuff. Just pick what we want.
-TASK_DIR=$(dirname $RUN_DIR)
 for path in ${TASK_DIR}/${TASK_NAME}/*; do
-    fname="$(basename "$path")"
-    if [ -f "$path" ]; then
-        # all files in the top-level directory, like ansible-output.txt or progress.xml
-        archive $path
-    elif [ "${fname#guest-setup}" != "$fname" ]; then
-        # all guest setup logs
-        archive $path '' '--recursive'
-    elif [ "${fname#work-}" != "$fname" ]; then
-        # the STI results
-        archive $path '' '--recursive'
-    fi
+    archive $path '' '--recursive'
 done
 
 create_results
