@@ -6,6 +6,7 @@ export REQUEST_ID=$1
 RUN_DIR=$2
 REQUEST_TIMEOUT=$3
 TASK_NAME="tmt"
+TASK_DIR=$(dirname $RUN_DIR)
 
 ARTIFACTS_HOSTNAME=artifacts.dev.testing-farm.io
 ARTIFACTS_ROOT=/archive
@@ -98,7 +99,7 @@ CITOOL_IMAGE=$(curl -s --retry 5 https://api.dev.testing-farm.io/v0.1/requests/$
 
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
-citool-container.sh hide-secrets \
+citool-container.sh hide-secrets --search-path $TASK_DIR \
                     rules-engine \
                     testing-farm-request --request-id $REQUEST_ID \
                     ansible \
@@ -132,7 +133,6 @@ if [ ! -e "results.xml" ]; then
     create_results_xml failure error
 fi
 
-TASK_DIR=$(dirname $RUN_DIR)
 for path in ${TASK_DIR}/${TASK_NAME}/*; do
     archive $path '' '--recursive'
 done
