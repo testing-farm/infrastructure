@@ -78,4 +78,4 @@ composes:
     x86_64:
       image: 'CentOS Stream 9 x86_64 20230410'
     aarch64:
-      image: 'CentOS Stream 9 aarch64 20230403'
+      image: 'CentOS Stream 9 aarch64 20230410'
