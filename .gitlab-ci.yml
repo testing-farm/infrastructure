@@ -125,8 +125,8 @@ test/dev:
     SCRIPT: >-
       make init-dev &&
       make apply-dev &&
-      PYTEST_OPTIONS="-k 'not container'" make test-worker-public
-    AFTER_SCRIPT: make destroy-dev
+      WORKER_IMAGE="quay.io/testing-farm/worker:2023-03.2" PYTEST_OPTIONS="-k 'not container'" make test-worker-public
+    AFTER_SCRIPT: make destroy-dev > /dev/null
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, terraform_dev]
