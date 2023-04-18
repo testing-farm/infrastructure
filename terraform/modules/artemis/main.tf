@@ -24,7 +24,7 @@ resource "helm_release" "artemis" {
   wait_for_jobs = true
 
   values = [
-    templatefile(
+    sensitive(templatefile(
       "${path.module}/values.yaml.tftpl",
       {
         artemis_server_config = var.server_config
@@ -57,7 +57,7 @@ resource "helm_release" "artemis" {
         redis_resources                   = try(var.resources.redis, {})
         redis_exporter_resources          = try(var.resources.redis_exporter, {})
       }
-    )
+    ))
   ]
 
   set_sensitive {

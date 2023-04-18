@@ -13,23 +13,27 @@ variable "namespace" {
 variable "server_config" {
   description = "Server configuration"
   type        = string
+  sensitive   = true
 }
 
 variable "extra_files" {
   description = "List of additional files to be included in the configuration directory"
   type        = map(string)
   default     = {}
+  sensitive   = true
 }
 
 variable "vault_password" {
   description = "Ansible vault password"
   type        = string
+  sensitive   = true
 }
 
 variable "lb_source_ranges" {
   description = "List of IP address ranges to be white-listed by the load balancer"
   type        = list(string)
   default     = []
+  sensitive   = true
 }
 
 variable "image_tag" {
