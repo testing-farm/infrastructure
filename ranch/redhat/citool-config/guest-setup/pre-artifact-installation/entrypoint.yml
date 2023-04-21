@@ -22,3 +22,5 @@
   # OSCI users expect buildroot to be enabled by default
   # https://projects.engineering.redhat.com/browse/TFT-619
   - include_tasks: enable-buildroot.yml
+  # TFT-1987 - Hostname on AWS needs to be explicitely set
+  - include_tasks: aws-hostname.yml

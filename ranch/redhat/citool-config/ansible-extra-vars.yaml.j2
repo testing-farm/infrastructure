@@ -1,0 +1,7 @@
+---
+{% if GUEST is defined %}
+GUEST:
+  {% if GUEST.artemis_id %}
+  artemis_id: "{{ GUEST.artemis_id }}"
+  {% endif %}
+{% endif %}
