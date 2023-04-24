@@ -56,7 +56,7 @@
     - name: Create tag repository base url (CentOS Stream 8)
       set_fact:
         tag_repository_name: "c8s-build"
-        tag_repository_url: "https://koji.mbox.centos.org/kojifiles/repos/dist-c8-stream-build/latest//{{ ansible_architecture }}/"
+        tag_repository_url: "https://kojihub.stream.centos.org/kojifiles/repos/c8s-build/latest/{{ ansible_architecture }}/"
       when: IMAGE_NAME|lower|regex_search('centos.stream.8')
 
     #
