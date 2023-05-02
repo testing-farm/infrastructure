@@ -1,6 +1,6 @@
 ---
 # container image with citool and modules
-citool_container_image: docker-registry.upshift.redhat.com/testing-farm/worker:2023-03.2
+citool_container_image: quay.io/testing-farm/worker-redhat:2023-03.2
 
 # environment name, used to reference various environment specific configuration, like
 # citool-config, artemis configuration, etc.
@@ -32,6 +32,9 @@ container_storage_path: /data/containers
 # ssh key for connecting to Artemis instance
 artemis_ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_artemis"
 artemis_ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_artemis.pub"
+
+# quay.io authentication / tft-bot
+podman_authfile: "{{ ansible_dir }}/secrets/quay/testing-farm-tftbot-auth.json"
 
 # jobs
 jobs:

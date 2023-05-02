@@ -1,47 +1,59 @@
 ---
 - block:
-  - name: "Install required packages podman, cronie and policycoreutils-python-utils"
-    package:
+    - name: "Install required packages podman, cronie and policycoreutils-python-utils"
+      package:
         name:
-            - cronie
-            - podman
-            - policycoreutils-python-utils
+          - cronie
+          - podman
+          - policycoreutils-python-utils
         state: present
 
-  - name: "Create container storage path {{ container_storage_path }}"
-    file:
+    - name: "Create container storage path {{ container_storage_path }}"
+      file:
         path: "{{ container_storage_path }}"
         state: directory
         mode: 0700
 
-  - name: "Copy system storage configuration"
-    copy:
+    - name: "Copy system storage configuration"
+      copy:
         src: /usr/share/containers/storage.conf
         dest: /etc/containers/storage.conf
         remote_src: true
-    ignore_errors: true
+      ignore_errors: true
 
-  - name: "Set containers storage to {{ container_storage_path }}"
-    lineinfile:
+    - name: "Set containers storage to {{ container_storage_path }}"
+      lineinfile:
         path: /etc/containers/storage.conf
         regexp: "^graphroot = .*"
         line: 'graphroot = "{{ container_storage_path }}"'
 
-  - name: "Set semanage context correctly"
-    command: "semanage fcontext -a -e /var/lib/containers/storage {{ container_storage_path }}"
-    ignore_errors: true
-    tags:
+    - name: "Set semanage context correctly"
+      command: "semanage fcontext -a -e /var/lib/containers/storage {{ container_storage_path }}"
+      ignore_errors: true
+      tags:
         - skip_ansible_lint
 
-  - name: "Relabel all files"
-    command: "restorecon -RvvF {{ container_storage_path }}"
+    - name: "Relabel all files"
+      command: "restorecon -RvvF {{ container_storage_path }}"
 
-  - name: "Add crontab for cleaning up podman"
-    cron:
+    - name: "Add crontab for cleaning up podman"
+      cron:
         name: cleanup podman daily
         state: present
         job: >
           podman system prune --force --volumes
         special_time: daily
+
+    - name: "Create /root/.docker directory"
+      file:
+        path: /root/.docker
+        state: directory
+      when: podman_authfile is defined
+
+    - name: "Add podman authentication file"
+      copy:
+        src: "{{ podman_authfile }}"
+        dest: /root/.docker/config.json
+      when: podman_authfile is defined
 
   become: true
