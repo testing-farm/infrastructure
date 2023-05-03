@@ -54,20 +54,11 @@ create_results_xml() {
 EOF
 }
 
-create_results() {
-    echo "started creating results artifacts"
-
-    RESULTS_XML=${1:-results.xml}
-
+archive_pipeline_log() {
     # citool exposes all output to stderr, archive it as the pipeline log
     # TFT-894 nomad splits the stderr and stdout into multiple files in case of big logs
     cat ${RUN_DIR}/logs/${TASK_NAME}.stderr.[0-9]* > pipeline.log
     archive pipeline.log
-
-    tfxunit2junit.py --issues-url $ISSUES_URL $RESULTS_XML > results-junit.xml || true
-    archive results-junit.xml
-
-    echo "finished creating results artifacts"
 }
 
 # create archive directory
@@ -90,7 +81,7 @@ set +x
 
 # start syncing in background
 if [ -z "$NO_ARCHIVE" ]; then
-    { while true; do create_results progress.xml &>> progress.log; sleep $PROGRESS_TICK; done; } &
+    { while true; do archive_pipeline_log; sleep $PROGRESS_TICK; done; } &
 fi
 
 # get citool container image from request
@@ -138,12 +129,9 @@ for path in ${TASK_DIR}/${TASK_NAME}/*; do
     archive $path '' '--recursive'
 done
 
-create_results
-
 printf "\n[pipeline-end] $(date)"
 
 # save stdout and stderr at the very end
 cat ${RUN_DIR}/logs/${TASK_NAME}.stdout.[0-9]* > job.log
 archive job.log
-cat ${RUN_DIR}/logs/${TASK_NAME}.stderr.[0-9]* > pipeline.log
-archive pipeline.log
+archive_pipeline_log

@@ -82,7 +82,6 @@
     - include: ../tasks/podman.yml
     - include: ../tasks/jobs.yml
     - include: ../tasks/config.yml
-    - include: ../tasks/xunit-converter.yml
     - include: ../tasks/image.yml
   roles:
     - name: geerlingguy.swap

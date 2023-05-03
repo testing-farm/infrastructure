@@ -77,7 +77,6 @@
     - include: ../tasks/podman.yml
     - include: ../tasks/jobs.yml
     - include: ../tasks/config.yml
-    - include: ../tasks/xunit-converter.yml
     - include: ../tasks/image.yml
     - name: "Manual action required to update Artemis and guest access - run terraform for production Testing Farm!"
       pause:
