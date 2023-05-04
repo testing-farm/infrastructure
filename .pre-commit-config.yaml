@@ -37,6 +37,9 @@ repos:
     rev: v1.0.2
     hooks:
       - id: gitlab-ci-linter
+        args:
+          - "--project"
+          - "testing-farm/infrastructure"
 
   # Disallow `.yml` files in the repo, i.e. assume usage of `.yaml` for YAML
   - repo: local
