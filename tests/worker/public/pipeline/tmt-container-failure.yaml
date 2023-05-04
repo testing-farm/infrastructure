@@ -34,8 +34,8 @@ checks:
     - "[test-schedule-runner] 1 entries pending:"
     - "[test-schedule-runner] 0 entries pending:"
     - "[test-schedule-runner] finished schedule:"
-    - "[test-schedule-report] results saved into results-testing-farm-xunit.xml"
-    - "[test-schedule-report] results saved into results-xunit.xml"
+    - "[test-schedule-report] results saved into results.xml"
+    - "[test-schedule-report] results saved into results-junit.xml"
 
   literal-patterns:
     - table:
@@ -65,7 +65,7 @@ checks:
           - OK
           - UNDEFINED
           - "x86_64 None S-"
-          - "x86_64 container S-"
+          - "x86_64 None S-"
           - tmt
 
     - table:
@@ -75,7 +75,7 @@ checks:
           - OK
           - UNDEFINED
           - "x86_64 None S-"
-          - "x86_64 container S-"
+          - "x86_64 None S-"
           - tmt
 
     - table:
@@ -85,7 +85,7 @@ checks:
           - OK
           - FAILED
           - "x86_64 None S-"
-          - "x86_64 container S-"
+          - "x86_64 None S-"
           - tmt
 
     - table:
@@ -95,10 +95,10 @@ checks:
           - OK
           - FAILED
           - "x86_64 None S-"
-          - "x86_64 container S-"
+          - "x86_64 None S-"
           - tmt
 
-  literal-patterns[results-testing-farm-xunit.xml]:
+  literal-patterns[results.xml]:
     - |
       <?xml version="1.0" encoding="UTF-8"?>
       <testsuites overall-result="failed">
@@ -118,7 +118,7 @@ checks:
          <properties>
           <property name="baseosci.arch" value="x86_64"/>
           <property name="baseosci.connectable_host" value="localhost"/>
-          <property name="baseosci.distro" value="container"/>
+          <property name="baseosci.distro" value="None"/>
           <property name="baseosci.status" value="Complete"/>
           <property name="baseosci.testcase.source.url" value=""/>
           <property name="baseosci.variant" value=""/>
@@ -134,14 +134,13 @@ checks:
          </testing-environment>
          <testing-environment name="provisioned">
           <property name="arch" value="x86_64"/>
-          <property name="compose" value="container"/>
           <property name="snapshots" value="False"/>
          </testing-environment>
         </testcase>
        </testsuite>
       </testsuites>
 
-  literal-patterns[results-xunit.xml]:
+  literal-patterns[results-junit.xml]:
     - |
       <?xml version="1.0" encoding="UTF-8"?>
       <testsuites>
@@ -184,6 +183,6 @@ checks:
     - "citool-debug\\.txt"
     - "citool-debug\\.verbose\\.txt"
     - "git-main[a-z0-9_]+"
-    - "results-testing-farm-xunit\\.xml"
-    - "results-xunit\\.xml"
+    - "results\\.xml"
+    - "results-junit\\.xml"
     - "work-sanity[a-z0-9_]+/tmt-reproducer\\.sh"

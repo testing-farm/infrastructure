@@ -108,7 +108,7 @@ checks:
           - "x86_64 Fedora-Rawhide S-"
           - sti
 
-  literal-patterns[results-testing-farm-xunit.xml]:
+  literal-patterns[results.xml]:
     - |
       <?xml version="1.0" encoding="UTF-8"?>
       <testsuites overall-result="failed">
@@ -151,7 +151,7 @@ checks:
        </testsuite>
       </testsuites>
 
-  literal-patterns[results-xunit.xml]:
+  literal-patterns[results-junit.xml]:
     - |
       <?xml version="1.0" encoding="UTF-8"?>
       <testsuites>
@@ -170,5 +170,5 @@ checks:
     - "guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-post-artifact-installation.txt"
     - "citool-debug\\.txt"
     - "citool-debug\\.verbose\\.txt"
-    - "results-testing-farm-xunit\\.xml"
-    - "results-xunit\\.xml"
+    - "results\\.xml"
+    - "results-junit\\.xml"
