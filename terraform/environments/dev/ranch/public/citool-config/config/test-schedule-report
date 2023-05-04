@@ -1,3 +1,3 @@
 [default]
-xunit-testing-farm-file = results-testing-farm-xunit.xml
+xunit-testing-farm-file = results.xml
 xunit-file = results-xunit.xml
