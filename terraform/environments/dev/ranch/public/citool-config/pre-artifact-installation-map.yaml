@@ -1,6 +1,6 @@
 ---
 - rule: "True"
   playbooks:
-    - /var/home/mvadkert/git/gitlab.com/testing-farm/infrastructure/terraform/environments/dev/ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yaml
+    - /CONFIG/guest-setup/pre-artifact-installation/entrypoint.yaml
   extra_vars:
     TESTING_FARM_REQUEST_ID: "{{ TESTING_FARM_REQUEST_ID }}"

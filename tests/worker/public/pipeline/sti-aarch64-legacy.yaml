@@ -33,7 +33,6 @@ checks:
     - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.dev.testing-farm.io'"
     - "[testing-farm-request] Initialized with {{ REQUEST_ID }}"
     - "[artemis] Using Artemis API"
-    - "[install-repository] No repository artifacts found, skipping"
     - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
     - "[testing-farm-request-state-reporter] pipeline complete"
     - "[test-scheduler-sti] cloning repo"

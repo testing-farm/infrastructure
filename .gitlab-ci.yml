@@ -79,7 +79,6 @@ direnv:
     # WORKAROUND: gitlab runner is hosted on the same network as staging/production
     #             what is breaking DNS resolving, as AWS DNS resolves k8s API locally
     - echo "nameserver 8.8.8.8" > /etc/resolv.conf
-    - echo "nameserver 8.8.4.4" >> /etc/resolv.conf
   script:
     - eval "$(direnv export bash)"
 
@@ -122,10 +121,11 @@ test/dev:
   variables:
     TF_VAR_cluster_name: testing-farm-gitlab-ci-$CI_JOB_ID
     SCRIPT_DIR: terraform/environments/dev
+    PYTEST_OPTIONS: -k 'not container'
     SCRIPT: >-
       make init-dev &&
       make apply-dev &&
-      WORKER_IMAGE="quay.io/testing-farm/worker:2023-03.2" PYTEST_OPTIONS="-k 'not container'" make test-worker-public
+      make test-worker-public
     AFTER_SCRIPT: make destroy-dev > /dev/null
   rules:
     - !reference [.rules, not_default_branch]

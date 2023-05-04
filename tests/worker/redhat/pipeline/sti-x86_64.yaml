@@ -28,7 +28,6 @@ checks:
     - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.dev.testing-farm.io'"
     - "[testing-farm-request] Initialized with f8b712c2-1baa-43b9-a5ab-b1668a31981e"
     - "[artemis] Using Artemis API"
-    - "[install-repository] No repository artifacts found, skipping"
     - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
     - "[coldstore] For the pipeline artifacts, see http://artifacts.osci.redhat.com/testing-farm/f8b712c2-1baa-43b9-a5ab-b1668a31981e"
     - "[testing-farm-request-state-reporter] pipeline complete"

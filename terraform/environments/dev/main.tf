@@ -12,8 +12,12 @@ terraform {
   }
 }
 
+locals {
+  aws_region = "us-east-2"
+}
+
 provider "aws" {
-  region = "us-east-2"
+  region = local.aws_region
 
   default_tags {
     tags = {
@@ -37,7 +41,7 @@ module "devel-cluster" {
   source = "../../"
 
   # TODO: move to staging subnets once working
-  cluster_default_region            = "us-east-2"
+  cluster_default_region            = local.aws_region
   cluster_vpc_id                    = "vpc-0f6baa3d6bae8d912"
   cluster_subnets                   = ["subnet-010f90da92f36876e", "subnet-0a704a759f7671044"]
   cluster_name                      = var.cluster_name
