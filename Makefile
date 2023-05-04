@@ -31,12 +31,12 @@ apply-dev:  ## Build the development environment
 	terraform -chdir=terraform/environments/dev apply -auto-approve
 	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
 
-destroy-dev:  ## Destroy the development environment
+destroy-dev: terminate-artemis-guests-dev  ## Destroy the development environment
 	terraform -chdir=terraform/environments/dev destroy -auto-approve
 
 ##@ Tests
 
-test-worker-public: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
+test-worker-public: wait-artemis-available $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
 	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m public -v --basetemp $$PROJECT_ROOT/.pytest \
 	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
 	--citool-config terraform/environments/dev/ranch/public/citool-config --citool-image $(WORKER_IMAGE) \
@@ -82,11 +82,16 @@ list-worker-tests:  ## List available worker integration tests
 	--test-assets tests/worker \
 	--html report.html tests/worker/test_pipeline.py
 
+terminate-artemis-guests-dev:  ## Terminate all EC2 instances from the dev environment created by Artemis
+	@bash setup/terminate_artemis_guests_dev.sh
+
+wait-artemis-available:  ## Wait until Artemis is available in the dev environment
+	@bash setup/wait_artemis_available_dev.sh
+
 clean:  ## Cleanup
 	rm -rf $$DIRENV_PATH
 	rm -rf $$VIRTUAL_ENV
 	rm -rf $$PROJECT_ROOT/.pytest
-
 
 # See https://www.thapaliya.com/en/writings/well-documented-makefiles/ for details.
 reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))

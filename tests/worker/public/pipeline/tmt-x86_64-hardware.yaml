@@ -31,7 +31,6 @@ pipeline: |
 checks:
   literal-strings:
     - "[testing-farm-request] Connected to Testing Farm Service"
-    - "[install-repository] No repository artifacts found, skipping"
     - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
     - "[testing-farm-request-state-reporter] pipeline complete"
     - "[test-schedule-tmt-connect] cloning repo https://gitlab.com/testing-farm/tests (branch not specified, ref main)"

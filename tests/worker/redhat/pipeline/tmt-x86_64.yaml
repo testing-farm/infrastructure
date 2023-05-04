@@ -25,7 +25,6 @@ pipeline: |
 checks:
   literal-strings:
     - "[testing-farm-request] Connected to Testing Farm Service"
-    - "[install-repository] No repository artifacts found, skipping"
     - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
     - "[coldstore] For the pipeline artifacts, see http://artifacts.osci.redhat.com/testing-farm/3d6572cb-d09b-4210-be68-4a77421eb131"
     - "[testing-farm-request-state-reporter] pipeline complete"
