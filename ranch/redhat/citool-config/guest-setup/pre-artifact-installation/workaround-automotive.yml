@@ -24,4 +24,4 @@
         delay: 5
         timeout: 300
 
-  when: 'IMAGE_NAME|lower|regex_search("^auto-")'
+  when: '"auto-osbuild" in IMAGE_NAME|lower'

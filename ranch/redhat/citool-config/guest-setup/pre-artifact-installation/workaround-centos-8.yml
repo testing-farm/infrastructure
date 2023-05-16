@@ -31,6 +31,6 @@
   when:
     - 'ansible_distribution == "CentOS"'
     - 'ansible_distribution_major_version == "8"'
-    - 'not IMAGE_NAME|lower|regex_search("^auto-")'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
     # Do not run on CentOS-8-Stream
     - not 'stream' in IMAGE_NAME|lower
