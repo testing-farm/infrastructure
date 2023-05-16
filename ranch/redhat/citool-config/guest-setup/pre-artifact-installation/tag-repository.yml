@@ -115,7 +115,7 @@
   when:
     - IMAGE_NAME is defined
     - ansible_distribution == "RedHat"
-    - 'not IMAGE_NAME|lower|regex_search("^auto-")'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
 
   #
   # block: end
@@ -131,4 +131,4 @@
 
   when:
     - IMAGE_NAME is undefined
-    - 'IMAGE_NAME|lower|regex_search("^auto-")'
+    - '"auto-osbuild" in IMAGE_NAME|lower'

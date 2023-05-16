@@ -7,6 +7,6 @@
   when:
     - 'ansible_distribution == "RedHat"'
     - 'ansible_distribution_version == "8.1"'
-    - 'not IMAGE_NAME|lower|regex_search("^auto-")'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
   # TODO: this will not work with Beaker, needs more <3
   ignore_errors: true
