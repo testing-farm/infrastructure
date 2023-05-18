@@ -4,7 +4,6 @@ printf "\n[pipeline-start] $(date)\n\n"
 
 export REQUEST_ID=$1
 RUN_DIR=$2
-REQUEST_TIMEOUT=$3
 TASK_NAME="sti"
 TASK_DIR=$(dirname $RUN_DIR)
 
@@ -13,15 +12,15 @@ ARTIFACTS_ROOT=/archive
 
 ARTIFACTS_URL="https://artifacts.dev.testing-farm.io"
 ISSUES_URL="https://gitlab.com/testing-farm/general/-/issues"
+API_URL="https://api.dev.testing-farm.io/v0.1"
 
 PROGRESS_TICK=30
-
-[ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT=12h
 
 [ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
 [ -z "$RUN_DIR" ] && { echo "No run directory given"; exit 1; }
 
 REQUEST_ARCHIVE_DIR=${ARCHIVE_DIR}/${REQUEST_ID}
+REQUEST="$(curl -s --retry 5 $API_URL/requests/$REQUEST_ID)"
 
 archive() {
     WHAT="$1"
@@ -61,6 +60,16 @@ archive_pipeline_log() {
     archive pipeline.log
 }
 
+set_request_timeout() {
+    REQUEST_TIMEOUT="$(echo "$REQUEST" | jq -r '.settings.pipeline.timeout | select (.!=null)')"
+    [ -z "$REQUEST_TIMEOUT" ] && { echo "No request timeout given. API and/or CLI should have default."; exit 1; }
+}
+
+set_citool_image() {
+    CITOOL_IMAGE="$(echo "$REQUEST" | jq -r '.settings.worker.image | select (.!=null)')"
+    [ -n "$CITOOL_IMAGE" ] && export CITOOL_IMAGE
+}
+
 # create archive directory
 if [ -z "$NO_ARCHIVE" ]; then
     ssh $ARTIFACTS_HOSTNAME mkdir -p ${ARTIFACTS_ROOT}/${REQUEST_ID}
@@ -84,9 +93,8 @@ if [ -z "$NO_ARCHIVE" ]; then
     { while true; do archive_pipeline_log; sleep $PROGRESS_TICK; done; } &
 fi
 
-# get citool container image from request
-CITOOL_IMAGE=$(curl -s --retry 5 https://api.dev.testing-farm.io/v0.1/requests/$REQUEST_ID | jq -r '.settings.worker.image | select (.!=null)')
-[ -n "$CITOOL_IMAGE" ] && export CITOOL_IMAGE
+set_request_timeout
+set_citool_image
 
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
