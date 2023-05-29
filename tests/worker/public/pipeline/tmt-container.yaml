@@ -105,7 +105,7 @@ checks:
        <properties>
         <property name="baseosci.overall-result" value="passed"/>
        </properties>
-       <testsuite name="None:x86_64:/testing-farm/sanity" result="passed" tests="1">
+       <testsuite name="/testing-farm/sanity" result="passed" tests="1">
         <logs>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/tmt-run.log" name="tmt-log"/>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
@@ -136,6 +136,14 @@ checks:
           <property name="snapshots" value="False"/>
          </testing-environment>
         </testcase>
+        <testing-environment name="requested">
+         <property name="arch" value="x86_64"/>
+         <property name="snapshots" value="False"/>
+        </testing-environment>
+        <testing-environment name="provisioned">
+         <property name="arch" value="x86_64"/>
+         <property name="snapshots" value="False"/>
+        </testing-environment>
        </testsuite>
       </testsuites>
 
@@ -143,7 +151,7 @@ checks:
     - |
       <?xml version="1.0" encoding="UTF-8"?>
       <testsuites>
-       <testsuite name="None:x86_64:/testing-farm/sanity" tests="1" failures="0" errors="0" skipped="0">
+       <testsuite name="/testing-farm/sanity" tests="1" failures="0" errors="0" skipped="0">
         <testcase name="/testing-farm/script" classname="tests">
          <system-out>NAME="Fedora Linux"
       VERSION="38 (Container Image)"
