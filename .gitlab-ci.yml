@@ -82,7 +82,7 @@ direnv:
     - eval "$(direnv export bash)"
     # WORKAROUND: gitlab runner is hosted on the same network as staging/production
     #             what is breaking DNS resolving, as AWS DNS resolves k8s API locally
-    - echo "nameserver 8.8.8.8" > /etc/resolv.conf
+    - printf "nameserver 1.1.1.1\nnameserver 8.8.8.8\nnameserver 8.8.4.4\n" > /etc/resolv.conf
   script:
     - eval "$(direnv export bash)"
 
