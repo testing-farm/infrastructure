@@ -27,6 +27,9 @@ repos:
     hooks:
       - id: ansible-lint
         files: ^ansible/.*\.(yaml|yml)$
+        # New Ansible breaks older ansible-lint, stick to the old version for now
+        additional_dependencies:
+          - 'ansible-core<2.15'
 
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.1.0
