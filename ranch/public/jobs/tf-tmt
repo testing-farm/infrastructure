@@ -118,6 +118,12 @@ citool-container.sh hide-secrets \
                     test-schedule-runner \
                     test-schedule-report
 
+# TFT-1721 - citool was not executed, exit non-zero to retry via Nomad
+if [ ! -e "citool-debug.txt" ]; then
+    echo -e "\033[31mError: citool was not run, request will be restarted!\033[0m" 1>&2
+    exit 1
+fi
+
 # skip archivation
 [ -n "$NO_ARCHIVE" ] && exit
 
