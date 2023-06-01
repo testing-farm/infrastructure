@@ -1,3 +1,4 @@
+---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
@@ -36,8 +37,13 @@ repos:
     hooks:
       - id: detect-secrets
 
-  - repo: https://github.com/zricethezav/gitleaks
-    rev: v8.15.3
+  - repo: local
     hooks:
+      # Use gitleaks from the local system.
+      # Using the gitleaks pre-commit hook turned out to be fairly unstable.
+      # See https://redhat-internal.slack.com/archives/C03BRN71JAF/p1685612267146889 for more info.
       - id: gitleaks
+        name: gitleaks
         entry: gitleaks protect --verbose --redact --staged
+        language: system
+        pass_filenames: false
