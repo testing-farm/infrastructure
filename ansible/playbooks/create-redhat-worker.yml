@@ -72,10 +72,15 @@
 #
 - hosts: new_workers
   remote_user: fedora
+  vars:
+    - swapfile_size: 16384
+    - swapfile_location: /data/swapfile
   vars_files:
     - ../secrets/credentials.yml
     - ../vars/common.yml
   pre_tasks:
+    - import_tasks: ../tasks/swapfile.yaml
+      become: true
     - include: ../tasks/rh-certs.yml
     - include: ../tasks/dns.yml
     - include: ../tasks/ssh-key.yml
@@ -84,12 +89,6 @@
     - include: ../tasks/config.yml
     - include: ../tasks/image.yml
   roles:
-    - name: geerlingguy.swap
-      vars:
-        swap_file_path: /data/swapfile
-        swap_file_size_mb: "16384"
-        swap_file_state: present
-      become: true
     - name: nomad
   tasks:
     - include: ../tasks/jobs-register.yml

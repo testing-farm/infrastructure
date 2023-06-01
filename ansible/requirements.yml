@@ -3,5 +3,3 @@ collections:
   - amazon.aws
   - ansible.posix
   - community.general
-roles:
-  - src: geerlingguy.swap
