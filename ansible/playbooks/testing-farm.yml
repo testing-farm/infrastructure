@@ -12,10 +12,15 @@
     - include: ../tasks/rh-certs.yml
 
 - hosts: testing_farm_public_workers:testing_farm_redhat_workers
+  vars:
+    - swapfile_size: 16384
+    - swapfile_location: /data/swapfile
   vars_files:
     - ../secrets/credentials.yml
     - ../vars/common.yml
   pre_tasks:
+    - import_tasks: ../tasks/swapfile.yaml
+      become: true
     - include: ../tasks/dns.yml
       tags: update_dns
     - include: ../tasks/ssh-key.yml
@@ -28,11 +33,6 @@
     - include: ../tasks/image.yml
       tags: update_image
   roles:
-    - name: geerlingguy.swap
-      vars:
-        swap_file_path: /data/swapfile
-        swap_file_size_mb: "16384"
-        swap_file_state: present
     - name: nomad
       tags: update_nomad
   tasks:
