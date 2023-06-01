@@ -34,8 +34,9 @@ poetry install &>> $LOG
 #
 # install pre-commit
 #
-info "install pre-commit"
+info "install pre-commit and setup hooks"
 pre-commit install &>> $LOG
+pre-commit install-hooks &>> $LOG
 
 #
 # install ansible content

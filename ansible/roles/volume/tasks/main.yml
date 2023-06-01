@@ -7,7 +7,7 @@
     - volume_attached_device_group is defined
   block:
     - name: Format a volume
-      parted:
+      community.general.parted:
         device: "{{ volume_attached_device }}"
         number: 1
         state: present
@@ -34,7 +34,7 @@
         recurse: true
 
     - name: Mount the filesystem
-      mount:
+      ansible.posix.mount:
         path: "{{ volume_attached_device_mount_path }}"
         src: "{{ volume_attached_device }}{{ partition }}"
         fstype: ext4
