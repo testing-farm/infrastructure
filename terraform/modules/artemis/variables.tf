@@ -60,6 +60,12 @@ variable "api_domain" {
   default     = ""
 }
 
+variable "connection_close_after_dispatch" {
+  description = "When enabled, broker connection will be forcefully closed after every message dispatch."
+  type        = bool
+  default     = true
+}
+
 variable "db_schema_revision" {
   description = "Database schema revision to use"
   type        = string
