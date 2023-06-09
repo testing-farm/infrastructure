@@ -1,7 +1,7 @@
 ---
 - rule: "True"
   playbooks:
-    - /CONFIG/guest-setup/post-artifact-installation/entrypoint.yml
+    - /CONFIG/guest-setup/pre-artifact-installation/entrypoint.yaml
   extra_vars:
     TESTING_FARM_REQUEST_ID: "{{ TESTING_FARM_REQUEST_ID }}"
 

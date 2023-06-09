@@ -1,2 +1,2 @@
 [default]
-playbooks-map = pre-artifact-installation:${config_root}/pre-artifact-installation-map.yml,post-artifact-installation:${config_root}/post-artifact-installation-map.yml
+playbooks-map = pre-artifact-installation:${config_root}/pre-artifact-installation-map.yaml,post-artifact-installation:${config_root}/post-artifact-installation-map.yaml
