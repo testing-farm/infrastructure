@@ -154,11 +154,7 @@ checks:
       <testsuites>
        <testsuite name="/testing-farm/sanity" tests="1" failures="1" errors="0" skipped="0">
         <testcase name="/testing-farm/script" classname="tests">
-         <system-out>+ '[' -z '' ']'
-      + SCRIPT='cat /etc/os-release'
-      + eval cat /etc/os-release
-      ++ cat /etc/os-release
-      NAME="Fedora Linux"
+         <system-out>NAME="Fedora Linux"
       VERSION="38 (Container Image)"
       ID=fedora
       VERSION_ID=38
@@ -180,7 +176,6 @@ checks:
       SUPPORT_END=2024-05-14
       VARIANT="Container Image"
       VARIANT_ID=container
-      + false
       </system-out>
          <failure type="FAIL" message='Test "/testing-farm/script" failed.'/>
         </testcase>
