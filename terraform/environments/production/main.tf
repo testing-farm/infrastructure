@@ -80,7 +80,7 @@ module "production-cluster" {
 
   artemis_release_name = "artemis"
   artemis_namespace    = "default"
-  artemis_image_tag    = "v0.0.55"
+  artemis_image_tag    = "v0.0.57"
 
   artemis_additional_lb_source_ips = data.aws_instances.workers.public_ips
 
