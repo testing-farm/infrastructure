@@ -1,0 +1,169 @@
+---
+
+marks:
+  - public
+
+variables:
+  REQUEST_ID: 21098137-e911-4c6e-888f-b604a1da89dd
+
+pipeline: |
+  hide-secrets
+  rules-engine
+  testing-farm-request --request-id {{ REQUEST_ID }}
+  ansible
+  static-guest --guest=localhost
+  guest-setup-no-playbooks:guest-setup
+  git
+  coldstore
+  testing-farm-request-state-reporter
+  test-schedule-tmt
+  test-scheduler-testing-farm
+  test-schedule-runner
+  test-schedule-report
+
+checks:
+  literal-strings:
+    - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.dev.testing-farm.io'"
+    - "[testing-farm-request] Initialized with {{ REQUEST_ID }}:"
+    - "[static-guest] added guest 'localhost' with architecture "
+    - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
+    - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}"
+    - "[testing-farm-request-state-reporter] pipeline complete"
+    - "[test-schedule-tmt] cloning repo https://gitlab.com/testing-farm/tests (branch not specified, ref main)"
+    - "[test-schedule-tmt] merging merge_sha"
+    - "[test-schedule-report] Result of testing: PASSED"
+    - "[test-schedule-runner] 1 entries pending:"
+    - "[test-schedule-runner] 0 entries pending:"
+    - "[test-schedule-runner] finished schedule:"
+    - "[test-schedule-report] results saved into results.xml"
+    - "[test-schedule-report] results saved into results-junit.xml"
+
+  literal-patterns:
+    - table:
+        -
+          - "None:x86_64:/testing-farm/sanity"
+          - CREATED
+          - OK
+          - UNDEFINED
+          - "x86_64 None S-"
+          - ""
+          - tmt
+
+    - table:
+        -
+          - "None:x86_64:/testing-farm/sanity"
+          - GUEST_PROVISIONING
+          - OK
+          - UNDEFINED
+          - "x86_64 None S-"
+          - ""
+          - tmt
+
+    - table:
+        -
+          - "None:x86_64:/testing-farm/sanity"
+          - GUEST_SETUP
+          - OK
+          - UNDEFINED
+          - "x86_64 None S-"
+          - "x86_64 None S-"
+          - tmt
+
+    - table:
+        -
+          - "None:x86_64:/testing-farm/sanity"
+          - RUNNING
+          - OK
+          - UNDEFINED
+          - "x86_64 None S-"
+          - "x86_64 None S-"
+          - tmt
+
+    - table:
+        -
+          - "None:x86_64:/testing-farm/sanity"
+          - CLEANUP
+          - OK
+          - PASSED
+          - "x86_64 None S-"
+          - "x86_64 None S-"
+          - tmt
+
+    - table:
+        -
+          - "None:x86_64:/testing-farm/sanity"
+          - COMPLETE
+          - OK
+          - PASSED
+          - "x86_64 None S-"
+          - "x86_64 None S-"
+          - tmt
+
+  literal-patterns[results.xml]:
+    - |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <testsuites overall-result="passed">
+       <properties>
+        <property name="baseosci.overall-result" value="passed"/>
+       </properties>
+       <testsuite name="/testing-farm/sanity" result="passed" tests="1">
+        <logs>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/tmt-run.log" name="tmt-log"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}" name="workdir"/>
+        </logs>
+        <properties>
+         <property name="baseosci.result" value="passed"/>
+        </properties>
+        <testcase name="/testing-farm/script" result="passed">
+         <properties>
+          <property name="baseosci.arch" value="x86_64"/>
+          <property name="baseosci.connectable_host" value="localhost"/>
+          <property name="baseosci.distro" value="None"/>
+          <property name="baseosci.status" value="Complete"/>
+          <property name="baseosci.testcase.source.url" value=""/>
+          <property name="baseosci.variant" value=""/>
+         </properties>
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/testing-farm/sanity/execute/data/guest/default-0/testing-farm/script-1" name="log_dir" schedule-entry="None:x86_64:/testing-farm/sanity" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/testing-farm/sanity/execute/data/guest/default-0/testing-farm/script-1/output.txt" name="testout.log" schedule-entry="None:x86_64:/testing-farm/sanity" schedule-stage="running"/>
+         </logs>
+         <testing-environment name="requested">
+          <property name="arch" value="x86_64"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+         <testing-environment name="provisioned">
+          <property name="arch" value="x86_64"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+        </testcase>
+        <testing-environment name="requested">
+         <property name="arch" value="x86_64"/>
+         <property name="snapshots" value="False"/>
+        </testing-environment>
+        <testing-environment name="provisioned">
+         <property name="arch" value="x86_64"/>
+         <property name="snapshots" value="False"/>
+        </testing-environment>
+       </testsuite>
+      </testsuites>
+
+  literal-patterns[results-junit.xml]:
+    - |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <testsuites>
+       <testsuite name="/testing-farm/sanity" tests="1" failures="0" errors="0" skipped="0">
+        <testcase name="/testing-farm/script" classname="tests">
+         <system-out>merge_sha branch got merged
+      </system-out>
+        </testcase>
+       </testsuite>
+      </testsuites>
+
+  artifacts:
+    - "citool-debug\\.txt"
+    - "citool-debug\\.verbose\\.txt"
+    - "git-main[a-z0-9_]+"
+    - "results\\.xml"
+    - "results-junit\\.xml"
+    - "work-sanity[a-z0-9_]+/tmt-reproducer\\.sh"
