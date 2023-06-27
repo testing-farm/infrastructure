@@ -1,0 +1,24 @@
+---
+
+extends:
+  - base-tmt_pipeline
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  REQUEST_ID: d9b862dd-a0b5-4c34-8a83-98470dab0947
+  ARCH: x86_64
+  RESULT: PASSED
+  COMPOSE: Fedora-Rawhide
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/sanity
+
+checks:
+  literal-patterns:
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] installing the artifact"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download repository file"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] artifact installed"
