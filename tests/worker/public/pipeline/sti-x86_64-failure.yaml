@@ -123,7 +123,7 @@ checks:
         <properties>
          <property name="baseosci.result" value="failed"/>
         </properties>
-        <testcase name="sanity" result="fail">
+        <testcase name="sanity" result="failed">
          <properties>
           <property name="baseosci.arch" value="x86_64"/>
           <property name="baseosci.connectable_host" value="{{ hostname_ip_address_pattern }}"/>
