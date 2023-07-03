@@ -1,0 +1,21 @@
+---
+
+name: base-tmt-container_pipeline
+
+variables:
+  REQUEST_ID: change-me
+
+pipeline: |
+  hide-secrets
+  rules-engine
+  testing-farm-request --request-id {{ REQUEST_ID }}
+  ansible
+  static-guest --guest=localhost
+  guest-setup-no-playbooks:guest-setup
+  git
+  coldstore
+  testing-farm-request-state-reporter
+  test-schedule-tmt
+  test-scheduler-testing-farm
+  test-schedule-runner
+  test-schedule-report

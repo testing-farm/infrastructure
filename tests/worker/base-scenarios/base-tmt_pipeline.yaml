@@ -1,0 +1,25 @@
+---
+
+name: base-tmt_pipeline
+
+variable:
+  REQUEST_ID: change-me
+
+pipeline: |
+  hide-secrets
+  rules-engine
+  testing-farm-request --request-id {{ REQUEST_ID }}
+  ansible
+  artemis
+  fedora-copr:copr
+  guest-setup-testing-farm:guest-setup
+  install-copr-build
+  install-koji-build-execute
+  install-repository
+  git
+  coldstore
+  testing-farm-request-state-reporter
+  test-schedule-tmt-connect:test-schedule-tmt
+  test-scheduler-testing-farm
+  test-schedule-runner
+  test-schedule-report
