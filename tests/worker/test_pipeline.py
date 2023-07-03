@@ -8,7 +8,10 @@ from typing import Any, Tuple
 
 @pytest.mark.parametrize(
     'scenario, scenario_name',
-    [*load_scenarios('tests/worker/public/pipeline'), *load_scenarios('tests/worker/redhat/pipeline')]
+    [
+        *load_scenarios('tests/worker/public/pipeline', base_scenarios_dir_path='tests/worker/base-scenarios'),
+        *load_scenarios('tests/worker/redhat/pipeline', base_scenarios_dir_path='tests/worker/base-scenarios')
+    ]
 )
 def test_pipeline(
     citool: Tuple[CitoolRunnerType, str], variables: dict[str, Any], scenario: ScenarioType, scenario_name: str
