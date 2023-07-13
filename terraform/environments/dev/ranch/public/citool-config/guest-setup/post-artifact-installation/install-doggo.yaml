@@ -8,11 +8,9 @@
         state: present
 
     - name: Download doggo binary
-      get_url:
-        url: "https://gitlab.com/testing-farm/doggo/-/releases/permalink/latest/downloads/doggo-amd64"
-        dest: "/usr/local/bin/doggo"
-        timeout: 30
-        mode: +x
+      command: >
+        bash -c 'curl --connect-timeout 30 -L https://gitlab.com/testing-farm/doggo/-/releases/permalink/latest/downloads/doggo-amd64
+        --output /usr/local/bin/doggo && chmod +x /usr/local/bin/doggo'
       retries: 5
       until: result_download_doggo is succeeded
       register: result_download_doggo

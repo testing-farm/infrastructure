@@ -54,22 +54,17 @@
     #
     - block:
         - name: "Check if tag repository {{ tag_repository_url_z_stream }} exists"
-          uri:
-            url: "{{ item }}"
-            method: HEAD
-            status_code: [200, 404]
-          register: http_response
-          when: http_response is not defined or http_response.status != 200
-          with_items:
-            # NOTE: order is important, we prefer Z-Stream tag repository if exists
-            - "{{ tag_repository_url_z_stream }}"
-            - "{{ tag_repository_url_mainline }}"
+          # NOTE: order is important, we prefer Z-Stream tag repository if exists
+          command: >
+            bash -c 'for URL in {{ tag_repository_url_z_stream }} {{ tag_repository_url_mainline }}; do
+              curl --head $URL 2>/dev/null | grep -q "200" && echo $URL && break;
+            done'
+          register: output
 
         - name: Set tag_repository_url fact
           set_fact:
-            tag_repository_url: "{{ item.url }}"
-          when: item.url is defined and item.status == 200
-          with_items: "{{ http_response.results }}"
+            tag_repository_url: "{{ output.stdout }}"
+          when: output is defined and output.stdout != ""
 
     #
     # Add repository only if the repository is reachable
