@@ -75,11 +75,8 @@
     #       we encounter might have tag repository available.
     #
     - name: "Check if tag repository {{ tag_repository_url }} exists"
-      uri:
-        url: "{{ tag_repository_url }}"
-        method: HEAD
-        status_code: [200, 404]
-      register: http_response
+      command: "bash -c 'curl --head {{ tag_repository_url }} | grep -o -E \"(200|404)\"'"
+      register: http_status_code
 
     #
     # Add repository only if the repository is reachable
@@ -90,14 +87,14 @@
             src: "templates/tag.repo.j2"
             dest: /etc/yum.repos.d/tag-repository.repo
 
-      when: http_response.status == 200
+      when: http_status_code == 200
 
     #
     # Be verbose about the fact the repository is unreachable
     #
     - debug:
         msg: "Skipping adding tag repository, because location {{ tag_repository_url }} was not found"
-      when: http_response.status != 200
+      when: http_status_code != 200
 
   #
   # block: end
