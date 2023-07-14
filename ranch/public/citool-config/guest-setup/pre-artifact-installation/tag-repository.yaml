@@ -75,7 +75,7 @@
     #       we encounter might have tag repository available.
     #
     - name: "Check if tag repository {{ tag_repository_url }} exists"
-      command: "bash -c 'curl --head {{ tag_repository_url }} | grep -o -E \"(200|404)\"'"
+      command: "bash -c 'curl --head -L {{ tag_repository_url }} | grep -o -E \"(200|404)\"'"
       register: http_status_code
 
     #
