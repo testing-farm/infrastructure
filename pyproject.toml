@@ -15,7 +15,7 @@ jinja2 = "^3.0.0"
 cryptography = "^2.9.2"
 yq = "^2.10.0"
 boto3 = "1.24.21"
-tft-cli = "^0.0.8"
+tft-cli = "^0.0.10"
 markupsafe = "*"
 
 [tool.poetry.dev-dependencies]
