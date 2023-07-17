@@ -1,0 +1,27 @@
+---
+
+extends:
+  - base-tmt_pipeline
+
+marks:
+  - public
+
+expected_failure: true
+
+variables:
+  REQUEST_ID: 4eb65f1e-c7d8-40fd-9aae-63760b9cac61
+  ARCH: x86_64
+  RESULT: FAILED
+  COMPOSE: Fedora-Rawhide
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  TMT_EXIT_CODE: 3
+  PLAN: /testing-farm/empty
+
+checks:
+  literal-strings:
+    - "[testing-farm-request] Connected to Testing Farm Service"
+    - "[git] <RemoteGitRepository(clone_url={{ GIT_CLONE_URL }}, branch=not specified, ref={{ GIT_REF }})>"
+    - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}"
+    - "[{{ COMPOSE }}:{{ ARCH }}] looking for plans"
+    - "[test-scheduler-testing-farm] Exception raised: No plans to execute after removing empty plans. Cowardly refusing to continue."
