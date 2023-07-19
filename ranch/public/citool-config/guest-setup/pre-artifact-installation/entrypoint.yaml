@@ -5,6 +5,7 @@
   tasks:
   # DO NOT ENABLE BY DEFAULT, IT BREAKS PYTHON TEST SUITE (and can others)
   # - include_tasks: nosync.yaml
+  - include_tasks: workaround-fedora-rawhide.yaml
   - include_tasks: workaround-fedora-release.yaml
   - include_tasks: update-and-restart.yaml
   - include_tasks: workaround-dns.yaml
