@@ -129,3 +129,21 @@ variable "resources" {
     error_message = "Unknown key in 'resources'."
   }
 }
+
+variable "route_guest_request_retries" {
+  description = "Number of retries of route-guest-request task"
+  type        = number
+  default     = 5
+}
+
+variable "route_guest_request_min_backoff" {
+  description = "Minimal back-off time of route-guest-request task"
+  type        = number
+  default     = 15
+}
+
+variable "route_guest_request_max_backoff" {
+  description = "Maximal back-off time of route-guest-request task"
+  type        = number
+  default     = 60
+}

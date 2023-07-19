@@ -41,6 +41,12 @@ artemis:
         threads: ${artemis_worker_threads}
         resources: ${jsonencode(artemis_worker_resources)}
 
+  actor:
+    route-guest-request:
+      retries: ${jsonencode(artemis_route_guest_request_retries)}
+      minBackoff: ${jsonencode(artemis_route_guest_request_min_backoff)}
+      maxBackoff: ${jsonencode(artemis_route_guest_request_max_backoff)}
+
   initContainers:
     resources: ${jsonencode(artemis_init_containers_resources)}
 

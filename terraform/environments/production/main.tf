@@ -134,6 +134,9 @@ module "production-cluster" {
   artemis_worker_processes = 4
   artemis_worker_threads   = 8
 
+  artemis_route_guest_request_retries     = 5
+  artemis_route_guest_request_max_backoff = 60
+
   resources = {
     artemis_api = {
       limits = {

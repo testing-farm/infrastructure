@@ -113,6 +113,9 @@ module "devel-cluster" {
   artemis_worker_processes = 2
   artemis_worker_threads   = 1
 
+  artemis_route_guest_request_retries     = 5
+  artemis_route_guest_request_max_backoff = 60
+
   resources = {
     artemis_api = {
       limits = {
