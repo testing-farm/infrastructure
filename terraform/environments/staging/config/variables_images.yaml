@@ -10,21 +10,23 @@ composes:
     aarch64:
       image: 'Fedora-Cloud-Base-36-1.5.aarch64-hvm-us-east-2-gp2-0'
 
+  # aws --region us-east-2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-37* | jq '.Images | .[] | .Name' | sort
   fedora_37:
     compose: 'Fedora-37'
 
     x86_64:
-      image: 'Fedora-Cloud-Base-37-20230702.0.x86_64-hvm-us-east-2-gp3-0'
+      image: 'Fedora-Cloud-Base-37-20230718.0.x86_64-hvm-us-east-2-gp3-0'
     aarch64:
-      image: 'Fedora-Cloud-Base-37-20230702.0.aarch64-hvm-us-east-2-gp3-0'
+      image: 'Fedora-Cloud-Base-37-20230718.0.aarch64-hvm-us-east-2-gp3-0'
 
+  # aws --region us-east-2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-38* | jq '.Images | .[] | .Name' | sort
   fedora_38:
     compose: 'Fedora-38'
 
     x86_64: &fedora_latest_ref_x86_64
-      image: 'Fedora-Cloud-Base-38-20230702.0.x86_64-hvm-us-east-2-gp3-0'
+      image: 'Fedora-Cloud-Base-38-20230718.0.x86_64-hvm-us-east-2-gp3-0'
     aarch64: &fedora_latest_ref_aarch64
-      image: 'Fedora-Cloud-Base-38-20230702.0.aarch64-hvm-us-east-2-gp3-0'
+      image: 'Fedora-Cloud-Base-38-20230718.0.aarch64-hvm-us-east-2-gp3-0'
 
   # TFT-1221
   fedora_latest:
@@ -38,9 +40,9 @@ composes:
     compose: 'Fedora-Rawhide'
 
     x86_64:
-      image: 'Fedora-Cloud-Base-Rawhide-20230702.n.0.x86_64-hvm-us-east-2-gp3-0'
+      image: 'Fedora-Cloud-Base-Rawhide-20230718.n.0.x86_64-hvm-us-east-2-gp3-0'
     aarch64:
-      image: 'Fedora-Cloud-Base-Rawhide-20230702.n.0.aarch64-hvm-us-east-2-gp3-0'
+      image: 'Fedora-Cloud-Base-Rawhide-20230718.n.0.aarch64-hvm-us-east-2-gp3-0'
 
   centos_6:
     compose: 'CentOS-6'
@@ -64,18 +66,20 @@ composes:
     aarch64:
       image: 'CentOS 8.4.2105 aarch64'
 
+  # aws --region us-east-2 ec2 describe-images --filter Name=name,Values="CentOS Stream 8*" | jq '.Images | .[] | .Name' | sort
   centos_stream_8:
     compose: 'CentOS-Stream-8'
 
     x86_64:
-      image: 'CentOS Stream 8 x86_64 20230626'
+      image: 'CentOS Stream 8 x86_64 20230710'
     aarch64:
-      image: 'CentOS Stream 8 aarch64 20230626'
+      image: 'CentOS Stream 8 aarch64 20230710'
 
+  # aws --region us-east-2 ec2 describe-images --filter Name=name,Values="CentOS Stream 8*" | jq '.Images | .[] | .Name' | sort
   centos_stream_9:
     compose: 'CentOS-Stream-9'
 
     x86_64:
-      image: 'CentOS Stream 9 x86_64 20230626'
+      image: 'CentOS Stream 9 x86_64 20230704'
     aarch64:
-      image: 'CentOS Stream 9 aarch64 20230626'
+      image: 'CentOS Stream 9 aarch64 20230704'
