@@ -1,6 +1,6 @@
 ---
 default:
-  image: quay.io/testing-farm/python-ci-image:2023-05-23-73a71064
+  image: quay.io/testing-farm/python-ci-image:2023-06-01-ec6b0f31
 
 variables:
   # GitLab CI runs in world writable directory, we need to explicitely set ANSIBLE_CONFIG
