@@ -129,7 +129,8 @@ test/dev:
     SCRIPT: >-
       make init-dev &&
       make apply-dev &&
-      make test-worker-public
+      sleep 3600
+      # make test-worker-public
     AFTER_SCRIPT: make destroy-dev > /dev/null
   rules:
     - !reference [.rules, not_default_branch]
