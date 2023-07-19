@@ -190,6 +190,10 @@ module "artemis" {
 
   image_tag = var.artemis_image_tag
 
+  route_guest_request_retries     = var.artemis_route_guest_request_retries
+  route_guest_request_min_backoff = var.artemis_route_guest_request_min_backoff
+  route_guest_request_max_backoff = var.artemis_route_guest_request_max_backoff
+
   resources = var.resources
 }
 

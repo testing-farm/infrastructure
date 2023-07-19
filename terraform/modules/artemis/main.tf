@@ -38,6 +38,10 @@ resource "helm_release" "artemis" {
 
         artemis_connection_close_after_dispatch = var.connection_close_after_dispatch
 
+        artemis_route_guest_request_retries     = var.route_guest_request_retries
+        artemis_route_guest_request_min_backoff = var.route_guest_request_min_backoff
+        artemis_route_guest_request_max_backoff = var.route_guest_request_max_backoff
+
         artemis_db_schema_revision = var.db_schema_revision
 
         artemis_worker_extra_env = var.worker_extra_env
