@@ -19,6 +19,10 @@ WORKER_IMAGE ?= quay.io/testing-farm/worker:latest
 # run in parallel 5 tests
 PYTEST_PARALLEL_OPTIONS ?= -d --tx 5*popen//python=python3.9
 
+TESTING_FARM_API_URL ?= https://api.dev.testing-farm.io/v0.1
+
+TESTING_FARM_API_TOKEN ?= $(TESTING_FARM_API_TOKEN_PUBLIC)
+
 ##@ Infrastructure
 
 init-dev:  ## Initialize the development environment
@@ -54,6 +58,15 @@ test-worker-redhat: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests fo
 	--variables tests/common.yaml \
 	--html report.html tests/worker/test_pipeline.py
 
+test-guest-setup: wait-artemis-available $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
+	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m guest-setup -v --basetemp $$PROJECT_ROOT/.pytest \
+	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
+	--citool-config terraform/environments/dev/ranch/public/citool-config --citool-image $(WORKER_IMAGE) \
+	--test-assets tests/worker \
+	--variables terraform/environments/dev/ranch/public/citool-config/variables.yaml \
+	--variables tests/common.yaml \
+	--html report.html tests/worker/test_pipeline.py
+
 ##@ Utility
 
 $(DEV_ENVIRONMENT_FILES):
@@ -75,6 +88,9 @@ generate-environment-files:  ## Generate credential files used in each citool co
 		echo "Decrypting $${key%.decrypted}..."; \
 		ansible-vault decrypt --vault-password-file .vault_pass --output $${key} $${key%.decrypted}; \
 	done
+
+generate-guest-setup:  ## Generate or update guest-setup tests.
+	TESTING_FARM_API_TOKEN=${TESTING_FARM_API_TOKEN} TESTING_FARM_API_URL=${TESTING_FARM_API_URL} poetry run python tests/worker/public/generate-guest-setup.py
 
 list-worker-tests:  ## List available worker integration tests
 	poetry run pytest $(PYTEST_OPTIONS) -v --basetemp $$PROJECT_ROOT/.pytest --collect-only \

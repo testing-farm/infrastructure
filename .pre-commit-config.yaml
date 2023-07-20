@@ -63,3 +63,12 @@ repos:
           - --args=-diff
       - id: terraform_tflint
       - id: terraform_tfsec
+
+  # Generate guest-setup tests on changes in dev/config/variables_images.yaml
+  - repo: local
+    hooks:
+      - id: generate-guest-setup
+        name: generate-guest-setup
+        entry: make generate-guest-setup
+        language: system
+        pass_filenames: false

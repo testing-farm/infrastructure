@@ -76,6 +76,10 @@ workflow:
     - changes:
         - tests/worker/public/**/*
 
+  guest_setup_tests:
+    - changes:
+        - tests/worker/guest-setup/**/*
+
 direnv:
   stage: test
   before_script:
@@ -193,6 +197,28 @@ test/production:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terraform_production]
 
+test/guest-setup:
+  extends: .direnv
+  stage: test
+  script:
+    # TODO: tmt run -e cluster_name=testing-farm-gitlab-ci-$CI_COMMIT_REF_NAME plan --name /terraform/environments/dev
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    TF_VAR_cluster_name: testing-farm-gitlab-ci-$CI_JOB_ID
+    SCRIPT_DIR: terraform/environments/dev
+    PYTEST_OPTIONS: -k 'not container'
+    SCRIPT: >-
+      make init-dev &&
+      make apply-dev &&
+      make test-guest-setup
+    AFTER_SCRIPT: make destroy-dev > /dev/null
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, terraform_dev]
+    - !reference [.rules, not_schedule]
+    - !reference [.rules, guest_setup_tests]
+
 redeploy/staging:
   extends: .direnv
   stage: deploy
@@ -209,7 +235,6 @@ redeploy/staging:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, only_schedule]
     - !reference [.rules, terraform_staging]
-
 
 deploy/staging:
   extends: .direnv
