@@ -4,7 +4,7 @@ marks:
   - public
 
 variables:
-  REQUEST_ID: edaf98e7-6215-4c0e-946b-d1e10c124803  # TODO: use a test in the official tests repo
+  REQUEST_ID: 45326651-0115-4bf4-b693-d15f534ec151
 
 pipeline: |
   hide-secrets
@@ -31,7 +31,7 @@ checks:
     - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.dev.testing-farm.io'"
     - "[testing-farm-request] Initialized with {{ REQUEST_ID }}"
     - "[artemis] Using Artemis API"
-    - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/janhavlin/tests, branch=not specified, ref=main)>"
+    - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
     - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}"
     - "[testing-farm-request-state-reporter] pipeline complete"
     - "[test-scheduler-sti] cloning repo"
@@ -50,7 +50,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/failure.yaml"
           - CREATED
           - OK
           - UNDEFINED
@@ -60,7 +60,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/failure.yaml"
           - GUEST_PROVISIONING
           - OK
           - UNDEFINED
@@ -70,7 +70,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/failure.yaml"
           - GUEST_SETUP
           - OK
           - UNDEFINED
@@ -80,7 +80,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/failure.yaml"
           - RUNNING
           - OK
           - UNDEFINED
@@ -90,7 +90,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/failure.yaml"
           - CLEANUP
           - OK
           - FAILED
@@ -100,7 +100,7 @@ checks:
 
     - table:
         -
-          - "git-main{{ '[0-9a-z_]+' }}/sti/tests.yaml"
+          - "git-main{{ '[0-9a-z_]+' }}/sti/failure.yaml"
           - COMPLETE
           - OK
           - FAILED
@@ -115,7 +115,7 @@ checks:
        <properties>
         <property name="baseosci.overall-result" value="failed"/>
        </properties>
-       <testsuite name="git-main{{ '.+' }}/sti/tests.yaml" result="failed" tests="1">
+       <testsuite name="git-main{{ '.+' }}/sti/failure.yaml" result="failed" tests="1">
         <logs>
          <log guest-setup-stage="pre_artifact_installation" href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-pre-artifact-installation.txt" name="guest setup" schedule-stage="guest-setup"/>
          <log guest-setup-stage="post_artifact_installation" href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-post-artifact-installation.txt" name="guest setup" schedule-stage="guest-setup"/>
@@ -133,8 +133,8 @@ checks:
           <property name="baseosci.variant" value=""/>
          </properties>
          <logs>
-          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-tests.yaml{{ '.+' }}/tests-{{ '.+' }}/FAIL-str_sanity.log" name="FAIL-str_sanity.log" schedule-entry="git-main{{ '.+' }}/sti/tests.yaml" schedule-stage="running"/>
-          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-tests.yaml{{ '.+' }}/tests-{{ '.+' }}" name="log_dir" schedule-entry="git-main{{ '.+' }}/sti/tests.yaml" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure.yaml{{ '.+' }}/tests-{{ '.+' }}/FAIL-str_sanity.log" name="FAIL-str_sanity.log" schedule-entry="git-main{{ '.+' }}/sti/failure.yaml" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure.yaml{{ '.+' }}/tests-{{ '.+' }}" name="log_dir" schedule-entry="git-main{{ '.+' }}/sti/failure.yaml" schedule-stage="running"/>
          </logs>
          <failure/>
          <testing-environment name="requested">
@@ -165,7 +165,7 @@ checks:
     - |
       <?xml version="1.0" encoding="UTF-8"?>
       <testsuites>
-       <testsuite name="git-main{{ '.+' }}/sti/tests.yaml" tests="1" failures="1" errors="0" skipped="0">
+       <testsuite name="git-main{{ '.+' }}/sti/failure.yaml" tests="1" failures="1" errors="0" skipped="0">
         <testcase name="sanity" classname="tests">
          <system-out>Hello Testing Farm failure
       </system-out>
