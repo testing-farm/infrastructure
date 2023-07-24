@@ -44,12 +44,6 @@ composes:
     aarch64:
       image: 'Fedora-Cloud-Base-Rawhide-20230718.n.0.aarch64-hvm-us-east-2-gp3-0'
 
-  centos_6:
-    compose: 'CentOS-6'
-
-    x86_64:
-      image: 'CentOS-6-x86_64-GenericCloud-1907'
-
   centos_7:
     compose: 'CentOS-7'
 
@@ -57,14 +51,6 @@ composes:
       image: 'CentOS 7.9.2009 x86_64'
     aarch64:
       image: 'CentOS 7.9.2009 aarch64'
-
-  centos_8:
-    compose: 'CentOS-8'
-
-    x86_64:
-      image: 'CentOS 8.4.2105 x86_64'
-    aarch64:
-      image: 'CentOS 8.4.2105 aarch64'
 
   # aws --region us-east-2 ec2 describe-images --filter Name=name,Values="CentOS Stream 8*" | jq '.Images | .[] | .Name' | sort
   centos_stream_8:
