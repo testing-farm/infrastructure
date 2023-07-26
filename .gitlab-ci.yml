@@ -13,6 +13,8 @@ workflow:
     - if: $CI_MERGE_REQUEST_ID
     # for the tip of the default branch
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    # for schedules
+    - if: $CI_PIPELINE_SOURCE == "schedule"
 
 .rules:
   not_default_branch:
@@ -20,9 +22,19 @@ workflow:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: never
 
+  not_schedule:
+    # do not run for schedules
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+
   only_default_branch:
     # run only for default branch
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      when: never
+
+  only_schedule:
+    # run only for schedule
+    - if: $CI_PIPELINE_SOURCE != "schedule"
       when: never
 
   gitlab_ci:
@@ -103,6 +115,7 @@ ansible-vault:
       ansible-vault view secrets/credentials.yaml | yamllint -d "rules: {line-length: {level: warning}}" -
   rules:
     - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
     - !reference [.rules, secrets]
 
 pre-commit:
@@ -113,6 +126,7 @@ pre-commit:
     - PRE_COMMIT_HOME=$CI_PROJECT_DIR/.cache/pre-commit pre-commit run --all-files
   rules:
     - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
     - when: always
 
 test/dev:
@@ -133,6 +147,7 @@ test/dev:
     AFTER_SCRIPT: make destroy-dev > /dev/null
   rules:
     - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
     - !reference [.rules, terraform_dev]
     - !reference [.rules, public_tests]
 
@@ -149,6 +164,7 @@ test/staging:
       terraform -chdir=$SCRIPT_DIR plan -lock-timeout=5m
   rules:
     - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
     - !reference [.rules, terraform_staging]
 
 test/production:
@@ -165,7 +181,26 @@ test/production:
 
   rules:
     - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
     - !reference [.rules, terraform_production]
+
+redeploy/staging:
+  extends: .direnv
+  stage: deploy
+  script:
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    SCRIPT_DIR: terraform/environments/staging
+    SCRIPT: >-
+      terraform -chdir=$SCRIPT_DIR init &&
+      terraform -chdir=$SCRIPT_DIR destroy &&
+      terraform -chdir=$SCRIPT_DIR apply -auto-approve
+  rules:
+    - !reference [.rules, only_default_branch]
+    - !reference [.rules, only_schedule]
+    - !reference [.rules, terraform_staging]
+
 
 deploy/staging:
   extends: .direnv
@@ -180,6 +215,7 @@ deploy/staging:
       terraform -chdir=$SCRIPT_DIR apply -auto-approve
   rules:
     - !reference [.rules, only_default_branch]
+    - !reference [.rules, not_schedule]
     - !reference [.rules, terraform_staging]
 
 deploy/production:
@@ -198,4 +234,5 @@ deploy/production:
       terraform -chdir=$SCRIPT_DIR apply -auto-approve
   rules:
     - !reference [.rules, only_default_branch]
+    - !reference [.rules, not_schedule]
     - !reference [.rules, terraform_production]
