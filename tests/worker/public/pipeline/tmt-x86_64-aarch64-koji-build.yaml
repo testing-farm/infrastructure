@@ -1,0 +1,82 @@
+---
+
+extends:
+  - base-tmt_pipeline
+  - base-tmt_checks
+
+marks:
+  - public
+
+variables:
+  REQUEST_ID: 91d9f27c-56ad-434f-a2b9-362b44ada92d
+  COMPOSE: Fedora-38
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/sanity
+  SCHEDULE_ENTRIES: 2
+
+checks:
+  literal-patterns:
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] installing the artifact"
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] installing the artifact"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download task id vim-9.0.1677-2.fc38"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Get package list"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Reinstall packages"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Install packages"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Verify all packages installed"
+
+    - table:
+        -
+          - "{{ COMPOSE }}:aarch64:{{ PLAN }}"
+          - CREATED
+          - OK
+          - UNDEFINED
+          - "aarch64 {{ COMPOSE }} S-"
+          - ""
+          - tmt
+
+    - table:
+        -
+          - "{{ COMPOSE }}:aarch64:{{ PLAN }}"
+          - GUEST_SETUP
+          - OK
+          - UNDEFINED
+          - "aarch64 {{ COMPOSE }} S-"
+          - "aarch64 {{ COMPOSE }} S-"
+          - tmt
+
+    - table:
+        -
+          - "{{ COMPOSE }}:aarch64:{{ PLAN }}"
+          - RUNNING
+          - OK
+          - UNDEFINED
+          - "aarch64 {{ COMPOSE }} S-"
+          - "aarch64 {{ COMPOSE }} S-"
+          - tmt
+
+    - table:
+        -
+          - "{{ COMPOSE }}:aarch64:{{ PLAN }}"
+          - CLEANUP
+          - OK
+          - "{{ RESULT }}"
+          - "aarch64 {{ COMPOSE }} S-"
+          - "aarch64 {{ COMPOSE }} S-"
+          - tmt
+
+    - table:
+        -
+          - "{{ COMPOSE }}:aarch64:{{ PLAN }}"
+          - COMPLETE
+          - OK
+          - "{{ RESULT }}"
+          - "aarch64 {{ COMPOSE }} S-"
+          - "aarch64 {{ COMPOSE }} S-"
+          - tmt
+
+  literal-patterns[citool-debug.txt]:
+    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch src vim-9.0.1677-2.fc38 || koji download-task --arch noarch --arch {{ ARCH }} --arch src vim-9.0.1677-2.fc38"
+    - "koji download-build --debuginfo --task-id --arch noarch --arch aarch64 --arch src vim-9.0.1677-2.fc38 || koji download-task --arch noarch --arch aarch64 --arch src vim-9.0.1677-2.fc38"
