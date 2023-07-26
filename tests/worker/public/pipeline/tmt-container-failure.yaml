@@ -8,7 +8,7 @@ marks:
   - public
 
 variables:
-  REQUEST_ID: d91cc905-f5b6-448b-a72b-56b1570e85a4
+  REQUEST_ID: 290096bb-311d-4962-a0b6-358f5db43c23
   ARCH: x86_64
   RESULT: FAILED
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
@@ -16,6 +16,9 @@ variables:
   PLAN: /testing-farm/failure
 
 checks:
+  literal-strings:
+    - "[W] [testing-farm-request] failed to post to webhook: Condition 'posting update to webhook https://invalid-url' failed to pass within given time"
+
   literal-patterns[results.xml]:
     - |
       <?xml version="1.0" encoding="UTF-8"?>
