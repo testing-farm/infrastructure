@@ -194,7 +194,7 @@ redeploy/staging:
     SCRIPT_DIR: terraform/environments/staging
     SCRIPT: >-
       terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR destroy &&
+      terraform -chdir=$SCRIPT_DIR destroy -auto-approve &&
       terraform -chdir=$SCRIPT_DIR apply -auto-approve
   rules:
     - !reference [.rules, only_default_branch]
