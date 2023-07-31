@@ -105,6 +105,15 @@ direnv:
     - /bin/bash -c "${AFTER_SCRIPT}"
     - "[ ${EXIT_CODE} = 0 ]"
 
+# Archive pytest-gluetool artifacts
+.archive_tests:
+  artifacts:
+    expose_as: report
+    paths:
+      - report.html
+      - assets/
+    when: always
+
 ansible-vault:
   extends: .direnv
   stage: test
@@ -130,7 +139,7 @@ pre-commit:
     - when: always
 
 test/dev:
-  extends: .direnv
+  extends: [.direnv, .archive_tests]
   stage: test
   script:
     # TODO: tmt run -e cluster_name=testing-farm-gitlab-ci-$CI_COMMIT_REF_NAME plan --name /terraform/environments/dev
