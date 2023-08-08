@@ -104,6 +104,9 @@ terminate-artemis-guests-dev:  ## Terminate all EC2 instances from the dev envir
 wait-artemis-available:  ## Wait until Artemis is available in the dev environment
 	@bash setup/wait_artemis_available_dev.sh
 
+compose-update-public:  ## Update composes in the Public ranch
+	poetry run python setup/compose_update_public.py
+
 clean:  ## Cleanup
 	rm -rf $$DIRENV_PATH
 	rm -rf $$VIRTUAL_ENV
