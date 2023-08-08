@@ -3,69 +3,69 @@ composes:
 
   # aws --region us-east-2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-36* | jq '.Images | .[] | .Name' | sort
   fedora_36:
-    compose: 'Fedora-36'
+    compose: Fedora-36
 
     x86_64:
-      image: 'Fedora-Cloud-Base-36-1.2.x86_64-hvm-us-east-2-gp2-0'
+      image: Fedora-Cloud-Base-36-1.2.x86_64-hvm-us-east-2-gp2-0
     aarch64:
-      image: 'Fedora-Cloud-Base-36-1.5.aarch64-hvm-us-east-2-gp2-0'
+      image: Fedora-Cloud-Base-36-1.5.aarch64-hvm-us-east-2-gp2-0
 
   # aws --region us-east-2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-37* | jq '.Images | .[] | .Name' | sort
   fedora_37:
-    compose: 'Fedora-37'
+    compose: Fedora-37
 
     x86_64:
-      image: 'Fedora-Cloud-Base-37-20230803.0.x86_64-hvm-us-east-2-gp3-0'
+      image: Fedora-Cloud-Base-37-20230808.0.x86_64-hvm-us-east-2-gp3-0
     aarch64:
-      image: 'Fedora-Cloud-Base-37-20230803.0.aarch64-hvm-us-east-2-gp3-0'
+      image: Fedora-Cloud-Base-37-20230808.0.aarch64-hvm-us-east-2-gp3-0
 
   # aws --region us-east-2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-38* | jq '.Images | .[] | .Name' | sort
   fedora_38:
-    compose: 'Fedora-38'
+    compose: Fedora-38
 
     x86_64: &fedora_latest_ref_x86_64
-      image: 'Fedora-Cloud-Base-38-20230803.0.x86_64-hvm-us-east-2-gp3-0'
+      image: Fedora-Cloud-Base-38-20230808.0.x86_64-hvm-us-east-2-gp3-0
     aarch64: &fedora_latest_ref_aarch64
-      image: 'Fedora-Cloud-Base-38-20230803.0.aarch64-hvm-us-east-2-gp3-0'
+      image: Fedora-Cloud-Base-38-20230808.0.aarch64-hvm-us-east-2-gp3-0
 
   # TFT-1221
   fedora_latest:
-    compose: 'Fedora-latest'
+    compose: Fedora-latest
 
     x86_64: *fedora_latest_ref_x86_64
     aarch64: *fedora_latest_ref_aarch64
 
   # aws --region us-east-2 ec2 describe-images --filter Name=name,Values=Fedora-Cloud-Base-Rawhide* | jq '.Images | .[] | .Name' | sort
   fedora_rawhide:
-    compose: 'Fedora-Rawhide'
+    compose: Fedora-Rawhide
 
     x86_64:
-      image: 'Fedora-Cloud-Base-Rawhide-20230803.n.0.x86_64-hvm-us-east-2-gp3-0'
+      image: Fedora-Cloud-Base-Rawhide-20230808.n.0.x86_64-hvm-us-east-2-gp3-0
     aarch64:
-      image: 'Fedora-Cloud-Base-Rawhide-20230803.n.0.aarch64-hvm-us-east-2-gp3-0'
+      image: Fedora-Cloud-Base-Rawhide-20230808.n.0.aarch64-hvm-us-east-2-gp3-0
 
   centos_7:
-    compose: 'CentOS-7'
+    compose: CentOS-7
 
     x86_64:
-      image: 'CentOS 7.9.2009 x86_64'
+      image: CentOS 7.9.2009 x86_64
     aarch64:
-      image: 'CentOS 7.9.2009 aarch64'
+      image: CentOS 7.9.2009 aarch64
 
   # aws --region us-east-2 ec2 describe-images --filter Name=name,Values="CentOS Stream 8*" | jq '.Images | .[] | .Name' | sort
   centos_stream_8:
-    compose: 'CentOS-Stream-8'
+    compose: CentOS-Stream-8
 
     x86_64:
-      image: 'CentOS Stream 8 x86_64 20230710'
+      image: CentOS Stream 8 x86_64 20230710
     aarch64:
-      image: 'CentOS Stream 8 aarch64 20230710'
+      image: CentOS Stream 8 aarch64 20230710
 
   # aws --region us-east-2 ec2 describe-images --filter Name=name,Values="CentOS Stream 8*" | jq '.Images | .[] | .Name' | sort
   centos_stream_9:
-    compose: 'CentOS-Stream-9'
+    compose: CentOS-Stream-9
 
     x86_64:
-      image: 'CentOS Stream 9 x86_64 20230704'
+      image: CentOS Stream 9 x86_64 20230807
     aarch64:
-      image: 'CentOS Stream 9 aarch64 20230704'
+      image: CentOS Stream 9 aarch64 20230807
