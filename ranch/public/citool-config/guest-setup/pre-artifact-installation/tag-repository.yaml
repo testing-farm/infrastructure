@@ -87,14 +87,14 @@
             src: "templates/tag.repo.j2"
             dest: /etc/yum.repos.d/tag-repository.repo
 
-      when: http_status_code == 200
+      when: http_status_code.stdout == 200
 
     #
     # Be verbose about the fact the repository is unreachable
     #
     - debug:
         msg: "Skipping adding tag repository, because location {{ tag_repository_url }} was not found"
-      when: http_status_code != 200
+      when: http_status_code.stdout != 200
 
   #
   # block: end
