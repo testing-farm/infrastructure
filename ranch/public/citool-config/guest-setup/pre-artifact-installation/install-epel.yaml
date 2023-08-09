@@ -24,3 +24,11 @@
   delay: "{{ pkg_retry_delay }}"
   until: result_package is succeeded
   register: result_package
+
+- name: Add releasever on CentOS
+  copy:
+    dest: /etc/yum/vars/releasever
+    content: "{{ ansible_distribution_major_version }}"
+  when:
+    - 'ansible_distribution == "CentOS"'
+    - 'ansible_distribution_major_version >= 8'
