@@ -23,20 +23,49 @@ TESTING_FARM_API_URL ?= https://api.dev.testing-farm.io/v0.1
 
 TESTING_FARM_API_TOKEN ?= $(TESTING_FARM_API_TOKEN_PUBLIC)
 
-##@ Infrastructure
+##@ Deprecated
 
-init-dev:  ## Initialize the development environment
+# NOTE old development environment will be removed later
+old-init-dev:  ## Initialize the development environment
 	terraform -chdir=terraform/environments/dev init
 
-plan-dev:  ## Plan the building of the development environment
+old-plan-dev:  ## Plan the building of the development environment
 	terraform -chdir=terraform/environments/dev plan
 
-apply-dev:  ## Build the development environment
+old-apply-dev:  ## Build the development environment
 	terraform -chdir=terraform/environments/dev apply -auto-approve
 	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
 
-destroy-dev: terminate-artemis-guests-dev  ## Destroy the development environment
+old-destroy-dev: terminate-artemis-guests-dev  ## Destroy the development environment
 	terraform -chdir=terraform/environments/dev destroy -auto-approve
+
+##@ Infrastructure | Development
+
+define run_terragrunt
+	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1 terragrunt run-all $2 --terragrunt-non-interactive
+endef
+
+dev/init:  ## Initialize the AWS development environment
+	$(call run_terragrunt,dev,init)
+
+dev/plan:  ## Plan the building of the AWS development environment
+	$(call run_terragrunt,dev,plan)
+
+dev/plan/eks:  ## Plan the building of the AWS development environment / eks module only
+	$(call run_terragrunt,dev,plan --terragrunt-include-dir "eks")
+
+dev/apply:  ## Build the AWS development environment
+	$(call run_terragrunt,dev,apply)
+	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
+
+dev/apply/eks:  ## Build the AWS development environment / eks module only
+	$(call run_terragrunt,dev,apply --terragrunt-include-dir "eks")
+	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
+
+# TODO: enable terminating artemis guests later
+# dev/destroy: terminate-artemis-guests-dev  ## Destroy the AWS development environment
+dev/destroy:  ## Destroy the AWS development environment
+	$(call run_terragrunt,dev,destroy)
 
 ##@ Tests
 
@@ -116,4 +145,4 @@ clean:  ## Cleanup
 reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
 
 help:  ## Show this help
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make [target]\033[36m\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(call reverse, $(MAKEFILE_LIST))
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make [target]\033[36m\033[0m\n"} /^[a-zA-Z_/-]+:.*?##/ { printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(call reverse, $(MAKEFILE_LIST))
