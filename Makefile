@@ -45,6 +45,10 @@ define run_terragrunt
 	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1 terragrunt run-all $2 --terragrunt-non-interactive
 endef
 
+define run_terragrunt_app
+	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve
+endef
+
 dev/init:  ## Initialize the AWS development environment
 	$(call run_terragrunt,dev,init)
 
@@ -52,14 +56,21 @@ dev/plan:  ## Plan the building of the AWS development environment
 	$(call run_terragrunt,dev,plan)
 
 dev/plan/eks:  ## Plan the building of the AWS development environment / eks module only
-	$(call run_terragrunt,dev,plan --terragrunt-include-dir "eks")
+	$(call run_terragrunt_app,dev,eks,plan)
+
+dev/plan/artemis:  ## Plan the building of the AWS development environment / eks module only
+	$(call run_terragrunt_app,dev,artemis,plan)
 
 dev/apply:  ## Build the AWS development environment
 	$(call run_terragrunt,dev,apply)
 	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
 
 dev/apply/eks:  ## Build the AWS development environment / eks module only
-	$(call run_terragrunt,dev,apply --terragrunt-include-dir "eks")
+	$(call run_terragrunt_app,dev,eks,apply)
+	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
+
+dev/apply/artemis:  ## Build the AWS development environment / eks module only
+	$(call run_terragrunt_app,dev,artemis,apply)
 	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
 
 # TODO: enable terminating artemis guests later

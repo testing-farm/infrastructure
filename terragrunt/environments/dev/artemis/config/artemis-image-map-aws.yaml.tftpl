@@ -1,0 +1,28 @@
+---
+# Dummy comment
+#
+%{~ for filename in template_vars_sources }
+# !include /configuration/${basename(filename)}
+# !import-variables /configuration/${basename(filename)}
+%{~ endfor }
+
+%{~ for key, compose in composes }
+  %{~ for arch in [for k in keys(compose): k if k != "compose"] }
+- '^{{ composes.${key}.compose }}:${arch}$': '{{ composes.${key}.${arch}.image }}'
+    %{if arch != "x86_64"}
+- '^{{ composes.${key}.compose }}-${arch}:${arch}$': '{{ composes.${key}.${arch}.image }}'
+    %{endif}
+  %{~ endfor }
+%{~ endfor }
+
+# AutoSD images
+- '^(auto-.*):(?:aarch64|x86_64)$': '\1'
+
+# CentOS Stream images
+- '^(CentOS Stream .+):(?:aarch64|x86_64)$': '\1'
+
+# Fedora images
+- '^(Fedora-Cloud-Base-.+):(?:aarch64|x86_64)$': '\1'
+
+# Debezium images
+- '^(debezium-tf.*):(?:aarch64|x86_64)$': '\1'

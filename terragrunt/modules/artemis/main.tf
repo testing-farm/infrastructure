@@ -1,0 +1,319 @@
+terraform {
+  required_version = ">=1.2.0"
+
+  required_providers {
+    ansiblevault = {
+      source  = "MeilleursAgents/ansiblevault"
+      version = ">=2.2.0"
+    }
+    aws = {
+      version = ">=4.0.0"
+    }
+    external = {
+      version = ">=2.2.0"
+    }
+    helm = {
+      version = ">=2.9.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">=2.18.1"
+    }
+  }
+}
+
+locals {
+  external_dns_namespace = "kube-addons"
+  artemis_lb_source_ranges = distinct(sort([
+    for ip in concat(
+      # Additional IPs from input variables
+      var.additional_lb_source_ips,
+      # Localhost IP, if enabled
+      var.localhost_access ? [data.external.localhost_public_ip.result.output] : [],
+      # Additional IPs from secrets
+      # we accept a string with comma or newline delimited IPs
+      split("\n", replace(trimspace(data.ansiblevault_path.artemis_additional_ips.value), " ", "\n"))
+    ) :
+    "${ip}/32"
+    if ip != null
+  ]))
+}
+
+provider "ansiblevault" {
+  vault_path  = var.ansible_vault_password_file
+  root_folder = var.ansible_vault_secrets_root
+}
+
+provider "ansiblevault" {
+  alias = "artemis_config"
+
+  vault_path  = var.ansible_vault_password_file
+  root_folder = var.config_root
+}
+
+# Public IP of localhost, used for development access to Artemis API and provisioned guests
+data "external" "localhost_public_ip" {
+  program = [
+    "sh",
+    "-c",
+    "jq -n --arg output \"$(curl -s icanhazip.com)\" '{$output}'"
+  ]
+}
+
+resource "aws_security_group" "allow_guest_traffic" {
+  name        = "${var.cluster_name}-allow-guest-traffic"
+  description = "Allow traffic for development from localhost"
+  vpc_id      = "vpc-a4f084cd"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = local.artemis_lb_source_ranges
+    description = "Allow SSH inbound traffic"
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
+    ipv6_cidr_blocks = ["::/0"]      #tfsec:ignore:aws-ec2-no-public-egress-sgr
+    description      = "Allow all outbound traffic"
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = var.cluster_endpoint
+    cluster_ca_certificate = base64decode(var.cluster_certificate_authority_data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args = [
+        "--region",
+        var.cluster_aws_region,
+        "eks",
+        "get-token",
+        "--cluster-name",
+        var.cluster_name
+      ]
+      command = "aws"
+    }
+  }
+}
+
+provider "kubernetes" {
+  host                   = var.cluster_endpoint
+  cluster_ca_certificate = base64decode(var.cluster_certificate_authority_data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args = [
+      "--region",
+      var.cluster_aws_region,
+      "eks",
+      "get-token",
+      "--cluster-name",
+      var.cluster_name
+    ]
+    command = "aws"
+  }
+}
+
+data "ansiblevault_path" "artemis_additional_ips" {
+  path = var.ansible_vault_credentials
+  key  = "artemis.additional_ips"
+}
+
+data "ansiblevault_path" "pool_access_key_aws" {
+  path = var.ansible_vault_credentials
+  key  = "credentials.aws.fedora.access_key"
+}
+
+data "ansiblevault_path" "pool_secret_key_aws" {
+  path = var.ansible_vault_credentials
+  key  = "credentials.aws.fedora.secret_key"
+}
+
+data "ansiblevault_path" "vault_password" {
+  path = var.ansible_vault_credentials
+  key  = "credentials.vault.password"
+}
+
+data "ansiblevault_path" "vault_ssh_key" {
+  count = length(var.ssh_keys)
+
+  provider = ansiblevault.artemis_config
+  path     = var.ssh_keys[count.index].path
+  key      = var.ssh_keys[count.index].key
+}
+
+resource "kubernetes_namespace" "kube-addons-ns" {
+  metadata {
+    name = local.external_dns_namespace
+  }
+}
+
+resource "kubernetes_secret" "aws-credentials-secret" {
+  depends_on = [kubernetes_namespace.kube-addons-ns]
+
+  metadata {
+    name      = "aws-credentials"
+    namespace = local.external_dns_namespace
+  }
+
+  data = {
+    "credentials" = <<EOF
+[default]
+aws_access_key_id = ${sensitive(data.ansiblevault_path.pool_access_key_aws.value)}
+aws_secret_access_key = ${sensitive(data.ansiblevault_path.pool_secret_key_aws.value)}
+EOF
+  }
+}
+
+resource "helm_release" "external-dns" {
+  depends_on = [
+    kubernetes_namespace.kube-addons-ns,
+    kubernetes_secret.aws-credentials-secret
+  ]
+
+  name       = "external-dns"
+  repository = "https://kubernetes-sigs.github.io/external-dns/"
+  chart      = "external-dns"
+  version    = "1.11.0"
+
+  namespace = local.external_dns_namespace
+
+  set {
+    name  = "provider"
+    value = "aws"
+  }
+
+  set {
+    name  = "txtOwnerId"
+    value = var.cluster_name
+  }
+
+  set {
+    name  = "domainFilters"
+    value = "{${var.route53_zone}}"
+  }
+
+  set {
+    name  = "policy"
+    value = "sync"
+  }
+
+  values = [
+    <<EOF
+env:
+  - name: AWS_SHARED_CREDENTIALS_FILE
+    value: /.aws/credentials
+extraVolumes:
+  - name: aws-credentials
+    secret:
+      secretName: aws-credentials
+extraVolumeMounts:
+  - name: aws-credentials
+    mountPath: /.aws
+    readOnly: true
+EOF
+  ]
+
+  set {
+    name  = "extraArgs"
+    value = "{--aws-zone-type=public}"
+  }
+}
+
+resource "helm_release" "artemis" {
+  name       = var.release_name
+  repository = "https://testing-farm.gitlab.io/artemis-helm/dev"
+  chart      = "artemis-core"
+  version    = "0.0.3"
+  namespace  = var.namespace
+
+  atomic        = true
+  timeout       = 600
+  wait          = true
+  wait_for_jobs = true
+
+  values = [
+    sensitive(templatefile(
+      "${path.module}/values.yaml.tftpl",
+      {
+        artemis_server_config = templatefile(
+          "${var.config_root}/server.yaml.tftpl",
+          {
+            aws_access_key_id     = sensitive(data.ansiblevault_path.pool_access_key_aws.value)
+            aws_secret_access_key = sensitive(data.ansiblevault_path.pool_secret_key_aws.value)
+            ssh_keys = [
+              for i in range(length(var.ssh_keys)) :
+              merge(
+                {
+                  name  = var.ssh_keys[i].name
+                  owner = var.ssh_keys[i].owner
+                },
+                yamldecode(sensitive(data.ansiblevault_path.vault_ssh_key[i].value))
+              )
+            ]
+            aws_security_group_id = aws_security_group.allow_guest_traffic.id
+          }
+        )
+
+        artemis_extra_files = merge(
+          {
+            for filename in var.config_extra_files :
+            filename => file(
+              fileexists("${var.config_root}/${filename}") ?
+              "${var.config_root}/${filename}" : "${var.config_common}/${filename}"
+            )
+            }, {
+            for template in var.config_extra_templates :
+            template.target => templatefile(
+              fileexists("${var.config_root}/${template.source}") ?
+              "${var.config_root}/${template.source}" :
+              "${var.config_common}/${template.source}",
+              merge(
+                { template_vars_sources = template.vars },
+                [for varfile in template.vars : yamldecode(file(varfile))]...
+              )
+            )
+          }
+        )
+
+        artemis_lb_source_ranges = local.artemis_lb_source_ranges
+        artemis_api_processes    = var.api_processes
+        artemis_api_threads      = var.api_threads
+        artemis_api_domain       = var.api_domain
+
+        artemis_connection_close_after_dispatch = var.connection_close_after_dispatch
+
+        artemis_db_schema_revision = var.db_schema_revision
+
+        artemis_worker_extra_env = var.worker_extra_env
+        artemis_worker_replicas  = var.worker_replicas
+        artemis_worker_processes = var.worker_processes
+        artemis_worker_threads   = var.worker_threads
+
+        artemis_image_tag = var.image_tag
+
+        artemis_api_resources             = try(var.resources.artemis_api, {})
+        artemis_dispatcher_resources      = try(var.resources.artemis_dispatcher, {})
+        artemis_initdb_resources          = try(var.resources.artemis_initdb, {})
+        artemis_init_containers_resources = try(var.resources.artemis_init_containers, {})
+        artemis_scheduler_resources       = try(var.resources.artemis_scheduler, {})
+        artemis_worker_resources          = try(var.resources.artemis_worker, {})
+        rabbitmq_resources                = try(var.resources.rabbitmq, {})
+        postgresql_resources              = try(var.resources.postgresql, {})
+        postgresql_exporter_resources     = try(var.resources.postgresql_exporter, {})
+        redis_resources                   = try(var.resources.redis, {})
+        redis_exporter_resources          = try(var.resources.redis_exporter, {})
+      }
+    ))
+  ]
+
+  set_sensitive {
+    name  = "artemis.vaultPassword"
+    value = sensitive(data.ansiblevault_path.vault_password.value)
+  }
+}
