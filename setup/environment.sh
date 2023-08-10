@@ -124,6 +124,12 @@ if [ ! -e "${TOOLS_PATH}/tfsec" ]; then
     chmod +x ${TOOLS_PATH}/tfsec
 fi
 
+if [ ! -e "${TOOLS_PATH}/terragrunt" ]; then
+    info "install terragrunt"
+    curl -sLo ${TOOLS_PATH}/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.48.7/terragrunt_linux_amd64
+    chmod +x ${TOOLS_PATH}/terragrunt
+fi
+
 #
 # setup git goodies
 #
