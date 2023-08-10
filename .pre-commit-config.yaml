@@ -65,6 +65,7 @@ repos:
       - id: terraform_tfsec
       - id: terragrunt_validate
         files: ^terragrunt/environments/
+        exclude: ^terragrunt/environments/.*/artemis/config
       - id: terragrunt_fmt
 
   # Generate guest-setup tests on changes in dev/config/variables_images.yaml

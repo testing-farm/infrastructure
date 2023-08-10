@@ -8,8 +8,8 @@
 #
 
 timeout=300
-environment=$PROJECT_ROOT/terraform/environments/dev
-hostname=$(terraform -chdir=$environment output --raw artemis_api_domain)
+environment=$PROJECT_ROOT/terragrunt/environments/dev/artemis
+hostname=$(TERRAGRUNT_WORKING_DIR=$environment terragrunt output --raw artemis_api_domain)
 
 echo "Waiting for Artemis API to be available via '$hostname'"
 
