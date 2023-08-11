@@ -4,7 +4,7 @@
 
 # For scale-redhat-worker target, make all additional targets parameters
 # https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run
-ifeq (create-redhat-worker,$(firstword $(MAKECMDGOALS)))
+ifeq (create/redhat/worker,$(firstword $(MAKECMDGOALS)))
   # use the rest as arguments for "SCALE_TARGET"
   SCALE_TARGET := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   SCALE_TARGET := $(if $(SCALE_TARGET),$(SCALE_TARGET),1)
