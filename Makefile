@@ -90,7 +90,7 @@ generate-environment-files:  ## Generate credential files used in each citool co
 	done
 
 generate-guest-setup:  ## Generate or update guest-setup tests.
-	TESTING_FARM_API_TOKEN=${TESTING_FARM_API_TOKEN} TESTING_FARM_API_URL=${TESTING_FARM_API_URL} poetry run python tests/worker/public/generate-guest-setup.py
+	TESTING_FARM_API_TOKEN=${TESTING_FARM_API_TOKEN_PUBLIC} TESTING_FARM_API_URL=${TESTING_FARM_API_URL} poetry run python tests/worker/public/generate-guest-setup.py
 
 list-worker-tests:  ## List available worker integration tests
 	poetry run pytest $(PYTEST_OPTIONS) -v --basetemp $$PROJECT_ROOT/.pytest --collect-only \
