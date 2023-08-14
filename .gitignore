@@ -1,14 +1,32 @@
 .gitignore
+
+# direnv cache directory
 .direnv
+
+# editor temporary files
 .vscode
-
-**/.terraform/
-**/terraform.tfstate*
-
-**/.vault_pass
-
 *~
 
+# terraform local cache
+**/.terraform/
+
+# terraform local state
+**/terraform.tfstate*
+
+# terragrunt generated files
+terragrunt/environments/**/backend.tf
+terragrunt/environments/**/provider.tf
+
+# terragrunt cache
+**/
+
+# terragrunt debug variables
+terragrunt-debug.tfvars.json
+
+# ansible vault secret
+**/.vault_pass
+
+# rendered environment.yaml files
 terraform/environments/*/ranch/*/citool-config/environment.yaml
 
 # secrets
@@ -17,8 +35,9 @@ terraform/environments/*/ranch/*/citool-config/environment.yaml
 # data maintained by direnv
 .direnv
 
-# pytest basedir
+# pytest temporary files
 .pytest
+report.html
 
 # rendered template files
 **/.rendered
