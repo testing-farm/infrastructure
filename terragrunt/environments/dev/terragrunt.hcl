@@ -17,9 +17,9 @@ inputs = {
 }
 
 generate "provider" {
-  path = "provider.tf"
+  path      = "provider.tf"
   if_exists = "overwrite_terragrunt"
-  contents = <<EOF
+  contents  = <<EOF
 provider "aws" {
 
   region = "${local.aws_region}"
@@ -37,7 +37,7 @@ EOF
 generate "backend" {
   path      = "backend.tf"
   if_exists = "overwrite_terragrunt"
-  contents = <<EOF
+  contents  = <<EOF
 terraform {
   backend "local" {}
 }
