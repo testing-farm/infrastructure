@@ -30,4 +30,4 @@
     - GUEST is defined
     - GUEST.artemis_id is defined
     - aws_metadata_response is defined
-    - aws_metadata_response.stdout == 200
+    - aws_metadata_response.stdout == "200"
