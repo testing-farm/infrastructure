@@ -5,7 +5,10 @@ include "root" {
 
 # Read parent configuration
 locals {
-  common = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
+  common        = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
+  route53_zone  = local.common.inputs.route53_zone
+  namespace     = get_env("TF_VAR_artemis_namespace", "default")
+  domain_suffix = local.namespace == "default" ? "" : "-${local.namespace}"
 }
 
 # Use eks module from this repository
@@ -37,13 +40,13 @@ inputs = {
 
   # Strip `testing-farm-` from the cluster name as use that to construct the artemis API domain name.
   # For example for `testing-farm-production` cluster that would be `artemis.production.testing-farm.io`
-  api_domain = "artemis.${trimprefix(dependency.eks.outputs.cluster.cluster_name, "testing-farm-")}.${local.common.inputs.route53_zone}"
+  api_domain = "artemis.${trimprefix(dependency.eks.outputs.cluster.cluster_name, "testing-farm-")}${local.domain_suffix}.${local.common.inputs.route53_zone}"
 
   # Add localhost access to artemis and guests
   localhost_access = true
 
   release_name = "artemis"
-  namespace    = "default"
+  namespace    = local.namespace
   image_tag    = "v0.0.57"
 
   ansible_vault_password_file = get_env("TF_VAR_ansible_vault_password_file")
