@@ -55,12 +55,13 @@ workflow:
         - terraform/*.tftpl
         - .envrc
 
-  terraform_dev:
+  terragrunt_dev:
     - !reference [.rules, terraform_infra]
     - changes:
         - Makefile
         - poetry.lock
-        - terraform/environments/dev/**/*
+        - terragrunt/modules/**/*
+        - terragrunt/environments/dev/**/*
 
   terraform_staging:
     - !reference [.rules, terraform_infra]
@@ -159,7 +160,7 @@ test/dev:
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
-    - !reference [.rules, terraform_dev]
+    - !reference [.rules, terragrunt_dev]
     - !reference [.rules, public_tests]
 
 test/staging:

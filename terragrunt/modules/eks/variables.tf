@@ -3,8 +3,28 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "aws_region" {
+  description = "Name of AWS region"
+  type        = string
+}
+
+variable "ansible_vault_password_file" {
+  description = "Path to ansible vault password file."
+  type        = string
+}
+
+variable "ansible_vault_credentials" {
+  description = "Path to ansible vault-encrypted credentials."
+  type        = string
+}
+
+variable "ansible_vault_secrets_root" {
+  description = "Path to the root directory with ansible vault secrets."
+  type        = string
+}
+
 variable "route53_zone" {
-  description = "Name of AWS Route53 zone to create a subdomain for the cluster in"
+  description = "Name of AWS Route53 zone for DNS management"
   type        = string
 }
 
