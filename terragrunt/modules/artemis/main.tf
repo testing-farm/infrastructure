@@ -15,15 +15,10 @@ terraform {
     helm = {
       version = ">=2.9.0"
     }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = ">=2.18.1"
-    }
   }
 }
 
 locals {
-  external_dns_namespace = "kube-addons"
   artemis_lb_source_ranges = distinct(sort([
     for ip in concat(
       # Additional IPs from input variables
@@ -102,23 +97,6 @@ provider "helm" {
   }
 }
 
-provider "kubernetes" {
-  host                   = var.cluster_endpoint
-  cluster_ca_certificate = base64decode(var.cluster_certificate_authority_data)
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args = [
-      "--region",
-      var.cluster_aws_region,
-      "eks",
-      "get-token",
-      "--cluster-name",
-      var.cluster_name
-    ]
-    command = "aws"
-  }
-}
-
 data "ansiblevault_path" "artemis_additional_ips" {
   path = var.ansible_vault_credentials
   key  = "artemis.additional_ips"
@@ -147,90 +125,14 @@ data "ansiblevault_path" "vault_ssh_key" {
   key      = var.ssh_keys[count.index].key
 }
 
-resource "kubernetes_namespace" "kube-addons-ns" {
-  metadata {
-    name = local.external_dns_namespace
-  }
-}
-
-resource "kubernetes_secret" "aws-credentials-secret" {
-  depends_on = [kubernetes_namespace.kube-addons-ns]
-
-  metadata {
-    name      = "aws-credentials"
-    namespace = local.external_dns_namespace
-  }
-
-  data = {
-    "credentials" = <<EOF
-[default]
-aws_access_key_id = ${sensitive(data.ansiblevault_path.pool_access_key_aws.value)}
-aws_secret_access_key = ${sensitive(data.ansiblevault_path.pool_secret_key_aws.value)}
-EOF
-  }
-}
-
-resource "helm_release" "external-dns" {
-  depends_on = [
-    kubernetes_namespace.kube-addons-ns,
-    kubernetes_secret.aws-credentials-secret
-  ]
-
-  name       = "external-dns"
-  repository = "https://kubernetes-sigs.github.io/external-dns/"
-  chart      = "external-dns"
-  version    = "1.11.0"
-
-  namespace = local.external_dns_namespace
-
-  set {
-    name  = "provider"
-    value = "aws"
-  }
-
-  set {
-    name  = "txtOwnerId"
-    value = var.cluster_name
-  }
-
-  set {
-    name  = "domainFilters"
-    value = "{${var.route53_zone}}"
-  }
-
-  set {
-    name  = "policy"
-    value = "sync"
-  }
-
-  values = [
-    <<EOF
-env:
-  - name: AWS_SHARED_CREDENTIALS_FILE
-    value: /.aws/credentials
-extraVolumes:
-  - name: aws-credentials
-    secret:
-      secretName: aws-credentials
-extraVolumeMounts:
-  - name: aws-credentials
-    mountPath: /.aws
-    readOnly: true
-EOF
-  ]
-
-  set {
-    name  = "extraArgs"
-    value = "{--aws-zone-type=public}"
-  }
-}
-
 resource "helm_release" "artemis" {
   name       = var.release_name
   repository = "https://testing-farm.gitlab.io/artemis-helm/dev"
   chart      = "artemis-core"
   version    = "0.0.3"
   namespace  = var.namespace
+
+  create_namespace = true
 
   atomic        = true
   timeout       = 600

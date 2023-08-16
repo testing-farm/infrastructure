@@ -198,8 +198,3 @@ variable "cluster_certificate_authority_data" {
   description = "Certificate authority data of the EKS cluster."
   type        = string
 }
-
-variable "route53_zone" {
-  description = "Route 53 zone name of the deployment."
-  type        = string
-}

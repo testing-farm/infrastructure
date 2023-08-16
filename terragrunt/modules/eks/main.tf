@@ -1,9 +1,68 @@
 terraform {
   required_version = ">=1.2.0"
   required_providers {
+    ansiblevault = {
+      source  = "MeilleursAgents/ansiblevault"
+      version = ">=2.2.0"
+    }
     aws = {
       version = ">=4.0.0"
     }
+    external = {
+      version = ">=2.2.0"
+    }
+    helm = {
+      version = ">=2.9.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">=2.18.1"
+    }
+  }
+}
+
+locals {
+  kube_addons_namespace = "kube-addons"
+}
+
+provider "ansiblevault" {
+  vault_path  = var.ansible_vault_password_file
+  root_folder = var.ansible_vault_secrets_root
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args = [
+        "--region",
+        var.aws_region,
+        "eks",
+        "get-token",
+        "--cluster-name",
+        var.cluster_name
+      ]
+      command = "aws"
+    }
+  }
+}
+
+provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args = [
+      "--region",
+      var.aws_region,
+      "eks",
+      "get-token",
+      "--cluster-name",
+      var.cluster_name
+    ]
+    command = "aws"
   }
 }
 
@@ -71,6 +130,16 @@ data "aws_route53_zone" "testing_farm_zone" {
   name = var.route53_zone
 }
 
+data "ansiblevault_path" "pool_access_key_aws" {
+  path = var.ansible_vault_credentials
+  key  = "credentials.aws.fedora.access_key"
+}
+
+data "ansiblevault_path" "pool_secret_key_aws" {
+  path = var.ansible_vault_credentials
+  key  = "credentials.aws.fedora.secret_key"
+}
+
 resource "aws_route53_record" "eks-friendly-endpoint" {
   zone_id = data.aws_route53_zone.testing_farm_zone.zone_id
   name    = "api.${module.eks.cluster_name}.eks.${data.aws_route53_zone.testing_farm_zone.name}"
@@ -85,4 +154,82 @@ resource "aws_ec2_tag" "subnet_tag" {
   resource_id = var.subnets[count.index]
   key         = "kubernetes.io/cluster/${module.eks.cluster_name}"
   value       = "shared"
+}
+
+resource "kubernetes_namespace" "kube-addons-ns" {
+  metadata {
+    name = local.kube_addons_namespace
+  }
+}
+
+resource "kubernetes_secret" "aws-credentials-secret" {
+  depends_on = [kubernetes_namespace.kube-addons-ns]
+
+  metadata {
+    name      = "aws-credentials"
+    namespace = local.kube_addons_namespace
+  }
+
+  data = {
+    "credentials" = <<EOF
+[default]
+aws_access_key_id = ${sensitive(data.ansiblevault_path.pool_access_key_aws.value)}
+aws_secret_access_key = ${sensitive(data.ansiblevault_path.pool_secret_key_aws.value)}
+EOF
+  }
+}
+
+resource "helm_release" "external-dns" {
+  depends_on = [
+    kubernetes_namespace.kube-addons-ns,
+    kubernetes_secret.aws-credentials-secret
+  ]
+
+  name       = "external-dns"
+  repository = "https://kubernetes-sigs.github.io/external-dns/"
+  chart      = "external-dns"
+  version    = "1.11.0"
+
+  namespace = local.kube_addons_namespace
+
+  set {
+    name  = "provider"
+    value = "aws"
+  }
+
+  set {
+    name  = "txtOwnerId"
+    value = var.cluster_name
+  }
+
+  set {
+    name  = "domainFilters"
+    value = "{${var.route53_zone}}"
+  }
+
+  set {
+    name  = "policy"
+    value = "sync"
+  }
+
+  values = [
+    <<EOF
+env:
+  - name: AWS_SHARED_CREDENTIALS_FILE
+    value: /.aws/credentials
+extraVolumes:
+  - name: aws-credentials
+    secret:
+      secretName: aws-credentials
+extraVolumeMounts:
+  - name: aws-credentials
+    mountPath: /.aws
+    readOnly: true
+EOF
+  ]
+
+  set {
+    name  = "extraArgs"
+    value = "{--aws-zone-type=public}"
+  }
 }
