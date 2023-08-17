@@ -3,15 +3,15 @@
 skip = true
 
 locals {
-  # development environments are hosted in this region
-  aws_region        = "us-east-2"
+  # staging environment is hosted in this region
+  aws_region        = "us-east-1"
   aws_region_guests = "us-east-2"
   # Use json to pass a map to the provider
   # https://github.com/gruntwork-io/terragrunt/issues/1961
   aws_tags = jsonencode({
     FedoraGroup  = "ci"
     ServiceOwner = "TFT"
-    ServicePhase = "Dev"
+    ServicePhase = "Stage"
   })
 }
 
@@ -19,6 +19,7 @@ locals {
 inputs = {
   aws_region   = local.aws_region
   route53_zone = "testing-farm.io"
+  cluster_name = "testing-farm-staging"
 }
 
 generate "provider" {
@@ -57,7 +58,14 @@ generate "backend" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 terraform {
-  backend "local" {}
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "testing-farm"
+
+    workspaces {
+      name = "staging-${path_relative_to_include()}"
+    }
+  }
 }
 EOF
 }

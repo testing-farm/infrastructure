@@ -16,6 +16,9 @@ CITOOL_EXTRA_PODMAN_ARGS ?= --pull newer
 # default worker image
 WORKER_IMAGE ?= quay.io/testing-farm/worker:latest
 
+# default development cluster name
+DEV_CLUSTER_NAME ?= $(or $(TF_VAR_cluster_name),testing-farm-dev-$$USER)
+
 # run in parallel 5 tests
 PYTEST_PARALLEL_OPTIONS ?= -d --tx 5*popen//python=python3.9
 
@@ -34,49 +37,83 @@ old-plan-dev:  ## Plan the building of the development environment
 
 old-apply-dev:  ## Build the development environment
 	terraform -chdir=terraform/environments/dev apply -auto-approve
-	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
+	aws eks --region us-east-2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
 
 old-destroy-dev: terminate-artemis-guests-dev  ## Destroy the development environment
 	terraform -chdir=terraform/environments/dev destroy -auto-approve
 
-##@ Infrastructure | Development
+##@ Infrastructure | Dev
 
 define run_terragrunt
 	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1 terragrunt run-all $2 --terragrunt-non-interactive
 endef
 
 define run_terragrunt_app
-	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve
+	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3
 endef
 
-dev/init:  ## Initialize the AWS development environment
+dev/init:  ## Initialize the development environment
 	$(call run_terragrunt,dev,init)
 
-dev/plan:  ## Plan the building of the AWS development environment
+dev/plan:  ## Plan the building of the development environment
 	$(call run_terragrunt,dev,plan)
 
-dev/plan/eks:  ## Plan the building of the AWS development environment / eks module only
+dev/plan/eks:  ## Plan the building of the development environment / eks module only
 	$(call run_terragrunt_app,dev,eks,plan)
 
-dev/plan/artemis:  ## Plan the building of the AWS development environment / eks module only
+dev/plan/artemis:  ## Plan the building of the development environment / eks module only
 	$(call run_terragrunt_app,dev,artemis,plan)
 
-dev/apply:  ## Build the AWS development environment
+dev/apply:  ## Build the development environment
 	$(call run_terragrunt,dev,apply)
-	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
+	aws eks --region us-east-2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
 
-dev/apply/eks:  ## Build the AWS development environment / eks module only
-	$(call run_terragrunt_app,dev,eks,apply)
-	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
+dev/apply/eks:  ## Build the development environment / eks module only
+	$(call run_terragrunt_app,dev,eks,apply -auto-approve)
+	aws eks --region us-east-2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
 
-dev/apply/artemis:  ## Build the AWS development environment / eks module only
-	$(call run_terragrunt_app,dev,artemis,apply)
-	aws eks --region us-east-2 update-kubeconfig --name $$TF_VAR_cluster_name
+dev/apply/artemis:  ## Build the development environment / eks module only
+	$(call run_terragrunt_app,dev,artemis,apply -auto-approve)
 
 # TODO: enable terminating artemis guests later
-# dev/destroy: terminate-artemis-guests-dev  ## Destroy the AWS development environment
-dev/destroy:  ## Destroy the AWS development environment
+# dev/destroy: terminate-artemis-guests-dev  ## Destroy the development environment
+dev/destroy:  ## Destroy the development environment
 	$(call run_terragrunt,dev,destroy)
+
+##@ Infrastructure | Staging
+
+staging/init:  ## Initialize the staging environment
+	$(call run_terragrunt_app,staging,eks,init)
+	$(call run_terragrunt_app,staging,artemis,init)
+
+staging/plan:  ## Plan the building of the staging environment
+	$(call run_terragrunt_app,staging,eks,plan)
+	$(call run_terragrunt_app,staging,artemis,plan)
+
+staging/plan/eks:  ## Plan the building of the staging environment / eks module only
+	$(call run_terragrunt_app,staging,eks,plan)
+
+staging/plan/artemis:  ## Plan the building of the staging environment / eks module only
+	$(call run_terragrunt_app,staging,artemis,plan)
+
+staging/apply:  ## Build the staging environment
+	$(call run_terragrunt_app,staging,eks,apply -auto-approve)
+	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
+	aws eks --region us-east-1 update-kubeconfig --name testing-farm-staging
+
+staging/apply/eks:  ## Build the staging environment / eks module only
+	$(call run_terragrunt_app,staging,eks,apply -auto-approve)
+	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
+	aws eks --region us-east-1 update-kubeconfig --name testing-farm-staging
+
+staging/apply/artemis:  ## Build the staging environment / eks module only
+	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
+
+# TODO: enable terminating artemis guests later
+# staging/destroy: terminate-artemis-guests-dev  ## Destroy the staging environment
+staging/destroy:  ## Destroy the staging environment
+	$(call run_terragrunt_app,staging,artemis,destroy -auto-approve)
+	$(call run_terragrunt_app,staging,eks,destroy -auto-approve)
 
 ##@ Tests
 

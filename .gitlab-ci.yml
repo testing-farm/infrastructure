@@ -138,7 +138,7 @@ pre-commit:
   script:
     - !reference [.direnv, script]
     # Need to init the modules, or pre-commit terragrunt_validate will fail :(
-    - make dev/init
+    - make dev/init staging/init
     - PRE_COMMIT_HOME=$CI_PROJECT_DIR/.cache/pre-commit pre-commit run --all-files
   rules:
     - !reference [.rules, not_default_branch]
@@ -172,8 +172,7 @@ test/staging:
   variables:
     SCRIPT_DIR: terraform/environments/staging
     SCRIPT: >-
-      terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR plan -lock-timeout=5m
+      make staging/plan
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
@@ -205,9 +204,9 @@ redeploy/staging:
   variables:
     SCRIPT_DIR: terraform/environments/staging
     SCRIPT: >-
-      terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR destroy -auto-approve &&
-      terraform -chdir=$SCRIPT_DIR apply -auto-approve
+      make staging/destroy &&
+      make staging/init &&
+      make staging/apply
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, only_schedule]
