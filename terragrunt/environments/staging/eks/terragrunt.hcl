@@ -12,14 +12,14 @@ terraform {
 }
 
 inputs = {
-  cluster_name = get_env("TF_VAR_cluster_name", "testing-farm-dev-${get_env("USER", "unknown")}")
-  eks_version  = 1.25
+  # cluster_name is set by direnv
+  eks_version = 1.25
 
   # aws_region is set in the parent
   # route53_zone is set in the parent
 
-  vpc_id                    = "vpc-0f6baa3d6bae8d912"
-  subnets                   = ["subnet-010f90da92f36876e", "subnet-0a704a759f7671044"]
+  vpc_id                    = "vpc-0896aedab4753e76f"
+  subnets                   = ["subnet-029d836119c84a77e", "subnet-03089904253762f32"]
   node_group_instance_types = ["c5.2xlarge"]
   node_group_disk_size      = 500
   node_group_scaling = {

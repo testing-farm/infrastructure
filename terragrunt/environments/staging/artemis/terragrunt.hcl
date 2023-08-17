@@ -81,9 +81,6 @@ inputs = {
   api_processes = 2
   api_threads   = 1
 
-  # TODO: add in the modules automatically
-  # guest_security_group_id = aws_security_group.allow_guest_traffic.id
-
   worker_extra_env = [
     {
       name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_x86_64",
@@ -103,14 +100,14 @@ inputs = {
     }
   ]
 
-  worker_replicas  = 1
+  worker_replicas  = 2
   worker_processes = 2
-  worker_threads   = 1
+  worker_threads   = 2
 
   resources = {
     artemis_api = {
       limits = {
-        memory = "512Mi"
+        memory = "2Gi"
       }
       requests = {
         cpu    = "100m"
@@ -120,7 +117,7 @@ inputs = {
 
     artemis_dispatcher = {
       limits = {
-        memory = "128Mi"
+        memory = "1Gi"
       }
       requests = {
         cpu    = "100m"
@@ -150,7 +147,7 @@ inputs = {
 
     artemis_scheduler = {
       limits = {
-        memory = "128Mi"
+        memory = "2Gi"
       }
       requests = {
         cpu    = "50m"
@@ -160,7 +157,7 @@ inputs = {
 
     artemis_worker = {
       limits = {
-        memory = "512Mi"
+        memory = "6Gi"
       }
       requests = {
         cpu    = "150m"
@@ -170,7 +167,7 @@ inputs = {
 
     rabbitmq = {
       limits = {
-        memory = "512Mi"
+        memory = "4Gi"
       }
       requests = {
         cpu    = "200m"
@@ -180,7 +177,7 @@ inputs = {
 
     postgresql = {
       limits = {
-        memory = "256Mi"
+        memory = "8Gi"
       }
       requests = {
         cpu    = "100m"
@@ -200,7 +197,7 @@ inputs = {
 
     redis = {
       limits = {
-        memory = "48Mi"
+        memory = "256Mi"
       }
       requests = {
         cpu    = "100m"

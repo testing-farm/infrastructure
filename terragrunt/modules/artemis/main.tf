@@ -59,6 +59,7 @@ resource "aws_security_group" "allow_guest_traffic" {
   name        = "${var.cluster_name}-allow-guest-traffic"
   description = "Allow traffic for development from localhost"
   vpc_id      = "vpc-a4f084cd"
+  provider    = aws.artemis_guests
 
   ingress {
     from_port   = 22
