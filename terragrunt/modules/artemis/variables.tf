@@ -185,7 +185,12 @@ variable "cluster_name" {
 }
 
 variable "cluster_aws_region" {
-  description = "Default region of the EKS cluster."
+  description = "AWS region of the EKS cluster."
+  type        = string
+}
+
+variable "guests_aws_region" {
+  description = "AWS region of the provisioned AWS guests."
   type        = string
 }
 

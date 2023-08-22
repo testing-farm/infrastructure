@@ -17,8 +17,10 @@ locals {
 
 # shared inputs
 inputs = {
-  aws_region   = local.aws_region
-  route53_zone = "testing-farm.io"
+  aws_region        = local.aws_region
+  aws_region_guests = local.aws_region_guests
+  route53_zone      = "testing-farm.io"
+  # NOTE cluster_name is generated, see `eks/terragrunt.hcl`
 }
 
 generate "provider" {

@@ -38,6 +38,7 @@ inputs = {
   cluster_endpoint                   = dependency.eks.outputs.cluster.cluster_endpoint
   cluster_certificate_authority_data = dependency.eks.outputs.cluster.cluster_certificate_authority_data
   cluster_aws_region                 = local.common.inputs.aws_region
+  guests_aws_region                  = local.common.inputs.aws_region_guests
 
   # Strip `testing-farm-` from the cluster name as use that to construct the artemis API domain name.
   # For example for `testing-farm-production` cluster that would be `artemis.production.testing-farm.io`

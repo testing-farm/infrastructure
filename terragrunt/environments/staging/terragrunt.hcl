@@ -17,9 +17,10 @@ locals {
 
 # shared inputs
 inputs = {
-  aws_region   = local.aws_region
-  route53_zone = "testing-farm.io"
-  cluster_name = "testing-farm-staging"
+  aws_region        = local.aws_region
+  aws_region_guests = local.aws_region_guests
+  route53_zone      = "testing-farm.io"
+  cluster_name      = "testing-farm-staging"
 }
 
 generate "provider" {
