@@ -52,26 +52,49 @@ You can try to reinstall the environment by removing the `.direnv` directory and
 $ kubectl ctx
 ....
 
-== Terraform
+== Make
 
-We use Terraform to provision infrastructure.
+We use `make` to manage common actions.
+Run the command to see the available targets with descriptions.
 
-=== Development Environment
+== Terragrunt and Terraform
 
-To provision a infrastructure for development:
+We use https://www.terraform.io/[Terraform] to setup the infrastructure.
+To make the Terraform code DRY we use https://terragrunt.gruntwork.io/[Terragrunt].
 
-* initialize the Terraform `dev` environment
+The infrastructure code is located in the link:terragrunt/[terragrunt/] directory.
+
+== Development Environment
+
+Development environment is intended for development of infrastructure and testing changes without influencing any other environment.
+The state of the infrastructure is saved locally, i.e. it uses the https://developer.hashicorp.com/terraform/language/settings/backends/local[`local` terraform backend].
+
+Currently, the environment contains:
+
+* AWS EKS kubernetes cluster
+* Artemis instance
+
+The name of the cluster and Artemis API endpoint is generated according to your local username.
+
+For example, for the user `mvadkert`:
+
+* the cluster name is `testing-farm-dev-mvadkert`
+* the Artemis API endpoint is `artemis.dev-mvadkert.testing-farm.io`
+
+To provision a complete infrastructure on Fedora AWS for development:
+
+* initialize the `dev` environment
 +
 [source,shell]
 ....
-make init-dev
+make dev/init
 ....
 +
 * create development environment with your own AWS EKS cluster and all available services in development mode
 +
 [source,shell]
 ....
-make build-dev
+make dev/apply
 ....
 +
 * develop & have fun
@@ -79,5 +102,42 @@ make build-dev
 +
 [source,shell]
 ....
-make destroy-dev
+make dev/destroy
 ....
+
+== Staging Environment
+
+The staging environment serves as a preview of our production environment.
+The state of the infrastructure is saved to Terraform Cloud.
+
+Currently, the environment contains:
+
+* AWS EKS kubernetes cluster
+* Artemis instance
+
+Other components are not yet maintained here.
+
+Details of the deployment:
+
+* the cluster name is `testing-farm-staging`
+* the Artemis API endpoint is `artemis.dev-mvadkert.testing-farm.io`
+
+== Integration Tests
+
+=== Worker integration tests
+
+We currently support running worker integration tests against the <<Development Environment>> or <<Staging Environment>>.
+
+* to run all worker tests against your local <<Development Environment>> run `make test/dev/worker`
+* to run only guest-setup worker tests against your local <<Development Environment>> run `make test/dev/guest-setup`
+
+* to run all worker tests against <<Staging Environment>> run `make test/staging/worker`
+* to run only guest-setup worker tests against <<Staging Environment>> run `make test/staging/guest-setup`
+
+== Updating composes
+
+To update composes on Public Ranch:
+
+* run `make compose-update-public`
+* submit a MR with the changes
+* the changes will be deployed once the MR is merged
