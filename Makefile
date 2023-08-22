@@ -2,13 +2,13 @@
 
 .PHONY: clean help test-worker-redhat test-worker-public generate-environment-variables
 
-DEV_ENVIRONMENT_VARIABLES := terragrunt/environments/dev/worker/citool-config/environment.yaml \
-                             terragrunt/environments/dev/worker/citool-config/environment.yaml
+ENVIRONMENT_VARIABLES := terragrunt/environments/dev/worker/citool-config/environment.yaml \
+                         terragrunt/environments/staging/worker/citool-config/environment.yaml
 
-DEV_ENVIRONMENT_KEYS := terragrunt/environments/dev/worker/citool-config/id_rsa_artemis.decrypted \
-                        terragrunt/environments/dev/worker/citool-config/id_rsa_artemis.decrypted
+ENVIRONMENT_KEYS := terragrunt/environments/dev/worker/citool-config/id_rsa_artemis.decrypted \
+                    terragrunt/environments/staging/worker/citool-config/id_rsa_artemis.decrypted
 
-DEV_ENVIRONMENT_FILES := $(DEV_ENVIRONMENT_VARIABLES) $(DEV_ENVIRONMENT_KEYS)
+ENVIRONMENT_FILES := $(ENVIRONMENT_VARIABLES) $(ENVIRONMENT_KEYS)
 
 # pull image by default
 CITOOL_EXTRA_PODMAN_ARGS ?= --pull newer
@@ -113,41 +113,36 @@ staging/destroy: terminate/artemis/guests/staging  ## Destroy the staging enviro
 
 ##@ Tests
 
-test-worker-public: wait-artemis-available $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
-	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m public -v --basetemp $$PROJECT_ROOT/.pytest \
+define run_pytest_gluetool
+	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m $2 -v --basetemp $$PROJECT_ROOT/.pytest \
 	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
-	--citool-config terraform/environments/dev/ranch/public/citool-config --citool-image $(WORKER_IMAGE) \
+	--citool-config terragrunt/environments/$1/worker/citool-config --citool-image $(WORKER_IMAGE) \
 	--test-assets tests/worker \
-	--variables terraform/environments/dev/ranch/public/citool-config/variables.yaml \
+	--variables terragrunt/environments/$1/worker/citool-config/variables.yaml \
 	--variables tests/common.yaml \
 	--html report.html tests/worker/test_pipeline.py
+endef
 
-test-worker-redhat: $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for redhat ranch against dev environment
-	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m redhat -v --basetemp $$PROJECT_ROOT/.pytest \
-	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
-	--citool-config terraform/environments/dev/ranch/redhat/citool-config --citool-image $(WORKER_IMAGE) \
-	--test-assets tests/worker \
-	--variables terraform/environments/dev/ranch/redhat/citool-config/variables.yaml \
-	--variables tests/common.yaml \
-	--html report.html tests/worker/test_pipeline.py
+test/dev/worker: wait/artemis/dev $(ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
+	$(call run_pytest_gluetool,dev,public)
 
-test-guest-setup: wait-artemis-available $(DEV_ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
-	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m guest-setup -v --basetemp $$PROJECT_ROOT/.pytest \
-	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
-	--citool-config terraform/environments/dev/ranch/public/citool-config --citool-image $(WORKER_IMAGE) \
-	--test-assets tests/worker \
-	--variables terraform/environments/dev/ranch/public/citool-config/variables.yaml \
-	--variables tests/common.yaml \
-	--html report.html tests/worker/test_pipeline.py
+test/dev/guest-setup: wait/artemis/dev $(ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
+	$(call run_pytest_gluetool,dev,guest-setup)
+
+test/staging/worker: wait/artemis/staging $(ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
+	$(call run_pytest_gluetool,staging,public)
+
+test/staging/guest-setup: wait/artemis/staging $(ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
+	$(call run_pytest_gluetool,staging,guest-setup)
 
 ##@ Utility
 
-$(DEV_ENVIRONMENT_FILES):
+$(ENVIRONMENT_FILES):
 	# Generate `environment.yaml` variable files
 	poetry run python setup/generate_environment.py
 
 	# Decrypt ssh keys
-	for key in $(DEV_ENVIRONMENT_KEYS); do \
+	for key in $(ENVIRONMENT_KEYS); do \
 		echo "Decrypting $${key%.decrypted}..."; \
 		ansible-vault decrypt --vault-password-file .vault_pass --output $${key} $${key%.decrypted}; \
 	done
@@ -157,13 +152,13 @@ generate/environment/files:  ## Generate credential files used in each citool co
 	poetry run python setup/generate_environment.py
 
 	# Decrypt ssh keys
-	for key in $(DEV_ENVIRONMENT_KEYS); do \
+	for key in $(ENVIRONMENT_KEYS); do \
 		echo "Decrypting $${key%.decrypted}..."; \
 		ansible-vault decrypt --vault-password-file .vault_pass --output $${key} $${key%.decrypted}; \
 	done
 
 generate-guest-setup:  ## Generate or update guest-setup tests.
-	TESTING_FARM_API_TOKEN=${TESTING_FARM_API_TOKEN_PUBLIC} TESTING_FARM_API_URL=${TESTING_FARM_API_URL} poetry run python tests/worker/public/generate-guest-setup.py
+	@TESTING_FARM_API_TOKEN=${TESTING_FARM_API_TOKEN_PUBLIC} TESTING_FARM_API_URL=${TESTING_FARM_API_URL} poetry run python tests/worker/public/generate-guest-setup.py
 
 list-worker-tests:  ## List available worker integration tests
 	poetry run pytest $(PYTEST_OPTIONS) -v --basetemp $$PROJECT_ROOT/.pytest --collect-only \
