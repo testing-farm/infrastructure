@@ -13,6 +13,7 @@ from typing import Union
 
 
 SecretsType = dict[str, Union[str, 'SecretsType']]
+SUPPORTED_ENVIRONMENTS = ['dev', 'staging']
 
 
 def main() -> None:
@@ -25,8 +26,8 @@ def main() -> None:
     vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(vault_pass.encode()))])
     credentials_decrypted: SecretsType = ruamel.yaml.safe_load(vault.decrypt(credentials_encrypted))
 
-    for ranch in ['redhat', 'public']:
-        template_dirpath = os.path.join('terraform', 'environments', 'dev', 'ranch', ranch, 'citool-config')
+    for environment in SUPPORTED_ENVIRONMENTS:
+        template_dirpath = os.path.join('terragrunt', 'environments', environment, 'worker', 'citool-config')
         template_filepath = os.path.join(template_dirpath, 'environment.yaml.j2')
         result_template_filepath = os.path.join(template_dirpath, 'environment.yaml')
 

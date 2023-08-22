@@ -2,11 +2,11 @@
 
 .PHONY: clean help test-worker-redhat test-worker-public generate-environment-variables
 
-DEV_ENVIRONMENT_VARIABLES := terraform/environments/dev/ranch/public/citool-config/environment.yaml \
-                             terraform/environments/dev/ranch/redhat/citool-config/environment.yaml
+DEV_ENVIRONMENT_VARIABLES := terragrunt/environments/dev/worker/citool-config/environment.yaml \
+                             terragrunt/environments/dev/worker/citool-config/environment.yaml
 
-DEV_ENVIRONMENT_KEYS := terraform/environments/dev/ranch/public/citool-config/id_rsa_artemis.decrypted \
-                        terraform/environments/dev/ranch/redhat/citool-config/id_rsa_artemis.decrypted
+DEV_ENVIRONMENT_KEYS := terragrunt/environments/dev/worker/citool-config/id_rsa_artemis.decrypted \
+                        terragrunt/environments/dev/worker/citool-config/id_rsa_artemis.decrypted
 
 DEV_ENVIRONMENT_FILES := $(DEV_ENVIRONMENT_VARIABLES) $(DEV_ENVIRONMENT_KEYS)
 
@@ -156,7 +156,7 @@ $(DEV_ENVIRONMENT_FILES):
 		ansible-vault decrypt --vault-password-file .vault_pass --output $${key} $${key%.decrypted}; \
 	done
 
-generate-environment-files:  ## Generate credential files used in each citool configuration.
+generate/environment/files:  ## Generate credential files used in each citool configuration.
 	# Generate `environment.yaml` variable files
 	poetry run python setup/generate_environment.py
 

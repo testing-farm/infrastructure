@@ -1,0 +1,10 @@
+[testing-farm-tag-repository]
+name=Tag repository for {{ tag_repository_name }}
+baseurl={{ tag_repository_url }}
+gpgcheck=0
+enabled=1
+priority=9
+skip_if_unavailable=True
+# See TFT-847 - glibc32*
+# See TFT-1284 - beakerlib
+exclude=glibc32* beakerlib

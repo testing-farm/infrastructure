@@ -27,7 +27,7 @@ terragrunt-debug.tfvars.json
 **/.vault_pass
 
 # rendered environment.yaml files
-terraform/environments/*/ranch/*/citool-config/environment.yaml
+terragrunt/environments/*/worker/citool-config/environment.yaml
 
 # secrets
 .vault_pass
