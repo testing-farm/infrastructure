@@ -75,9 +75,7 @@ dev/apply/eks:  ## Build the development environment / eks module only
 dev/apply/artemis:  ## Build the development environment / eks module only
 	$(call run_terragrunt_app,dev,artemis,apply -auto-approve)
 
-# TODO: enable terminating artemis guests later
-# dev/destroy: terminate-artemis-guests-dev  ## Destroy the development environment
-dev/destroy:  ## Destroy the development environment
+dev/destroy: terminate/artemis/guests/dev  ## Destroy the development environment
 	$(call run_terragrunt,dev,destroy)
 
 ##@ Infrastructure | Staging
@@ -109,9 +107,7 @@ staging/apply/eks:  ## Build the staging environment / eks module only
 staging/apply/artemis:  ## Build the staging environment / eks module only
 	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
 
-# TODO: enable terminating artemis guests later
-# staging/destroy: terminate-artemis-guests-dev  ## Destroy the staging environment
-staging/destroy:  ## Destroy the staging environment
+staging/destroy: terminate/artemis/guests/staging  ## Destroy the staging environment
 	$(call run_terragrunt_app,staging,artemis,destroy -auto-approve)
 	$(call run_terragrunt_app,staging,eks,destroy -auto-approve)
 
@@ -175,8 +171,11 @@ list-worker-tests:  ## List available worker integration tests
 	--test-assets tests/worker \
 	--html report.html tests/worker/test_pipeline.py
 
-terminate-artemis-guests-dev:  ## Terminate all EC2 instances from the dev environment created by Artemis
-	@bash setup/terminate_artemis_guests_dev.sh
+terminate/artemis/guests/dev:  ## Terminate all EC2 instances from the dev environment created by Artemis
+	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh dev
+
+terminate/artemis/guests/staging:  ## Terminate all EC2 instances from the staging environment created by Artemis
+	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging
 
 wait-artemis-available:  ## Wait until Artemis is available in the dev environment
 	@bash setup/wait_artemis_available_dev.sh
