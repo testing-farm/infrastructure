@@ -1,5 +1,7 @@
 [default]
 api-url = https://internal.api.dev.testing-farm.io
 api-key = {{ testing_farm_request_api_key }}
-# TFT-712
-retry-timeout = 600
+# See TFT-712
+# NOTE: due to integration testing, this is lowered
+# retry-timeout = 600
+retry-timeout = 1
