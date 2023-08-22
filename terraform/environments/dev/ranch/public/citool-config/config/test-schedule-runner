@@ -1,3 +1,0 @@
-[default]
-parallelize = yes
-max-parallel = 12

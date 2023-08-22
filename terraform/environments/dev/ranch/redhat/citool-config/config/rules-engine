@@ -1,2 +1,0 @@
-[default]
-variables = ${config_root}/variables.yaml,${config_root}/environment.yaml

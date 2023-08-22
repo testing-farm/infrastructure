@@ -1,5 +1,0 @@
-[default]
-clone-url = {{ TESTING_FARM_REQUEST_TEST_URL }}
-ref = {{ TESTING_FARM_REQUEST_TEST_REF }}
-merge = {% if TESTING_FARM_REQUEST_MERGE %}{{ TESTING_FARM_REQUEST_MERGE }}{% endif %}
-clone-args = --recurse-submodules

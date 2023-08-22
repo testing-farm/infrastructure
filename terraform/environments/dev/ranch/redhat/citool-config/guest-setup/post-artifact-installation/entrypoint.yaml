@@ -1,4 +1,0 @@
----
-- hosts: all
-  tasks:
-    - include_tasks: create_test_repository.yaml
