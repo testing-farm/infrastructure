@@ -177,8 +177,11 @@ terminate/artemis/guests/dev:  ## Terminate all EC2 instances from the dev envir
 terminate/artemis/guests/staging:  ## Terminate all EC2 instances from the staging environment created by Artemis
 	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging
 
-wait-artemis-available:  ## Wait until Artemis is available in the dev environment
-	@bash setup/wait_artemis_available_dev.sh
+wait/artemis/dev:  ## Wait until Artemis is available in the dev environment
+	@bash setup/wait_artemis_available.sh dev
+
+wait/artemis/staging:  ## Wait until Artemis is available in the staging environment
+	@bash setup/wait_artemis_available.sh staging
 
 compose-update-public:  ## Update composes in the Public ranch
 	poetry run python setup/compose_update_public.py
