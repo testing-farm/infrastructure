@@ -2,7 +2,7 @@
 
 name: base-tmt_checks
 
-variable:
+variables:
   REQUEST_ID: change-me
   ARCH: change-me
   RESULT: change-me
