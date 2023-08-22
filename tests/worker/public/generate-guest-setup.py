@@ -7,7 +7,7 @@ from gluetool.glue import GlueCommandError
 
 GUEST_SETUP_PATH = "tests/worker/public/pipeline"
 TEMPLATE_FILENAME = "guest-setup-template.yaml.j2"
-COMPOSES_FILEPATH = "terraform/environments/dev/config/variables_images.yaml"
+COMPOSES_FILEPATH = "terragrunt/environments/dev/artemis/config/variables_images.yaml"
 TEST_FILENAME = "compose-{}-{}.yaml"
 PLAN = "/testing-farm/sanity"
 GIT_REF = "main"
