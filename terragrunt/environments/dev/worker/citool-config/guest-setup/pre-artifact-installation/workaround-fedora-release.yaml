@@ -1,0 +1,10 @@
+---
+# After branching it can easily happen that gpg keys need to be updated
+# https://bugzilla.redhat.com/show_bug.cgi?id=1872248
+- name: Workaround - update Fedora release and related packages
+  command: "dnf -y update --nogpgcheck fedora*"
+  when: 'ansible_distribution == "Fedora"'
+  retries: "{{ pkg_retry_count }}"
+  delay: "{{ pkg_retry_delay }}"
+  until: result_package is succeeded
+  register: result_package

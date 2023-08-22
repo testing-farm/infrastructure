@@ -1,0 +1,15 @@
+---
+#
+# AWS is changing sshd config, make sure we have "vanilla" config there.
+# https://pagure.io/fedora-ci/general/issue/192
+#
+- name: Remove AWS injected change to sshd config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: absent
+    regexp: '^PasswordAuthentication no$'
+
+- name: Reload sshd config
+  service:
+    name: sshd
+    state: reloaded

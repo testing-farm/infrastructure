@@ -1,0 +1,4 @@
+[default]
+overall-result-map = ${config_root}/overall-result-map.yaml
+state-map = ${config_root}/state-map.yaml
+summary-map = ${config_root}/summary-map.yaml
