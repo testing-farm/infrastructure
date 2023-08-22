@@ -7,9 +7,21 @@
 # run sooner as Artemis is resolvable via DNS.
 #
 
+error() {
+    echo -e "\033[0;31m[E] $*\033[0m"
+    exit 1
+}
+
+[ -z "$1" ] && error "Environment name required!"
+
 timeout=300
-environment=$PROJECT_ROOT/terragrunt/environments/dev/artemis
+environment=$PROJECT_ROOT/terragrunt/environments/$1/artemis
+
+[ ! -d "$environment" ] && error "No Artemis deployment found in environment '$1'"
+
 hostname=$(TERRAGRUNT_WORKING_DIR=$environment terragrunt output --raw artemis_api_domain)
+
+grep -q "No outputs found" <<< "$hostname" && error "No Artemis hostname found, environment not deployed?"
 
 echo "Waiting for Artemis API to be available via '$hostname'"
 
