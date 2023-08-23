@@ -14,14 +14,18 @@ error() {
 
 [ -z "$1" ] && error "Environment name required!"
 
+ARTEMIS_DEPLOYMENT=${ARTEMIS_DEPLOYMENT:-artemis}
+
 timeout=300
-environment=$PROJECT_ROOT/terragrunt/environments/$1/artemis
+environment="$PROJECT_ROOT/terragrunt/environments/$1/$ARTEMIS_DEPLOYMENT"
 
 [ ! -d "$environment" ] && error "No Artemis deployment found in environment '$1'"
 
 hostname=$(TERRAGRUNT_WORKING_DIR=$environment terragrunt output --raw artemis_api_domain)
 
-grep -q "No outputs found" <<< "$hostname" && error "No Artemis hostname found, environment not deployed?"
+if grep -q "No outputs found" <<< "$hostname"; then
+    error "No Artemis hostname found, '$ARTEMIS_DEPLOYMENT' in environment '$1' not deployed?"
+fi
 
 echo "Waiting for Artemis API to be available via '$hostname'"
 
