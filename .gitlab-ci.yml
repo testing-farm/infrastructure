@@ -89,7 +89,7 @@ direnv:
   script:
     - direnv allow
     - eval "$(direnv export bash)"
-    - make generate-environment-variables
+    - make generate/staging/citool-config
 
 .direnv:
   before_script:
