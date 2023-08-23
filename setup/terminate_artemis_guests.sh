@@ -7,18 +7,21 @@
 # to remove the security group which is managed by Terraform.
 #
 
+ARTEMIS_DEPLOYMENT="${ARTEMIS_DEPLOYMENT:-artemis}"
+ENVIRONMENT="$1"
+
 error() {
     echo -e "\033[0;31m[E] $*\033[0m"
     exit 1
 }
 
-[ -z "$1" ] && error "Environment name required!"
-[[ "$1" =~ (dev|staging) ]] || error "Unsupported environment '$1'!"
+[ -z "$ENVIRONMENT" ] && error "Environment name required!"
+[[ "$ENVIRONMENT" =~ (dev|staging) ]] || error "Unsupported environment '$ENVIRONMENT'!"
 
 # Terraform environment directory
-environment="$PROJECT_ROOT/terragrunt/environments/$1/artemis"
+environment="$PROJECT_ROOT/terragrunt/environments/$ENVIRONMENT/${ARTEMIS_DEPLOYMENT}"
 
-[ ! -d "$environment" ] && error "No Artemis deployment found in environment '$1'"
+[ ! -d "$environment" ] && error "No Artemis deployment found in environment '$ENVIRONMENT'"
 
 # Region of the development instance
 region=$(TERRAGRUNT_WORKING_DIR=$environment terragrunt output --raw guests_aws_region)
@@ -40,6 +43,6 @@ fi
 # Terminate instances
 echo "Terminating instances with security group $security_group_id"
 for instance_id in $instance_ids; do
-  echo "Terminating instance $instance_id"
-  aws --region $region ec2 terminate-instances --instance-ids "$instance_id"
+    echo "Terminating instance $instance_id"
+    aws --region $region ec2 terminate-instances --instance-ids "$instance_id"
 done
