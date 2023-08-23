@@ -44,65 +44,77 @@ define run_terragrunt_app
 	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3
 endef
 
-dev/init:  ## Initialize the development environment
+dev/init:  ## Initialize | dev | all
 	$(call run_terragrunt,dev,init)
 
-dev/plan:  ## Plan the building of the development environment
+dev/plan:  ## Plan deployment | dev | all
 	$(call run_terragrunt,dev,plan)
 
-dev/plan/eks:  ## Plan the building of the development environment / eks module only
+dev/plan/eks:  ## Plan deployment | dev | eks
 	$(call run_terragrunt_app,dev,eks,plan)
 
-dev/plan/artemis:  ## Plan the building of the development environment / eks module only
+dev/plan/artemis:  ## Plan deployment | dev | artemis
 	$(call run_terragrunt_app,dev,artemis,plan)
 
-dev/apply:  ## Build the development environment
+dev/apply:  ## Deploy | dev | all
 	$(call run_terragrunt,dev,apply)
 	aws eks --region us-east-2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
 
-dev/apply/eks:  ## Build the development environment / eks module only
+dev/apply/eks:  ## Deploy | dev | eks
 	$(call run_terragrunt_app,dev,eks,apply -auto-approve)
 	aws eks --region us-east-2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
 
-dev/apply/artemis:  ## Build the development environment / eks module only
+dev/apply/artemis:  ## Deploy | dev | artemis
 	$(call run_terragrunt_app,dev,artemis,apply -auto-approve)
 
-dev/destroy: terminate/artemis/guests/dev  ## Destroy the development environment
+dev/destroy: terminate/artemis/guests/dev  ## Destroy | dev | all
 	$(call run_terragrunt,dev,destroy)
 
 ##@ Infrastructure | Staging
 
-staging/init:  ## Initialize the staging environment
+staging/init:  ## Initialize | staging | all
 	$(call run_terragrunt_app,staging,eks,init)
 	$(call run_terragrunt_app,staging,artemis,init)
 	$(call run_terragrunt_app,staging,artemis-ci,init)
 
-staging/plan:  ## Plan the building of the staging environment
+staging/init/artemis/ci:  ## Initialize | staging | artemis | CI
+	$(call run_terragrunt_app,staging,artemis-ci,init)
+
+staging/plan:  ## Plan deployment | staging
 	$(call run_terragrunt_app,staging,eks,plan)
 	$(call run_terragrunt_app,staging,artemis,plan)
 
-staging/plan/eks:  ## Plan the building of the staging environment / eks module only
+staging/plan/eks:  ## Plan deployment | staging | eks
 	$(call run_terragrunt_app,staging,eks,plan)
 
-staging/plan/artemis:  ## Plan the building of the staging environment / eks module only
+staging/plan/artemis:  ## Plan deployment | staging | artemis
 	$(call run_terragrunt_app,staging,artemis,plan)
 
-staging/apply:  ## Build the staging environment
+staging/plan/artemis/ci:  ## Plan deployment | staging | artemis | CI
+	$(call run_terragrunt_app,staging,artemis-ci,plan)
+
+staging/apply:  ## Deploy | staging | all
 	$(call run_terragrunt_app,staging,eks,apply -auto-approve)
 	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
 	aws eks --region us-east-1 update-kubeconfig --name testing-farm-staging
 
-staging/apply/eks:  ## Build the staging environment / eks module only
+staging/apply/eks:  ## Deploy | staging | eks
 	$(call run_terragrunt_app,staging,eks,apply -auto-approve)
 	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
 	aws eks --region us-east-1 update-kubeconfig --name testing-farm-staging
 
-staging/apply/artemis:  ## Build the staging environment / eks module only
+staging/apply/artemis:  ## Deploy | staging | artemis
 	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
 
-staging/destroy: terminate/artemis/guests/staging  ## Destroy the staging environment
+staging/apply/artemis/ci:  ## Deploy | staging | artemis | CI
+	$(call run_terragrunt_app,staging,artemis-ci,apply -auto-approve)
+
+staging/destroy: terminate/artemis/guests/staging  ## Destroy | staging
 	$(call run_terragrunt_app,staging,artemis,destroy -auto-approve)
 	$(call run_terragrunt_app,staging,eks,destroy -auto-approve)
+
+staging/destroy/artemis/ci:  ## Destroy | staging | artemis | CI
+	$(call run_terragrunt_app,staging,artemis-ci,destroy -auto-approve)
 
 ##@ Tests
 
@@ -165,17 +177,23 @@ list-worker-tests:  ## List available worker integration tests
 	--test-assets tests/worker \
 	--html report.html tests/worker/test_pipeline.py
 
-terminate/artemis/guests/dev:  ## Terminate all EC2 instances from the dev environment created by Artemis
+terminate/artemis/guests/dev:  ## Terminate all EC2 instances created by Artemis | dev
 	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh dev
 
-terminate/artemis/guests/staging:  ## Terminate all EC2 instances from the staging environment created by Artemis
+terminate/artemis/guests/staging:  ## Terminate all EC2 instances created by Artemis | staging
 	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging
 
-wait/artemis/dev:  ## Wait until Artemis is available in the dev environment
+terminate/artemis/guests/staging/ci:  ## Terminate all EC2 instances created by Artemis | staging | CI
+	@ARTEMIS_DEPLOYMENT=artemis-ci bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging
+
+wait/artemis/dev:  ## Wait until Artemis is available | dev
 	@bash setup/wait_artemis_available.sh dev
 
-wait/artemis/staging:  ## Wait until Artemis is available in the staging environment
+wait/artemis/staging:  ## Wait until Artemis is available | staging
 	@bash setup/wait_artemis_available.sh staging
+
+wait/artemis/staging/ci:  ## Wait until Artemis is available | staging | CI
+	@ARTEMIS_DEPLOYMENT=artemis-ci bash setup/wait_artemis_available.sh staging
 
 terminate/eks/ci:  ## Terminate all EKS CI clusters
 	@bash $$PROJECT_ROOT/setup/terminate_eks_ci_clusters.sh
