@@ -55,8 +55,7 @@ inputs = {
   ansible_vault_credentials   = get_env("TF_VAR_ansible_vault_credentials")
   ansible_vault_secrets_root  = get_env("TF_VAR_ansible_vault_secrets_root")
 
-  config_root   = "./config"
-  config_common = "../common/config"
+  config_root = "${get_original_terragrunt_dir()}/config"
   config_extra_files = [
     "ARTEMIS_HOOK_AWS_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_AZURE_ENVIRONMENT_TO_IMAGE.py",
@@ -69,7 +68,7 @@ inputs = {
   config_extra_templates = [{
     source = "artemis-image-map-aws.yaml.tftpl"
     target = "artemis-image-map-aws.yaml"
-    vars   = ["./config/variables_images.yaml"]
+    vars   = ["${get_original_terragrunt_dir()}/config/variables_images.yaml"]
   }]
 
   ssh_keys = [{

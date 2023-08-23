@@ -83,6 +83,7 @@ dev/destroy: terminate/artemis/guests/dev  ## Destroy the development environmen
 staging/init:  ## Initialize the staging environment
 	$(call run_terragrunt_app,staging,eks,init)
 	$(call run_terragrunt_app,staging,artemis,init)
+	$(call run_terragrunt_app,staging,artemis-ci,init)
 
 staging/plan:  ## Plan the building of the staging environment
 	$(call run_terragrunt_app,staging,eks,plan)
