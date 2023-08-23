@@ -178,6 +178,9 @@ wait/artemis/dev:  ## Wait until Artemis is available in the dev environment
 wait/artemis/staging:  ## Wait until Artemis is available in the staging environment
 	@bash setup/wait_artemis_available.sh staging
 
+terminate/eks/ci:  ## Terminate all EKS CI clusters
+	@bash $$PROJECT_ROOT/setup/terminate_eks_ci_clusters.sh
+
 compose-update-public:  ## Update composes in the Public ranch
 	poetry run python setup/compose_update_public.py
 
@@ -190,4 +193,4 @@ clean:  ## Cleanup
 reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
 
 help:  ## Show this help
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make [target]\033[36m\033[0m\n"} /^[a-zA-Z_/-]+:.*?##/ { printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(call reverse, $(MAKEFILE_LIST))
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make [target]\033[36m\033[0m\n"} /^[a-zA-Z_/-]+:.*?##/ { printf "  \033[36m%-35s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(call reverse, $(MAKEFILE_LIST))
