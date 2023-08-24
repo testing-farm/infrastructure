@@ -3,6 +3,5 @@
 # consumed by gluetool and contains credentials and values specific to each dev environment.
 
 testing_farm_request_api_key: "{{ credentials.testing_farm.ranch.public.worker_api_key }}"
-# NOTE: the URL construction is here prepared for the cases when we deploy multiple artemis instances on the staging cluster for integration testing
-artemis_api_url: "http://artemis.staging{% if TF_VAR_artemis_namespace %}-{{ TF_VAR_artemis_namespace }}{% endif %}.testing-farm.io/v0.0.56/"
+artemis_api_url: "http://{{ artemis_api_domain }}/v0.0.56/"
 artemis_api_version: "v0.0.56"

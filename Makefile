@@ -2,14 +2,6 @@
 
 .PHONY: clean help test-worker-redhat test-worker-public generate-environment-variables
 
-ENVIRONMENT_VARIABLES := terragrunt/environments/dev/worker/citool-config/environment.yaml \
-                         terragrunt/environments/staging/worker/citool-config/environment.yaml
-
-ENVIRONMENT_KEYS := terragrunt/environments/dev/worker/citool-config/id_rsa_artemis.decrypted \
-                    terragrunt/environments/staging/worker/citool-config/id_rsa_artemis.decrypted
-
-ENVIRONMENT_FILES := $(ENVIRONMENT_VARIABLES) $(ENVIRONMENT_KEYS)
-
 # pull image by default
 CITOOL_EXTRA_PODMAN_ARGS ?= --pull newer
 
@@ -124,17 +116,24 @@ define run_pytest_gluetool
 	--html report.html tests/worker/test_pipeline.py
 endef
 
-test/dev/worker: wait/artemis/dev $(ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
+test/dev/worker: wait/artemis/dev generate/staging/citool-config  ## Run worker tests | dev
 	$(call run_pytest_gluetool,dev,public)
 
-test/dev/guest-setup: wait/artemis/dev $(ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
+test/dev/guest-setup: wait/artemis/dev generate/dev/citool-config  ## Run guest-setup tests | dev
 	$(call run_pytest_gluetool,dev,guest-setup)
 
-test/staging/worker: wait/artemis/staging $(ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
+test/staging/worker: wait/artemis/staging generate/staging/citool-config  ## Run worker tests | staging
 	$(call run_pytest_gluetool,staging,public)
 
-test/staging/guest-setup: wait/artemis/staging $(ENVIRONMENT_FILES)  ## Run worker integration tests for public ranch against dev environment
+test/staging/worker/ci: wait/artemis/staging generate/staging/citool-config/ci  ## Run worker tests | staging | CI
+	$(call run_pytest_gluetool,staging,public)
+
+test/staging/guest-setup: wait/artemis/staging generate/staging/citool-config  ## Run guest-setup tests | staging
 	$(call run_pytest_gluetool,staging,guest-setup)
+
+test/staging/guest-setup/ci: wait/artemis/staging generate/staging/citool-config/ci  ## Run guest-setup tests | staging | CI
+	$(call run_pytest_gluetool,staging,guest-setup)
+
 
 ##@ Utility
 
@@ -148,15 +147,14 @@ $(ENVIRONMENT_FILES):
 		ansible-vault decrypt --vault-password-file .vault_pass --output $${key} $${key%.decrypted}; \
 	done
 
-generate/environment/files:  ## Generate credential files used in each citool configuration.
-	# Generate `environment.yaml` variable files
-	poetry run python setup/generate_environment.py
+generate/dev/citool-config:  ## Generate citool-config | dev
+	poetry run python setup/generate_environment.py dev
 
-	# Decrypt ssh keys
-	for key in $(ENVIRONMENT_KEYS); do \
-		echo "Decrypting $${key%.decrypted}..."; \
-		ansible-vault decrypt --vault-password-file .vault_pass --output $${key} $${key%.decrypted}; \
-	done
+generate/staging/citool-config:  ## Generate citool-config | dev
+	poetry run python setup/generate_environment.py staging
+
+generate/staging/citool-config/ci:  ## Generate citool-config | dev | CI
+	ARTEMIS_DEPLOYMENT=artemis-ci poetry run python setup/generate_environment.py staging
 
 generate-guest-setup:  ## Generate or update guest-setup tests.
 	@TESTING_FARM_API_TOKEN=${TESTING_FARM_API_TOKEN_PUBLIC} TESTING_FARM_API_URL=${TESTING_FARM_API_URL} poetry run python tests/worker/public/generate-guest-setup.py
