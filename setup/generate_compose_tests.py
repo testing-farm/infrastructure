@@ -5,7 +5,7 @@ import requests
 from gluetool.utils import load_yaml, Command
 from gluetool.glue import GlueCommandError
 
-GUEST_SETUP_PATH = "tests/worker/public/pipeline"
+GUEST_SETUP_PATH = "tests/worker/public"
 TEMPLATE_FILENAME = "compose-test-template.yaml.j2"
 COMPOSES_FILEPATH = "terragrunt/environments/dev/artemis/config/variables_images.yaml"
 TEST_FILENAME = "compose-{}-{}.yaml"
