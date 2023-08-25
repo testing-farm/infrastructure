@@ -9,7 +9,7 @@ from typing import Any, Tuple
 @pytest.mark.parametrize(
     'scenario, scenario_name',
     [
-        *load_scenarios('tests/worker/public/pipeline', base_scenarios_dir_path='tests/worker/base-scenarios'),
+        *load_scenarios('tests/worker/public', base_scenarios_dir_path='tests/worker/base-scenarios'),
         *load_scenarios('tests/worker/redhat/pipeline', base_scenarios_dir_path='tests/worker/base-scenarios')
     ]
 )
