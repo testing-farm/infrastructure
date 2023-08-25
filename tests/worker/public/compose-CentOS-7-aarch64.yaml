@@ -12,11 +12,11 @@ extends:
   - base-tmt_checks
 
 marks:
-  - guest-setup
   - public
+  - compose
 
 variables:
-  REQUEST_ID: 64e811cd-b0c3-49fe-81f9-5e151f9571ff
+  REQUEST_ID: fbe0838f-f57c-4bc0-ad5d-60d4308ae01e
   COMPOSE: CentOS-7
   ARCH: aarch64
   RESULT: PASSED

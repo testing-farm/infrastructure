@@ -2,6 +2,7 @@
 
 marks:
   - public
+  - pipeline
 
 pipeline: |
   hide-secrets
