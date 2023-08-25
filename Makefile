@@ -169,8 +169,8 @@ generate/staging/citool-config:  ## Generate citool-config | dev
 generate/staging/citool-config/ci:  ## Generate citool-config | dev | CI
 	ARTEMIS_DEPLOYMENT=artemis-ci poetry run python setup/generate_environment.py staging
 
-generate-guest-setup:  ## Generate or update guest-setup tests.
-	@TESTING_FARM_API_TOKEN=${TESTING_FARM_API_TOKEN_PUBLIC} TESTING_FARM_API_URL=${TESTING_FARM_API_URL} poetry run python tests/worker/public/generate-guest-setup.py
+generate/public/tests/compose:  ## Generate or update compose tests for Public Ranch
+	@TESTING_FARM_API_TOKEN=${TESTING_FARM_API_TOKEN_PUBLIC} TESTING_FARM_API_URL=${TESTING_FARM_API_URL} poetry run python setup/generate_compose_tests.py
 
 list-worker-tests:  ## List available worker integration tests
 	poetry run pytest $(PYTEST_OPTIONS) -v --basetemp $$PROJECT_ROOT/.pytest --collect-only \
