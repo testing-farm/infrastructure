@@ -215,7 +215,7 @@ wait/artemis/staging/ci:  ## Wait until Artemis is available | staging | CI
 terminate/eks/ci:  ## Terminate all EKS CI clusters
 	@bash $$PROJECT_ROOT/setup/terminate_eks_ci_clusters.sh
 
-compose-update-public:  ## Update composes in the Public ranch
+compose/update/public:  ## Update composes in the Public ranch
 	poetry run python setup/compose_update_public.py
 
 clean:  ## Cleanup
