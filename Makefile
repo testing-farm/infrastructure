@@ -119,7 +119,8 @@ staging/destroy/artemis/ci: terminate/artemis/guests/staging/ci  ## Destroy | st
 ##@ Tests
 
 define run_pytest_gluetool
-	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m $2 -v --basetemp $$PROJECT_ROOT/.pytest \
+	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m $2 -vvv --basetemp $$PROJECT_ROOT/.pytest \
+	--color=always \
 	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
 	--citool-config terragrunt/environments/$1/worker/citool-config --citool-image $(WORKER_IMAGE) \
 	--test-assets tests/worker \
