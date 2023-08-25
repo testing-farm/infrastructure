@@ -6,6 +6,7 @@ extends:
 
 marks:
   - public
+  - pipeline
 
 variables:
   ARCH: aarch64

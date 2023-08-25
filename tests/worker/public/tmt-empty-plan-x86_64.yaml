@@ -5,6 +5,7 @@ extends:
 
 marks:
   - public
+  - pipeline
 
 expected_failure: true
 

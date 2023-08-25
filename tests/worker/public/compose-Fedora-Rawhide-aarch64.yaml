@@ -12,11 +12,11 @@ extends:
   - base-tmt_checks
 
 marks:
-  - guest-setup
   - public
+  - compose
 
 variables:
-  REQUEST_ID: 6016096b-19c1-479d-b983-6ec931804033
+  REQUEST_ID: ef42c583-b7b6-47ca-8223-3d9074e00473
   COMPOSE: Fedora-Rawhide
   ARCH: aarch64
   RESULT: PASSED

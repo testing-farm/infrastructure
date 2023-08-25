@@ -6,6 +6,7 @@ extends:
 
 marks:
   - public
+  - pipeline
 
 variables:
   REQUEST_ID: e18543bb-8147-47d5-9598-734280d78e43

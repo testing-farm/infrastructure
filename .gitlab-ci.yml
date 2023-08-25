@@ -82,13 +82,14 @@ workflow:
     - changes:
         - terraform/environments/production/**/*
 
-  public_tests:
+  public_compose_tests:
     - changes:
-        - tests/worker/public/**/*
+        - tests/worker/public/compose*
 
-  guest_setup_tests:
+  public_pipeline_tests:
     - changes:
-        - tests/worker/guest-setup/**/*
+        - tests/worker/public/tmt*
+        - tests/worker/public/sti*
 
 direnv:
   stage: test
@@ -171,7 +172,7 @@ test/dev:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_dev]
 
-test/staging/worker:
+test/staging/pipeline:
   extends: [.direnv, .archive_tests]
   stage: test
   script:
@@ -180,13 +181,31 @@ test/staging/worker:
   variables:
     SCRIPT: >-
       make staging/apply/artemis/ci &&
-      make test/staging/worker/ci
+      make test/staging/pipeline/ci
     AFTER_SCRIPT: make staging/destroy/artemis/ci > /dev/null
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging_ci]
-    - !reference [.rules, public_tests]
+    - !reference [.rules, public_pipeline_tests]
+
+test/staging/compose:
+  extends: [.direnv, .archive_tests]
+  stage: test
+  script:
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    SCRIPT: >-
+      make staging/apply/artemis/ci &&
+      make test/staging/compose/ci
+    AFTER_SCRIPT: make staging/destroy/artemis/ci > /dev/null
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
+    - !reference [.rules, terragrunt_staging_ci]
+    - !reference [.rules, public_compose_tests]
+
 
 test/staging:
   extends: .direnv

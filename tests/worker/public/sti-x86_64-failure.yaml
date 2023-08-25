@@ -2,6 +2,7 @@
 
 marks:
   - public
+  - pipeline
 
 variables:
   REQUEST_ID: 45326651-0115-4bf4-b693-d15f534ec151

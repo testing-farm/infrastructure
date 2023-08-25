@@ -131,7 +131,7 @@ staging/destroy/artemis/ci: terminate/artemis/guests/staging/ci  ## Destroy | st
 ##@ Tests
 
 define run_pytest_gluetool
-	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) -m $2 -vvv --basetemp $$PROJECT_ROOT/.pytest \
+	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) $2 -vvv --basetemp $$PROJECT_ROOT/.pytest \
 	--color=yes \
 	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
 	--citool-config terragrunt/environments/$1/worker/citool-config --citool-image $(WORKER_IMAGE) \
@@ -141,23 +141,27 @@ define run_pytest_gluetool
 	--html report.html tests/worker/test_pipeline.py
 endef
 
-test/dev/worker: wait/artemis/dev generate/staging/citool-config  ## Run worker tests | dev
-	$(call run_pytest_gluetool,dev,public)
+test/dev/pipeline: wait/artemis/dev generate/staging/citool-config  ## Run worker tests | dev
+	$(call run_pytest_gluetool,dev,-m "public and pipeline")
 
-test/dev/guest-setup: wait/artemis/dev generate/dev/citool-config  ## Run guest-setup tests | dev
-	$(call run_pytest_gluetool,dev,guest-setup)
+test/dev/compose: wait/artemis/dev generate/dev/citool-config  ## Run compose tests | dev
+	$(call run_pytest_gluetool,dev,-m "public and compose")
 
-test/staging/worker: wait/artemis/staging generate/staging/citool-config  ## Run worker tests | staging
-	$(call run_pytest_gluetool,staging,public)
+test/staging/pipeline: wait/artemis/staging generate/staging/citool-config  ## Run worker tests | dev
 
-test/staging/worker/ci: wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests | staging | CI
-	$(call run_pytest_gluetool,staging,public)
+	$(call run_pytest_gluetool,staging,-m "public and pipeline")
 
-test/staging/guest-setup: wait/artemis/staging generate/staging/citool-config  ## Run guest-setup tests | staging
-	$(call run_pytest_gluetool,staging,guest-setup)
+test/staging/pipeline/ci: wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests | staging | CI
 
-test/staging/guest-setup/ci: wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run guest-setup tests | staging | CI
-	$(call run_pytest_gluetool,staging,guest-setup)
+	$(call run_pytest_gluetool,staging,-m "public and pipeline")
+
+test/staging/compose: wait/artemis/staging generate/staging/citool-config  ## Run compose tests | staging
+
+	$(call run_pytest_gluetool,staging,-m "public and compose")
+
+test/staging/compose/ci: wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run compose tests | staging | CI
+
+	$(call run_pytest_gluetool,staging,-m "public and compose")
 
 
 ##@ Utility
