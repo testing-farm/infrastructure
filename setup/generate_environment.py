@@ -3,6 +3,7 @@
 # This script can be executed using `make`.
 
 import os
+import stat
 import subprocess
 import sys
 
@@ -89,6 +90,8 @@ def main() -> None:
     with open(worker_artemis_ssh_key_decrypted, 'wb') as f:
         f.write(vault.decrypt(ssh_key_encrypted))
 
+    print(f'Setting permissions of "{worker_artemis_ssh_key_decrypted}" to 600')
+    os.chmod(worker_artemis_ssh_key_decrypted, stat.S_IRUSR | stat.S_IWUSR)
 
 if __name__ == '__main__':
     main()
