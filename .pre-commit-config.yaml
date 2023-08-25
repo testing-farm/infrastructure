@@ -72,11 +72,11 @@ repos:
           )$
       - id: terragrunt_fmt
 
-  # Generate guest-setup tests on changes in dev/config/variables_images.yaml
+  # Generate Public Ranch compose tests
   - repo: local
     hooks:
-      - id: generate-guest-setup
-        name: generate-guest-setup
-        entry: make generate-guest-setup
+      - id: generate-public-compose-tests
+        name: generate-public-compose-tests
+        entry: make generate/public/tests/compose
         language: system
         pass_filenames: false
