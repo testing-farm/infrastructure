@@ -45,44 +45,40 @@ workflow:
     - changes:
         - secrets/credentials.yaml
 
-  terraform_infra:
+  infrastructure:
     - !reference [.rules, secrets]
     - !reference [.rules, gitlab_ci]
     - changes:
-        - terraform/environments/common/**/*
-        - terraform/modules/**/*
-        - terraform/*.tf
-        - terraform/*.tftpl
         - .envrc
+        - poetry.lock
+        - Makefile
+        - setup/*
+        - terragrunt/modules/**/*
+        - terragrunt/environments/dev/eks/**/*
 
   terragrunt_dev:
-    - !reference [.rules, terraform_infra]
+    - !reference [.rules, infrastructure]
     - changes:
-        - Makefile
-        - poetry.lock
-        - terragrunt/modules/**/*
         # NOTE: need to be explicit here, no nice excludes supported yet
         # We do not run this when variables-composes changed for example
         # https://gitlab.com/gitlab-org/gitlab/-/issues/198688
-        - terragrunt/environments/dev/eks/**/*
         - terragrunt/environments/dev/artemis/terragrunt.hcl
         - terragrunt/environments/dev/artemis/config/*.py
         - terragrunt/environments/dev/artemis/config/*.tftpl
         - terragrunt/environments/dev/artemis/config/master-key.yaml
 
-  terraform_staging:
-    - !reference [.rules, terraform_infra]
+  terragrunt_staging:
+    - !reference [.rules, infrastructure]
     - changes:
-        - terraform/environments/staging/**/*
+        - terrgrunt/environments/staging/**/*
 
-  terraform_staging_ci:
-    - !reference [.rules, terraform_infra]
+  terragrunt_staging_ci:
+    - !reference [.rules, infrastructure]
     - changes:
-        - terraform/environments/staging/artemis/**/*
-        - terraform/environments/staging/worker/**/*
+        - terragrunt/environments/staging/artemis/**/*
+        - terragrunt/environments/staging/worker/**/*
 
   terraform_production:
-    - !reference [.rules, terraform_infra]
     - changes:
         - terraform/environments/production/**/*
 
@@ -182,7 +178,6 @@ test/staging/worker:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
-    SCRIPT_DIR: terraform/environments/staging
     SCRIPT: >-
       make staging/apply/artemis/ci &&
       make test/staging/worker/ci
@@ -190,7 +185,7 @@ test/staging/worker:
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
-    - !reference [.rules, terraform_staging_ci]
+    - !reference [.rules, terragrunt_staging_ci]
     - !reference [.rules, public_tests]
 
 test/staging:
@@ -200,13 +195,12 @@ test/staging:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
-    SCRIPT_DIR: terraform/environments/staging
     SCRIPT: >-
       make staging/plan
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
-    - !reference [.rules, terraform_staging]
+    - !reference [.rules, terragrunt_staging]
 
 test/production:
   extends: .direnv
@@ -232,7 +226,6 @@ redeploy/staging:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
-    SCRIPT_DIR: terraform/environments/staging
     SCRIPT: >-
       make staging/destroy &&
       make staging/init &&
@@ -240,7 +233,6 @@ redeploy/staging:
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, only_schedule]
-    - !reference [.rules, terraform_staging]
 
 deploy/staging:
   extends: .direnv
@@ -249,14 +241,12 @@ deploy/staging:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
-    SCRIPT_DIR: terraform/environments/staging
     SCRIPT: >-
-      terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR apply -auto-approve
+      make staging/apply
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, not_schedule]
-    - !reference [.rules, terraform_staging]
+    - !reference [.rules, terragrunt_staging]
 
 deploy/production:
   extends: .direnv
