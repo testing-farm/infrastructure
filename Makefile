@@ -113,7 +113,7 @@ staging/destroy: terminate/artemis/guests/staging  ## Destroy | staging
 	$(call run_terragrunt_app,staging,artemis,destroy -auto-approve)
 	$(call run_terragrunt_app,staging,eks,destroy -auto-approve)
 
-staging/destroy/artemis/ci:  ## Destroy | staging | artemis | CI
+staging/destroy/artemis/ci: terminate/artemis/guests/staging/ci  ## Destroy | staging | artemis | CI
 	$(call run_terragrunt_app,staging,artemis-ci,destroy -auto-approve)
 
 ##@ Tests
@@ -137,13 +137,13 @@ test/dev/guest-setup: wait/artemis/dev generate/dev/citool-config  ## Run guest-
 test/staging/worker: wait/artemis/staging generate/staging/citool-config  ## Run worker tests | staging
 	$(call run_pytest_gluetool,staging,public)
 
-test/staging/worker/ci: wait/artemis/staging generate/staging/citool-config/ci  ## Run worker tests | staging | CI
+test/staging/worker/ci: wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests | staging | CI
 	$(call run_pytest_gluetool,staging,public)
 
 test/staging/guest-setup: wait/artemis/staging generate/staging/citool-config  ## Run guest-setup tests | staging
 	$(call run_pytest_gluetool,staging,guest-setup)
 
-test/staging/guest-setup/ci: wait/artemis/staging generate/staging/citool-config/ci  ## Run guest-setup tests | staging | CI
+test/staging/guest-setup/ci: wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run guest-setup tests | staging | CI
 	$(call run_pytest_gluetool,staging,guest-setup)
 
 

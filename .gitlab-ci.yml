@@ -61,12 +61,25 @@ workflow:
         - Makefile
         - poetry.lock
         - terragrunt/modules/**/*
-        - terragrunt/environments/dev/**/*
+        # NOTE: need to be explicit here, no nice excludes supported yet
+        # We do not run this when variables-composes changed for example
+        # https://gitlab.com/gitlab-org/gitlab/-/issues/198688
+        - terragrunt/environments/dev/eks/**/*
+        - terragrunt/environments/dev/artemis/terragrunt.hcl
+        - terragrunt/environments/dev/artemis/config/*.py
+        - terragrunt/environments/dev/artemis/config/*.tftpl
+        - terragrunt/environments/dev/artemis/config/master-key.yaml
 
   terraform_staging:
     - !reference [.rules, terraform_infra]
     - changes:
         - terraform/environments/staging/**/*
+
+  terraform_staging_ci:
+    - !reference [.rules, terraform_infra]
+    - changes:
+        - terraform/environments/staging/artemis/**/*
+        - terraform/environments/staging/worker/**/*
 
   terraform_production:
     - !reference [.rules, terraform_infra]
@@ -146,7 +159,7 @@ pre-commit:
     - when: always
 
 test/dev:
-  extends: [.direnv, .archive_tests]
+  extends: .direnv
   stage: test
   script:
     - !reference [.direnv, script]
@@ -161,6 +174,23 @@ test/dev:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_dev]
+
+test/staging/worker:
+  extends: [.direnv, .archive_tests]
+  stage: test
+  script:
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    SCRIPT_DIR: terraform/environments/staging
+    SCRIPT: >-
+      make staging/apply/artemis/ci &&
+      make test/staging/worker/ci
+    AFTER_SCRIPT: make staging/destroy/artemis/ci > /dev/null
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
+    - !reference [.rules, terraform_staging_ci]
     - !reference [.rules, public_tests]
 
 test/staging:
