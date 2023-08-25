@@ -18,6 +18,18 @@ TESTING_FARM_API_URL ?= https://api.dev.testing-farm.io/v0.1
 
 TESTING_FARM_API_TOKEN ?= $(TESTING_FARM_API_TOKEN_PUBLIC)
 
+# Help prelude
+define PRELUDE
+
+Usage:
+  make [target]
+
+Variables defaults:
+
+  WORKER_IMAGE = $(WORKER_IMAGE)     ⚙️  test/* targets
+
+endef
+
 ##@ Deprecated
 
 # NOTE old development environment will be removed later
@@ -211,4 +223,4 @@ clean:  ## Cleanup
 reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
 
 help:  ## Show this help
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make [target]\033[36m\033[0m\n"} /^[a-zA-Z_/-]+:.*?##/ { printf "  \033[36m%-35s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(call reverse, $(MAKEFILE_LIST))
+	@awk 'BEGIN {FS = ":.*##"; printf "$(info $(PRELUDE))"} /^[a-zA-Z_/-]+:.*?##/ { printf "  \033[36m%-35s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(call reverse, $(MAKEFILE_LIST))
