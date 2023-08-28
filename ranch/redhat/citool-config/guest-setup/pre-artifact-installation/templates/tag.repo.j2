@@ -5,3 +5,7 @@ gpgcheck=0
 enabled=1
 priority={{ tag_repository_priority }}
 skip_if_unavailable=True
+%{ if ansible_distribution == "RedHat" AND ansible_distribution_major_version > 7 %}
+# RHELBLD-13323 - This option is required for modularity content, RHEL8+
+module_hotfixes=1
+%{ endif %}

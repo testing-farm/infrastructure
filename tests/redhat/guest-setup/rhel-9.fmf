@@ -8,7 +8,7 @@ provision:
 prepare:
   - name: pre-artifact-installation
     how: ansible
-    playbook: ranch/redhat/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
+    playbook: ranch/redhat/citool-config/guest-setup/pre-artifact-installation/entrypoint.yaml
     extra-args: "-e IMAGE_NAME=RHEL-9"
 
 discover+:
