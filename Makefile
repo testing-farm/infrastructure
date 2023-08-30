@@ -30,8 +30,12 @@ define run_pipeline_update
 	ansible-playbook -v -l $(3) -t $(4) ansible/playbooks/testing-farm.yml
 endef
 
+# To pass a comma in the call command arguments
+# https://www.gnu.org/software/make/manual/html_node/Syntax-of-Functions.html
+comma := ,
+
 update/pipeline/image: .FORCE  ## Update pipeline container image on all ranches
-	$(call run_pipeline_update,💿️,updating pipeline image on all ranches,testing_farm_public_workers,testing_farm_redhat_workers,update_image)
+	$(call run_pipeline_update,💿️,updating pipeline image on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_image)
 
 update/public/pipeline/image: .FORCE  ## Update pipeline container image on Public ranch
 	$(call run_pipeline_update,💿️,updating Public ranch pipeline image,testing_farm_public_workers,update_image)
@@ -40,7 +44,7 @@ update/redhat/pipeline/image: .FORCE  ## Update pipeline container image on Red 
 	$(call run_pipeline_update,💿️,updating Red Hat ranch pipeline image,testing_farm_redhat_workers,update_image)
 
 update/pipeline/config: .FORCE  ## Update pipeline configuration on all ranches
-	$(call run_pipeline_update,🛠,updating pipeline configuration on all ranches,testing_farm_public_workers,testing_farm_redhat_workers,update_config)
+	$(call run_pipeline_update,🛠,updating pipeline configuration on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_config)
 
 update/public/pipeline/config: .FORCE  ## Update pipeline configuration on Public ranch
 	$(call run_pipeline_update,🛠,updating Public ranch pipeline configuration,testing_farm_public_workers,update_config)
@@ -49,7 +53,7 @@ update/redhat/pipeline/config: .FORCE  ## Update pipeline configuration on Red H
 	$(call run_pipeline_update,🛠,updating Red Hat ranch pipeline configuration,testing_farm_redhat_workers,update_config)
 
 update/pipeline/jobs: .FORCE  ## Update pipeline jobs on all ranches
-	$(call run_pipeline_update,⛴️,updating pipeline jobs on all ranches,testing_farm_public_workers,testing_farm_redhat_workers,update_jobs)
+	$(call run_pipeline_update,⛴️,updating pipeline jobs on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_jobs)
 
 update/public/pipeline/jobs: .FORCE  ## Update pipeline jobs on Public ranch
 	$(call run_pipeline_update,⛴️,updating Public ranch pipeline jobs,testing_farm_public_workers,update_jobs)
