@@ -838,14 +838,14 @@ files = [
 
 [[package]]
 name = "tft-cli"
-version = "0.0.10"
+version = "0.0.11"
 description = "Testing Farm CLI tool"
 category = "main"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "tft_cli-0.0.10-py3-none-any.whl", hash = "sha256:260a45886db2c3bae5f1409ce301b8d2a29980227c40552db28cf33515ad2c94"},
-    {file = "tft_cli-0.0.10.tar.gz", hash = "sha256:b35ed58a503494bd7931635a273166ce1cc05a060fa8bb8e818bab1d6d77297f"},
+    {file = "tft_cli-0.0.11-py3-none-any.whl", hash = "sha256:f5115f53dc0045512cc113a48b25bb194e2d43213f0c7abe249c61c9708bb13b"},
+    {file = "tft_cli-0.0.11.tar.gz", hash = "sha256:6f43b292e6e2f54c05cda60c45e072a685a430dfc451fc7764f0dcfff9f459d8"},
 ]
 
 [package.dependencies]
@@ -963,4 +963,4 @@ tests = ["coverage", "flake8", "wheel"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.9"
-content-hash = "307ecd97a672d7535af2715f992ca209332f998a8b353bcd466da11a63ccb20b"
+content-hash = "0ae3258a49e82eac43df6308a05692c7d5757bf8f8f346b7cbc3a5318bc76c64"
