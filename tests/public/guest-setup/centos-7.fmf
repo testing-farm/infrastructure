@@ -8,5 +8,5 @@ provision:
 prepare:
   - name: pre-artifact-installation
     how: ansible
-    playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yml
+    playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yaml
     extra-args: "-e IMAGE_NAME=CentOS-7"

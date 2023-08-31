@@ -3,18 +3,18 @@ summary: Test guest-setup on Fedora Rawhide
 
 provision:
   how: virtual
-  image: Fedora-Rawhide
+  image: Fedora-38
 
 prepare:
   - name: pre-artifact-installation
     how: ansible
     playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yaml
-    extra-args: "-e IMAGE_NAME=Fedora-Rawhide -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
+    extra-args: "-e IMAGE_NAME=Fedora-38 -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
 
   - name: post-artifact-installation
     how: ansible
     playbook: ranch/public/citool-config/guest-setup/post-artifact-installation/entrypoint.yaml
-    extra-args: "-e IMAGE_NAME=Fedora-Rawhide -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
+    extra-args: "-e IMAGE_NAME=Fedora-38 -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
 
 
 discover+:
