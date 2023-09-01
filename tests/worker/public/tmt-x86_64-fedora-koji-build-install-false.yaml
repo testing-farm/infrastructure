@@ -1,0 +1,33 @@
+---
+
+extends:
+  - base-tmt_pipeline
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  REQUEST_ID: db682f00-b749-4395-93d8-2d9b5f535389
+  COMPOSE: Fedora-38
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/sanity
+  SCHEDULE_ENTRIES: 1
+
+checks:
+  literal-patterns:
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] installing the artifact"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download task id vim-9.0.1677-2.fc38"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download task id tmt-1.26.0-1.fc38"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Get package list"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Reinstall packages"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Install packages"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Verify all packages installed"
+
+  literal-patterns[citool-debug.txt]:
+    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch src vim-9.0.1677-2.fc38 || koji download-task --arch noarch --arch {{ ARCH }} --arch src vim-9.0.1677-2.fc38"
+    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch src tmt-1.26.0-1.fc38 || koji download-task --arch noarch --arch {{ ARCH }} --arch src tmt-1.26.0-1.fc38"

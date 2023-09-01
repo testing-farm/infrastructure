@@ -1,0 +1,34 @@
+---
+
+extends:
+  - base-tmt_pipeline
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  REQUEST_ID: 68274bf4-c45d-4156-a8ad-53b5401b67b6
+  COMPOSE: Fedora-Rawhide
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/sanity
+  SCHEDULE_ENTRIES: 1
+
+checks:
+  literal-patterns:
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] installing the artifact"
+    - "[fedora-copr] Initialized with 3070068:fedora-rawhide-x86_64: package 'pycho' build '3070068' target 'fedora-rawhide-x86_64'"
+    - "[fedora-copr] Initialized with 686410:fedora-rawhide-x86_64: package 'beakerlib' build '686410' target 'fedora-rawhide-x86_64'"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Create artifacts directory"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download copr repository"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download rpms from copr"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Reinstall packages"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Install packages"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Verify packages installed"
+
+  literal-patterns[citool-debug.txt]:
+    - "Install  165 Packages"
