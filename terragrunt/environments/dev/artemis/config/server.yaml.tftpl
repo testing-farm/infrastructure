@@ -48,10 +48,15 @@ pools:
   ***REMOVED*** instance-running-timeout: 120
   ***REMOVED*** instance-running-tick: 1
 
+  ***REMOVED*** image owners
       image-owners:
         - self
-        - "587138297281"   # Automotive images
-        - "133133877115"   # Debezium images
+    ***REMOVED*** Automotive images
+        - "587138297281"
+    ***REMOVED*** Debezium images
+        - "133133877115"
+    ***REMOVED*** Packit Image Builder images
+        - "463606842039"
 
       capabilities:
         supports-snapshots: false
@@ -201,18 +206,20 @@ pools:
       security-group: "${aws_security_group_id}"
 
   ***REMOVED*** wait timeout/tick for fulfilling spot request
-  ***REMOVED***spot-request-timeout: 60
-  ***REMOVED***spot-request-tick: 1
+  ***REMOVED*** spot-request-timeout: 60
+  ***REMOVED*** spot-request-tick: 1
 
   ***REMOVED*** wait timeout/tick for instance becoming running
-  ***REMOVED***instance-running-timeout: 120
-  ***REMOVED***instance-running-tick: 1
+  ***REMOVED*** instance-running-timeout: 120
+  ***REMOVED*** instance-running-tick: 1
 
   ***REMOVED*** image owners
       image-owners:
         - self
-    ***REMOVED*** Automotive QE
+    ***REMOVED*** Automotive images
         - "587138297281"
+    ***REMOVED*** Debezium images
+        - "133133877115"
     ***REMOVED*** Packit Image Builder images
         - "463606842039"
 
