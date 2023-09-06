@@ -100,6 +100,9 @@ direnv:
     - direnv allow
     - eval "$(direnv export bash)"
     - make generate/staging/citool-config
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
 
 .direnv:
   before_script:
