@@ -29,7 +29,9 @@
   when:
     - 'ansible_distribution == "RedHat" or
        ansible_distribution == "CentOS" or
-       ansible_distribution == "OracleLinux"'
+       ansible_distribution == "OracleLinux" or
+       ansible_distribution == "AlmaLinux" or
+       ansible_distribution == "Rocky"'
     - 'ansible_distribution_major_version <= "7"'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
 
@@ -53,6 +55,8 @@
   when:
     - 'ansible_distribution == "RedHat" or
        ansible_distribution == "CentOS" or
-       ansible_distribution == "OracleLinux"'
+       ansible_distribution == "OracleLinux" or
+       ansible_distribution == "AlmaLinux" or
+       ansible_distribution == "Rocky"'
     - 'ansible_distribution_major_version >= "8"'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
