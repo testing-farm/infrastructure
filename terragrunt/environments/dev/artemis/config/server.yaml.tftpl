@@ -48,15 +48,15 @@ pools:
       # instance-running-timeout: 120
       # instance-running-tick: 1
 
-      # image owners
-      image-owners:
-        - self
+      # image filters
+      image-filters:
+        - owner: self
         # Automotive images
-        - "587138297281"
+        - owner: "587138297281"
         # Debezium images
-        - "133133877115"
+        - owner: "133133877115"
         # Packit Image Builder images
-        - "463606842039"
+        - owner: "463606842039"
 
       capabilities:
         supports-snapshots: false
@@ -213,15 +213,15 @@ pools:
       # instance-running-timeout: 120
       # instance-running-tick: 1
 
-      # image owners
-      image-owners:
-        - self
+      # image filters
+      image-filters:
+        - owner: self
         # Automotive images
-        - "587138297281"
+        - owner: "587138297281"
         # Debezium images
-        - "133133877115"
+        - owner: "133133877115"
         # Packit Image Builder images
-        - "463606842039"
+        - owner: "463606842039"
 
       capabilities:
         supports-snapshots: false

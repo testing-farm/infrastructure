@@ -49,7 +49,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "v0.0.57"
+  image_tag    = "v0.0.63"
 
   ansible_vault_password_file = get_env("TF_VAR_ansible_vault_password_file")
   ansible_vault_credentials   = get_env("TF_VAR_ansible_vault_credentials")
