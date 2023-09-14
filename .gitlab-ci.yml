@@ -129,7 +129,8 @@ direnv:
     expose_as: report
     paths:
       - report.html
-      - assets/
+      - assets/style.css
+      - .pytest/
     when: always
 
 ansible-vault:
