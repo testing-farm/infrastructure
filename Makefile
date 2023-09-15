@@ -141,7 +141,7 @@ define run_pytest_gluetool
 	--html report.html tests/worker/test_pipeline.py
 endef
 
-test/dev/pipeline: wait/artemis/dev generate/staging/citool-config  ## Run worker tests | dev
+test/dev/pipeline: wait/artemis/dev generate/dev/citool-config  ## Run worker tests | dev
 	$(call run_pytest_gluetool,dev,-m "public and pipeline")
 
 test/dev/compose: wait/artemis/dev generate/dev/citool-config  ## Run compose tests | dev
