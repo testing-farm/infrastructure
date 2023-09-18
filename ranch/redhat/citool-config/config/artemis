@@ -19,6 +19,3 @@ api-call-tick = 5
 # These options set the connection timeout for the checks also.
 boot-tick = 30
 echo-tick = 30
-
-# TFT-892
-enable-console-log = yes
