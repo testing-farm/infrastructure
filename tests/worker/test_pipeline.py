@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from pytest_gluetool import CitoolRunnerType, ScenarioType
@@ -16,4 +17,14 @@ from typing import Any, Tuple
 def test_pipeline(
     citool: Tuple[CitoolRunnerType, str], variables: dict[str, Any], scenario: ScenarioType, scenario_name: str
 ) -> None:
-    run_scenario(citool, variables, scenario, scenario_name, 'pipeline')
+    # Create a transform function when running in GitLab CI
+    if 'CI_ARTIFACT_URL_PREFIX' in os.environ:
+        artifact_url_prefix = os.environ['CI_ARTIFACT_URL_PREFIX']
+
+        def transform_artifact_path(path: str) -> str:
+            return '{}/{}'.format(artifact_url_prefix, os.path.relpath(path, start=os.curdir))
+
+        run_scenario(citool, variables, scenario, scenario_name, 'pipeline', transform_artifact_path)
+
+    else:
+        run_scenario(citool, variables, scenario, scenario_name, 'pipeline')
