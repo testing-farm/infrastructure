@@ -5,4 +5,4 @@ reproducer-comment = # tmt reproducer | https://docs.testing-farm.io/general/0.1
 # polarion report plugin - pylero env vars https://github.com/RedHatQE/pylero#configuration
 #
 accepted-environment-variables =
-    POLARION_URL, POLARION_REPO, POLARION_USERNAME, POLARION_PASSWORD, POLARION_TOKEN, POLARION_TIMEOUT, POLARION_PROJECT
+    POLARION_URL, POLARION_REPO, POLARION_USERNAME, POLARION_PASSWORD, POLARION_TOKEN, POLARION_TIMEOUT, POLARION_PROJECT, TMT_REPORT_REPORTPORTAL_URL, TMT_REPORT_REPORTPORTAL_TOKEN
