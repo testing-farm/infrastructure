@@ -1,0 +1,21 @@
+---
+
+name: base-tmt-multihost_pipeline
+
+variable:
+  REQUEST_ID: change-me
+
+pipeline: |
+  hide-secrets
+  rules-engine
+  testing-farm-request --request-id {{ REQUEST_ID }}
+  ansible
+  artemis
+  guest-setup-no-playbooks:guest-setup
+  git
+  coldstore
+  testing-farm-request-state-reporter
+  test-schedule-tmt-multihost
+  test-scheduler-testing-farm
+  test-schedule-runner-multihost
+  test-schedule-report

@@ -1,0 +1,33 @@
+---
+
+extends:
+  - base-tmt-multihost_pipeline
+  - base-tmt-multihost_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  REQUEST_ID: 8cc7bad4-50a8-4db5-a9c2-57e2f6e14df9
+  COMPOSE: Fedora-Rawhide
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/multihost
+
+checks:
+  literal-patterns:
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost]         summary: 3 tests selected"
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost]                 out: hello multihost A"
+    - '[{{ COMPOSE }}:x86_64:/testing-farm/multihost]                 cmd: echo "hello multihost A"'
+    - '[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [client]                 cmd: echo "hello multihost B"'
+    - '[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [server]                 cmd: echo "hello multihost B"'
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [client]                 out: hello multihost B"
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [server]                 out: hello multihost B"
+    - '[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [client]                 cmd: echo "hello multihost C"'
+    - '[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [server]                 cmd: echo "hello multihost C"'
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [client]                 out: hello multihost C"
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [server]                 out: hello multihost C"
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] total: 5 tests passed"

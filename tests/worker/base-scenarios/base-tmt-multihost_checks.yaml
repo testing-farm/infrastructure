@@ -1,0 +1,46 @@
+---
+
+name: base-tmt-multihost_checks
+
+variables:
+  REQUEST_ID: change-me
+  ARCH: change-me
+  RESULT: change-me
+  COMPOSE: change-me
+  GIT_CLONE_URL: change-me
+  GIT_REF: change-me
+  PLAN: change-me
+  SCHEDULE_ENTRIES: 1
+  TMT_EXIT_CODE: 0
+
+checks:
+  literal-strings:
+    - "[testing-farm-request] Connected to Testing Farm Service"
+    - "[git] <RemoteGitRepository(clone_url={{ GIT_CLONE_URL }}, branch=not specified, ref={{ GIT_REF }})>"
+    - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}"
+    - "[testing-farm-request-state-reporter] pipeline complete"
+    - "[test-schedule-tmt-multihost] cloning repo {{ GIT_CLONE_URL }} (branch not specified, ref {{ GIT_REF }})"
+    - "[test-schedule-tmt-multihost] tmt exited with code {{ TMT_EXIT_CODE }}"
+    - "[test-schedule-tmt-multihost] cloning repo"
+    - "[test-schedule-runner-multihost] running test schedule of {{ SCHEDULE_ENTRIES }} entries"
+    - "[test-schedule-report] Result of testing: {{ RESULT }}"
+
+
+  literal-patterns:
+    - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}"
+
+    - table:
+        -
+          - "{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}"
+          - CREATED
+          - OK
+          - UNDEFINED
+          - "{{ ARCH }} {{ COMPOSE }} S-"
+          - ""
+          - tmt
+
+  artifacts:
+    - "citool-debug\\.txt"
+    - "citool-debug\\.verbose\\.txt"
+    - "results\\.xml"
+    - "work-[a-z0-9_-]+\\/tmt-reproducer\\.sh"
