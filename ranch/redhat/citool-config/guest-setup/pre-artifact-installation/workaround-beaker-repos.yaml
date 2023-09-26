@@ -1,0 +1,38 @@
+---
+#
+# Rename beaker-* repositories to rhel-*
+# TFT-2228
+#
+- name: Check for beaker repos
+  shell: cat /etc/yum.repos.d/beaker-[A-Z]*
+  register: beaker_repos
+  ignore_errors: true
+
+- block:
+    - name: Print repos before rename
+      debug: var=beaker_repos.stdout_lines
+
+    # All RHEL repos start with a capital letter after `beaker-` prefix,
+    # so use that logic to match them. Other repositories are not system
+    # repositories.
+    # For additional details see:
+    # https://gitlab.com/testing-farm/infrastructure/-/merge_requests/331#note_1584548035
+    - name: Rename beaker-* repos to rhel-*
+      shell: >
+        sed -i 's/beaker-\([A-Z]\)/rhel-\1/' /etc/yum.repos.d/beaker-[A-Z]*
+      ignore_errors: true
+
+    - name: Get beaker repos
+      shell: cat /etc/yum.repos.d/beaker-[A-Z]*
+      register: beaker_repos
+
+    - name: Print repos after rename
+      debug: var=beaker_repos.stdout_lines
+
+  #
+  # Run block only if file exists
+  #
+  when:
+    - beaker_repos is succeeded
+    - 'ansible_distribution == "RedHat"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
