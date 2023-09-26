@@ -8,6 +8,7 @@
   - include_tasks: workaround-disable-qa-tools.yaml
   - include_tasks: workaround-centos-8.yaml
   - include_tasks: workaround-automotive.yaml
+  - include_tasks: workaround-beaker-repos.yaml
   # IT BREAKS PYTHON TEST SUITE, for example, but for RHEL we accept it as it speeds up a lot installability in PSI Openstack
   # Disabled, as we test in AWS now anyway
   # - include_tasks: nosync.yaml
