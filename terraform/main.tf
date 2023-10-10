@@ -175,7 +175,8 @@ module "artemis" {
       # we accept a string with comma or newline delimited IPs
       split("\n", replace(trimspace(data.ansiblevault_path.artemis_additional_ips.value), " ", "\n"))
     ) :
-    "${ip}/32"
+    # The IP can already have range defined
+    length(regexall("/[0-9]+", ip)) > 0 ? ip : "${ip}/32"
     if ip != null
   ]
 
