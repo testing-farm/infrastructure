@@ -1,14 +1,6 @@
 ---
 composes:
 
-  fedora_36:
-    compose: Fedora-36
-
-    x86_64:
-      image: Fedora-Cloud-Base-36-1.2.x86_64-hvm-us-east-2-gp2-0
-    aarch64:
-      image: Fedora-Cloud-Base-36-1.5.aarch64-hvm-us-east-2-gp2-0
-
   fedora_37:
     compose: Fedora-37
 
