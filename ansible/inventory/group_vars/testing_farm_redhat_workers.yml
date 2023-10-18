@@ -45,4 +45,5 @@ podman_authfile: "{{ ansible_dir }}/secrets/quay/testing-farm-tftbot-auth.json"
 jobs:
   - tf-tmt
   - tf-tmt-container
+  - tf-tmt-multihost
   - tf-sti

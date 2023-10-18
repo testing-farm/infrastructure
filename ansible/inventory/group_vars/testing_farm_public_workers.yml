@@ -71,6 +71,7 @@ artemis_ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_artemis.pub
 jobs:
   - tf-tmt
   - tf-tmt-container
+  - tf-tmt-multihost
   - tf-sti
 
 # artifacts
