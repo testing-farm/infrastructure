@@ -1,5 +1,5 @@
 [default]
-reproducer-comment = # tmt reproducer | https://docs.testing-farm.io/general/0.1/test-results.html#_reproducer
+reproducer-comment = # tmt reproducer | https://docs.testing-farm.io/Testing%20Farm/0.1/test-results.html#_reproducer
 
 #
 # polarion report plugin - pylero env vars https://github.com/RedHatQE/pylero#configuration
