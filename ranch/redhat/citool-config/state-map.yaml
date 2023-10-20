@@ -26,4 +26,10 @@
     and "Failed to get plan details" in ERROR_MESSAGE
   state: complete
 
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "TMT metadata are absent or corrupted." in ERROR_MESSAGE
+  state: complete
+
 # Default hard-coded rules apply for the rest - "error" when FAILURE exists, "complete" otherwise
