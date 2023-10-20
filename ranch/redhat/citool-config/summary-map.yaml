@@ -25,3 +25,10 @@
     and "Condition 'ip_ready' failed to pass within given time" in ERROR_MESSAGE
   reason: >-
     Failed to provision test environment. Please check https://status.testing-farm.io for possible outages. If the situation persists after retrying, please report an issue.
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "TMT metadata are absent or corrupted." in ERROR_MESSAGE
+  reason: >-
+    Failed to discover tests, TMT metadata are absent or corrupted. Search for '[E] [test-schedule-tmt' on the artifacts page for details.
