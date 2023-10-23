@@ -70,11 +70,9 @@ dev/plan/artemis:  ## Plan deployment | dev | artemis
 
 dev/apply:  ## Deploy | dev | all
 	$(call run_terragrunt,dev,apply)
-	aws eks --region us-east-2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
 
 dev/apply/eks:  ## Deploy | dev | eks
 	$(call run_terragrunt_app,dev,eks,apply -auto-approve)
-	aws eks --region us-east-2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
 
 dev/apply/artemis:  ## Deploy | dev | artemis
 	$(call run_terragrunt_app,dev,artemis,apply -auto-approve)
@@ -108,12 +106,10 @@ staging/plan/artemis/ci:  ## Plan deployment | staging | artemis | CI
 staging/apply:  ## Deploy | staging | all
 	$(call run_terragrunt_app,staging,eks,apply -auto-approve)
 	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
-	aws eks --region us-east-1 update-kubeconfig --name testing-farm-staging
 
 staging/apply/eks:  ## Deploy | staging | eks
 	$(call run_terragrunt_app,staging,eks,apply -auto-approve)
 	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
-	aws eks --region us-east-1 update-kubeconfig --name testing-farm-staging
 
 staging/apply/artemis:  ## Deploy | staging | artemis
 	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
@@ -193,6 +189,15 @@ list-worker-tests:  ## List available worker integration tests
 	--citool-config ranch/redhat/citool-config --citool-image $(WORKER_IMAGE) \
 	--test-assets tests/worker \
 	--html report.html tests/worker/test_pipeline.py
+
+kubeconfig/dev:  ## Update kubeconfig for development environemnt
+	aws eks --region us-east-2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
+
+kubeconfig/staging:  ## Update kubeconfig for staging environment
+	aws eks --region us-east-1 update-kubeconfig --name testing-farm-staging
+
+kubeconfig/production:  ## Update kubeconfig for production environment
+	aws eks --region us-east-1 update-kubeconfig --name testing-farm-production
 
 terminate/artemis/guests/dev:  ## Terminate all EC2 instances created by Artemis | dev
 	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh dev
