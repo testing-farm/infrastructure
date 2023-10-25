@@ -118,9 +118,9 @@ checks:
        </properties>
        <testsuite name="git-main{{ '.+' }}/sti/failure.yaml" result="failed" tests="1">
         <logs>
-         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/{{ artemis_guestname_pattern }}-artemis-guest-log.yaml" name="Guest event log"/>
-         <log guest-setup-stage="pre_artifact_installation" href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-pre-artifact-installation.txt" name="guest setup" schedule-stage="guest-setup"/>
-         <log guest-setup-stage="post_artifact_installation" href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-post-artifact-installation.txt" name="guest setup" schedule-stage="guest-setup"/>
+         <log href="{{ '(https://artifacts.dev.testing-farm.io/)?' }}{{ '(' }}{{ REQUEST_ID }}{{ '/)?' }}{{ artemis_guestname_pattern }}-artemis-guest-log.yaml" name="Guest event log"/>
+         <log guest-setup-stage="pre_artifact_installation" href="{{ '(https://artifacts.dev.testing-farm.io/)?' }}{{ '(' }}{{ REQUEST_ID }}{{ '/)?' }}guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-pre-artifact-installation.txt" name="guest setup" schedule-stage="guest-setup"/>
+         <log guest-setup-stage="post_artifact_installation" href="{{ '(https://artifacts.dev.testing-farm.io/)?' }}{{ '(' }}{{ REQUEST_ID }}{{ '/)?' }}guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-post-artifact-installation.txt" name="guest setup" schedule-stage="guest-setup"/>
         </logs>
         <properties>
          <property name="baseosci.result" value="failed"/>
@@ -135,8 +135,8 @@ checks:
           <property name="baseosci.variant" value=""/>
          </properties>
          <logs>
-          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure.yaml{{ '.+' }}/tests-{{ '.+' }}/FAIL-str_sanity.log" name="FAIL-str_sanity.log" schedule-entry="git-main{{ '.+' }}/sti/failure.yaml" schedule-stage="running"/>
-          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure.yaml{{ '.+' }}/tests-{{ '.+' }}" name="log_dir" schedule-entry="git-main{{ '.+' }}/sti/failure.yaml" schedule-stage="running"/>
+          <log href="{{ '(https://artifacts.dev.testing-farm.io/)?' }}{{ '(' }}{{ REQUEST_ID }}{{ '/)?' }}work-failure.yaml{{ '.+' }}/tests-{{ '.+' }}/FAIL-str_sanity.log" name="FAIL-str_sanity.log" schedule-entry="git-main{{ '.+' }}/sti/failure.yaml" schedule-stage="running"/>
+          <log href="{{ '(https://artifacts.dev.testing-farm.io/)?' }}{{ '(' }}{{ REQUEST_ID }}{{ '/)?' }}work-failure.yaml{{ '.+' }}/tests-{{ '.+' }}" name="log_dir" schedule-entry="git-main{{ '.+' }}/sti/failure.yaml" schedule-stage="running"/>
          </logs>
          <failure/>
          <testing-environment name="requested">
