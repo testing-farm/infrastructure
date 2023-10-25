@@ -3,10 +3,11 @@
 .PHONY: clean help test-worker-redhat test-worker-public generate-environment-variables
 
 # pull image by default
-CITOOL_EXTRA_PODMAN_ARGS ?= --pull newer
+CITOOL_EXTRA_PODMAN_ARGS_DEFAULT = --pull newer
+CITOOL_EXTRA_PODMAN_ARGS ?=
 
 # default worker image
-WORKER_IMAGE ?= quay.io/testing-farm/worker:latest
+WORKER_IMAGE ?= quay.io/testing-farm/worker:1078692978
 
 # default development cluster name
 DEV_CLUSTER_NAME ?= $(or $(TF_VAR_cluster_name),testing-farm-dev-$$USER)
@@ -115,23 +116,31 @@ staging/destroy/artemis/ci: terminate/artemis/guests/staging/ci  ## Destroy | st
 define run_pytest_gluetool
 	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) $2 -vvv --basetemp $$PROJECT_ROOT/.pytest \
 	--color=yes \
-	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
+	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS_DEFAULT) $(CITOOL_EXTRA_PODMAN_ARGS)" \
 	--citool-config terragrunt/environments/$1/worker/citool-config --citool-image $(WORKER_IMAGE) \
 	--test-assets tests/worker \
 	--variables terragrunt/environments/$1/worker/citool-config/variables.yaml \
 	--variables tests/common.yaml \
 	--html report.html tests/worker/test_pipeline.py
+
+endef
+
+define download_oculus_to_pytest
+	curl -s --fail --retry 5 --show-error https://gitlab.com/testing-farm/oculus/-/raw/display-tmt-checks/results.html | tee > /dev/null $$(find .pytest -mindepth 2 -maxdepth 2 -type d -exec echo {}/results.html \;)
 endef
 
 test/dev/pipeline: wait/artemis/dev generate/dev/citool-config  ## Run worker tests | dev
 	$(call run_pytest_gluetool,dev,-m "public and pipeline")
+	$(call download_oculus_to_pytest)
 
 test/dev/compose: wait/artemis/dev generate/dev/citool-config  ## Run compose tests | dev
 	$(call run_pytest_gluetool,dev,-m "public and compose")
+	$(call download_oculus_to_pytest)
 
 test/staging/pipeline: wait/artemis/staging generate/staging/citool-config  ## Run worker tests | dev
 
 	$(call run_pytest_gluetool,staging,-m "public and pipeline")
+	$(call download_oculus_to_pytest)
 
 test/staging/pipeline/ci: wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests | staging | CI
 
@@ -140,10 +149,14 @@ test/staging/pipeline/ci: wait/artemis/staging/ci generate/staging/citool-config
 test/staging/compose: wait/artemis/staging generate/staging/citool-config  ## Run compose tests | staging
 
 	$(call run_pytest_gluetool,staging,-m "public and compose")
+	$(call download_oculus_to_pytest)
 
 test/staging/compose/ci: wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run compose tests | staging | CI
 
 	$(call run_pytest_gluetool,staging,-m "public and compose")
+
+test/pytest/oculus:  ## Download oculus to .pytest directory
+	$(call download_oculus_to_pytest)
 
 
 ##@ Utility

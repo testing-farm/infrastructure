@@ -9,7 +9,7 @@ marks:
   - pipeline
 
 variables:
-  REQUEST_ID: e18543bb-8147-47d5-9598-734280d78e43
+  REQUEST_ID: f2189375-bf98-4938-876e-c17b9ebb8232
   ARCH: x86_64
   RESULT: PASSED
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
@@ -26,9 +26,9 @@ checks:
        </properties>
        <testsuite name="{{ PLAN }}" result="passed" tests="1">
         <logs>
-         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/tmt-run.log" name="tmt-log"/>
-         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
-         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}" name="workdir"/>
+         <log href="{{ '(https://artifacts.dev.testing-farm.io/)?' }}{{ '(' }}{{ REQUEST_ID }}{{ '/)?' }}work-sanity{{ '.+' }}/tmt-run.log" name="tmt-log"/>
+         <log href="{{ '(https://artifacts.dev.testing-farm.io/)?' }}{{ '(' }}{{ REQUEST_ID }}{{ '/)?' }}work-sanity{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="{{ '(https://artifacts.dev.testing-farm.io/)?' }}{{ '(' }}{{ REQUEST_ID }}{{ '/)?' }}work-sanity{{ '.+' }}" name="workdir"/>
         </logs>
         <properties>
          <property name="baseosci.result" value="passed"/>
@@ -43,8 +43,8 @@ checks:
           <property name="baseosci.variant" value=""/>
          </properties>
          <logs>
-          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1" name="log_dir" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/output.txt" name="testout.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ '(https://artifacts.dev.testing-farm.io/)?' }}{{ '(' }}{{ REQUEST_ID }}{{ '/)?' }}work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1" name="log_dir" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ '(https://artifacts.dev.testing-farm.io/)?' }}{{ '(' }}{{ REQUEST_ID }}{{ '/)?' }}work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/output.txt" name="testout.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
          </logs>
          <testing-environment name="requested">
           <property name="arch" value="{{ ARCH }}"/>
