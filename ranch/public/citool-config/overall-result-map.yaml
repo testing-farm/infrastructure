@@ -30,6 +30,6 @@
     EXISTS('ERROR_MESSAGE')
     and ERROR_MESSAGE
     and "TMT metadata are absent or corrupted." in ERROR_MESSAGE
-  state: error
+  result: error
 
 # Default hard-coded rules apply for the rest, based on the test results.
