@@ -5,6 +5,8 @@ gpgcheck=0
 enabled=1
 priority={{ tag_repository_priority }}
 skip_if_unavailable=True
+# See TFT-847 - glibc32*, ported to RH ranch based on Slack conversation https://redhat-internal.slack.com/archives/C03BRN71JAF/p1698396985466579
+exclude=glibc32*
 {% if ansible_distribution == "RedHat" and ansible_distribution_major_version|int > 7 %}
 # RHELBLD-13323 - This option is required for modularity content, RHEL8+
 module_hotfixes=1
