@@ -20,14 +20,14 @@ variables:
 checks:
   literal-patterns:
     - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost]         summary: 3 tests selected"
-    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost]                 out: hello multihost"
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost]                 out: hello multihost A"
     - '[{{ COMPOSE }}:x86_64:/testing-farm/multihost]                 cmd: echo "hello multihost A"'
     - '[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [client]                 cmd: echo "hello multihost B"'
     - '[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [server]                 cmd: echo "hello multihost B"'
-    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [client]                 out: hello multihost"
-    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [server]                 out: hello multihost"
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [client]                 out: hello multihost B"
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [server]                 out: hello multihost B"
     - '[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [client]                 cmd: echo "hello multihost C"'
     - '[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [server]                 cmd: echo "hello multihost C"'
-    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [client]                 out: hello multihost"
-    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [server]                 out: hello multihost"
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [client]                 out: hello multihost C"
+    - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] [server]                 out: hello multihost C"
     - "[{{ COMPOSE }}:x86_64:/testing-farm/multihost] total: 5 tests passed"
