@@ -30,21 +30,6 @@ Variables defaults:
 
 endef
 
-##@ Deprecated
-
-# NOTE old development environment will be removed later
-old-init-dev:  ## Initialize the development environment
-	terraform -chdir=terraform/environments/dev init
-
-old-plan-dev:  ## Plan the building of the development environment
-	terraform -chdir=terraform/environments/dev plan
-
-old-apply-dev:  ## Build the development environment
-	terraform -chdir=terraform/environments/dev apply -auto-approve
-	aws eks --region us-east-2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
-
-old-destroy-dev: terminate-artemis-guests-dev  ## Destroy the development environment
-	terraform -chdir=terraform/environments/dev destroy -auto-approve
 
 ##@ Infrastructure | Dev
 
@@ -79,6 +64,7 @@ dev/apply/artemis:  ## Deploy | dev | artemis
 
 dev/destroy: terminate/artemis/guests/dev  ## Destroy | dev | all
 	$(call run_terragrunt,dev,destroy)
+
 
 ##@ Infrastructure | Staging
 
