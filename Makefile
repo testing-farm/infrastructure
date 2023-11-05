@@ -2,6 +2,9 @@
 
 .PHONY: clean help test-worker-redhat test-worker-public generate-environment-variables
 
+# Root directory with Makefile
+ROOT_DIR = $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
 # pull image by default
 CITOOL_EXTRA_PODMAN_ARGS ?= --pull newer
 
@@ -18,7 +21,6 @@ PYTEST_PARALLEL_OPTIONS ?= -d --tx 5*popen//python=python3.9
 DEFAULT_LOCK_TIMEOUT ?= 10m
 
 TESTING_FARM_API_URL ?= https://api.dev.testing-farm.io/v0.1
-
 TESTING_FARM_API_TOKEN ?= $(TESTING_FARM_API_TOKEN_PUBLIC)
 
 # Help prelude
@@ -300,8 +302,8 @@ cleanup/staging/ci: kubeconfig/staging  ## Cleanup CI leftovers from staging
 	@bash setup/terminate_eks_ci_namespaces.sh
 
 clean:  ## Cleanup
-	rm -rf $$DIRENV_PATH
-	rm -rf $$VIRTUAL_ENV
+	rm -rf $(ROOT_DIR)/.direnv
+	rm -rf $(ROOT_DIR)/.venv
 	rm -rf $$PROJECT_ROOT/.pytest
 
 # See https://www.thapaliya.com/en/writings/well-documented-makefiles/ for details.

@@ -15,16 +15,6 @@ error() { print_error $@; exit 1; }
 warn() { echo -e "\e[33m❕$@\e[0m"; echo "[!] $@" >> $LOG; }
 
 #
-# sanity
-#
-[ -e "$PROJECT_ROOT/.vault_pass" ] || error "Please create '.vault_pass' in project root '$PROJECT_ROOT'"
-
-#
-# setup poetry layout
-#
-layout_poetry
-
-#
 # install all requirements via poetry
 #
 info "install python deps"
@@ -58,9 +48,6 @@ fi
 #
 # download and setup kubectl
 #
-export AWS_ACCESS_KEY_ID="$(ansible-vault view --vault-password-file .vault_pass secrets/credentials.yaml | yq -r .credentials.aws.fedora.access_key)"
-export AWS_SECRET_ACCESS_KEY="$(ansible-vault view --vault-password-file .vault_pass secrets/credentials.yaml | yq -r .credentials.aws.fedora.secret_key)"
-export AWS_DEFAULT_REGION="us-east-1"
 export KUBECONFIG="$DIRENV_PATH/.kube/config"
 
 if [ ! -e "$TOOLS_PATH/kubectl" ]; then
@@ -84,13 +71,8 @@ if [ ! -e "$TOOLS_PATH/kubectl" ]; then
     krew install ns &>> $LOG
     rm -rf $TEMPDIR
 
-    info "AWS credentials"
-
     mkdir -p $DIRENV_PATH/.kube
     touch $KUBECONFIG
-
-    info "EKS cluster 'testing-farm'"
-    aws eks update-kubeconfig --name testing-farm &>> $LOG
 fi
 
 #
