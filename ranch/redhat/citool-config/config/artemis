@@ -1,6 +1,6 @@
 [default]
-api-url = http://artemis-production-02.osci.redhat.com/v0.0.58/
-api-version = v0.0.58
+api-url = http://artemis-production-02.osci.redhat.com
+api-version = 0.0.58
 ssh-options = UserKnownHostsFile=/dev/null, StrictHostKeyChecking=no
 ssh-key = ${config_root}/id_rsa_artemis
 key = master-key
