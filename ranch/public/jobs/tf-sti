@@ -107,6 +107,7 @@ citool-container.sh hide-secrets \
                     artemis \
                     fedora-copr:copr \
                     guest-setup-testing-farm:guest-setup \
+                    guest-setup-order \
                     install-repository \
                     install-copr-build \
                     install-koji-build-execute \
