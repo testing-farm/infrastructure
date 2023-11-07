@@ -2,5 +2,7 @@
 - name: Install RH CA Certificates
   become: true
   ansible.builtin.shell: |
-    curl -kLO https://hdn.corp.redhat.com/rhel7-csb-stage/RPMS/noarch/redhat-internal-cert-install-0.1-25.el7.noarch.rpm
+    curl -kLO https://hdn.corp.redhat.com/rhel7-csb-stage/RPMS/noarch/redhat-internal-cert-install-0.1-31.el7.noarch.rpm
     rpm -ivh --nodeps redhat-internal-cert-install-0.1-25.el7.noarch.rpm
+  tags:
+    - skip_ansible_lint

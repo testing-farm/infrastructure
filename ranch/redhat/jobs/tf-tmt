@@ -110,7 +110,7 @@ citool-container.sh hide-secrets \
                     install-copr-build \
                     install-koji-build-execute \
                     guest-setup-testing-farm:guest-setup \
-		    guest-setup-order \
+                    guest-setup-order \
                     git \
                     coldstore \
                     testing-farm-request-state-reporter \

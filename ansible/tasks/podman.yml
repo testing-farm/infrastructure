@@ -20,6 +20,8 @@
         dest: /etc/containers/storage.conf
         remote_src: true
       ignore_errors: true
+      tags:
+        - skip_ansible_lint
 
     - name: "Set containers storage to {{ container_storage_path }}"
       lineinfile:
@@ -48,12 +50,14 @@
       file:
         path: /root/.docker
         state: directory
+        mode: 0700
       when: podman_authfile is defined
 
     - name: "Add podman authentication file"
       copy:
         src: "{{ podman_authfile }}"
         dest: /root/.docker/config.json
+        mode: 0644
       when: podman_authfile is defined
 
   become: true
