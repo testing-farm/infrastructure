@@ -1,0 +1,55 @@
+---
+
+extends:
+  - base-tmt-multihost_pipeline
+  - base-tmt-multihost_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  REQUEST_ID: 63b496c9-0aaa-4ac3-ad45-c1adfa0ca513
+  COMPOSE: Fedora-Rawhide
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/multihost
+  SCHEDULE_ENTRIES: 2
+
+checks:
+  literal-patterns:
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}]         summary: 3 tests selected"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}]                 out: hello multihost"
+    - '[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}]                 cmd: echo "hello multihost A"'
+    - '[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [client]                 cmd: echo "hello multihost B"'
+    - '[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [server]                 cmd: echo "hello multihost B"'
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [client]                 out: hello multihost"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [server]                 out: hello multihost"
+    - '[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [client]                 cmd: echo "hello multihost C"'
+    - '[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [server]                 cmd: echo "hello multihost C"'
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [client]                 out: hello multihost"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [server]                 out: hello multihost"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] total: 5 tests passed"
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}]         summary: 3 tests selected"
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}]                 out: hello multihost"
+    - '[{{ COMPOSE }}:aarch64:{{ PLAN }}]                 cmd: echo "hello multihost A"'
+    - '[{{ COMPOSE }}:aarch64:{{ PLAN }}] [client]                 cmd: echo "hello multihost B"'
+    - '[{{ COMPOSE }}:aarch64:{{ PLAN }}] [server]                 cmd: echo "hello multihost B"'
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [client]                 out: hello multihost"
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [server]                 out: hello multihost"
+    - '[{{ COMPOSE }}:aarch64:{{ PLAN }}] [client]                 cmd: echo "hello multihost C"'
+    - '[{{ COMPOSE }}:aarch64:{{ PLAN }}] [server]                 cmd: echo "hello multihost C"'
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [client]                 out: hello multihost"
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [server]                 out: hello multihost"
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] total: 5 tests passed"
+    - table:
+        -
+          - "{{ COMPOSE }}:aarch64:{{ PLAN }}"
+          - CREATED
+          - OK
+          - UNDEFINED
+          - "aarch64 {{ COMPOSE }} S-"
+          - ""
+          - tmt
