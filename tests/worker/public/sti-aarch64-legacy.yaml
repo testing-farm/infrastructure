@@ -31,7 +31,7 @@ pipeline: |
 
 checks:
   literal-strings:
-    - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.dev.testing-farm.io'"
+    - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.staging.testing-farm.io'"
     - "[testing-farm-request] Initialized with {{ REQUEST_ID }}"
     - "[artemis] Using Artemis API"
     - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"

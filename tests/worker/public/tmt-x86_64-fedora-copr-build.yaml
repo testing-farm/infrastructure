@@ -25,7 +25,7 @@ pipeline: |
 
 checks:
   literal-strings:
-    - "[testing-farm-request] Connected to Testing Farm Service"
+    - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.staging.testing-farm.io'"
     - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
     - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/59274f1b-4c6d-4a3d-9bd0-c35ab0b5b394"
     - "[testing-farm-request-state-reporter] pipeline complete"
