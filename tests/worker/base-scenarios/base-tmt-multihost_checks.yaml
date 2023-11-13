@@ -15,7 +15,7 @@ variables:
 
 checks:
   literal-strings:
-    - "[testing-farm-request] Connected to Testing Farm Service"
+    - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.staging.testing-farm.io'"
     - "[git] <RemoteGitRepository(clone_url={{ GIT_CLONE_URL }}, branch=not specified, ref={{ GIT_REF }})>"
     - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}"
     - "[testing-farm-request-state-reporter] pipeline complete"

@@ -13,7 +13,7 @@ variables:
 
 checks:
   literal-strings:
-    - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.dev.testing-farm.io'"
+    - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.staging.testing-farm.io'"
     - "[testing-farm-request] Initialized with {{ REQUEST_ID }}:"
     - "[static-guest] added guest 'localhost' with architecture "
     - "[git] <RemoteGitRepository(clone_url={{ GIT_CLONE_URL }}, branch=not specified, ref={{ GIT_REF }})>"
