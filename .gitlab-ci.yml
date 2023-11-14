@@ -53,27 +53,34 @@ workflow:
         - poetry.lock
         - Makefile
         - setup/*
-        - terragrunt/modules/**/*
-        - terragrunt/environments/dev/eks/**/*
+
+  terragrunt_infra:
+    - !reference [.rules, infrastructure]
+    - changes:
+        - terragrunt/modules/gitlab/**/*
+        - terragrunt/environments/infra/**/*
+
+  terragrunt_testing_farm:
+    - !reference [.rules, infrastructure]
+    - changes:
+        - terragrunt/modules/artemis/**/*
+        - terragrunt/modules/eks/**/*
 
   terragrunt_dev:
-    - !reference [.rules, infrastructure]
+    - !reference [.rules, terragrunt_testing_farm]
     - changes:
         # NOTE: need to be explicit here, no nice excludes supported yet
         # We do not run this when variables-composes changed for example
         # https://gitlab.com/gitlab-org/gitlab/-/issues/198688
-        - terragrunt/environments/dev/artemis/terragrunt.hcl
-        - terragrunt/environments/dev/artemis/config/*.py
-        - terragrunt/environments/dev/artemis/config/*.tftpl
-        - terragrunt/environments/dev/artemis/config/master-key.yaml
+        - terragrunt/environments/dev/**/*
 
   terragrunt_staging:
-    - !reference [.rules, infrastructure]
+    - !reference [.rules, terragrunt_testing_farm]
     - changes:
-        - terrgrunt/environments/staging/**/*
+        - terragrunt/environments/staging/**/*
 
   terragrunt_staging_ci:
-    - !reference [.rules, infrastructure]
+    - !reference [.rules, terragrunt_testing_farm]
     - changes:
         - terragrunt/environments/staging/artemis/**/*
         - terragrunt/environments/staging/worker/**/*
@@ -210,6 +217,20 @@ test/staging/compose:
     - !reference [.rules, terragrunt_staging_ci]
     - !reference [.rules, public_compose_tests]
 
+test/infra:
+  extends: .direnv
+  stage: test
+  script:
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    SCRIPT: >-
+      make infra/init &&
+      make infra/plan
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
+    - !reference [.rules, terragrunt_infra]
 
 test/staging:
   extends: .direnv
@@ -256,6 +277,35 @@ redeploy/staging:
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, only_schedule]
+    - if: '$SCHEDULED_JOB == "redeploy/staging"'
+
+cleanup/staging/ci:
+  extends: .direnv
+  stage: deploy
+  script:
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    SCRIPT: make cleanup/staging/ci
+  rules:
+    - !reference [.rules, only_default_branch]
+    - !reference [.rules, only_schedule]
+    - if: '$SCHEDULED_JOB == "cleanup/staging/ci"'
+
+deploy/infra:
+  extends: .direnv
+  stage: deploy
+  script:
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    SCRIPT: >-
+      make infra/init &&
+      make infra/apply
+  rules:
+    - !reference [.rules, only_default_branch]
+    - !reference [.rules, not_schedule]
+    - !reference [.rules, terragrunt_infra]
 
 deploy/staging:
   extends: .direnv

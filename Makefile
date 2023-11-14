@@ -30,8 +30,18 @@ Variables defaults:
 
 endef
 
+# Macro for running terragrunt run-all
+define run_terragrunt
+	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1 terragrunt run-all $2 --terragrunt-non-interactive
+endef
 
-##@ Infrastructure | Dev
+# Macro to run terragrunt
+define run_terragrunt_app
+	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3
+endef
+
+
+##@ Infrastructure | Infra (Gitlab, etc.)
 
 define run_terragrunt
 	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1 terragrunt run-all $2 --terragrunt-non-interactive
@@ -40,6 +50,21 @@ endef
 define run_terragrunt_app
 	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3
 endef
+
+infra/init:  ## Initialize | infra
+	$(call run_terragrunt,infra,init)
+
+infra/plan:  ## Plan deployment | infra
+	$(call run_terragrunt,infra,plan)
+
+infra/apply:  ## Deploy | infra
+	$(call run_terragrunt,infra,apply)
+
+infra/destroy: ## Destroy | infra
+	$(call run_terragrunt,infra,destroy)
+
+
+##@ Infrastructure | Dev
 
 dev/init:  ## Initialize | dev | all
 	$(call run_terragrunt,dev,init)
