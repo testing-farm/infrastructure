@@ -209,6 +209,11 @@ terminate/eks/ci:  ## Terminate all EKS CI clusters
 compose/update/public:  ## Update composes in the Public ranch
 	poetry run python setup/compose_update_public.py
 
+##@ Cleanup
+
+cleanup/staging/ci: kubeconfig/staging  ## Cleanup CI leftovers from staging
+	@bash setup/terminate_eks_ci_namespaces.sh
+
 clean:  ## Cleanup
 	rm -rf $$DIRENV_PATH
 	rm -rf $$VIRTUAL_ENV
