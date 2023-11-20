@@ -32,7 +32,7 @@ def update_image(image_name: str, available_images: list[str]) -> Optional[str]:
 ***REMOVED*** Construct a regex from the current image to match possible candidates with newer date, e.g.
 ***REMOVED*** 'Fedora-Cloud-Base-37-20230803.0.x86_64-hvm-us-east-2-gp3-0' ->
 ***REMOVED*** 'Fedora-Cloud-Base-37-(\d{8}).0.x86_64-hvm-us-east-2-gp3-0'
-    image_regex = re.sub('\d{8}', r'(\\d{8})', image_name)
+    image_regex = re.sub(r'\d{8}(?:.n)?', r'(\\d{8}(?:.n)?)', image_name)
 
     if image_name == image_regex:
         print('    ⬅️  No "YYYYMMDD" pattern found in image {}, skipping update...'.format(image_name))
