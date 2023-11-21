@@ -19,6 +19,23 @@ terraform {
 }
 
 locals {
+  # List of IPs which have access to guests provisioned by Artemis
+  guests_lb_source_ranges = distinct(sort([
+    for ip in concat(
+      # Additional IPs from input variables
+      var.additional_lb_source_ips,
+      # Localhost IP, if enabled
+      var.localhost_access ? [data.external.localhost_public_ip.result.output] : [],
+      # Additional IPs from secrets
+      # we accept a string with comma or newline delimited IPs
+      split("\n", replace(trimspace(data.ansiblevault_path.guests_additional_ips.value), " ", "\n"))
+    ) :
+    # The IP can already have range defined
+    length(regexall("/[0-9]+", ip)) > 0 ? ip : "${ip}/32"
+    if ip != null
+  ]))
+
+  # List of IPs which have access to Artemis API
   artemis_lb_source_ranges = distinct(sort([
     for ip in concat(
       # Additional IPs from input variables
@@ -58,7 +75,7 @@ data "external" "localhost_public_ip" {
 
 resource "aws_security_group" "allow_guest_traffic" {
   name        = "${var.cluster_name}-${var.namespace}-allow-guest-traffic"
-  description = "Allow traffic for development from localhost"
+  description = "Allow traffic to Artemis guests"
   vpc_id      = "vpc-a4f084cd"
   provider    = aws.artemis_guests
 
@@ -66,7 +83,7 @@ resource "aws_security_group" "allow_guest_traffic" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = local.artemis_lb_source_ranges
+    cidr_blocks = local.guests_lb_source_ranges
     description = "Allow SSH inbound traffic"
   }
 
@@ -102,6 +119,11 @@ provider "helm" {
 data "ansiblevault_path" "artemis_additional_ips" {
   path = var.ansible_vault_credentials
   key  = "artemis.additional_ips"
+}
+
+data "ansiblevault_path" "guests_additional_ips" {
+  path = var.ansible_vault_credentials
+  key  = "guests.additional_ips"
 }
 
 data "ansiblevault_path" "pool_access_key_aws" {
