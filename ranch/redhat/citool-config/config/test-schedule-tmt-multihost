@@ -6,3 +6,4 @@ reproducer-comment = # tmt reproducer | https://docs.testing-farm.io/Testing%20F
 #
 accepted-environment-variables =
     POLARION_URL, POLARION_REPO, POLARION_USERNAME, POLARION_PASSWORD, POLARION_TOKEN, POLARION_TIMEOUT, POLARION_PROJECT, TMT_REPORT_REPORTPORTAL_URL, TMT_REPORT_REPORTPORTAL_TOKEN
+tmt-run-options = -ddddvvv,--log-topic=cli-invocations
