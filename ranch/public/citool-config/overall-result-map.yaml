@@ -32,4 +32,10 @@
     and "TMT metadata are absent or corrupted." in ERROR_MESSAGE
   result: error
 
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Multiple provision phases not supported, refusing to continue." in ERROR_MESSAGE
+  result: error
+
 # Default hard-coded rules apply for the rest, based on the test results.
