@@ -14,9 +14,7 @@
   register: download
 
 - name: Download Nomad
-  get_url:
-    url: "{{ nomad_zip_url }}"
-    dest: "{{ download.path }}/{{ nomad_pkg }}"
+  command: "curl -Lo {{ download.path }}/{{ nomad_pkg }} {{ nomad_zip_url }}"
 
 - name: Unarchive Nomad
   unarchive:
