@@ -16,8 +16,8 @@
           ServiceComponent: Worker
         key_name: tft-artemis-master-key
         instance_type: i3.2xlarge
-        # Fedora-Cloud-Base-36-1.5.x86_64-hvm-us-east-1-gp2-0
-        image_id: ami-08b7bda26f4071b80
+        # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-1-gp3-0
+        image_id: ami-0746fc234df9c1ee0
         wait: true
         count: "{{ count|default(1) }}"
         network:

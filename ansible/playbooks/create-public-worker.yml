@@ -12,8 +12,8 @@
           FedoraGroup: ci
         key_name: testing-farm
         instance_type: i3.2xlarge
-        # Fedora-Cloud-Base-36-1.5.x86_64-hvm-us-east-2-gp2-0
-        image_id: ami-0f734524c1fd28fc8
+        # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-1-gp3-0
+        image_id: ami-0746fc234df9c1ee0
         wait: true
         count: "{{ count|default(1) }}"
         network:
