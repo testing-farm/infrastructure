@@ -71,7 +71,7 @@ if [ ! -e "$DIRENV_PATH/.aws" ]; then
     mkdir -p "$DIRENV_PATH/.aws"
     export AWS_CONFIG_FILE="$DIRENV_PATH/.aws/config"
     export AWS_SHARED_CREDENTIALS_FILE="$DIRENV_PATH/.aws/credentials"
-    for profile in $(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | yq -r ".credentials.aws.profiles | keys[]"); do
+    for profile in $(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | yq -r ".credentials.aws.profiles | keys | .[]"); do
         access_key="$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | yq -r .credentials.aws.profiles.$profile.access_key)"
         secret_key="$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | yq -r .credentials.aws.profiles.$profile.secret_key)"
         region="$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yml | yq -r .credentials.aws.profiles.$profile.region)"
