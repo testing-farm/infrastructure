@@ -19,6 +19,193 @@ variables:
   SCHEDULE_ENTRIES: 2
 
 checks:
+  literal-patterns[results.xml]:
+    - |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <testsuites overall-result="passed">
+       <properties>
+        <property name="baseosci.overall-result" value="passed"/>
+       </properties>
+       <testsuite name="{{ PLAN }}" result="passed" tests="5">
+        <logs>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}/tmt-run.log" name="tmt-log"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}" name="workdir"/>
+        </logs>
+        <properties>
+         <property name="baseosci.result" value="passed"/>
+        </properties>
+        <testcase name="/server-setup/testing-farm/tests/multihost/A" result="passed" serial-number="1">
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/server-setup/testing-farm/tests/multihost/A-1" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/server-setup/testing-farm/tests/multihost/A-1/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <guest name="{{ 'server|client' }}">
+          <testing-environment name="provisioned">
+           <property name="arch" value="{{ ARCH }}"/>
+           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="snapshots" value="False"/>
+          </testing-environment>
+         </guest>
+        </testcase>
+        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" serial-number="2">
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <guest name="{{ 'server|client' }}">
+          <testing-environment name="provisioned">
+           <property name="arch" value="{{ ARCH }}"/>
+           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="snapshots" value="False"/>
+          </testing-environment>
+         </guest>
+        </testcase>
+        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" serial-number="2">
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <guest name="{{ 'server|client' }}">
+          <testing-environment name="provisioned">
+           <property name="arch" value="{{ ARCH }}"/>
+           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="snapshots" value="False"/>
+          </testing-environment>
+         </guest>
+        </testcase>
+        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" serial-number="3">
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <guest name="{{ 'server|client' }}">
+          <testing-environment name="provisioned">
+           <property name="arch" value="{{ ARCH }}"/>
+           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="snapshots" value="False"/>
+          </testing-environment>
+         </guest>
+        </testcase>
+        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" serial-number="3">
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <guest name="{{ 'server|client' }}">
+          <testing-environment name="provisioned">
+           <property name="arch" value="{{ ARCH }}"/>
+           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="snapshots" value="False"/>
+          </testing-environment>
+         </guest>
+        </testcase>
+        <guest name="server">
+         <testing-environment name="provisioned">
+          <property name="arch" value="{{ ARCH }}"/>
+          <property name="compose" value="{{ COMPOSE }}"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+        </guest>
+        <guest name="client">
+         <testing-environment name="provisioned">
+          <property name="arch" value="{{ ARCH }}"/>
+          <property name="compose" value="{{ COMPOSE }}"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+        </guest>
+       </testsuite>
+       <testsuite name="{{ PLAN }}" result="passed" tests="5">
+        <logs>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}/tmt-run.log" name="tmt-log"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}" name="workdir"/>
+        </logs>
+        <properties>
+         <property name="baseosci.result" value="passed"/>
+        </properties>
+        <testcase name="/server-setup/testing-farm/tests/multihost/A" result="passed" serial-number="1">
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <guest name="server">
+          <testing-environment name="provisioned">
+           <property name="arch" value="aarch64"/>
+           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="snapshots" value="False"/>
+          </testing-environment>
+         </guest>
+        </testcase>
+        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" serial-number="2">
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <guest name="{{ 'server|client' }}">
+          <testing-environment name="provisioned">
+           <property name="arch" value="aarch64"/>
+           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="snapshots" value="False"/>
+          </testing-environment>
+         </guest>
+        </testcase>
+        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" serial-number="2">
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <guest name="{{ 'server|client' }}">
+          <testing-environment name="provisioned">
+           <property name="arch" value="aarch64"/>
+           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="snapshots" value="False"/>
+          </testing-environment>
+         </guest>
+        </testcase>
+        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" serial-number="3">
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <guest name="{{ 'server|client' }}">
+          <testing-environment name="provisioned">
+           <property name="arch" value="aarch64"/>
+           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="snapshots" value="False"/>
+          </testing-environment>
+         </guest>
+        </testcase>
+        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" serial-number="3">
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <guest name="{{ 'server|client' }}">
+          <testing-environment name="provisioned">
+           <property name="arch" value="aarch64"/>
+           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="snapshots" value="False"/>
+          </testing-environment>
+         </guest>
+        </testcase>
+        <guest name="server">
+         <testing-environment name="provisioned">
+          <property name="arch" value="aarch64"/>
+          <property name="compose" value="{{ COMPOSE }}"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+        </guest>
+        <guest name="client">
+         <testing-environment name="provisioned">
+          <property name="arch" value="aarch64"/>
+          <property name="compose" value="{{ COMPOSE }}"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+        </guest>
+       </testsuite>
+      </testsuites>
+
   literal-patterns:
     - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}]         summary: 3 tests selected"
     - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}]                 out: hello multihost"
