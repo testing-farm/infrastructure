@@ -10,6 +10,10 @@
         tags:
           Name: "testing_farm_worker_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
           FedoraGroup: ci
+          ServiceOwner: TFT
+          ServiceName: TestingFarm
+          ServiceComponent: Worker
+          ServicePhase: Prod
         key_name: testing-farm
         instance_type: i3.2xlarge
         # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-1-gp3-0
