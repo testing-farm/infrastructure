@@ -3,7 +3,7 @@
 skip = true
 
 locals {
-  # staging EKS is hosted in this region
+  # production EKS is hosted in this region
   aws_region = "us-east-1"
   # AWS region of workers
   aws_region_workers = "us-east-2"
@@ -14,7 +14,7 @@ locals {
   aws_tags = jsonencode({
     FedoraGroup  = "ci"
     ServiceOwner = "TFT"
-    ServicePhase = "Stage"
+    ServicePhase = "Prod"
   })
 }
 
@@ -24,7 +24,7 @@ inputs = {
   aws_region_guests  = local.aws_region_guests
   aws_region_workers = local.aws_region_workers
   route53_zone       = "testing-farm.io"
-  cluster_name       = "testing-farm-staging"
+  cluster_name       = "testing-farm-production"
 }
 
 generate "provider" {
@@ -75,16 +75,14 @@ EOF
 generate "backend" {
   path      = "backend.tf"
   if_exists = "overwrite_terragrunt"
-  # for artemis-ci disable the block, we use local backend for it
-  disable  = path_relative_to_include() == "artemis-ci" ? true : false
-  contents = <<EOF
+  contents  = <<EOF
 terraform {
   backend "remote" {
     hostname     = "app.terraform.io"
     organization = "testing-farm"
 
     workspaces {
-      name = "staging-${path_relative_to_include()}"
+      name = "production-${path_relative_to_include()}"
     }
   }
 }

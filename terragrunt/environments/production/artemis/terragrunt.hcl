@@ -57,7 +57,7 @@ inputs = {
     "ServiceOwner"     = "TFT"
     "ServiceName"      = "TestingFarm"
     "ServiceComponent" = "Worker"
-    "ServicePhase"     = "Stage"
+    "ServicePhase"     = "Prod"
   }
 
   ansible_vault_password_file = get_env("TF_VAR_ansible_vault_password_file")
@@ -87,8 +87,8 @@ inputs = {
     key   = ""
   }]
 
-  api_processes = 2
-  api_threads   = 1
+  api_processes = 4
+  api_threads   = 2
 
   worker_extra_env = [
     {
@@ -109,9 +109,9 @@ inputs = {
     }
   ]
 
-  worker_replicas  = 2
-  worker_processes = 2
-  worker_threads   = 2
+  worker_replicas  = 5
+  worker_processes = 4
+  worker_threads   = 8
 
   resources = {
     artemis_api = {

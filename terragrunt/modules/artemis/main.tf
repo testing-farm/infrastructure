@@ -20,7 +20,7 @@ terraform {
 
 locals {
   # List of IPs which have access to guests provisioned by Artemis
-  guests_lb_source_ranges = distinct(sort([
+  guests_ip_ranges = distinct(sort([
     for ip in concat(
       # Additional IPs from input variables
       var.additional_lb_source_ips,
@@ -50,6 +50,17 @@ locals {
     length(regexall("/[0-9]+", ip)) > 0 ? ip : "${ip}/32"
     if ip != null
   ]))
+
+  # List of tags used to identify Testing Farm worker AWS.
+  # These must be given access to provisioned guests and also the Artemis API.
+  # Terraform doesn't directly support iterating over a map for dynamic filters in a data source.
+  testing_farm_workers_tags_list = [for key, value in var.testing_farm_worker_tags : {
+    key   = key
+    value = value
+  }]
+
+  # List of IP ranges of the Testing Farm workers.
+  testing_farm_workers_ip_ranges = length(data.aws_instances.workers.ids) > 0 ? [for public_ip in data.aws_instances.workers.public_ips : "${public_ip}/32"] : []
 }
 
 provider "ansiblevault" {
@@ -69,8 +80,24 @@ data "external" "localhost_public_ip" {
   program = [
     "sh",
     "-c",
-    "jq -n --arg output \"$(curl -s icanhazip.com)\" '{$output}'"
+    "jq -n --arg output \"$(curl -4s icanhazip.com)\" '{$output}'"
   ]
+}
+
+# Testing Farm workers, used to provide IPs which have access to Artemis API endpoint
+data "aws_instances" "workers" {
+  provider = aws.workers
+
+  dynamic "filter" {
+    for_each = local.testing_farm_workers_tags_list
+
+    content {
+      name   = "tag:${filter.value.key}"
+      values = [filter.value.value]
+    }
+  }
+
+  instance_state_names = ["running"]
 }
 
 resource "aws_security_group" "allow_guest_traffic" {
@@ -80,10 +107,15 @@ resource "aws_security_group" "allow_guest_traffic" {
   provider    = aws.artemis_guests
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = local.guests_lb_source_ranges
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+    # allow guest traffic from workers and given list of addresses comming from variables
+    cidr_blocks = concat(
+      local.guests_ip_ranges,
+      local.testing_farm_workers_ip_ranges
+    )
+
     description = "Allow SSH inbound traffic"
   }
 
@@ -207,10 +239,14 @@ resource "helm_release" "artemis" {
           }
         )
 
-        artemis_lb_source_ranges = local.artemis_lb_source_ranges
-        artemis_api_processes    = var.api_processes
-        artemis_api_threads      = var.api_threads
-        artemis_api_domain       = var.api_domain
+        artemis_lb_source_ranges = concat(
+          local.artemis_lb_source_ranges,
+          local.testing_farm_workers_ip_ranges,
+        )
+
+        artemis_api_processes = var.api_processes
+        artemis_api_threads   = var.api_threads
+        artemis_api_domain    = var.api_domain
 
         artemis_connection_close_after_dispatch = var.connection_close_after_dispatch
 

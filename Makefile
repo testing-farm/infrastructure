@@ -14,6 +14,9 @@ DEV_CLUSTER_NAME ?= $(or $(TF_VAR_cluster_name),testing-farm-dev-$$USER)
 # run in parallel 5 tests
 PYTEST_PARALLEL_OPTIONS ?= -d --tx 5*popen//python=python3.9
 
+# default Terraform lock timeout
+DEFAULT_LOCK_TIMEOUT ?= 10m
+
 TESTING_FARM_API_URL ?= https://api.dev.testing-farm.io/v0.1
 
 TESTING_FARM_API_TOKEN ?= $(TESTING_FARM_API_TOKEN_PUBLIC)
@@ -48,7 +51,19 @@ define run_terragrunt
 endef
 
 define run_terragrunt_app
-	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3
+	@if [ "$3" = "plan" ]; then \
+		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
+		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
+	elif [ "$3" = "apply" ]; then \
+		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
+		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
+	elif [ "$3" = "destroy" ]; then \
+		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
+		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
+	else \
+		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
+		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
+	fi
 endef
 
 infra/init:  ## Initialize | infra
@@ -82,10 +97,10 @@ dev/apply:  ## Deploy | dev | all
 	$(call run_terragrunt,dev,apply)
 
 dev/apply/eks:  ## Deploy | dev | eks
-	$(call run_terragrunt_app,dev,eks,apply -auto-approve)
+	$(call run_terragrunt_app,dev,eks,apply)
 
 dev/apply/artemis:  ## Deploy | dev | artemis
-	$(call run_terragrunt_app,dev,artemis,apply -auto-approve)
+	$(call run_terragrunt_app,dev,artemis,apply)
 
 dev/destroy: terminate/artemis/guests/dev  ## Destroy | dev | all
 	$(call run_terragrunt,dev,destroy)
@@ -115,25 +130,56 @@ staging/plan/artemis/ci:  ## Plan deployment | staging | artemis | CI
 	$(call run_terragrunt_app,staging,artemis-ci,plan)
 
 staging/apply:  ## Deploy | staging | all
-	$(call run_terragrunt_app,staging,eks,apply -auto-approve)
-	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
+	$(call run_terragrunt_app,staging,eks,apply)
+	$(call run_terragrunt_app,staging,artemis,apply)
 
 staging/apply/eks:  ## Deploy | staging | eks
-	$(call run_terragrunt_app,staging,eks,apply -auto-approve)
-	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
+	$(call run_terragrunt_app,staging,eks,apply)
 
 staging/apply/artemis:  ## Deploy | staging | artemis
-	$(call run_terragrunt_app,staging,artemis,apply -auto-approve)
+	$(call run_terragrunt_app,staging,artemis,apply)
 
 staging/apply/artemis/ci:  ## Deploy | staging | artemis | CI
-	$(call run_terragrunt_app,staging,artemis-ci,apply -auto-approve)
+	$(call run_terragrunt_app,staging,artemis-ci,apply)
 
 staging/destroy: terminate/artemis/guests/staging  ## Destroy | staging
-	$(call run_terragrunt_app,staging,artemis,destroy -auto-approve)
-	$(call run_terragrunt_app,staging,eks,destroy -auto-approve)
+	$(call run_terragrunt_app,staging,artemis,destroy)
+	$(call run_terragrunt_app,staging,eks,destroy)
 
 staging/destroy/artemis/ci: terminate/artemis/guests/staging/ci  ## Destroy | staging | artemis | CI
-	$(call run_terragrunt_app,staging,artemis-ci,destroy -auto-approve)
+	$(call run_terragrunt_app,staging,artemis-ci,destroy)
+
+
+##@ Infrastructure | Production
+
+production/init:  ## Initialize | production | all
+	$(call run_terragrunt_app,production,eks,init)
+	$(call run_terragrunt_app,production,artemis,init)
+
+production/plan:  ## Plan deployment | production
+	$(call run_terragrunt_app,production,eks,plan)
+	$(call run_terragrunt_app,production,artemis,plan)
+
+production/plan/eks:  ## Plan deployment | production | eks
+	$(call run_terragrunt_app,production,eks,plan)
+
+production/plan/artemis:  ## Plan deployment | production | artemis
+	$(call run_terragrunt_app,production,artemis,plan)
+
+production/apply:  ## Deploy | production | all
+	$(call run_terragrunt_app,production,eks,apply)
+	$(call run_terragrunt_app,production,artemis,apply)
+
+production/apply/eks:  ## Deploy | production | eks
+	$(call run_terragrunt_app,production,eks,apply)
+
+production/apply/artemis:  ## Deploy | production | artemis
+	$(call run_terragrunt_app,production,artemis,apply)
+
+production/destroy: terminate/artemis/guests/production  ## Destroy | production
+	$(call run_terragrunt_app,production,artemis,destroy)
+	$(call run_terragrunt_app,production,eks,destroy)
+
 
 ##@ Tests
 
@@ -218,6 +264,9 @@ terminate/artemis/guests/staging:  ## Terminate all EC2 instances created by Art
 
 terminate/artemis/guests/staging/ci:  ## Terminate all EC2 instances created by Artemis | staging | CI
 	@ARTEMIS_DEPLOYMENT=artemis-ci bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging
+
+terminate/artemis/guests/production:  ## Terminate all EC2 instances created by Artemis | staging
+	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh production
 
 wait/artemis/dev:  ## Wait until Artemis is available | dev
 	@bash setup/wait_artemis_available.sh dev

@@ -203,3 +203,8 @@ variable "cluster_certificate_authority_data" {
   description = "Certificate authority data of the EKS cluster."
   type        = string
 }
+
+variable "testing_farm_worker_tags" {
+  description = "Tags to identify Testing Farm worker AWS instances"
+  type        = map(string)
+}
