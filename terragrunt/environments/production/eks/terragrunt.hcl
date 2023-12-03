@@ -19,12 +19,12 @@ inputs = {
   # route53_zone is set in the parent
 
   vpc_id                    = "vpc-0896aedab4753e76f"
-  subnets                   = ["subnet-029d836119c84a77e", "subnet-0f1ff10d17ff540d7"]
+  subnets                   = ["subnet-0b84fdcd88b5803c2", "subnet-03089904253762f32", "subnet-029d836119c84a77e"]
   node_group_instance_types = ["c6a.2xlarge"]
   node_group_disk_size      = 500
   node_group_scaling = {
-    desired_size = 1
-    max_size     = 2
-    min_size     = 1
+    desired_size = 2
+    max_size     = 4
+    min_size     = 2
   }
 }

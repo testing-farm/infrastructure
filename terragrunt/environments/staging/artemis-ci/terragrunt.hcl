@@ -52,6 +52,15 @@ inputs = {
   namespace    = local.namespace
   image_tag    = local.artemis.inputs.image_tag
 
+  # Testing Farm worker tags used to identify workers for this environment
+  testing_farm_worker_tags = {
+    "FedoraGroup"      = "ci"
+    "ServiceOwner"     = "TFT"
+    "ServiceName"      = "TestingFarm"
+    "ServiceComponent" = "Worker"
+    "ServicePhase"     = "StageCI"
+  }
+
   ansible_vault_password_file = local.artemis.inputs.ansible_vault_password_file
   ansible_vault_credentials   = local.artemis.inputs.ansible_vault_credentials
   ansible_vault_secrets_root  = local.artemis.inputs.ansible_vault_secrets_root
