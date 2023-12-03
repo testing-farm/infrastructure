@@ -16,7 +16,15 @@ error() {
 }
 
 [ -z "$ENVIRONMENT" ] && error "Environment name required!"
-[[ "$ENVIRONMENT" =~ (dev|staging) ]] || error "Unsupported environment '$ENVIRONMENT'!"
+[[ "$ENVIRONMENT" =~ (dev|staging|production) ]] || error "Unsupported environment '$ENVIRONMENT'!"
+
+# Extra check for production
+if [ "$ENVIRONMENT" == "production" ]; then
+    read -rp "This will remove all production guests. Are you sure you wish to continue? (y/n) " reply
+    if [ "$reply" != "y" ]; then
+        exit 1
+    fi
+fi
 
 # Terraform environment directory
 environment="$PROJECT_ROOT/terragrunt/environments/$ENVIRONMENT/${ARTEMIS_DEPLOYMENT}"

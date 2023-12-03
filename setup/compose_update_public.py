@@ -10,7 +10,7 @@ import rich
 
 from typing import Optional
 
-VARIABLES_IMAGES_FILEPATHS = glob.glob('terraform/environments/*/config/variables_images.yaml') + glob.glob('terragrunt/environments/*/artemis/config/variables_images.yaml')
+VARIABLES_IMAGES_FILEPATHS = glob.glob('terragrunt/environments/*/artemis/config/variables_images.yaml')
 ARCHES = ['x86_64', 'aarch64']
 ARTEMIS_URL = 'http://artemis.production.testing-farm.io/current/'
 

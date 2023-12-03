@@ -78,9 +78,10 @@ workflow:
         - terragrunt/environments/staging/artemis/**/*
         - terragrunt/environments/staging/worker/**/*
 
-  terraform_production:
+  terragrunt_production:
+    - !reference [.rules, infrastructure]
     - changes:
-        - terraform/environments/production/**/*
+        - terragrunt/environments/production/**/*
 
   public_compose_tests:
     - changes:
@@ -232,15 +233,13 @@ test/production:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
-    SCRIPT_DIR: terraform/environments/production
     SCRIPT: >-
-      terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR plan -lock-timeout=5m
+      make staging/plan
 
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
-    - !reference [.rules, terraform_production]
+    - !reference [.rules, terragrunt_production]
 
 redeploy/staging:
   extends: .direnv
@@ -281,11 +280,9 @@ deploy/production:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
-    SCRIPT_DIR: terraform/environments/production
     SCRIPT: >-
-      terraform -chdir=$SCRIPT_DIR init &&
-      terraform -chdir=$SCRIPT_DIR apply -auto-approve
+      make production/apply
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, not_schedule]
-    - !reference [.rules, terraform_production]
+    - !reference [.rules, terragrunt_production]
