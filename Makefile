@@ -110,6 +110,39 @@ staging/destroy: terminate/artemis/guests/staging  ## Destroy | staging
 staging/destroy/artemis/ci: terminate/artemis/guests/staging/ci  ## Destroy | staging | artemis | CI
 	$(call run_terragrunt_app,staging,artemis-ci,destroy -auto-approve)
 
+
+##@ Infrastructure | Production
+
+production/init:  ## Initialize | production | all
+	$(call run_terragrunt_app,production,eks,init)
+	$(call run_terragrunt_app,production,artemis,init)
+
+production/plan:  ## Plan deployment | production
+	$(call run_terragrunt_app,production,eks,plan)
+	$(call run_terragrunt_app,production,artemis,plan)
+
+production/plan/eks:  ## Plan deployment | production | eks
+	$(call run_terragrunt_app,production,eks,plan)
+
+production/plan/artemis:  ## Plan deployment | production | artemis
+	$(call run_terragrunt_app,production,artemis,plan)
+
+production/apply:  ## Deploy | production | all
+	$(call run_terragrunt_app,production,eks,apply -auto-approve)
+	$(call run_terragrunt_app,production,artemis,apply -auto-approve)
+
+production/apply/eks:  ## Deploy | production | eks
+	$(call run_terragrunt_app,production,eks,apply -auto-approve)
+	$(call run_terragrunt_app,production,artemis,apply -auto-approve)
+
+production/apply/artemis:  ## Deploy | production | artemis
+	$(call run_terragrunt_app,production,artemis,apply -auto-approve)
+
+production/destroy: terminate/artemis/guests/production  ## Destroy | production
+	$(call run_terragrunt_app,production,artemis,destroy -auto-approve)
+	$(call run_terragrunt_app,production,eks,destroy -auto-approve)
+
+
 ##@ Tests
 
 define run_pytest_gluetool
@@ -193,6 +226,9 @@ terminate/artemis/guests/staging:  ## Terminate all EC2 instances created by Art
 
 terminate/artemis/guests/staging/ci:  ## Terminate all EC2 instances created by Artemis | staging | CI
 	@ARTEMIS_DEPLOYMENT=artemis-ci bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging
+
+terminate/artemis/guests/production:  ## Terminate all EC2 instances created by Artemis | staging
+	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh production
 
 wait/artemis/dev:  ## Wait until Artemis is available | dev
 	@bash setup/wait_artemis_available.sh dev
