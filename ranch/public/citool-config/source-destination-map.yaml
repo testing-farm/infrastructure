@@ -1,0 +1,17 @@
+---
+
+# The map file is used by archive module to map source to destination and permissions.
+# The format is next:
+# - source: 'source'
+#   destination: 'dest' # Optional
+#   permissions: '777'  # Optional
+- source: index.html
+
+- source: "{{ ENV.NOMAD_TASK_DIR }}/{{ ENV.NOMAD_TASK_NAME }}/*"
+  permissions: "777"
+
+- source: "{{ ENV.NOMAD_RUN_DIR }}/logs/{{ ENV.NOMAD_TASK_NAME }}.stderr.[0-9]*"
+  destination: pipeline.log
+
+- source: "{{ ENV.NOMAD_RUN_DIR }}/logs/{{ ENV.NOMAD_TASK_NAME }}.stdout.[0-9]*"
+  destination: job.log
