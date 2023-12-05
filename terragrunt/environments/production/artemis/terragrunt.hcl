@@ -49,7 +49,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "v0.0.63.1"
+  image_tag    = "v0.0.65"
 
   # Testing Farm worker tags used to identify workers for this environment
   testing_farm_worker_tags = {
