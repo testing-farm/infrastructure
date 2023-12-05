@@ -23,3 +23,6 @@ echo-tick = 30
 
 # TODO: to get rid of this, we need to allow connection from the artemis cluster to the guests
 skip-prepare-verify-ssh = true
+
+# TFT-892
+enable-console-log = yes
