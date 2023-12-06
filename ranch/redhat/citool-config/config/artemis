@@ -21,4 +21,7 @@ boot-tick = 30
 echo-tick = 30
 
 # TFT-892
-enable-console-log = yes
+guest-logs-enable = yes
+
+# Artemis log configuration
+guest-logs-config = ${config_root}/artemis-log-config.yaml
