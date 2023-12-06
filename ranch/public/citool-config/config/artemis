@@ -25,4 +25,7 @@ echo-tick = 30
 skip-prepare-verify-ssh = true
 
 # TFT-892
-enable-console-log = yes
+guest-logs-enable = yes
+
+# Artemis log configuration
+guest-logs-config = ${config_root}/artemis-log-config.yaml

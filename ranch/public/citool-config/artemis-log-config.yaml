@@ -1,0 +1,5 @@
+---
+- name: console log
+  type: console:dump/blob
+  filename: console-{guestname}.log
+  datetime_filename: console-{guestname}.{datetime}.log
