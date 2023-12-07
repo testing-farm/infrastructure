@@ -38,4 +38,13 @@
     and "Multiple provision phases not supported, refusing to continue." in ERROR_MESSAGE
   state: complete
 
+# TFT-2202 - treat provisioning errors as test failures
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Artemis resource ended in 'error' state" in ERROR_MESSAGE
+    and EXISTS('TESTING_FARM_FAILED_IF_PROVISION_ERROR')
+    and TESTING_FARM_FAILED_IF_PROVISION_ERROR
+  state: complete
+
 # Default hard-coded rules apply for the rest - "error" when FAILURE exists, "complete" otherwise
