@@ -194,7 +194,9 @@ test/staging/pipeline:
     SCRIPT: >-
       make staging/apply/artemis/ci &&
       make test/staging/pipeline/ci
-    AFTER_SCRIPT: make staging/destroy/artemis/ci > /dev/null
+    AFTER_SCRIPT: >-
+      make staging/destroy/artemis/ci > /dev/null &&
+      make test/pytest/oculus
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
@@ -211,7 +213,9 @@ test/staging/compose:
     SCRIPT: >-
       make staging/apply/artemis/ci &&
       make test/staging/compose/ci
-    AFTER_SCRIPT: make staging/destroy/artemis/ci > /dev/null
+    AFTER_SCRIPT: >-
+      make staging/destroy/artemis/ci > /dev/null &&
+      make test/pytest/oculus
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
