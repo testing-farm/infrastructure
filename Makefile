@@ -194,15 +194,22 @@ define run_pytest_gluetool
 	--html report.html tests/worker/test_pipeline.py
 endef
 
+define download_oculus_to_pytest
+	curl -s --fail --retry 5 --show-error https://gitlab.com/testing-farm/oculus/-/raw/main/results.html | tee > /dev/null $$(find .pytest -mindepth 2 -maxdepth 2 -type d -exec echo {}/results.html \;)
+endef
+
 test/dev/pipeline: wait/artemis/dev generate/dev/citool-config  ## Run worker tests | dev
 	$(call run_pytest_gluetool,dev,-m "public and pipeline")
+	$(call download_oculus_to_pytest)
 
 test/dev/compose: wait/artemis/dev generate/dev/citool-config  ## Run compose tests | dev
 	$(call run_pytest_gluetool,dev,-m "public and compose")
+	$(call download_oculus_to_pytest)
 
 test/staging/pipeline: wait/artemis/staging generate/staging/citool-config  ## Run worker tests | dev
 
 	$(call run_pytest_gluetool,staging,-m "public and pipeline")
+	$(call download_oculus_to_pytest)
 
 test/staging/pipeline/ci: wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests | staging | CI
 
@@ -211,10 +218,14 @@ test/staging/pipeline/ci: wait/artemis/staging/ci generate/staging/citool-config
 test/staging/compose: wait/artemis/staging generate/staging/citool-config  ## Run compose tests | staging
 
 	$(call run_pytest_gluetool,staging,-m "public and compose")
+	$(call download_oculus_to_pytest)
 
 test/staging/compose/ci: wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run compose tests | staging | CI
 
 	$(call run_pytest_gluetool,staging,-m "public and compose")
+
+test/pytest/oculus:  ## Download oculus to .pytest directory
+	$(call download_oculus_to_pytest)
 
 
 ##@ Utility
