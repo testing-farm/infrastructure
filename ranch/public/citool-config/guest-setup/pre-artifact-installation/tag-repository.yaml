@@ -76,7 +76,7 @@
     #       we encounter might have tag repository available.
     #
     - name: "Check if tag repository {{ tag_repository_url }} exists"
-      command: "bash -c 'curl --head -L {{ tag_repository_url }} | grep -o -E \"(200|404)\"'"
+      command: "bash -c 'curl --head -L {{ tag_repository_url }} | grep -o -E \"(200|403|404)\"'"
       register: http_status_code
 
     #
@@ -94,7 +94,7 @@
     # Be verbose about the fact the repository is unreachable
     #
     - debug:
-        msg: "Skipping adding tag repository, because location {{ tag_repository_url }} was not found"
+        msg: "Skipping adding tag repository, because location {{ tag_repository_url }} was not found or is not working"
       when: http_status_code.stdout != "200"
 
   #
