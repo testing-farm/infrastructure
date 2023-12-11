@@ -40,5 +40,6 @@ exec podman run --init \
                 --name ${REQUEST_ID:-no-request-$RANDOM} \
                 -v ${CITOOL_CONFIG_DIR}:/CONFIG:Z \
                 -v ${CITOOL_RUN_DIR}:/var/ARTIFACTS:Z \
+                -v /root/.ssh:/root/.ssh:Z \
                 ${CITOOL_EXTRA_PODMAN_ARGS} \
                 "$CITOOL_IMAGE" "$@"

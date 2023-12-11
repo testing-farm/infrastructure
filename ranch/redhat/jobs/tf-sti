@@ -1,39 +1,18 @@
 #!/bin/bash -x
 
+# Collect all output to pipeline.log file
+exec > >(tee pipeline.log) 2>&1
+
 printf "\n[pipeline-start] $(date)\n\n"
 
 export REQUEST_ID=$1
-RUN_DIR=$2
-TASK_NAME="sti"
-TASK_DIR=$(dirname $RUN_DIR)
 
-ARTIFACTS_RSYNC_HOST="rsync://artifacts.osci.redhat.com/artifacts/testing-farm"
-ARTIFACTS_ROOT=/archive
-
-ARTIFACTS_URL="http://artifacts.osci.redhat.com/testing-farm"
-ISSUES_URL="http://projects.engineering.redhat.com/browse/TFT/issues"
+ARTIFACTS_URL="https://artifacts.dev.testing-farm.io"
 API_URL="https://api.dev.testing-farm.io/v0.1"
 
-PROGRESS_TICK=30
-
 [ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
-[ -z "$RUN_DIR" ] && { echo "No run directory given"; exit 1; }
 
-REQUEST_ARCHIVE_DIR=${ARCHIVE_DIR}/${REQUEST_ID}
 REQUEST="$(curl -s --retry 5 $API_URL/requests/$REQUEST_ID)"
-
-archive() {
-    WHAT="$1"
-    WHERE="$2"
-    OPTIONS="$3"
-
-    if [ ! -e $WHAT ]; then
-        echo "Artifact '$WHAT' not found, skipping archivation"
-        return
-    fi
-
-    rsync --links --perms --times --verbose --compress $OPTIONS "$WHAT" ${ARTIFACTS_RSYNC_HOST}/${REQUEST_ID}/${WHERE}
-}
 
 create_results_xml() {
     STATE=$1
@@ -53,13 +32,6 @@ create_results_xml() {
 EOF
 }
 
-archive_pipeline_log() {
-    # citool exposes all output to stderr, archive it as the pipeline log
-    # TFT-894 nomad splits the stderr and stdout into multiple files in case of big logs
-    cat ${RUN_DIR}/logs/${TASK_NAME}.stderr.[0-9]* > pipeline.log
-    archive pipeline.log
-}
-
 set_request_timeout() {
     REQUEST_TIMEOUT="$(echo "$REQUEST" | jq -r '.settings.pipeline.timeout | select (.!=null)')"
     [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT="720"
@@ -72,11 +44,6 @@ set_citool_image() {
     [ -n "$CITOOL_IMAGE" ] && export CITOOL_IMAGE
 }
 
-# create archive directory
-if [ -z "$NO_ARCHIVE" ]; then
-    ssh $ARTIFACTS_HOSTNAME mkdir -p ${ARTIFACTS_ROOT}/${REQUEST_ID}
-fi
-
 # rpmlist on worker
 rpm -qa > rpmlist-worker.txt
 
@@ -85,15 +52,6 @@ create_results_xml in-progress skipped progress.xml
 
 # deploy oculus viewer
 curl -s --fail --retry 5 --show-error -o index.html https://gitlab.com/testing-farm/oculus/-/raw/main/results.html
-archive index.html
-
-# disable bash debug until we run tmt with the progress reporting
-set +x
-
-# start syncing in background
-if [ -z "$NO_ARCHIVE" ]; then
-    { while true; do archive_pipeline_log; sleep $PROGRESS_TICK; done; } &
-fi
 
 set_request_timeout
 set_citool_image
@@ -103,14 +61,15 @@ timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
 citool-container.sh hide-secrets \
                     rules-engine \
                     testing-farm-request --request-id $REQUEST_ID \
+                    archive \
                     ansible \
                     artemis \
                     fedora-copr:copr \
+                    guest-setup-testing-farm:guest-setup \
+                    guest-setup-order \
                     install-repository \
                     install-copr-build \
                     install-koji-build-execute \
-                    guest-setup-testing-farm:guest-setup \
-                    guest-setup-order \
                     git \
                     coldstore \
                     testing-farm-request-state-reporter \
@@ -126,29 +85,9 @@ if [ ! -e "citool-debug.txt" ]; then
     exit 1
 fi
 
-# skip archivation
-[ -n "$NO_ARCHIVE" ] && exit
-
-# kill the progress and wait for the process to finish
-echo "stopping process progress generation (PID $!)"
-kill $!
-wait $!
-
-# progress is over, enable back bash debug mode
-set -x
-
 # create pipeline error if no results.xml available
 if [ ! -e "results.xml" ]; then
     create_results_xml failure error
 fi
 
-for path in ${TASK_DIR}/${TASK_NAME}/*; do
-    archive $path '' '--recursive'
-done
-
 printf "\n[pipeline-end] $(date)"
-
-# save stdout and stderr at the very end
-cat ${RUN_DIR}/logs/${TASK_NAME}.stdout.[0-9]* > job.log
-archive job.log
-archive_pipeline_log

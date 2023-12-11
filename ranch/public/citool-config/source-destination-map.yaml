@@ -1,0 +1,33 @@
+---
+#
+# The map file is used by archive module to map source to destination
+# and optionally set permissions.
+#
+# The map provides 3 stages in which archiving is running:
+# * execute - at the start of the pipeline
+# * progress - parallel archiving during pipeline run
+# * destroy - at the pipeline finish
+#
+# The format for source entry is next:
+# - source: 'source'
+#   destination: 'dest' # Optional
+#   permissions: '777'  # Optional
+#
+
+execute:
+  - source: "index.html"
+    permissions: "777"
+
+  - source: "pipeline.log"
+    destination: pipeline.log
+
+progress:
+  - source: "pipeline.log"
+    destination: pipeline.log
+
+destroy:
+  - source: "./*"
+    permissions: "777"
+
+  - source: "pipeline.log"
+    destination: pipeline.log
