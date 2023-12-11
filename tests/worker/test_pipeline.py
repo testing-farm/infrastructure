@@ -1,8 +1,8 @@
 import os
 import pytest
 
-from pytest_gluetool import CitoolRunnerType, ScenarioType
-from pytest_gluetool.scenario import run_scenario, load_scenarios
+from pytest_gluetool import CitoolRunnerType
+from pytest_gluetool.scenario import run_scenario, load_scenarios, Scenario
 
 from typing import Any, Tuple
 
@@ -15,7 +15,7 @@ from typing import Any, Tuple
     ]
 )
 def test_pipeline(
-    citool: Tuple[CitoolRunnerType, str], variables: dict[str, Any], scenario: ScenarioType, scenario_name: str
+    citool: Tuple[CitoolRunnerType, str], variables: dict[str, Any], scenario: Scenario, scenario_name: str
 ) -> None:
     # Create a transform function when running in GitLab CI
     if 'CI_ARTIFACT_URL_PREFIX' in os.environ:
