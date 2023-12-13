@@ -1,0 +1,36 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: infrastructure
+  description: |
+    Testing Farm Infastructure
+
+    The repository holds all public infrastructure code.
+    It is used to deploy all Testing Farm public infrastructure, all environments.
+    Contains Testing Farm development environment and it is used by developers to setup Testing Farm on their localhost.
+  annotations:
+    gitlab.com/project-slug: 'testing-farm/infrastructure'
+    servicenow.com/appcode: TFT-001
+    jira/project-key: TFT
+    jira/label: Infastructure
+    feedback/type: JIRA
+    feedback/host: https://issues.redhat.com
+    feedback/email-to: tft@redhat.com
+  tags:
+    - ecosystem:rhel
+    - ecosystem:public
+    - category:testing
+    - category:cloud
+    - language:ansible
+    - language:terraform
+  links:
+    - title: "#testing-farm"
+      url: https://redhat.enterprise.slack.com/archives/C03BRN71JAF
+      icon: chat
+spec:
+  type: infrastructure
+  lifecycle: production
+  owner: group:redhat/tft
+  domain: quality-community/quality-community
+  system: quality-community/testing-farm
