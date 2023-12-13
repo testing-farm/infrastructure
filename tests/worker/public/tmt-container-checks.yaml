@@ -57,17 +57,17 @@ checks:
          <checks checks="3" errors="1" failures="0">
           <check name="dmesg" result="pass" event="before-test">
            <logs>
-            <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/tmt-dmesg-before-test.txt" name="tmt-dmesg-before-test.txt"/>
+            <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/checks/dmesg-before-test.txt" name="dmesg-before-test.txt"/>
            </logs>
           </check>
           <check name="avc" result="error" event="after-test">
            <logs>
-            <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/tmt-avc-after-test.txt" name="tmt-avc-after-test.txt"/>
+            <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/checks/avc-after-test.txt" name="avc-after-test.txt"/>
            </logs>
           </check>
           <check name="dmesg" result="pass" event="after-test">
            <logs>
-            <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/tmt-dmesg-after-test.txt" name="tmt-dmesg-after-test.txt"/>
+            <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/checks/dmesg-after-test.txt" name="dmesg-after-test.txt"/>
            </logs>
           </check>
          </checks>
