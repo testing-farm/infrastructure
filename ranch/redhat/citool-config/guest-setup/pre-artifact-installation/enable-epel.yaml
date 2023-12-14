@@ -1,0 +1,4 @@
+---
+- name: Enable epel repository (centos 9)
+  command: "dnf config-manager --enable epel epel-next"
+  when: "IMAGE_NAME|lower|regex_search('centos.stream.9')"
