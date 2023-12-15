@@ -115,8 +115,18 @@ resource "aws_security_group" "allow_guest_traffic" {
       local.guests_ip_ranges,
       local.testing_farm_workers_ip_ranges
     )
+    # TFT-2375 - allow connection between machines using the same security group
+    self = true
 
-    description = "Allow SSH inbound traffic"
+    description = "Allow SSH inbound from Testing Farm workers and allowlisted users"
+  }
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    self        = true
+    description = "Allow all inbound traffic from machines in the same security group"
   }
 
   egress {
