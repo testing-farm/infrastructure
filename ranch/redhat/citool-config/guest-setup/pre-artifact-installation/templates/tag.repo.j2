@@ -11,3 +11,16 @@ exclude=glibc32*
 # RHELBLD-13323 - This option is required for modularity content, RHEL8+
 module_hotfixes=1
 {% endif %}
+
+{% if ansible_architecture == 'x86_64' %}
+[testing-farm-tag-repository-i386]
+name=Tag repository for {{ IMAGE_NAME }} (i386)
+baseurl={{ tag_repository_url | replace('x86_64', 'i386') }}
+gpgcheck=0
+enabled=0
+skip_if_unavailable=True
+{% if ansible_distribution == "RedHat" and ansible_distribution_major_version|int > 7 %}
+# RHELBLD-13323 - This option is required for modularity content, RHEL8+
+module_hotfixes=1
+{% endif %}
+{% endif %}
