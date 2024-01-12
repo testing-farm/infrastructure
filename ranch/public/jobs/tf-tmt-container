@@ -58,10 +58,10 @@ set_citool_image
 
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
-citool-container.sh hide-secrets \
-                    rules-engine \
+citool-container.sh rules-engine \
                     testing-farm-request --request-id $REQUEST_ID \
                     archive \
+                    hide-secrets \
                     ansible \
                     static-guest --guest=localhost \
                     guest-setup-no-playbooks:guest-setup \
