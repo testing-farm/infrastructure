@@ -1,0 +1,10 @@
+---
+- name: Enable epel on CentOS
+  command: "dnf config-manager --enable epel"
+  when:
+    - 'ansible_distribution == "CentOS"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+
+- name: Enable epel-next on CentOS 9
+  command: "dnf config-manager --enable epel-next"
+  when: "IMAGE_NAME|lower|regex_search('centos.stream.9')"
