@@ -16,3 +16,9 @@ discover+:
   tests+:
     - name: Test installed brewkoji package
       test: rpm -qi brewkoji
+
+    - name: Check if epel repo enabled
+      test: dnf repolist | grep '^epel '
+
+    - name: Check if epel repo enabled
+      test: dnf repolist | grep '^epel-next '
