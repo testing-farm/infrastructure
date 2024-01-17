@@ -4,5 +4,5 @@ artifacts-rsync-host = artifacts.osci.redhat.com/artifacts/testing-farm
 artifacts-root = /archive
 source-destination-map = ${config_root}/source-destination-map.yaml
 rsync-mode = daemon
-rsync-options = --links,--times,--verbose,--compress,--fsync
+rsync-options = --links,--times,--verbose,--compress
 enable-parallel-archiving = yes
