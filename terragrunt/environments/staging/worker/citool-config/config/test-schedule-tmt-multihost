@@ -1,3 +1,6 @@
 [default]
 reproducer-comment = # tmt reproducer
 tmt-run-options = -ddddvvv,--log-topic=cli-invocations
+accepted-environment-variables =
+    POLARION_URL, POLARION_REPO, POLARION_USERNAME, POLARION_TIMEOUT, POLARION_PROJECT, TMT_REPORT_REPORTPORTAL_URL
+accepted-environment-secrets = POLARION_PASSWORD, POLARION_TOKEN, TMT_REPORT_REPORTPORTAL_TOKEN, # pragma: allowlist secret

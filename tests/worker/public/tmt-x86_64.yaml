@@ -9,10 +9,17 @@ marks:
   - pipeline
 
 variables:
-  REQUEST_ID: 62ecc62a-fdc8-471e-a546-874a97f43042
+  REQUEST_ID: c73929f4-7523-496d-9db5-3d2b1eb6b5af
   COMPOSE: Fedora-Rawhide
   ARCH: x86_64
   RESULT: PASSED
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
   GIT_REF: main
   PLAN: /testing-farm/sanity
+
+checks:
+  literal-strings[work-sanity*/log.txt]:
+    - |
+      environment:
+          POLARION_PASSWORD: *****
+          POLARION_USERNAME: user

@@ -9,7 +9,7 @@ marks:
   - pipeline
 
 variables:
-  REQUEST_ID: 63b496c9-0aaa-4ac3-ad45-c1adfa0ca513
+  REQUEST_ID: 8873d1f1-f7a6-4d60-a2ad-9d47f78d7d4d
   COMPOSE: Fedora-Rawhide
   ARCH: x86_64
   RESULT: PASSED
@@ -240,3 +240,9 @@ checks:
           - "aarch64 {{ COMPOSE }} S-"
           - ""
           - tmt
+
+  literal-strings[work-multihost*/log.txt]:
+    - |
+      environment:
+          POLARION_PASSWORD: *****
+          POLARION_USERNAME: user

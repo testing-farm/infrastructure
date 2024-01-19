@@ -9,6 +9,7 @@ marks:
   - pipeline
 
 variables:
+  #REQUEST_ID: d9c01cf5-0340-4782-bef0-1b46e5cc2a3e  # TODO: enable this test once TFT-2425 is fixed
   REQUEST_ID: e18543bb-8147-47d5-9598-734280d78e43
   ARCH: x86_64
   RESULT: PASSED
@@ -98,3 +99,14 @@ checks:
         </testcase>
        </testsuite>
       </testsuites>
+
+  # TODO: enable this check once TFT-2425 is fixed
+  #literal-patterns[work-sanity*/log.txt]:
+  #  - |
+  #    environment:
+  #        TESTING_FARM_REQUEST_ID: {{ REQUEST_ID }}
+  #        TESTING_FARM_TEST_TYPE: fmf
+  #        TESTING_FARM_GIT_URL: {{ GIT_CLONE_URL }}
+  #        TESTING_FARM_GIT_REF: {{ GIT_REF }}
+  #        POLARION_PASSWORD: *****
+  #        POLARION_USERNAME: user
