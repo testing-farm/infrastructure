@@ -14,6 +14,9 @@ print_error() { echo -e "\e[31m⛔ $@\e[0m"; echo "[E] $@" >> $LOG; }
 error() { print_error $@; exit 1; }
 warn() { echo -e "\e[33m❕$@\e[0m"; echo "[!] $@" >> $LOG; }
 
+# no user specific setup yet
+test -z "$IS_MAINTAINER" && exit 0
+
 #
 # install all requirements via poetry
 #

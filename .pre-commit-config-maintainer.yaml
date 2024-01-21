@@ -36,6 +36,14 @@ repos:
     hooks:
       - id: detect-secrets
 
+  - repo: https://gitlab.com/devopshq/gitlab-ci-linter
+    rev: v1.0.2
+    hooks:
+      - id: gitlab-ci-linter
+        args:
+          - "--project"
+          - "testing-farm/infrastructure"
+
   # Disallow `.yml` files in the repo, i.e. assume usage of `.yaml` for YAML
   - repo: local
     hooks:
@@ -45,3 +53,30 @@ repos:
         files: \.yml$
         entry: "bash -c 'find . -ina'"
         exclude: .gitlab-ci.yml
+
+  # Terraform linters
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.81.2
+    hooks:
+      - id: terraform_fmt
+        args:
+          - --args=-diff
+      - id: terraform_tflint
+      - id: terraform_tfsec
+      - id: terragrunt_validate
+        files: ^terragrunt/environments/
+        exclude: |
+          (?x)^(
+            terragrunt/environments/.*/artemis/config/.*|
+            terragrunt/environments/.*/worker/citool-config/.*
+          )$
+      - id: terragrunt_fmt
+
+  # Generate Public Ranch compose tests
+  - repo: local
+    hooks:
+      - id: generate-public-compose-tests
+        name: generate-public-compose-tests
+        entry: make generate/public/tests/compose
+        language: system
+        pass_filenames: false
