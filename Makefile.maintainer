@@ -1,0 +1,286 @@
+# pull image by default
+CITOOL_EXTRA_PODMAN_ARGS ?= --pull newer
+
+# default worker image
+WORKER_IMAGE ?= quay.io/testing-farm/worker:latest
+
+# default development cluster name
+DEV_CLUSTER_NAME ?= $(or $(TF_VAR_cluster_name),testing-farm-dev-$$USER)
+
+# run in parallel 5 tests
+PYTEST_PARALLEL_OPTIONS ?= -d --tx 5*popen//python=python3.9
+
+# default Terraform lock timeout
+DEFAULT_LOCK_TIMEOUT ?= 10m
+
+# Testing Farm production API
+TESTING_FARM_PRODUTION_API_URL ?= https://api.testing-farm.io/v0.1
+TESTING_FARM_PRODUCTION_API_TOKEN ?= $(TESTING_FARM_API_TOKEN_PUBLIC)
+
+# Help prelude
+define PRELUDE
+
+Usage:
+  make [target]
+
+Variables defaults:
+
+  WORKER_IMAGE = $(WORKER_IMAGE)     ⚙️  test/* targets
+
+endef
+
+
+##@ Infrastructure | Infra (Gitlab, etc.)
+
+define run_terragrunt
+	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1 terragrunt run-all $2 --terragrunt-non-interactive
+endef
+
+define run_terragrunt_app
+	@if [ "$3" = "plan" ]; then \
+		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
+		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
+	elif [ "$3" = "apply" ]; then \
+		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
+		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
+	elif [ "$3" = "destroy" ]; then \
+		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
+		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
+	else \
+		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
+		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
+	fi
+endef
+
+infra/init: .FORCE  ## Initialize | infra
+	$(call run_terragrunt,infra,init)
+
+infra/plan: .FORCE  ## Plan deployment | infra
+	$(call run_terragrunt,infra,plan)
+
+infra/apply: .FORCE  ## Deploy | infra
+	$(call run_terragrunt,infra,apply)
+
+infra/destroy: .FORCE  ## Destroy | infra
+	$(call run_terragrunt,infra,destroy)
+
+
+##@ Infrastructure | Dev
+
+dev/init: .FORCE  ## Initialize | dev | all
+	$(call run_terragrunt,dev,init)
+
+dev/plan: .FORCE  ## Plan deployment | dev | all
+	$(call run_terragrunt,dev,plan)
+
+dev/plan/eks: .FORCE  ## Plan deployment | dev | eks
+	$(call run_terragrunt_app,dev,eks,plan)
+
+dev/plan/artemis: .FORCE  ## Plan deployment | dev | artemis
+	$(call run_terragrunt_app,dev,artemis,plan)
+
+dev/apply: .FORCE  ## Deploy | dev | all
+	$(call run_terragrunt,dev,apply)
+
+dev/apply/eks: .FORCE  ## Deploy | dev | eks
+	$(call run_terragrunt_app,dev,eks,apply)
+
+dev/apply/artemis: .FORCE  ## Deploy | dev | artemis
+	$(call run_terragrunt_app,dev,artemis,apply)
+
+dev/destroy: .FORCE terminate/artemis/guests/dev  ## Destroy | dev | all
+	$(call run_terragrunt,dev,destroy)
+
+dev/kubeconfig: .FORCE  ## Update kubeconfig for development environemnt
+	aws eks --region us-east-2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
+
+
+##@ Infrastructure | Staging
+
+staging/init: .FORCE  ## Initialize | staging | all
+	$(call run_terragrunt_app,staging,eks,init)
+	$(call run_terragrunt_app,staging,artemis,init)
+	$(call run_terragrunt_app,staging,artemis-ci,init)
+
+staging/init/artemis/ci: .FORCE  ## Initialize | staging | artemis | CI
+	$(call run_terragrunt_app,staging,artemis-ci,init)
+
+staging/plan: .FORCE  ## Plan deployment | staging
+	$(call run_terragrunt_app,staging,eks,plan)
+	$(call run_terragrunt_app,staging,artemis,plan)
+
+staging/plan/eks: .FORCE  ## Plan deployment | staging | eks
+	$(call run_terragrunt_app,staging,eks,plan)
+
+staging/plan/artemis: .FORCE  ## Plan deployment | staging | artemis
+	$(call run_terragrunt_app,staging,artemis,plan)
+
+staging/plan/artemis/ci: .FORCE  ## Plan deployment | staging | artemis | CI
+	$(call run_terragrunt_app,staging,artemis-ci,plan)
+
+staging/apply: .FORCE  ## Deploy | staging | all
+	$(call run_terragrunt_app,staging,eks,apply)
+	$(call run_terragrunt_app,staging,artemis,apply)
+
+staging/apply/eks: .FORCE  ## Deploy | staging | eks
+	$(call run_terragrunt_app,staging,eks,apply)
+
+staging/apply/artemis: .FORCE  ## Deploy | staging | artemis
+	$(call run_terragrunt_app,staging,artemis,apply)
+
+staging/apply/artemis/ci: .FORCE  ## Deploy | staging | artemis | CI
+	$(call run_terragrunt_app,staging,artemis-ci,apply)
+
+staging/destroy: .FORCE terminate/artemis/guests/staging  ## Destroy | staging
+	$(call run_terragrunt_app,staging,artemis,destroy)
+	$(call run_terragrunt_app,staging,eks,destroy)
+
+staging/destroy/artemis/ci: .FORCE terminate/artemis/guests/staging/ci  ## Destroy | staging | artemis | CI
+	$(call run_terragrunt_app,staging,artemis-ci,destroy)
+
+staging/kubeconfig: .FORCE  ## Update kubeconfig for staging environment
+	aws eks --region us-east-1 update-kubeconfig --name testing-farm-staging
+
+
+##@ Infrastructure | Production
+
+production/init: .FORCE  ## Initialize | production | all
+	$(call run_terragrunt_app,production,eks,init)
+	$(call run_terragrunt_app,production,artemis,init)
+
+production/plan: .FORCE  ## Plan deployment | production
+	$(call run_terragrunt_app,production,eks,plan)
+	$(call run_terragrunt_app,production,artemis,plan)
+
+production/plan/eks: .FORCE  ## Plan deployment | production | eks
+	$(call run_terragrunt_app,production,eks,plan)
+
+production/plan/artemis: .FORCE  ## Plan deployment | production | artemis
+	$(call run_terragrunt_app,production,artemis,plan)
+
+production/apply: .FORCE  ## Deploy | production | all
+	$(call run_terragrunt_app,production,eks,apply)
+	$(call run_terragrunt_app,production,artemis,apply)
+
+production/apply/eks: .FORCE  ## Deploy | production | eks
+	$(call run_terragrunt_app,production,eks,apply)
+
+production/apply/artemis: .FORCE  ## Deploy | production | artemis
+	$(call run_terragrunt_app,production,artemis,apply)
+
+production/destroy: .FORCE terminate/artemis/guests/production  ## Destroy | production
+	$(call run_terragrunt_app,production,artemis,destroy)
+	$(call run_terragrunt_app,production,eks,destroy)
+
+production/kubeconfig: .FORCE  ## Update kubeconfig for production environment
+	aws eks --region us-east-1 update-kubeconfig --name testing-farm-production
+
+
+##@ Tests | maintainer
+
+define run_pytest_gluetool
+	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) $2 -vvv --basetemp $$PROJECT_ROOT/.pytest \
+	--color=yes \
+	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
+	--citool-config terragrunt/environments/$1/worker/citool-config --citool-image $(WORKER_IMAGE) \
+	--test-assets tests/worker \
+	--variables terragrunt/environments/$1/worker/citool-config/variables.yaml \
+	--variables tests/common.yaml \
+	--html report.html tests/worker/test_pipeline.py
+endef
+
+define download_oculus_to_pytest
+	curl -s --fail --retry 5 --show-error https://gitlab.com/testing-farm/oculus/-/raw/main/results.html | tee > /dev/null $$(find .pytest -mindepth 2 -maxdepth 2 -type d -exec echo {}/results.html \;)
+endef
+
+test/dev/pipeline: .FORCE wait/artemis/dev generate/dev/citool-config  ## Run worker tests | dev
+	$(call run_pytest_gluetool,dev,-m "public and pipeline")
+	$(call download_oculus_to_pytest)
+
+test/dev/compose: .FORCE wait/artemis/dev generate/dev/citool-config  ## Run compose tests | dev
+	$(call run_pytest_gluetool,dev,-m "public and compose")
+	$(call download_oculus_to_pytest)
+
+test/staging/pipeline: .FORCE wait/artemis/staging generate/staging/citool-config  ## Run worker tests | dev
+	$(call run_pytest_gluetool,staging,-m "public and pipeline")
+	$(call download_oculus_to_pytest)
+
+test/staging/pipeline/ci: .FORCE wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests | staging | CI
+	$(call run_pytest_gluetool,staging,-m "public and pipeline")
+
+test/staging/compose: .FORCE wait/artemis/staging generate/staging/citool-config  ## Run compose tests | staging
+	$(call run_pytest_gluetool,staging,-m "public and compose")
+	$(call download_oculus_to_pytest)
+
+test/staging/compose/ci: .FORCE wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run compose tests | staging | CI
+	$(call run_pytest_gluetool,staging,-m "public and compose")
+
+test/pytest/oculus: .FORCE  ## Download oculus to .pytest directory
+	$(call download_oculus_to_pytest)
+
+generate/dev/citool-config: .FORCE  ## Generate citool-config | dev
+	poetry run python setup/generate_environment.py dev
+
+generate/staging/citool-config: .FORCE  ## Generate citool-config | staging
+	poetry run python setup/generate_environment.py staging
+
+generate/staging/citool-config/ci: .FORCE  ## Generate citool-config | staging | CI
+	ARTEMIS_DEPLOYMENT=artemis-ci poetry run python setup/generate_environment.py staging
+
+generate/public/tests/compose: .FORCE  ## Generate or update compose tests for Public Ranch
+	@TESTING_FARM_API_TOKEN=${TESTING_FARM_PRODUCTION_API_TOKEN_PUBLIC} TESTING_FARM_API_URL=${TESTING_FARM_PRODUCTION_API_URL} poetry run python setup/generate_compose_tests.py
+
+list/integration/tests: .FORCE  ## List availableintegration tests
+	poetry run pytest $(PYTEST_OPTIONS) -v --basetemp $$PROJECT_ROOT/.pytest --collect-only \
+	--citool-config ranch/redhat/citool-config --citool-image $(WORKER_IMAGE) \
+	--test-assets tests/worker \
+	--html report.html tests/worker/test_pipeline.py
+
+
+##@ Compose
+
+compose/update/public: .FORCE  ## Update composes in the Public ranch
+	poetry run python setup/compose_update_public.py
+
+
+##@ Utility
+
+$(ENVIRONMENT_FILES):
+	# Generate `environment.yaml` variable files
+	poetry run python setup/generate_environment.py
+
+	# Decrypt ssh keys
+	for key in $(ENVIRONMENT_KEYS); do \
+		echo "Decrypting $${key%.decrypted}..."; \
+		ansible-vault decrypt --vault-password-file .vault_pass --output $${key} $${key%.decrypted}; \
+	done
+
+wait/artemis/dev: .FORCE  ## Wait until Artemis is available | dev
+	@bash setup/wait_artemis_available.sh dev
+
+wait/artemis/staging: .FORCE  ## Wait until Artemis is available | staging
+	@bash setup/wait_artemis_available.sh staging
+
+wait/artemis/staging/ci: .FORCE  ## Wait until Artemis is available | staging | CI
+	@ARTEMIS_DEPLOYMENT=artemis-ci bash setup/wait_artemis_available.sh staging
+
+
+##@ Cleanup | maintainer
+
+terminate/artemis/guests/dev: .FORCE  ## Terminate all EC2 instances created by Artemis | dev
+	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh dev
+
+terminate/artemis/guests/staging: .FORCE  ## Terminate all EC2 instances created by Artemis | staging
+	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging
+
+terminate/artemis/guests/staging/ci: .FORCE  ## Terminate all EC2 instances created by Artemis | staging | CI
+	@ARTEMIS_DEPLOYMENT=artemis-ci bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging
+
+terminate/artemis/guests/production: .FORCE  ## Terminate all EC2 instances created by Artemis | staging
+	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh production
+
+terminate/eks/ci: .FORCE  ## Terminate all EKS CI clusters
+	@bash $$PROJECT_ROOT/setup/terminate_eks_ci_clusters.sh
+
+cleanup/staging/ci: .FORCE staging/kubeconfig  ## Cleanup CI leftovers from staging
+	@bash setup/terminate_eks_ci_namespaces.sh
