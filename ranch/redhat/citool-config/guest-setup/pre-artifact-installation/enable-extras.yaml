@@ -1,6 +1,6 @@
 ---
 - block:
-  - name: Add RHEL7 Extras repository
+  - name: Add RHEL7 updates Extras repository
     yum_repository:
       name: rhel-extras
       description: rhel-extras
@@ -13,3 +13,20 @@
     - 'ansible_distribution == "RedHat"'
     - 'ansible_distribution_major_version == "7"'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"updates" in IMAGE_NAME|lower'
+
+- block:
+  - name: Add RHEL7 nightly Extras repository
+    yum_repository:
+      name: rhel-extras
+      description: rhel-extras
+      baseurl: "http://download.eng.brq.redhat.com/rhel-7/nightly/EXTRAS-7/latest-EXTRAS-{{ ansible_distribution_version }}-RHEL-7/compose/Server/{{ ansible_architecture }}/os/"
+      enabled: true
+      gpgcheck: false
+      skip_if_unavailable: true
+
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_major_version == "7"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"updates" not in IMAGE_NAME|lower'
