@@ -34,7 +34,7 @@ EOF
 
 set_request_timeout() {
     REQUEST_TIMEOUT="$(echo "$REQUEST" | jq -r '.settings.pipeline.timeout | select (.!=null)')"
-    [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT="720"
+    [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT="1440"
     REQUEST_TIMEOUT="${REQUEST_TIMEOUT}m"
     echo "Request timeout: $REQUEST_TIMEOUT"
 }
