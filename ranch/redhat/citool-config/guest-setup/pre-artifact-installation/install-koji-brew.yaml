@@ -32,7 +32,7 @@
        ansible_distribution == "OracleLinux" or
        ansible_distribution == "AlmaLinux" or
        ansible_distribution == "Rocky"'
-    - 'ansible_distribution_major_version <= "7"'
+    - 'ansible_distribution_major_version | int <= 7'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
 
 - block:
@@ -58,5 +58,5 @@
        ansible_distribution == "OracleLinux" or
        ansible_distribution == "AlmaLinux" or
        ansible_distribution == "Rocky"'
-    - 'ansible_distribution_major_version >= "8"'
+    - 'ansible_distribution_major_version | int >= 8'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
