@@ -34,3 +34,4 @@
     - '"auto-osbuild" not in IMAGE_NAME|lower'
     # Do not run on CentOS-8-Stream
     - not 'stream' in IMAGE_NAME|lower
+    - '"composer-api" not in IMAGE_NAME|lower'

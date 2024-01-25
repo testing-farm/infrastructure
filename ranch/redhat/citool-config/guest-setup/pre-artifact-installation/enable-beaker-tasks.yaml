@@ -13,4 +13,6 @@
     baseurl: http://beaker.engineering.redhat.com/rpms/
     gpgcheck: false
     enabled: true
-  when: '"auto-osbuild" not in IMAGE_NAME|lower'
+  when:
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'

@@ -36,3 +36,4 @@
     - beaker_repos is succeeded
     - 'ansible_distribution == "RedHat"'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
