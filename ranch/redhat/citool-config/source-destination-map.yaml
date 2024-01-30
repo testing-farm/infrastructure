@@ -25,8 +25,6 @@ progress:
   - source: "pipeline.log"
     destination: pipeline.log
 
-  - source: "work-*/console-*"
-
 destroy:
   - source: "./*"
     permissions: "777"
