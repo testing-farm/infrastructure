@@ -1,0 +1,27 @@
+#
+# Container image used in CI for this repository.
+# Used to speed up CI with common setup.
+#
+
+FROM docker.io/python:3.9-alpine
+
+COPY .envrc .envrc
+COPY .vault_pass .vault_pass
+COPY setup/environment.sh setup/environment.sh
+COPY container/entrypoint.sh /entrypoint.sh
+COPY Makefile Makefile
+COPY Makefile.maintainer Makefile.maintainer
+
+RUN apk add ansible curl direnv gawk make poetry yq
+
+RUN    mkdir -p /opt/infrastructure \
+    && echo "INSTALL_PATH=/opt/infrastructure" > /.env \
+    && touch .vault_pass \
+    && direnv allow \
+    && bash -c 'eval "$(direnv export bash)"' \
+    && printf "nameserver 1.1.1.1\nnameserver 8.8.8.8\nnameserver 8.8.4.4\n" > /etc/resolv.conf \
+    && echo 'eval "$(direnv hook bash)"' > /etc/profile.d/direnv.sh \
+    && make infra/init dev/init staging/init production/init \
+    && rm -rf .envrc .vault_pass setup
+
+ENTRYPOINT ["/entrypoint.sh"]
