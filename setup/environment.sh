@@ -1,7 +1,7 @@
 #
 # vars
 #
-LOG="$PROJECT_ROOT/.direnv/envrc.log"
+LOG="$DIRENV_PATH/envrc.log"
 
 # create tools dir including .direnv early
 mkdir -p $TOOLS_PATH
