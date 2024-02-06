@@ -35,3 +35,4 @@
     # Do not run on CentOS-8-Stream
     - not 'stream' in IMAGE_NAME|lower
     - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'

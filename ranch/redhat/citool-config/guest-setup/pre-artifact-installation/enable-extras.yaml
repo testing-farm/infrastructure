@@ -15,6 +15,7 @@
     - '"auto-osbuild" not in IMAGE_NAME|lower'
     - '"updates" in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
 
 - block:
   - name: Add RHEL7 nightly Extras repository
@@ -32,3 +33,4 @@
     - '"auto-osbuild" not in IMAGE_NAME|lower'
     - '"updates" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'

@@ -30,6 +30,7 @@
     - beaker_client_repo_file_status.stat.exists
     - '"auto-osbuild" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
 
 #
 # Be verbose about the fact we skipped the workaround
@@ -40,3 +41,4 @@
     - not beaker_client_repo_file_status.stat.exists
     - '"auto-osbuild" in IMAGE_NAME|lower'
     - '"composer-api" in IMAGE_NAME|lower'
+    - '"hardened" in IMAGE_NAME|lower'
