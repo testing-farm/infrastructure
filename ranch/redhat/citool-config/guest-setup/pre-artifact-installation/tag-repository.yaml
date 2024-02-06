@@ -113,6 +113,7 @@
     - ansible_distribution == "RedHat"
     - '"auto-osbuild" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
 
   #
   # block: end
@@ -130,3 +131,4 @@
     - IMAGE_NAME is undefined
     - '"auto-osbuild" in IMAGE_NAME|lower'
     - '"composer-api" in IMAGE_NAME|lower'
+    - '"hardened" in IMAGE_NAME|lower'
