@@ -16,6 +16,7 @@
     - '"updates" in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'
+    - '"rhui" not in IMAGE_NAME|lower'
 
 - block:
   - name: Add RHEL7 nightly Extras repository
@@ -34,3 +35,21 @@
     - '"updates" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'
+    - '"rhui" not in IMAGE_NAME|lower'
+
+- block:
+  - name: Enable released Extras repository on Public Cloud RHUI images
+    ini_file:
+      dest: /etc/yum.repos.d/redhat-rhui.repo
+      section: rhel-7-server-rhui-extras-rpms
+      option: enabled
+      value: 1
+
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_major_version == "7"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"updates" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
+    - '"rhui" in IMAGE_NAME|lower'
