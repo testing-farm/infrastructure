@@ -74,7 +74,7 @@ provider "kubernetes" {
 # tfsec:ignore:aws-eks-encrypt-secrets  # Missing permission to create encryption keys
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = ">=v19.10.0"
+  version = ">= v19.10.0, < v20.0.0"
 
   cluster_name    = var.cluster_name
   cluster_version = var.eks_version
