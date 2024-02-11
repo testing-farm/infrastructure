@@ -274,8 +274,8 @@ redeploy/staging:
     - !reference [.script_with_cleanup, script]
   variables:
     SCRIPT: >-
-      make staging/destroy &&
       make staging/init &&
+      make staging/destroy &&
       make staging/apply
   rules:
     - !reference [.rules, only_default_branch]
