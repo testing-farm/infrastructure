@@ -3,5 +3,5 @@ artifacts-host = artifacts.dev.testing-farm.io
 artifacts-root = /archive
 source-destination-map = ${config_root}/source-destination-map.yaml
 rsync-mode = ssh
-rsync-options = --links,--times,--verbose,--compress
+rsync-options = --links,--times,--verbose,--compress,--mkpath
 enable-parallel-archiving = yes
