@@ -87,6 +87,18 @@ module "eks" {
   cluster_addons = {
     aws-ebs-csi-driver = {
       most_recent = true
+      configuration_values = jsonencode({
+        controller = {
+      ***REMOVED*** tags to apply for each created EBS volume
+      ***REMOVED*** https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/tagging.md
+          extraVolumeTags = var.resource_tags
+      ***REMOVED*** support volume modifications via PVC annotations
+      ***REMOVED*** https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/modify-volume.md
+          volumeModificationFeature = {
+            enabled = true
+          }
+        }
+      })
     }
   }
 
