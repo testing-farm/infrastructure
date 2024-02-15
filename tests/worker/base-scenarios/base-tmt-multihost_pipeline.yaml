@@ -6,9 +6,10 @@ variable:
   REQUEST_ID: change-me
 
 pipeline: |
-  hide-secrets
   rules-engine
   testing-farm-request --request-id {{ REQUEST_ID }}
+  hide-secrets
+  archive
   ansible
   artemis
   git
