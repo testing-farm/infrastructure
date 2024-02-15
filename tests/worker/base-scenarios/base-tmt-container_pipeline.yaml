@@ -6,9 +6,10 @@ variables:
   REQUEST_ID: change-me
 
 pipeline: |
-  hide-secrets
   rules-engine
   testing-farm-request --request-id {{ REQUEST_ID }}
+  archive
+  hide-secrets
   ansible
   static-guest --guest=localhost
   guest-setup-no-playbooks:guest-setup
