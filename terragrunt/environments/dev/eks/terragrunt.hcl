@@ -15,7 +15,7 @@ inputs = {
   cluster_name = get_env("TF_VAR_cluster_name", "testing-farm-dev-${get_env("USER", "unknown")}")
   eks_version  = 1.25
 
-  # aws_region is set in the parent
+  # aws_profile is set in the parent
   # route53_zone is set in the parent
 
   vpc_id                    = "vpc-0f6baa3d6bae8d912"

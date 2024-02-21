@@ -6,7 +6,7 @@
 
 # Region of the development instances
 region="us-east-2"
-aws_eks="aws --region $region eks"
+aws_eks="aws --profile fedora_us_east_2 eks"
 
 # Get the list of eks clusters created by CI
 clusters=$($aws_eks list-clusters | jq -r '.clusters[]' | grep testing-farm-gitlab-ci)
