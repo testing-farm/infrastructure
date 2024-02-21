@@ -9,8 +9,10 @@ marks:
   - pipeline
 
 variables:
-  REQUEST_ID: 8873d1f1-f7a6-4d60-a2ad-9d47f78d7d4d
-  COMPOSE: Fedora-Rawhide
+  REQUEST_ID: 46560272-370a-4126-a709-48e427629a68
+  # Note: Compose specified in the TF request is Fedora-40, which is also reported by gluetool pipeline.
+  # However actual compose used in tmt is taken from the plan, which is Fedora-Rawhide for both hosts.
+  COMPOSE: Fedora-40
   ARCH: x86_64
   RESULT: PASSED
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
@@ -43,7 +45,7 @@ checks:
          <guest name="{{ 'server|client' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="{{ ARCH }}"/>
-           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="compose" value="Fedora-Rawhide"/>
            <property name="snapshots" value="False"/>
           </testing-environment>
          </guest>
@@ -56,7 +58,7 @@ checks:
          <guest name="{{ 'server|client' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="{{ ARCH }}"/>
-           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="compose" value="Fedora-Rawhide"/>
            <property name="snapshots" value="False"/>
           </testing-environment>
          </guest>
@@ -69,7 +71,7 @@ checks:
          <guest name="{{ 'server|client' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="{{ ARCH }}"/>
-           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="compose" value="Fedora-Rawhide"/>
            <property name="snapshots" value="False"/>
           </testing-environment>
          </guest>
@@ -82,7 +84,7 @@ checks:
          <guest name="{{ 'server|client' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="{{ ARCH }}"/>
-           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="compose" value="Fedora-Rawhide"/>
            <property name="snapshots" value="False"/>
           </testing-environment>
          </guest>
@@ -95,7 +97,7 @@ checks:
          <guest name="{{ 'server|client' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="{{ ARCH }}"/>
-           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="compose" value="Fedora-Rawhide"/>
            <property name="snapshots" value="False"/>
           </testing-environment>
          </guest>
@@ -103,14 +105,14 @@ checks:
         <guest name="server">
          <testing-environment name="provisioned">
           <property name="arch" value="{{ ARCH }}"/>
-          <property name="compose" value="{{ COMPOSE }}"/>
+          <property name="compose" value="Fedora-Rawhide"/>
           <property name="snapshots" value="False"/>
          </testing-environment>
         </guest>
         <guest name="client">
          <testing-environment name="provisioned">
           <property name="arch" value="{{ ARCH }}"/>
-          <property name="compose" value="{{ COMPOSE }}"/>
+          <property name="compose" value="Fedora-Rawhide"/>
           <property name="snapshots" value="False"/>
          </testing-environment>
         </guest>
@@ -132,7 +134,7 @@ checks:
          <guest name="server">
           <testing-environment name="provisioned">
            <property name="arch" value="aarch64"/>
-           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="compose" value="Fedora-Rawhide"/>
            <property name="snapshots" value="False"/>
           </testing-environment>
          </guest>
@@ -145,7 +147,7 @@ checks:
          <guest name="{{ 'server|client' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="aarch64"/>
-           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="compose" value="Fedora-Rawhide"/>
            <property name="snapshots" value="False"/>
           </testing-environment>
          </guest>
@@ -158,7 +160,7 @@ checks:
          <guest name="{{ 'server|client' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="aarch64"/>
-           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="compose" value="Fedora-Rawhide"/>
            <property name="snapshots" value="False"/>
           </testing-environment>
          </guest>
@@ -171,7 +173,7 @@ checks:
          <guest name="{{ 'server|client' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="aarch64"/>
-           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="compose" value="Fedora-Rawhide"/>
            <property name="snapshots" value="False"/>
           </testing-environment>
          </guest>
@@ -184,7 +186,7 @@ checks:
          <guest name="{{ 'server|client' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="aarch64"/>
-           <property name="compose" value="{{ COMPOSE }}"/>
+           <property name="compose" value="Fedora-Rawhide"/>
            <property name="snapshots" value="False"/>
           </testing-environment>
          </guest>
@@ -192,14 +194,14 @@ checks:
         <guest name="server">
          <testing-environment name="provisioned">
           <property name="arch" value="aarch64"/>
-          <property name="compose" value="{{ COMPOSE }}"/>
+          <property name="compose" value="Fedora-Rawhide"/>
           <property name="snapshots" value="False"/>
          </testing-environment>
         </guest>
         <guest name="client">
          <testing-environment name="provisioned">
           <property name="arch" value="aarch64"/>
-          <property name="compose" value="{{ COMPOSE }}"/>
+          <property name="compose" value="Fedora-Rawhide"/>
           <property name="snapshots" value="False"/>
          </testing-environment>
         </guest>
