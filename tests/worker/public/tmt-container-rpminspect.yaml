@@ -38,7 +38,7 @@ checks:
          <properties>
           <property name="baseosci.arch" value="{{ ARCH }}"/>
           <property name="baseosci.connectable_host" value="localhost"/>
-          <property name="baseosci.distro" value="None"/>
+          <property name="baseosci.distro" value="container"/>
           <property name="baseosci.status" value="Complete"/>
           <property name="baseosci.testcase.source.url" value=""/>
           <property name="baseosci.variant" value=""/>
@@ -57,6 +57,7 @@ checks:
          </testing-environment>
          <testing-environment name="provisioned">
           <property name="arch" value="{{ ARCH }}"/>
+          <property name="compose" value="container"/>
           <property name="snapshots" value="False"/>
          </testing-environment>
         </testcase>
@@ -66,6 +67,7 @@ checks:
         </testing-environment>
         <testing-environment name="provisioned">
          <property name="arch" value="{{ ARCH }}"/>
+         <property name="compose" value="container"/>
          <property name="snapshots" value="False"/>
         </testing-environment>
        </testsuite>

@@ -1,0 +1,84 @@
+---
+# File: main.yaml - Main tasks for Nomad
+
+- name: Include OS variables
+  include_vars: "{{ ansible_distribution }}.yaml"
+
+- name: Install OS packages
+  include: install.yaml
+
+- block:
+    - name: Create directories
+      become: true
+      file:
+        dest: "{{ item }}"
+        state: directory
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0755
+      with_items:
+        - "{{ nomad_data_dir }}"
+
+    - name: Create config directory
+      file:
+        dest: "{{ nomad_config_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: Base configuration
+      template:
+        src: base.hcl.j2
+        dest: "{{ nomad_config_dir }}/base.hcl"
+        owner: root
+        group: root
+        mode: 0644
+      notify:
+        - Restart Nomad
+
+    - name: Server configuration
+      template:
+        src: server.hcl.j2
+        dest: "{{ nomad_config_dir }}/server.hcl"
+        owner: root
+        group: root
+        mode: 0644
+      when:
+        - _nomad_node_server | bool
+      notify:
+        - Restart Nomad
+
+    - name: Client configuration
+      template:
+        src: client.hcl.j2
+        dest: "{{ nomad_config_dir }}/client.hcl"
+        owner: root
+        group: root
+        mode: 0644
+      when:
+        - _nomad_node_client | bool
+      notify:
+        - Restart Nomad
+
+    - name: systemd script
+      template:
+        src: nomad_systemd.service.j2
+        dest: /etc/systemd/system/nomad.service
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: reload systemd daemon
+      systemd:
+        daemon_reload: true
+
+    - name: Start Nomad
+      service:
+        name: nomad
+        enabled: true
+        state: started
+      when: skip_nomad_start is not defined
+
+  # root is required to install nomad as a system service
+  become: true

@@ -184,12 +184,12 @@ variable "cluster_name" {
   type        = string
 }
 
-variable "cluster_aws_region" {
-  description = "AWS region of the EKS cluster."
+variable "cluster_aws_profile" {
+  description = "AWS profile of EKS cluster."
   type        = string
 }
 
-variable "guests_aws_region" {
+variable "guests_aws_profile" {
   description = "AWS region of the provisioned AWS guests."
   type        = string
 }

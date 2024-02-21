@@ -1,0 +1,51 @@
+---
+# The tasks configures additional attached volume
+- when:
+    - volume_attached_device is defined
+    - volume_attached_device_mount_path is defined
+    - volume_attached_device_owner is defined
+    - volume_attached_device_group is defined
+  block:
+    - name: Format a volume
+      community.general.parted:
+        device: "{{ volume_attached_device }}"
+        number: 1
+        state: present
+
+    - name: Set partition fact
+      set_fact:
+        partition: "1"
+
+    # NVMe volumes have different partition name
+    - name: Set partition fact (NVMe)
+      set_fact:
+        partition: "p1"
+      when: "'nvme' in volume_attached_device"
+
+    - name: Create the fileystem
+      filesystem:
+        fstype: ext4
+        dev: "{{ volume_attached_device }}{{ partition }}"
+
+    - name: Make sure mounting directory exists
+      file:
+        path: "{{ volume_attached_device_mount_path }}"
+        state: directory
+        recurse: true
+
+    - name: Mount the filesystem
+      ansible.posix.mount:
+        path: "{{ volume_attached_device_mount_path }}"
+        src: "{{ volume_attached_device }}{{ partition }}"
+        fstype: ext4
+        opts: defaults
+        passno: '2'
+        state: mounted
+
+    - name: Make sure mounting directory has appropriate permissions
+      file:
+        path: "{{ volume_attached_device_mount_path }}"
+        state: directory
+        owner: "{{ volume_attached_device_owner }}"
+        group: "{{ volume_attached_device_group }}"
+        mode: 0755

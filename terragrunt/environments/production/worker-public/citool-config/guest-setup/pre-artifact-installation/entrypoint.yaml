@@ -1,0 +1,23 @@
+- hosts: all
+  vars:
+    pkg_retry_count: 5
+    pkg_retry_delay: 30
+  tasks:
+  # DO NOT ENABLE BY DEFAULT, IT BREAKS PYTHON TEST SUITE (and can others)
+  # - include_tasks: nosync.yaml
+  # Disabled 2023-08-10, breaks after reverting back to dnf4, might be needed later once dnf5 lands
+  # - include_tasks: workaround-fedora-rawhide.yaml
+  - include_tasks: workaround-fedora-release.yaml
+  - include_tasks: workaround-centos-10.yaml
+  - include_tasks: update-and-restart.yaml
+  - include_tasks: workaround-dns.yaml
+  - include_tasks: workaround-beakerlib.yaml
+  - include_tasks: workaround-automotive.yaml
+  - include_tasks: enable-crb.yaml
+  - include_tasks: enable-powertools.yaml
+  - include_tasks: install-epel.yaml
+  - include_tasks: install-koji-brew.yaml
+  # For EOL distros this can fail, ignore the fact tag repo is not around
+  # It is considered a nice to have, but should not fail the setup.
+  - include_tasks: tag-repository.yaml
+    ignore_errors: true

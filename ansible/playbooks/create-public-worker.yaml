@@ -1,0 +1,103 @@
+---
+- hosts: localhost
+  vars_files:
+    - ../secrets/credentials.yaml
+  tasks:
+    - name: Provision new EC2 instance
+      amazon.aws.ec2_instance:
+        state: running
+        profile: fedora_us_east_2
+        tags:
+          Name: "testing_farm_worker_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
+          FedoraGroup: ci
+          ServiceOwner: TFT
+          ServiceName: TestingFarm
+          ServiceComponent: Worker
+          ServicePhase: Prod
+        key_name: testing-farm
+        instance_type: i3.2xlarge
+        # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-2-gp3-0
+        image_id: ami-02942164e2807a6a8
+        wait: true
+        count: "{{ count|default(1) }}"
+        network:
+          subnet_id: subnet-4f971734
+          assign_public_ip: true
+        instance_initiated_shutdown_behavior: terminate
+        security_group: sg-0040a2477d37dd6d0
+      register: ec2
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip_address }}"
+        groupname: testing_farm_public_workers
+      loop: "{{ ec2.instances }}"
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip_address }}"
+        groupname: new_workers
+      loop: "{{ ec2.instances }}"
+
+#
+# Wait for ssh connection
+#
+- hosts: new_workers
+  gather_facts: false
+  remote_user: fedora
+  tasks:
+    - name: Wait for SSH to come up
+      wait_for_connection:
+        delay: 10
+        timeout: 600
+
+#
+# Setup storage
+#
+- hosts: new_workers
+  gather_facts: false
+  remote_user: fedora
+  become: true
+  vars:
+    volume_attached_device: /dev/nvme0n1
+    volume_attached_device_mount_path: /data
+    volume_attached_device_owner: root
+    volume_attached_device_group: root
+  roles:
+    - volume
+
+#
+# Setup worker
+#
+- hosts: new_workers
+  remote_user: fedora
+  vars_files:
+    - ../secrets/credentials.yaml
+    - ../vars/common.yaml
+  pre_tasks:
+    - include: ../tasks/dns.yaml
+    - include: ../tasks/ssh-key.yaml
+    - include: ../tasks/artifacts.yaml
+    - include: ../tasks/podman.yaml
+    - include: ../tasks/jobs.yaml
+    - include: ../tasks/config.yaml
+    - include: ../tasks/image.yaml
+    - name: "Manual action required to update Artemis and guest access - run terraform for production Testing Farm!"
+      pause:
+        prompt: "Make sure Artemis and guests accept connections from {{ ansible_host }}"
+  roles:
+    - name: geerlingguy.swap
+      vars:
+        swap_file_path: /data/swapfile
+        swap_file_size_mb: "16384"
+        swap_file_state: present
+      become: true
+    - name: nomad
+  tasks:
+    - include: ../tasks/jobs-register.yaml
+      when: skip_nomad_start is not defined
+
+- hosts: localhost
+  tasks:
+    - name: Refresh the inventory
+      meta: refresh_inventory

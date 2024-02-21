@@ -1,0 +1,41 @@
+---
+- name: Install required packages
+  become: true
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ nomad_os_packages }}"
+
+- name: Create Nomad download directory
+  file:
+    state: directory
+    path: "nomad-download"
+    mode: 0755
+  register: download
+
+- name: Download Nomad
+  command: "curl -Lo {{ download.path }}/{{ nomad_pkg }} {{ nomad_zip_url }}"
+  tags:
+    - skip_ansible_lint
+
+- name: Unarchive Nomad
+  unarchive:
+    src: "{{ download.path }}/{{ nomad_pkg }}"
+    dest: "{{ download.path }}"
+    creates: "{{ download.path }}/nomad"
+    remote_src: true
+
+- name: Install Nomad
+  become: true
+  copy:
+    src: "{{ download.path }}/nomad"
+    dest: "{{ nomad_bin_dir }}"
+    owner: "{{ nomad_user }}"
+    group: "{{ nomad_group }}"
+    mode: 0755
+    remote_src: true
+
+- name: Cleanup
+  file:
+    path: "{{ download.path }}"
+    state: "absent"

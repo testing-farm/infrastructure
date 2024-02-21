@@ -2,8 +2,8 @@ output "artemis_api_domain" {
   value = var.api_domain
 }
 
-output "guests_aws_region" {
-  value = var.guests_aws_region
+output "guests_aws_profile" {
+  value = var.guests_aws_profile
 }
 
 output "guests_security_group_id" {

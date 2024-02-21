@@ -32,15 +32,15 @@ environment="$PROJECT_ROOT/terragrunt/environments/$ENVIRONMENT/${ARTEMIS_DEPLOY
 [ ! -d "$environment" ] && error "No Artemis deployment found in environment '$ENVIRONMENT'"
 
 # Region of the development instance
-region=$(TERRAGRUNT_WORKING_DIR=$environment terragrunt output --raw guests_aws_region)
+profile=$(TERRAGRUNT_WORKING_DIR=$environment terragrunt output --raw guests_aws_profile)
 
-grep -q "No outputs found" <<< "$region" && error "No Artemis guests region found, environment not deployed?"
+grep -q "No outputs found" <<< "$profile" && error "No Artemis guests AWS profile found, environment not deployed?"
 
 # Set the security group ID
 security_group_id=$(TERRAGRUNT_WORKING_DIR=$environment terragrunt output --raw guests_security_group_id)
 
 # Get the instance IDs associated with the specified security group
-instance_ids=$(aws --region $region ec2 describe-instances --filters Name=instance.group-id,Values=$security_group_id --query 'Reservations[].Instances[].InstanceId' --output text)
+instance_ids=$(aws --profile "$profile" ec2 describe-instances --filters Name=instance.group-id,Values="$security_group_id" --query 'Reservations[].Instances[].InstanceId' --output text)
 
 # Check if there are instances to terminate
 if [ -z "$instance_ids" ]; then
@@ -52,5 +52,5 @@ fi
 echo "Terminating instances with security group $security_group_id"
 for instance_id in $instance_ids; do
     echo "Terminating instance $instance_id"
-    aws --region $region ec2 terminate-instances --instance-ids "$instance_id"
+    aws --profile "$profile" ec2 terminate-instances --instance-ids "$instance_id"
 done

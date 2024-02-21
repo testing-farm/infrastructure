@@ -1,0 +1,4 @@
+---
+# ssh key
+ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_server"
+ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_server"

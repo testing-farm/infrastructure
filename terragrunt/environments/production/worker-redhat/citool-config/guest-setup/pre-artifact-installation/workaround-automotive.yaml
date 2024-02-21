@@ -1,0 +1,27 @@
+---
+#
+# Various workarounds for Automotive:
+#
+# * install rsync, because tmt requires it, and because RHIVOS has no repos, install it from URL
+#
+
+- block:
+    - name: "Check if 'rsync' package is already present"
+      command: rpm -q rsync
+      register: rsync_package_check
+      changed_when: false
+      ignore_errors: true
+
+    - name: Install rsync via rpm-ostree
+      shell: "rpm-ostree install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/rsync/3.2.3/16.el9/$(arch)/rsync-3.2.3-16.el9.$(arch).rpm"
+      when: rsync_package_check is failed
+
+    - name: Restart
+      reboot:
+
+    - name: Wait for connection for 5 minutes
+      wait_for_connection:
+        delay: 5
+        timeout: 300
+
+  when: '"auto-osbuild" in IMAGE_NAME|lower'

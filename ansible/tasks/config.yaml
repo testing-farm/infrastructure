@@ -1,0 +1,36 @@
+---
+- name: Copy citool configuration
+  become: true
+  synchronize:
+    # ending `/` is required to copy only contents over
+    src: "{{ worker_deployment_data }}/citool-config/"
+    dest: "/etc/citool.d"
+    archive: false
+    recursive: true
+
+- name: Render config templates
+  become: true
+  template:
+    src: "{{ item }}"
+    dest: "/etc/citool.d/config/{{ item | basename | regex_replace('.j2','') }}"
+    mode: 0644
+  with_fileglob:
+    - "{{ worker_deployment_data }}/citool-config/config/*.j2"
+
+- name: Copy Artemis Private Key
+  become: true
+  copy:
+    # ending `/` is required to copy only contents over
+    src: "{{ artemis_ssh_private_key }}/"
+    dest: "/etc/citool.d/id_rsa_artemis"
+    owner: "root"
+    mode: 0600
+
+- name: Copy Artemis Public Key
+  become: true
+  copy:
+    # ending `/` is required to copy only contents over
+    src: "{{ artemis_ssh_public_key }}/"
+    dest: "/etc/citool.d/id_rsa_artemis.pub"
+    owner: "root"
+    mode: 0600

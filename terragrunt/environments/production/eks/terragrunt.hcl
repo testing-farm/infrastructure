@@ -15,7 +15,7 @@ inputs = {
   # cluster_name is set by direnv
   eks_version = 1.25
 
-  # aws_region is set in the parent
+  # aws_profile is set in the parent
   # route53_zone is set in the parent
 
   vpc_id                    = "vpc-0896aedab4753e76f"

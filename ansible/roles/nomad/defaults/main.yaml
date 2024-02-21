@@ -1,0 +1,26 @@
+---
+## Core
+nomad_debug: false
+nomad_node_role: "both"
+
+### Package
+nomad_version: "0.12.5"
+nomad_architecture: "amd64"
+nomad_pkg: "nomad_{{ nomad_version }}_linux_{{nomad_architecture}}.zip"
+nomad_zip_url: "https://releases.hashicorp.com/nomad/{{ nomad_version }}/nomad_{{ nomad_version }}_linux_{{nomad_architecture}}.zip"
+nomad_checksum_file_url: "https://releases.hashicorp.com/nomad/{{ nomad_version }}/nomad_{{ nomad_version}}_SHA256SUMS"
+
+### Paths
+nomad_bin_dir: /usr/bin
+nomad_config_dir: /etc/nomad.d
+nomad_data_dir: /data
+nomad_lockfile: /var/lock/subsys/nomad"
+nomad_run_dir: /var/run/nomad
+
+### System user and group
+nomad_user: root
+nomad_group: root
+
+### Nomad settings
+nomad_log_level: INFO
+nomad_syslog_enable: true

@@ -1,0 +1,63 @@
+---
+- block:
+    - name: "Install required packages podman, cronie and policycoreutils-python-utils"
+      package:
+        name:
+          - cronie
+          - podman
+          - policycoreutils-python-utils
+        state: present
+
+    - name: "Create container storage path {{ container_storage_path }}"
+      file:
+        path: "{{ container_storage_path }}"
+        state: directory
+        mode: 0700
+
+    - name: "Copy system storage configuration"
+      copy:
+        src: /usr/share/containers/storage.conf
+        dest: /etc/containers/storage.conf
+        remote_src: true
+      ignore_errors: true
+      tags:
+        - skip_ansible_lint
+
+    - name: "Set containers storage to {{ container_storage_path }}"
+      lineinfile:
+        path: /etc/containers/storage.conf
+        regexp: "^graphroot = .*"
+        line: 'graphroot = "{{ container_storage_path }}"'
+
+    - name: "Set semanage context correctly"
+      command: "semanage fcontext -a -e /var/lib/containers/storage {{ container_storage_path }}"
+      ignore_errors: true
+      tags:
+        - skip_ansible_lint
+
+    - name: "Relabel all files"
+      command: "restorecon -RvvF {{ container_storage_path }}"
+
+    - name: "Add crontab for cleaning up podman"
+      cron:
+        name: cleanup podman daily
+        state: present
+        job: >
+          podman system prune --force --volumes
+        special_time: daily
+
+    - name: "Create /root/.docker directory"
+      file:
+        path: /root/.docker
+        state: directory
+        mode: 0700
+      when: podman_authfile is defined
+
+    - name: "Add podman authentication file"
+      copy:
+        src: "{{ podman_authfile }}"
+        dest: /root/.docker/config.json
+        mode: 0644
+      when: podman_authfile is defined
+
+  become: true

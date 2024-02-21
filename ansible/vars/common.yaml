@@ -1,0 +1,3 @@
+---
+root_dir: "{{ ansible_config_file | dirname }}"
+ansible_dir: "{{ root_dir }}/ansible"

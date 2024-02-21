@@ -136,8 +136,8 @@ provider "helm" {
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       args = [
-        "--region",
-        var.cluster_aws_region,
+        "--profile",
+        var.cluster_aws_profile,
         "eks",
         "get-token",
         "--cluster-name",
@@ -160,12 +160,12 @@ data "ansiblevault_path" "guests_additional_ips" {
 
 data "ansiblevault_path" "pool_access_key_aws" {
   path = var.ansible_vault_credentials
-  key  = "credentials.aws.fedora.access_key"
+  key  = "credentials.aws.profiles.fedora_us_east_2.access_key"
 }
 
 data "ansiblevault_path" "pool_secret_key_aws" {
   path = var.ansible_vault_credentials
-  key  = "credentials.aws.fedora.secret_key"
+  key  = "credentials.aws.profiles.fedora_us_east_2.secret_key"
 }
 
 data "ansiblevault_path" "vault_password" {

@@ -1,0 +1,30 @@
+---
+- name: Check for rawhide
+  command: "rpm -q fedora-repos-rawhide"
+  ignore_errors: true
+  register: check_rawhide
+
+- block:
+    - name: Update to latest packages
+      command: "dnf -y update *"
+      register: update_packages
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: update_packages is succeeded
+
+    - block:
+        - name: Restart if kernel updated
+          reboot:
+
+        - name: Wait for connection for 5 minutes
+          wait_for_connection:
+            delay: 5
+            timeout: 300
+
+      when: "'kernel-' in update_packages.stdout"
+
+  # 2022-05-24: Added CentOS Stream 8 update, due to podman broken with old libseccomp
+  # 2022-12-01: Added CentOS Stream 9 update, due to podman broken with libselinux
+  when: check_rawhide.rc == 0 or IMAGE_NAME|lower|regex_search('centos.stream')
+  # This task is best effort
+  ignore_errors: true

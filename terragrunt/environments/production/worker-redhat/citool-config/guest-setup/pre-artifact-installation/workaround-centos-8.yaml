@@ -1,0 +1,38 @@
+#
+# Since CentOS 8 has reached it's EOL all the URLs migrated
+# to the 'vault'. In order to run yum update we need to
+# change the URLs of AppStream and BaseOS repository.
+#
+# Workaround required by convert2rhel team.
+#
+- block:
+  - name: Overwrite AppStream repository
+    yum_repository:
+      name: appstream
+      description: AppStream repo
+      baseurl: https://vault.centos.org/$contentdir/$releasever/AppStream/$basearch/os/
+      state: present
+      gpgcheck: yes
+      enabled: yes
+      gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+      file: CentOS-Linux-AppStream
+
+  - name: Overwrite BaseOS repository
+    yum_repository:
+      name: baseos
+      description: BaseOS repo
+      baseurl: https://vault.centos.org/$contentdir/$releasever/BaseOS/$basearch/os/
+      state: present
+      gpgcheck: yes
+      enabled: yes
+      gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+      file: CentOS-Linux-BaseOS
+
+  when:
+    - 'ansible_distribution == "CentOS"'
+    - 'ansible_distribution_major_version == "8"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    # Do not run on CentOS-8-Stream
+    - not 'stream' in IMAGE_NAME|lower
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
