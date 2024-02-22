@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 # Collect all output to pipeline.log file
-exec > >(tee pipeline.log) 2>&1
+exec > >(stdbuf -i0 -o0 tee pipeline.log) 2>&1
 
 printf "\n[pipeline-start] $(date)\n\n"
 
