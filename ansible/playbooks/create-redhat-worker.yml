@@ -9,11 +9,23 @@
         state: running
         tags:
           Name: "testing_farm_worker_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
+          # Old tags used for reporting
           AppCode: ARR-001
           ServiceOwner: TFT
           ServicePhase: Prod
           ServiceName: TestingFarm
           ServiceComponent: Worker
+          # Unified tagging policy
+          # https://source.redhat.com/departments/it/devit/it-infrastructure/itcloudservices/itpubliccloudpage/cloud/docs/consumer/public_cloud_tagging_policy_for_cloud_providers
+          # https://source.redhat.com/departments/it/devit/it-infrastructure/itcloudservices/itpubliccloudpage/cloud/it_aws_annoucements/updated_it_public_cloud_tagging_policy
+          app-code: ARR-001
+          service-owner: TFT
+          service-component: Worker
+          service-phase: prod
+          service-name: TestingFarm
+          # Thanks to running JDK QE workloads, we have 20% discount in AWS
+          # https://source.redhat.com/groups/public/red_hat_public_cloud_services/public_cloud_services_wiki/aws_map_20_program
+          map-migrated: migN5JR4801JY
         key_name: tft-artemis-master-key
         instance_type: i3.2xlarge
         # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-1-gp3-0
