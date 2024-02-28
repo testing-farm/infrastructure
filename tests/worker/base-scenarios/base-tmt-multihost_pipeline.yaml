@@ -16,5 +16,5 @@ pipeline: |
   testing-farm-request-state-reporter
   test-schedule-tmt-multihost
   test-scheduler-testing-farm
-  test-schedule-runner-multihost
   test-schedule-report
+  test-schedule-runner-multihost
