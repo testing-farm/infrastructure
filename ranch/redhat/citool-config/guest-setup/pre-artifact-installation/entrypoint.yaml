@@ -15,6 +15,7 @@
   - include_tasks: install-koji-brew.yaml
   - include_tasks: enable-beaker-tasks.yaml
   - include_tasks: enable-crb.yaml
+  - include_tasks: install-epel.yaml
   - include_tasks: enable-epel.yaml
   # Tag repository must be enabled to bring in latest deps which passed gating
   # https://projects.engineering.redhat.com/browse/TFT-640
