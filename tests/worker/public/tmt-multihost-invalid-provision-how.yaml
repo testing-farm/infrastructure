@@ -1,0 +1,46 @@
+---
+
+extends:
+  - base-tmt-multihost_pipeline
+  - base-tmt-multihost_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  REQUEST_ID: 5c978639-2d65-4414-8444-bb079d283899  # TODO: move test to testing-farm/tests repo
+  COMPOSE: Fedora-Rawhide
+  ARCH: x86_64
+  RESULT: ERROR
+  GIT_CLONE_URL: https://gitlab.com/janhavlin/tests
+  GIT_REF: tmt-multihost-provision-how
+  PLAN: /testing-farm/multihost
+  SCHEDULE_ENTRIES: 1
+  TMT_EXIT_CODE: 2
+
+checks:
+  literal-patterns[results.xml]:
+    - |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <testsuites overall-result="error">
+       <properties>
+        <property name="baseosci.overall-result" value="error"/>
+       </properties>
+       <testsuite name="/testing-farm/multihost" result="error" tests="0">
+        <logs>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}/tmt-run.log" name="tmt-log"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}" name="workdir"/>
+        </logs>
+        <properties>
+         <property name="baseosci.result" value="error"/>
+        </properties>
+       </testsuite>
+      </testsuites>
+
+  literal-patterns:
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}]{{ '.+' }}Unsupported provision method 'virtual' in the '{{ PLAN }}' plan."
+
+  literal-strings:
+    - "[W] [test-schedule-tmt-multihost] The `how` key in provision phase should not be `artemis`."
