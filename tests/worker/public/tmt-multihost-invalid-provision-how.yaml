@@ -9,13 +9,13 @@ marks:
   - pipeline
 
 variables:
-  REQUEST_ID: 5c978639-2d65-4414-8444-bb079d283899  # TODO: move test to testing-farm/tests repo
+  REQUEST_ID: f3097a79-611f-4e8b-9a7b-7553557c601d
   COMPOSE: Fedora-Rawhide
   ARCH: x86_64
   RESULT: ERROR
-  GIT_CLONE_URL: https://gitlab.com/janhavlin/tests
-  GIT_REF: tmt-multihost-provision-how
-  PLAN: /testing-farm/multihost
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/multihost/invalid-provision-how
   SCHEDULE_ENTRIES: 1
   TMT_EXIT_CODE: 2
 
@@ -27,11 +27,11 @@ checks:
        <properties>
         <property name="baseosci.overall-result" value="error"/>
        </properties>
-       <testsuite name="/testing-farm/multihost" result="error" tests="0">
+       <testsuite name="{{ PLAN }}" result="error" tests="0">
         <logs>
-         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}/tmt-run.log" name="tmt-log"/>
-         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
-         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-multihost{{ '.+' }}" name="workdir"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}/tmt-run.log" name="tmt-log"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}" name="workdir"/>
         </logs>
         <properties>
          <property name="baseosci.result" value="error"/>
