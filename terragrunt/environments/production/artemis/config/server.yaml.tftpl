@@ -72,7 +72,7 @@ pools:
       default-instance-type: c6a.large
 
       # Default root disk size.
-      default-root-disk-size: 50
+      default-root-disk-size: 100
 
       # Control the subset of flavors available for provisioning.
       flavor-regex: ^c6a\..+$
@@ -83,10 +83,10 @@ pools:
 
       # Create custom flavors.
       custom-flavors:
-        - name: c6a.large-50
+        - name: c6a.large-100
           base: c6a.large
           disk:
-            - size: "250 GiB"
+            - size: "100 GiB"
             - additional-disks:
                 max-count: 5
                 min-size: "10 GiB"
@@ -94,10 +94,10 @@ pools:
 
       # Create custom flavors.
       custom-flavors:
-        - name: c6a.large-50
+        - name: c6a.large-100
           base: c6a.large
           disk:
-            - size: "50 GiB"
+            - size: "100 GiB"
             - additional-disks:
                 max-count: 5
                 min-size: "10 GiB"
@@ -121,10 +121,10 @@ pools:
                 min-size: "10 GiB"
                 max-size: "512 GiB"
 
-        - name: c6a.large-50
+        - name: c6a.large-100
           base: c6a.large
           disk:
-            - size: "50 GiB"
+            - size: "100 GiB"
             - additional-disks:
                 max-count: 5
                 min-size: "10 GiB"
@@ -148,10 +148,10 @@ pools:
                 min-size: "10 GiB"
                 max-size: "512 GiB"
 
-        - name: c6a.2xlarge-50
+        - name: c6a.2xlarge-100
           base: c6a.2xlarge
           disk:
-            - size: "50 GiB"
+            - size: "100 GiB"
             - additional-disks:
                 max-count: 5
                 min-size: "10 GiB"
@@ -237,7 +237,7 @@ pools:
       default-instance-type: c6g.large
 
       # Default root disk size.
-      default-root-disk-size: 50
+      default-root-disk-size: 100
 
       # Control the subset of flavors available for provisioning.
       flavor-regex: ^c6g\..+$
@@ -248,7 +248,7 @@ pools:
 
       # Create custom flavors.
       custom-flavors:
-        - name: c6g.large-50
+        - name: c6g.large-100
           base: c6g.large
           disk:
             - size: "250 GiB"
@@ -259,10 +259,10 @@ pools:
 
       # Create custom flavors.
       custom-flavors:
-        - name: c6g.large-50
+        - name: c6g.large-100
           base: c6g.large
           disk:
-            - size: "50 GiB"
+            - size: "100 GiB"
             - additional-disks:
                 max-count: 5
                 min-size: "10 GiB"
@@ -286,10 +286,10 @@ pools:
                 min-size: "10 GiB"
                 max-size: "512 GiB"
 
-        - name: c6g.large-50
+        - name: c6g.large-100
           base: c6g.large
           disk:
-            - size: "50 GiB"
+            - size: "100 GiB"
             - additional-disks:
                 max-count: 5
                 min-size: "10 GiB"
@@ -313,10 +313,10 @@ pools:
                 min-size: "10 GiB"
                 max-size: "512 GiB"
 
-        - name: c6g.2xlarge-50
+        - name: c6g.2xlarge-100
           base: c6g.2xlarge
           disk:
-            - size: "50 GiB"
+            - size: "100 GiB"
             - additional-disks:
                 max-count: 5
                 min-size: "10 GiB"
