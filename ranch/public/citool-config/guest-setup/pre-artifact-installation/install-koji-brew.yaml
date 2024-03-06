@@ -37,8 +37,9 @@
         description: RCMTOOLS repository
         name: rcmtools
         state: present
-        gpgcheck: no
-        baseurl: "http://download.devel.redhat.com/rel-eng/RCMTOOLS/latest-RCMTOOLS-2-RHEL-{{ ansible_distribution_major_version }}/compose/Server/{{ ansible_architecture }}/os/"
+        gpgcheck: false
+        baseurl: "http://download.devel.redhat.com/rel-eng/RCMTOOLS/latest-RCMTOOLS-2-RHEL-\
+                  {{ ansible_distribution_major_version }}/compose/Server/{{ ansible_architecture }}/os/"
 
     - name: Install Brewkoji
       package:
@@ -58,8 +59,9 @@
         description: RCMTOOLS repository
         name: rcmtools
         state: present
-        gpgcheck: no
-        baseurl: "http://download.devel.redhat.com/rel-eng/RCMTOOLS/latest-RCMTOOLS-2-RHEL-{{ ansible_distribution_major_version }}/compose/BaseOS/{{ ansible_architecture }}/os/"
+        gpgcheck: false
+        baseurl: "http://download.devel.redhat.com/rel-eng/RCMTOOLS/latest-RCMTOOLS-2-RHEL-\
+                  {{ ansible_distribution_major_version }}/compose/BaseOS/{{ ansible_architecture }}/os/"
 
     - name: Install Brewkoji
       package:
