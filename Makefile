@@ -63,6 +63,10 @@ update/redhat/pipeline/jobs: .FORCE  ## Update pipeline jobs on Red Hat ranch
 
 ##@ Utility
 
+public/proxy/nomad:  ## Setup ssh proxy for Public ranch nomad
+	@echo -e "🚀 \033[0;32mSetting up ssh proxy for public ranch nomad: http://localhost:4646\033[0m"
+	@ssh -fNL 4646:localhost:4646 testing_farm_public_server_01
+
 clean: .FORCE  ## Cleanup
 	rm -rf $$DIRENV_PATH
 	rm -rf $$VIRTUAL_ENV
