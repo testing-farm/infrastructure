@@ -65,11 +65,11 @@ citool-container.sh rules-engine \
                     ansible \
                     artemis \
                     fedora-copr:copr \
-                    guest-setup-testing-farm:guest-setup \
-                    guest-setup-order \
                     install-repository \
                     install-copr-build \
                     install-koji-build-execute \
+                    guest-setup-testing-farm:guest-setup \
+                    guest-setup-order \
                     git \
                     coldstore \
                     testing-farm-request-state-reporter \
