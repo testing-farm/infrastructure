@@ -1,6 +1,6 @@
 ---
 # container image with citool and modules
-citool_container_image: quay.io/testing-farm/worker:2024-01.2
+citool_container_image: quay.io/testing-farm/worker:2024-02.1
 
 # environment name, used to reference various environment specific configuration like
 # citool-config, artemis configuration, etc.
