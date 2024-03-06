@@ -1,0 +1,111 @@
+[highavailability]
+name=CentOS Stream $releasever - HighAvailability
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/HighAvailability/x86_64/os/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=0
+
+[highavailability-debuginfo]
+name=CentOS Stream $releasever - HighAvailability - Debug
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/HighAvailability/x86_64/debug/tree/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+enabled=0
+
+[highavailability-source]
+name=CentOS Stream $releasever - HighAvailability - Source
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/HighAvailability/source/tree/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+enabled=0
+
+[nfv]
+name=CentOS Stream $releasever - NFV
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/NFV/x86_64/os/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=0
+
+[nfv-debuginfo]
+name=CentOS Stream $releasever - NFV - Debug
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/NFV/x86_64/debug/tree/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+enabled=0
+
+[nfv-source]
+name=CentOS Stream $releasever - NFV - Source
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/NFV/source/tree/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+enabled=0
+
+[rt]
+name=CentOS Stream $releasever - RT
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/RT/x86_64/os/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=0
+
+[rt-debuginfo]
+name=CentOS Stream $releasever - RT - Debug
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/RT/x86_64/debug/tree/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+enabled=0
+
+[rt-source]
+name=CentOS Stream $releasever - RT - Source
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/RT/source/tree/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+enabled=0
+
+[resilientstorage]
+name=CentOS Stream $releasever - ResilientStorage
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/ResilientStorage/x86_64/os/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=0
+
+[resilientstorage-debuginfo]
+name=CentOS Stream $releasever - ResilientStorage - Debug
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/ResilientStorage/x86_64/debug/tree/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+enabled=0
+
+[resilientstorage-source]
+name=CentOS Stream $releasever - ResilientStorage - Source
+baseurl=https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/ResilientStorage/source/tree/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+enabled=0
