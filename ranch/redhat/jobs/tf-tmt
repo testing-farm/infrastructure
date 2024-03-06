@@ -61,6 +61,7 @@ timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
 citool-container.sh rules-engine \
                     hide-secrets \
                     testing-farm-request --request-id $REQUEST_ID \
+                    coldstore \
                     archive \
                     ansible \
                     artemis \
@@ -71,7 +72,6 @@ citool-container.sh rules-engine \
                     guest-setup-testing-farm:guest-setup \
                     guest-setup-order \
                     git \
-                    coldstore \
                     testing-farm-request-state-reporter \
                     test-schedule-tmt-connect:test-schedule-tmt \
                     test-scheduler-testing-farm \
