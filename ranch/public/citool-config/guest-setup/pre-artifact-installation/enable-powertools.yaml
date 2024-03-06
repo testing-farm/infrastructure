@@ -1,9 +1,10 @@
+---
 - block:
-  - name: Make sure dnf core plugins are installed
-    command: "dnf -y install dnf-plugins-core"
+    - name: Make sure dnf core plugins are installed
+      command: "dnf -y install dnf-plugins-core"
 
-  - name: Enable Powertools repository
-    command: "dnf config-manager --enable powertools"
+    - name: Enable Powertools repository
+      command: "dnf config-manager --enable powertools"
 
   when:
     - 'ansible_distribution == "CentOS"'
