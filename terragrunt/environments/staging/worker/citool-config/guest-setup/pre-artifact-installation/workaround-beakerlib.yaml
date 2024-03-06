@@ -23,7 +23,7 @@
 
   # workaround: install beakerlib from cs9, it is not yet available
   - name: Install cs9 beakerlib on cs10
-    command: "rpm -ivh --nodeps https://download.copr.fedorainfracloud.org/results/packit/beakerlib-beakerlib-master/centos-stream-9-x86_64/06638579-beakerlib/beakerlib-1.29.3-1.20231115114836990954.master.13.g89675cb.el9.noarch.rpm"
+    command: "rpm -ivh --nodeps https://kojipkgs.fedoraproject.org/packages/beakerlib/1.29.3/3.fc39/noarch/beakerlib-1.29.3-3.fc39.noarch.rpm"
     retries: "{{ pkg_retry_count }}"
     delay: "{{ pkg_retry_delay }}"
     until: result_package is succeeded
