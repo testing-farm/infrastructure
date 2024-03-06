@@ -1,0 +1,24 @@
+---
+summary: Test guest-setup on CentOS Stream 10
+
+provision:
+  how: virtual
+  image: CentOS-Stream-10
+
+prepare:
+  - name: pre-artifact-installation
+    how: ansible
+    playbook: ranch/public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yaml
+    extra-args: "-e IMAGE_NAME=CentOS-Stream-10"
+
+discover+:
+  how: shell
+  tests+:
+    - name: Test installed koji package
+      test: rpm -qi koji
+
+    - name: Test if tag repository added
+      test: test -e /etc/yum.repos.d/tag-repository.repo
+
+    - name: Test all repositories work
+      test: dnf --enablerepo='*' makecache

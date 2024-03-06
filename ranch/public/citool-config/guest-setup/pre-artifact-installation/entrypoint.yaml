@@ -8,6 +8,7 @@
   # Disabled 2023-08-10, breaks after reverting back to dnf4, might be needed later once dnf5 lands
   # - include_tasks: workaround-fedora-rawhide.yaml
   - include_tasks: workaround-fedora-release.yaml
+  - include_tasks: workaround-centos-10.yaml
   - include_tasks: update-and-restart.yaml
   - include_tasks: workaround-dns.yaml
   - include_tasks: workaround-beakerlib.yaml
