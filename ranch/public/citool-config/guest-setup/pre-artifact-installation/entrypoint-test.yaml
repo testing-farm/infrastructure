@@ -1,3 +1,4 @@
+---
 - hosts: all
   tasks:
-  - include_tasks: enable-powertools.yaml
+    - include_tasks: enable-powertools.yaml
