@@ -25,6 +25,9 @@ checks:
     - "[test-schedule-runner-multihost] running test schedule of {{ SCHEDULE_ENTRIES }} entries"
     - "[test-schedule-report] Result of testing: {{ RESULT }}"
 
+  literal-strings[citool-debug.txt]:
+    - "[test-schedule-report] results saved into results.xml"
+    - "[test-schedule-report] results saved into results-junit.xml"
 
   literal-patterns:
     - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}"
