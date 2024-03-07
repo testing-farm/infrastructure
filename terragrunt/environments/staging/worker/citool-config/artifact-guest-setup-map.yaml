@@ -1,0 +1,8 @@
+---
+# These patterns are used by gluetool to transform an artifact type to related guest setup shared function.
+
+- '^fedora-koji-build$': 'setup_guest_install_koji_build_execute'
+- '^redhat-brew-build$': 'setup_guest_install_koji_build_execute'
+- '^fedora-copr-build$': 'setup_guest_install_copr_build'
+- '^repository$': 'setup_guest_install_repository'
+- '^repository-file$': 'setup_guest_install_repository'
