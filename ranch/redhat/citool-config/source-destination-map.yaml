@@ -27,6 +27,9 @@ progress:
 
   - source: "work-*/console-*"
 
+  - source: "results.xml"
+    destination: results.xml
+
 destroy:
   - source: "./*"
     permissions: "777"
