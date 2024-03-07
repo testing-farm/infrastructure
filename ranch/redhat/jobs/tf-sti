@@ -76,8 +76,8 @@ citool-container.sh rules-engine \
                     test-scheduler-sti \
                     test-schedule-runner-sti \
                     test-scheduler-testing-farm \
-                    test-schedule-runner \
-                    test-schedule-report
+                    test-schedule-report \
+                    test-schedule-runner
 
 # TFT-1721 - citool was not executed, exit non-zero to retry via Nomad
 if [ ! -e "citool-debug.txt" ]; then
