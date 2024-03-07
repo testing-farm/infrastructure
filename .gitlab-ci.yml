@@ -96,6 +96,7 @@ workflow:
 
   public_pipeline_tests:
     - changes:
+        - tests/worker/base-scenarios/*
         - tests/worker/public/tmt*
         - tests/worker/public/sti*
 
