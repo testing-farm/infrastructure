@@ -24,6 +24,8 @@ checks:
     - "[test-schedule-runner] 1 entries pending:"
     - "[test-schedule-runner] 0 entries pending:"
     - "[test-schedule-runner] finished schedule:"
+
+  literal-strings[citool-debug.txt]:
     - "[test-schedule-report] results saved into results.xml"
     - "[test-schedule-report] results saved into results-junit.xml"
 
