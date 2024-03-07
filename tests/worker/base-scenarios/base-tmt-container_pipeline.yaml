@@ -17,5 +17,5 @@ pipeline: |
   testing-farm-request-state-reporter
   test-schedule-tmt
   test-scheduler-testing-farm
-  test-schedule-runner
   test-schedule-report
+  test-schedule-runner
