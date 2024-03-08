@@ -16,8 +16,8 @@
           ServicePhase: Prod
         key_name: testing-farm
         instance_type: i3.2xlarge
-        # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-1-gp3-0
-        image_id: ami-0746fc234df9c1ee0
+        # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-2-gp3-0
+        image_id: ami-02942164e2807a6a8
         wait: true
         count: "{{ count|default(1) }}"
         network:
