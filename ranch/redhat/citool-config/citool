@@ -1,6 +1,7 @@
 [default]
-debug-file = citool-debug.txt
-verbose-file = citool-debug.verbose.txt
+# TODO: enabled back after https://issues.redhat.com/browse/TFT-2486
+# debug-file = citool-debug.txt
+# verbose-file = citool-debug.verbose.txt
 
 # JSON log tends to be extremely large, and since we're not using it yet, no need to write it
 # json-file = citool-debug.json
