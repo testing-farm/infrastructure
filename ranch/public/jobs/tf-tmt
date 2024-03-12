@@ -78,12 +78,6 @@ citool-container.sh rules-engine \
                     test-schedule-report \
                     test-schedule-runner
 
-# TFT-1721 - citool was not executed, exit non-zero to retry via Nomad
-if [ ! -e "citool-debug.txt" ]; then
-    echo -e "\033[31mError: citool was not run, request will be restarted!\033[0m" 1>&2
-    exit 1
-fi
-
 # create pipeline error if no results.xml available
 if [ ! -e "results.xml" ]; then
     create_results_xml failure error
