@@ -4,7 +4,7 @@
 
 # For scale-redhat-worker target, make all additional targets parameters
 # https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run
-ifeq (create/redhat/worker,$(firstword $(MAKECMDGOALS)))
+ifneq (,$(filter $(firstword $(MAKECMDGOALS)),create/public/worker create/redhat/worker))
   # use the rest as arguments for "SCALE_TARGET"
   SCALE_TARGET := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   SCALE_TARGET := $(if $(SCALE_TARGET),$(SCALE_TARGET),1)
@@ -20,8 +20,15 @@ endif
 	ansible-playbook -v ansible/playbooks/create-redhat-worker.yml
 
 create/redhat/worker: .FORCE  ## Create a Red Hat ranch worker, use `make create/redhat/worker N` to create N workers
-	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) worker(s)\033[0m"
+	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) redhat worker(s)\033[0m"
 	@$(MAKE) -j $(addprefix .create/redhat/worker, $(shell seq 1 $(SCALE_TARGET)))
+
+.create/public/worker%:
+	ansible-playbook -v ansible/playbooks/create-public-worker.yml
+
+create/public/worker: .FORCE  ## Create a Public ranch worker, use `make create/public/worker N` to create N workers
+	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) public worker(s)\033[0m"
+	@$(MAKE) -j $(addprefix .create/public/worker, $(shell seq 1 $(SCALE_TARGET)))
 
 ##@ Pipeline
 
