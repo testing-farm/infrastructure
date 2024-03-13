@@ -33,12 +33,10 @@ progress:
     destination: results.xml
 
 destroy:
+  # TFT-2413 - critical files to be present for our users
   - source: "./*"
     permissions: "777"
+    verify: "true"
 
   - source: "pipeline.log"
     destination: pipeline.log
-
-  # TFT-2413 - critical files to be present for our users
-  - source: "results-junit.xml"
-    verify: "true"
