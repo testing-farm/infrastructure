@@ -64,3 +64,24 @@
     - '"auto-osbuild" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'
+    # RHEL10 not yet ready
+    - '"rhel-10" not in IMAGE_NAME|lower'
+
+- block:
+    - name: Add RCM Repository for RHEL10 (workaround - using F39)
+      yum_repository:
+        description: RCMTOOLS repository
+        name: rcmtools
+        state: present
+        gpgcheck: no
+        baseurl: "http://download.devel.redhat.com/rel-eng/RCMTOOLS/latest-RCMTOOLS-2-F-39/compose/Everything/{{ ansible_architecture }}/os/"
+
+    - name: Install Brewkoji
+      command: "dnf -y install brewkoji https://kojipkgs.fedoraproject.org//packages/koji/1.34.0/1.fc39.2/noarch/koji-1.34.0-1.fc39.2.noarch.rpm https://kojipkgs.fedoraproject.org//packages/koji/1.34.0/1.fc39.2/noarch/python3-koji-1.34.0-1.fc39.2.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-defusedxml/0.7.1/9.fc39/noarch/python3-defusedxml-0.7.1-9.fc39.noarch.rpm"
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
+
+  when:
+    - '"rhel-10" in IMAGE_NAME|lower'
