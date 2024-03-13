@@ -27,6 +27,8 @@ progress:
 
   - source: "work-*/console-*"
 
+  - source: "work-*/tmt-run.log"
+
   - source: "results.xml"
     destination: results.xml
 
