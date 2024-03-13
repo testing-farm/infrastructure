@@ -1,0 +1,100 @@
+---
+
+extends:
+  - base-tmt-container_pipeline
+  - base-tmt-container_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  REQUEST_ID: 5ad63151-bd14-47b1-88db-7e3613f02da5
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/test-filter
+
+checks:
+  literal-patterns[results.xml]:
+    - |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <testsuites overall-result="passed">
+       <properties>
+        <property name="baseosci.overall-result" value="passed"/>
+       </properties>
+       <testsuite name="{{ PLAN }}" result="passed" tests="1">
+        <logs>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-test-filter{{ '.+' }}/tmt-run.log" name="tmt-log"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-test-filter{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-test-filter{{ '.+' }}" name="workdir"/>
+        </logs>
+        <properties>
+         <property name="baseosci.result" value="passed"/>
+        </properties>
+        <testcase name="/testing-farm/test-filter-script" result="passed" time="{{ '\d+' }}">
+         <properties>
+          <property name="baseosci.arch" value="{{ ARCH }}"/>
+          <property name="baseosci.connectable_host" value="localhost"/>
+          <property name="baseosci.distro" value="None"/>
+          <property name="baseosci.status" value="Complete"/>
+          <property name="baseosci.testcase.source.url" value=""/>
+          <property name="baseosci.variant" value=""/>
+         </properties>
+         <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-test-filter{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/test-filter-script-1" name="log_dir" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-test-filter{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/test-filter-script-1/output.txt" name="testout.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <testing-environment name="requested">
+          <property name="arch" value="{{ ARCH }}"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+         <testing-environment name="provisioned">
+          <property name="arch" value="{{ ARCH }}"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+        </testcase>
+        <testing-environment name="requested">
+         <property name="arch" value="{{ ARCH }}"/>
+         <property name="snapshots" value="False"/>
+        </testing-environment>
+        <testing-environment name="provisioned">
+         <property name="arch" value="{{ ARCH }}"/>
+         <property name="snapshots" value="False"/>
+        </testing-environment>
+       </testsuite>
+      </testsuites>
+
+  literal-patterns[results-junit.xml]:
+    - |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <testsuites>
+       <testsuite name="{{ PLAN }}" tests="1" failures="0" errors="0" skipped="0">
+        <testcase name="/testing-farm/test-filter-script" classname="tests" time="{{ '\d+' }}">
+         <system-out>NAME=&amp;quot;Fedora Linux&amp;quot;
+      VERSION=&amp;quot;39 (Container Image)&amp;quot;
+      ID=fedora
+      VERSION_ID=39
+      VERSION_CODENAME=&amp;quot;&amp;quot;
+      PLATFORM_ID=&amp;quot;platform:f39&amp;quot;
+      PRETTY_NAME=&amp;quot;Fedora Linux 39 (Container Image)&amp;quot;
+      ANSI_COLOR=&amp;quot;0;38;2;60;110;180&amp;quot;
+      LOGO=fedora-logo-icon
+      CPE_NAME=&amp;quot;cpe:/o:fedoraproject:fedora:39&amp;quot;
+      DEFAULT_HOSTNAME=&amp;quot;fedora&amp;quot;
+      HOME_URL=&amp;quot;https://fedoraproject.org/&amp;quot;
+      DOCUMENTATION_URL=&amp;quot;https://docs.fedoraproject.org/en-US/fedora/f39/system-administrators-guide/&amp;quot;
+      SUPPORT_URL=&amp;quot;https://ask.fedoraproject.org/&amp;quot;
+      BUG_REPORT_URL=&amp;quot;https://bugzilla.redhat.com/&amp;quot;
+      REDHAT_BUGZILLA_PRODUCT=&amp;quot;Fedora&amp;quot;
+      REDHAT_BUGZILLA_PRODUCT_VERSION=39
+      REDHAT_SUPPORT_PRODUCT=&amp;quot;Fedora&amp;quot;
+      REDHAT_SUPPORT_PRODUCT_VERSION=39
+      SUPPORT_END=2024-05-14
+      VARIANT=&amp;quot;Container Image&amp;quot;
+      VARIANT_ID=container
+      </system-out>
+        </testcase>
+       </testsuite>
+      </testsuites>
