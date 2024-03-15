@@ -62,6 +62,10 @@ def create_request(arch: str, compose: str) -> str:
     except requests.RequestException as exc:
         raise exc
 
+    if response.status_code != 200:
+        print('Failed to create request: {}'.format(response.text))
+        exit(1)
+
     return response.json()['id']
 
 
