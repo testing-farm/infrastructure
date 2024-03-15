@@ -13,10 +13,6 @@ PYTEST_PARALLEL_OPTIONS ?= -d --tx 5*popen//python=python3.9
 # default Terraform lock timeout
 DEFAULT_LOCK_TIMEOUT ?= 10m
 
-# Testing Farm production API
-TESTING_FARM_PRODUTION_API_URL ?= https://api.testing-farm.io/v0.1
-TESTING_FARM_PRODUCTION_API_TOKEN ?= $(TESTING_FARM_API_TOKEN_PUBLIC)
-
 # Help prelude
 define PRELUDE
 
