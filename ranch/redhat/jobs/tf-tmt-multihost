@@ -69,8 +69,8 @@ citool-container.sh rules-engine \
                     testing-farm-request-state-reporter \
                     test-schedule-tmt-multihost \
                     test-scheduler-testing-farm \
-                    test-schedule-report \
-                    test-schedule-runner-multihost
+                    test-schedule-runner-multihost \
+                    test-schedule-report
 
 # create pipeline error if no results.xml available
 if [ ! -e "results.xml" ]; then
