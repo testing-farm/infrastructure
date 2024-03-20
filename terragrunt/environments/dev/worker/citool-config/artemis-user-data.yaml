@@ -1,3 +1,10 @@
 ---
 COLDSTORE_URL: "{{ COLDSTORE_URL }}"
+# https://cyborg.pages.redhat.com/documentation/aws/tagging/
 ServiceName: "{{ ServiceName }}"
+BusinessUnit: >-
+  {% if TESTING_FARM_REQUEST_USERNAME %}
+    {{ TESTING_FARM_REQUEST_USERNAME }}
+  {% else %}
+    unknown
+  {% endif %}

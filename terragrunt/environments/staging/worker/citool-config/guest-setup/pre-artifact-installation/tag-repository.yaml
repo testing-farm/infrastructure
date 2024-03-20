@@ -70,6 +70,15 @@
       when: IMAGE_NAME|lower|regex_search('centos.stream.9')
 
     #
+    # Add tag repository for CentOS Stream 10
+    #
+    - name: Create tag repository base url (CentOS Stream 10)
+      set_fact:
+        tag_repository_name: "c10s-build"
+        tag_repository_url: "https://kojihub.stream.centos.org/kojifiles/repos/c10s-build/latest/{{ ansible_architecture }}/"
+      when: IMAGE_NAME|lower|regex_search('centos.stream.10')
+
+    #
     # Check if tag repository exists.
     #
     # Note: We ignore the fact the repository does not exist and try to continue anyway. Note that not all builds

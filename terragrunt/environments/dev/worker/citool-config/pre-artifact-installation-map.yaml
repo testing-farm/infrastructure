@@ -4,3 +4,6 @@
     - /CONFIG/guest-setup/pre-artifact-installation/entrypoint.yaml
   extra_vars:
     TESTING_FARM_REQUEST_ID: "{{ TESTING_FARM_REQUEST_ID }}"
+
+- rule: MATCH(GUEST.environment.compose, '^fedora-coreos.*')
+  playbooks: []
