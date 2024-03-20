@@ -1,0 +1,18 @@
+- name: Add repositories on CentOS 10, mirrorlist not around yet
+  block:
+    - copy:
+        src: "{{ playbook_dir }}/files/centos.repo"
+        dest: /etc/yum.repos.d/centos.repo
+        owner: root
+        group: root
+        mode: 0644
+
+    - copy:
+        src: "{{ playbook_dir }}/files/centos-addons.repo"
+        dest: /etc/yum.repos.d/centos-addons.repo
+        owner: root
+        group: root
+        mode: 0644
+  when:
+    - 'ansible_distribution == "CentOS"'
+    - 'ansible_distribution_major_version == "10"'
