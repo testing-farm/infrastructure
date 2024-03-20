@@ -9,6 +9,8 @@ pipeline: |
   hide-secrets
   rules-engine
   testing-farm-request --request-id {{ REQUEST_ID }}
+  archive
+  coldstore
   ansible
   artemis
   fedora-copr:copr
@@ -18,7 +20,6 @@ pipeline: |
   guest-setup-testing-farm:guest-setup
   guest-setup-order
   git
-  coldstore
   testing-farm-request-state-reporter
   test-schedule-tmt-connect:test-schedule-tmt
   test-scheduler-testing-farm
