@@ -70,7 +70,7 @@
       when: IMAGE_NAME|lower|regex_search('centos.stream.9')
 
 ***REMOVED***
-***REMOVED*** Add tag repository for CentOS Stream 9
+***REMOVED*** Add tag repository for CentOS Stream 10
 ***REMOVED***
     - name: Create tag repository base url (CentOS Stream 10)
       set_fact:
