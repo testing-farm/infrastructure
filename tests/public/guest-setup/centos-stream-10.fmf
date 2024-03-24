@@ -3,7 +3,7 @@ summary: Test guest-setup on CentOS Stream 10
 
 provision:
   how: virtual
-  image: CentOS-Stream-10
+  image: https://odcs.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/BaseOS/x86_64/images/CentOS-Stream-GenericCloud-10-20240322.2.x86_64.qcow2
 
 prepare:
   - name: pre-artifact-installation
@@ -22,3 +22,6 @@ discover+:
 
     - name: Test all repositories work
       test: dnf --enablerepo='*' makecache
+
+    - name: Test EPEL workaround
+      test: dnf -y install bats
