@@ -4,18 +4,19 @@ marks:
   - redhat
 
 pipeline: |
-  hide-secrets
   rules-engine
+  hide-secrets
   testing-farm-request --request-id 3d6572cb-d09b-4210-be68-4a77421eb131
+  coldstore
   ansible
   artemis
   fedora-copr:copr
-  guest-setup-testing-farm:guest-setup
+  install-repository
   install-copr-build
   install-koji-build-execute
-  install-repository
+  guest-setup-testing-farm:guest-setup
+  guest-setup-order
   git
-  coldstore
   testing-farm-request-state-reporter
   test-schedule-tmt-connect:test-schedule-tmt
   test-scheduler-testing-farm
