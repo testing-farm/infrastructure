@@ -1,6 +1,6 @@
 ---
 
-name: base-tmt_pipeline
+name: base-sti_pipeline
 
 variable:
   REQUEST_ID: change-me
@@ -9,8 +9,6 @@ pipeline: |
   rules-engine
   hide-secrets
   testing-farm-request --request-id {{ REQUEST_ID }}
-  archive
-  coldstore
   ansible
   artemis
   fedora-copr:copr
@@ -20,8 +18,10 @@ pipeline: |
   guest-setup-testing-farm:guest-setup
   guest-setup-order
   git
+  coldstore
   testing-farm-request-state-reporter
-  test-schedule-tmt-connect:test-schedule-tmt
+  test-scheduler-sti
+  test-schedule-runner-sti
   test-scheduler-testing-farm
   test-schedule-runner
   test-schedule-report

@@ -6,8 +6,8 @@ variable:
   REQUEST_ID: change-me
 
 pipeline: |
-  hide-secrets
   rules-engine
+  hide-secrets
   testing-farm-request --request-id {{ REQUEST_ID }}
   coldstore
   archive
@@ -17,5 +17,5 @@ pipeline: |
   testing-farm-request-state-reporter
   test-schedule-tmt-multihost
   test-scheduler-testing-farm
-  test-schedule-report
   test-schedule-runner-multihost
+  test-schedule-report

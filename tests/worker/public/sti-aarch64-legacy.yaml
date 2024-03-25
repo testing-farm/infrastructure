@@ -1,5 +1,8 @@
 ---
 
+extends:
+  - base-sti_pipeline
+
 marks:
   - public
   - pipeline
@@ -8,26 +11,6 @@ variables:
   ARCH: aarch64
   COMPOSE: Fedora-Rawhide-aarch64
   REQUEST_ID: 0711e406-7447-4991-87ee-fddc44199779
-
-pipeline: |
-  hide-secrets
-  rules-engine
-  testing-farm-request --request-id {{ REQUEST_ID }}
-  ansible
-  artemis
-  fedora-copr:copr
-  guest-setup-testing-farm:guest-setup
-  install-copr-build
-  install-koji-build-execute
-  install-repository
-  git
-  coldstore
-  testing-farm-request-state-reporter
-  test-scheduler-sti
-  test-schedule-runner-sti
-  test-scheduler-testing-farm
-  test-schedule-runner
-  test-schedule-report
 
 checks:
   literal-strings:
