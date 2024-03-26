@@ -26,6 +26,7 @@ checks:
     - "[test-schedule-runner] finished schedule:"
 
   literal-strings[citool-debug.txt]:
+    - "[archive] syncing ./citool-config to /tmp/{{ REQUEST_ID }}/."
     - "[test-schedule-report] results saved into results.xml"
     - "[test-schedule-report] results saved into results-junit.xml"
 
