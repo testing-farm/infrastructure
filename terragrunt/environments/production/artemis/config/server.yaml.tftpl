@@ -92,17 +92,6 @@ pools:
                 min-size: "10 GiB"
                 max-size: "512 GiB"
 
-      # Create custom flavors.
-      custom-flavors:
-        - name: c6a.large-100
-          base: c6a.large
-          disk:
-            - size: "100 GiB"
-            - additional-disks:
-                max-count: 5
-                min-size: "10 GiB"
-                max-size: "512 GiB"
-
         - name: c6a.large-250
           base: c6a.large
           disk:
@@ -184,6 +173,8 @@ pools:
             family-name: Hygon Dhyana
             model: 1
             model-name: AMD EPYC 7R13 Processor
+          virtualization:
+            is-supported: false
 
   - name: fedora-aws-aarch64
     driver: aws
@@ -245,17 +236,6 @@ pools:
       # Do not use the default instance when no suitable can be found. When not having a suitable flavor,
       # pool simply cannot satisfy the request.
       use-default-flavor-when-no-suitable: false
-
-      # Create custom flavors.
-      custom-flavors:
-        - name: c6g.large-100
-          base: c6g.large
-          disk:
-            - size: "250 GiB"
-            - additional-disks:
-                max-count: 5
-                min-size: "10 GiB"
-                max-size: "512 GiB"
 
       # Create custom flavors.
       custom-flavors:
@@ -347,3 +327,239 @@ pools:
           cpu:
             model: 1
             model-name: AWS Graviton2
+            flag: [
+              fp, asimd, evtstrm, aes, pmull, sha1, sha2, crc32, atomics, fphp, asimdhp,
+              cpuid, asimdrdm, lrcpc, dcpop, asimddp, ssbs
+            ]
+          virtualization:
+            is-supported: false
+
+  - name: fedora-aws-x86_64-metal
+    driver: aws
+    parameters:
+      access-key-id: "${aws_access_key_id}"
+      secret-access-key: "${aws_secret_access_key}"
+
+      default-region: us-east-2
+
+      command: aws
+      master-key-name: testing-farm-worker
+
+      # availability zone match chosen subnet
+      availability-zone: us-east-2c
+
+      # seems 4k machines
+      subnet-id: subnet-4f971734
+
+      # security group for test environment
+      security-group: "${aws_security_group_id}"
+
+      # spot request details
+      # NOTE: not working yet https://pagure.io/fedora-infrastructure/issue/11848
+      # use-spot-request: true
+      # spot-price-bid-percentage: 5
+
+      # wait timeout/tick for instance becoming running
+      # instance-running-timeout: 120
+      # instance-running-tick: 1
+
+      # image filters
+      image-filters:
+        - owner: self
+        # Automotive images
+        - owner: "587138297281"
+        # Debezium images
+        - owner: "133133877115"
+        # Packit Image Builder images
+        - owner: "463606842039"
+
+      capabilities:
+        supports-snapshots: false
+        supported-architectures:
+          - x86_64
+
+      use-public-ip: true
+
+      #
+      # Flavors
+      #
+      # Default instance type.
+      default-instance-type: c7i.metal-24xl
+
+      # Default root disk size.
+      default-root-disk-size: 100
+
+      # Control the subset of flavors available for provisioning.
+      flavor-regex: ^c7i\..+$
+
+      # Do not use the default instance when no suitable can be found. When not having a suitable flavor,
+      # pool simply cannot satisfy the request.
+      use-default-flavor-when-no-suitable: false
+
+      # Create custom flavors.
+      custom-flavors:
+        - name: c7i.metal-24xl-100
+          base: c7i.metal-24xl
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c7i.metal-24xl-250
+          base: c7i.metal-24xl
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c7i.metal-24xl-500
+          base: c7i.metal-24xl
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+      # Provide flavor info we cannot extract from API.
+      # Based on AWS documentation, https://aws.amazon.com/ec2/instance-types/
+      patch-flavors:
+        - name-regex: 'c7i\..+'
+          cpu:
+            family: 6
+            family-name: Sapphire Rapids
+            model: 143
+            model-name: Intel(R) Xeon(R) Platinum 8488C
+            flag: [
+              fpu, vme, de, pse, tsc, msr, pae, mce, cx8, apic, sep, mtrr, pge, mca, cmov,
+              pat, pse36, clflush, dts, acpi, mmx, fxsr, sse, sse2, ss, ht, tm, pbe, syscall,
+              nx, pdpe1gb, rdtscp, lm, constant_tsc, art, arch_perfmon, pebs, bts, rep_good,
+              nopl, xtopology, nonstop_tsc, cpuid, aperfmperf, tsc_known_freq, pni, pclmulqdq,
+              dtes64, monitor, ds_cpl, vmx, smx, est, tm2, ssse3, sdbg, fma, cx16, xtpr, pdcm,
+              pcid, dca, sse4_1, sse4_2, x2apic, movbe, popcnt, tsc_deadline_timer, aes, xsave,
+              avx, f16c, rdrand, lahf_lm, abm, 3dnowprefetch, cpuid_fault, epb, cat_l3, cat_l2,
+              cdp_l3, intel_ppin, cdp_l2, ssbd, mba, ibrs, ibpb, stibp, ibrs_enhanced,
+              tpr_shadow, flexpriority, ept, vpid, ept_ad, fsgsbase, tsc_adjust, bmi1, avx2,
+              smep, bmi2, erms, invpcid, cqm, rdt_a, avx512f, avx512dq, rdseed, adx, smap,
+              avx512ifma, clflushopt, clwb, intel_pt, avx512cd, sha_ni, avx512bw, avx512vl,
+              xsaveopt, xsavec, xgetbv1, xsaves, cqm_llc, cqm_occup_llc, cqm_mbm_total,
+              cqm_mbm_local, split_lock_detect, user_shstk, avx_vnni, avx512_bf16, wbnoinvd,
+              dtherm, ida, arat, pln, pts, hwp, hwp_act_window, hwp_epp, hwp_pkg_req, hfi,
+              vnmi, avx512vbmi, umip, pku, ospke, waitpkg, avx512_vbmi2, gfni, vaes, vpclmulqdq,
+              avx512_vnni, avx512_bitalg, tme, avx512_vpopcntdq, la57, rdpid, bus_lock_detect,
+              cldemote, movdiri, movdir64b, enqcmd, fsrm, md_clear, serialize, tsxldtrk, pconfig,
+              arch_lbr, ibt, amx_bf16, avx512_fp16, amx_tile, amx_int8, flush_l1d, arch_capabilities
+            ]
+          virtualization:
+            is-supported: true
+
+  - name: fedora-aws-aarch64-metal
+    driver: aws
+    parameters:
+      access-key-id: "${aws_access_key_id}"
+      secret-access-key: "${aws_secret_access_key}"
+
+      default-region: us-east-2
+
+      command: aws
+      master-key-name: testing-farm-worker
+
+      # availability zone match chosen subnet
+      availability-zone: us-east-2c
+
+      # seems 4k machines
+      subnet-id: subnet-4f971734
+
+      # security group for test environment
+      security-group: "${aws_security_group_id}"
+
+      # spot request details
+      # NOTE: not working yet https://pagure.io/fedora-infrastructure/issue/11848
+      # use-spot-request: true
+      # spot-price-bid-percentage: 5
+
+      # wait timeout/tick for instance becoming running
+      # instance-running-timeout: 120
+      # instance-running-tick: 1
+
+      # image filters
+      image-filters:
+        - owner: self
+        # Automotive images
+        - owner: "587138297281"
+        # Debezium images
+        - owner: "133133877115"
+        # Packit Image Builder images
+        - owner: "463606842039"
+
+      capabilities:
+        supports-snapshots: false
+        supported-architectures:
+          - aarch64
+
+      use-public-ip: true
+
+      #
+      # Flavors
+      #
+      # Default instance type.
+      default-instance-type: m7g.metal
+
+      # Default root disk size.
+      default-root-disk-size: 100
+
+      # Control the subset of flavors available for provisioning.
+      flavor-regex: ^m7g\..+$
+
+      # Do not use the default instance when no suitable can be found. When not having a suitable flavor,
+      # pool simply cannot satisfy the request.
+      use-default-flavor-when-no-suitable: false
+
+      # Create custom flavors.
+      custom-flavors:
+        - name: m7g.metal-100
+          base: m7g.metal
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: m7g.metal-250
+          base: m7g.metal
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: m7g.metal-500
+          base: m7g.metal
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+      # Provide flavor info we cannot extract from API.
+      # Based on AWS documentation, https://aws.amazon.com/ec2/instance-types/
+      patch-flavors:
+        - name-regex: 'm7g\..+'
+          cpu:
+            model: 1
+            model-name: AWS Graviton3
+            flag: [
+              fp, asimd, evtstrm, aes, pmull, sha1, sha2, crc32, atomics, fphp, asimdhp, cpuid,
+              asimdrdm, jscvt, fcma, lrcpc, dcpop, sha3, sm3, sm4, asimddp, sha512, sve, asimdfhm,
+              dit, uscat, ilrcpc, flagm, ssbs, paca, pacg, dcpodp, svei8mm, svebf16, i8mm, bf16,
+              dgh, rng
+            ]
+          virtualization:
+            is-supported: true

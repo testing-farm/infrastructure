@@ -11,6 +11,7 @@ but you probably won't need to touch :py:func:`hook_ROUTE` - it's pretty generic
 """
 
 from typing import List
+from gluetool.result import Ok
 
 import gluetool.log
 import sqlalchemy
@@ -21,7 +22,10 @@ import tft.artemis.drivers.openstack
 from tft.artemis.db import GuestRequest
 from tft.artemis.drivers import PoolDriver
 from tft.artemis.routing_policies import (
+    PoolPolicyRuling,
     PolicyReturnType,
+    PolicyRuling,
+    policy_boilerplate,
     create_preferrence_filter_by_driver_class,
     policy_can_acquire,
     policy_enough_resources,
@@ -37,12 +41,6 @@ from tft.artemis.routing_policies import (
     policy_timeout_reached,
     policy_use_only_when_addressed,
     run_routing_policies,
-)
-
-#: If there are OpenStack pools still in the mix, then prefer these pools over the rest. If there are no OpenStack
-#: pools allowed anymore, return the original list: *prefer*, not *use only*.
-policy_prefer_openstack = create_preferrence_filter_by_driver_class(
-    'prefer-openstack', tft.artemis.drivers.openstack.OpenStackDriver
 )
 
 
@@ -61,6 +59,33 @@ policy_prefer_clouds = create_preferrence_filter_by_driver_class(
 )
 
 
+@policy_boilerplate
+def policy_prefer_non_metal(
+    logger: gluetool.log.ContextAdapter,
+    session: sqlalchemy.orm.session.Session,
+    pools: List[PoolDriver],
+    guest_request: GuestRequest,
+) -> PolicyReturnType:
+
+    # Do not apply the policy when a pool is requested explicitly.
+    if guest_request.environment.pool is not None:
+        return pools
+
+    preferred_pools = [
+        pool
+        for pool in pools
+        if 'metal' not in pool.poolname
+    ]
+
+    if not preferred_pools:
+        return Ok(PolicyRuling.from_pools(pools))
+
+    return Ok(PolicyRuling.from_pools(
+        pools,
+        lambda pool: PoolPolicyRuling(pool=pool, allowed=bool(pool in preferred_pools))
+    ))
+
+
 POLICIES = [
     policy_timeout_reached,
     policy_pool_enabled,
@@ -75,8 +100,7 @@ POLICIES = [
     policy_enough_resources,
     policy_prefer_clouds,
     policy_prefer_aws,
-    # or:
-    # policy_prefer_openstack,
+    policy_prefer_non_metal,
     policy_prefer_spot_instances,
     policy_least_crowded,
 ]
