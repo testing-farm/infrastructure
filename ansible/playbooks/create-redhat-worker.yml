@@ -10,7 +10,7 @@
         tags:
           Name: "testing_farm_worker_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
           # Old tags used for reporting
-          AppCode: ARR-001
+          AppCode: TFT-001
           ServiceOwner: TFT
           ServicePhase: Prod
           ServiceName: TestingFarm
@@ -18,7 +18,7 @@
           # Unified tagging policy
           # https://source.redhat.com/departments/it/devit/it-infrastructure/itcloudservices/itpubliccloudpage/cloud/docs/consumer/public_cloud_tagging_policy_for_cloud_providers
           # https://source.redhat.com/departments/it/devit/it-infrastructure/itcloudservices/itpubliccloudpage/cloud/it_aws_annoucements/updated_it_public_cloud_tagging_policy
-          app-code: ARR-001
+          app-code: TFT-001
           service-owner: TFT
           service-component: Worker
           service-phase: prod
