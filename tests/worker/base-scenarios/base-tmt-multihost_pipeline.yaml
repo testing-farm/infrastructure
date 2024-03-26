@@ -9,10 +9,11 @@ pipeline: |
   hide-secrets
   rules-engine
   testing-farm-request --request-id {{ REQUEST_ID }}
+  coldstore
+  archive
   ansible
   artemis
   git
-  coldstore
   testing-farm-request-state-reporter
   test-schedule-tmt-multihost
   test-scheduler-testing-farm
