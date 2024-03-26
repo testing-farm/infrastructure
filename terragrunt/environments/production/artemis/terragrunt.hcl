@@ -49,7 +49,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "v0.0.65"
+  image_tag    = "v0.0.69"
 
   # Testing Farm worker tags used to identify workers for this environment
   testing_farm_worker_tags = {
@@ -100,11 +100,27 @@ inputs = {
       value = "/configuration/artemis-image-map-aws.yaml"
     },
     {
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_x86_64_metal",  # pragma: allowlist secret
+      value = "/configuration/artemis-image-map-aws.yaml"
+    },
+    {
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_aarch64_metal", # pragma: allowlist secret
+      value = "/configuration/artemis-image-map-aws.yaml"
+    },
+    {
       name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_x86_64",
       value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
     },
     {
       name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_aarch64",
+      value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
+    },
+    {
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_x86_64_metal",  # pragma: allowlist secret
+      value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
+    },
+    {
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_aarch64_metal",  # pragma: allowlist secret
       value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
     }
   ]
