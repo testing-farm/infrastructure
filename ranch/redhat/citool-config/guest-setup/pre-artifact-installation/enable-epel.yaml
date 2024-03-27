@@ -1,7 +1,9 @@
 ---
 - name: Enable epel on CentOS Stream
   command: "dnf config-manager --enable epel"
-  when: "IMAGE_NAME|lower|regex_search('centos.stream')"
+  when:
+    - "IMAGE_NAME|lower|regex_search('centos.stream')"
+    - "not IMAGE_NAME|lower|regex_search('centos.stream.10')"
 
 - name: Enable epel-next on CentOS Stream 9
   command: "dnf config-manager --enable epel-next"
