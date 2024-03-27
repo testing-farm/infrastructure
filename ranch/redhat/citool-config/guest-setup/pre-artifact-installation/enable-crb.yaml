@@ -10,4 +10,4 @@
 
 - name: Enable CRB repository (centos)
   command: "dnf config-manager --enable crb"
-  when: "IMAGE_NAME|lower|regex_search('centos.stream.9')"
+  when: "IMAGE_NAME|lower|regex_search('centos.stream.(9|10)')"
