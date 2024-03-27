@@ -73,25 +73,25 @@ checks:
        <testsuite name="{{ PLAN }}" tests="1" failures="0" errors="0" skipped="0">
         <testcase name="/testing-farm/test-filter-script" classname="tests" time="{{ '\d+' }}">
          <system-out>NAME=&amp;quot;Fedora Linux&amp;quot;
-      VERSION=&amp;quot;39 (Container Image)&amp;quot;
+      VERSION=&amp;quot;{{ '\d+' }} (Container Image)&amp;quot;
       ID=fedora
-      VERSION_ID=39
+      VERSION_ID={{ '\d+' }}
       VERSION_CODENAME=&amp;quot;&amp;quot;
-      PLATFORM_ID=&amp;quot;platform:f39&amp;quot;
-      PRETTY_NAME=&amp;quot;Fedora Linux 39 (Container Image)&amp;quot;
+      PLATFORM_ID=&amp;quot;platform:f{{ '\d+' }}&amp;quot;
+      PRETTY_NAME=&amp;quot;Fedora Linux {{ '\d+' }} (Container Image)&amp;quot;
       ANSI_COLOR=&amp;quot;0;38;2;60;110;180&amp;quot;
       LOGO=fedora-logo-icon
-      CPE_NAME=&amp;quot;cpe:/o:fedoraproject:fedora:39&amp;quot;
+      CPE_NAME=&amp;quot;cpe:/o:fedoraproject:fedora:{{ '\d+' }}&amp;quot;
       DEFAULT_HOSTNAME=&amp;quot;fedora&amp;quot;
       HOME_URL=&amp;quot;https://fedoraproject.org/&amp;quot;
-      DOCUMENTATION_URL=&amp;quot;https://docs.fedoraproject.org/en-US/fedora/f39/system-administrators-guide/&amp;quot;
+      DOCUMENTATION_URL=&amp;quot;https://docs.fedoraproject.org/en-US/fedora/f{{ '\d+' }}/system-administrators-guide/&amp;quot;
       SUPPORT_URL=&amp;quot;https://ask.fedoraproject.org/&amp;quot;
       BUG_REPORT_URL=&amp;quot;https://bugzilla.redhat.com/&amp;quot;
       REDHAT_BUGZILLA_PRODUCT=&amp;quot;Fedora&amp;quot;
-      REDHAT_BUGZILLA_PRODUCT_VERSION=39
+      REDHAT_BUGZILLA_PRODUCT_VERSION={{ '\d+' }}
       REDHAT_SUPPORT_PRODUCT=&amp;quot;Fedora&amp;quot;
-      REDHAT_SUPPORT_PRODUCT_VERSION=39
-      SUPPORT_END=2024-05-14
+      REDHAT_SUPPORT_PRODUCT_VERSION={{ '\d+' }}
+      SUPPORT_END={{ '\d+' }}-{{ '\d+' }}-{{ '\d+' }}
       VARIANT=&amp;quot;Container Image&amp;quot;
       VARIANT_ID=container
       </system-out>
