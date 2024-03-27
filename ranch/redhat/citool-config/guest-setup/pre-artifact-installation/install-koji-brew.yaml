@@ -66,6 +66,7 @@
     - '"hardened" not in IMAGE_NAME|lower'
     # RHEL10 not yet ready
     - '"rhel-10" not in IMAGE_NAME|lower'
+    - "not IMAGE_NAME|lower|regex_search('centos.stream.10')"
 
 - block:
     - name: Add RCM Repository for RHEL10 (workaround - using F39)
@@ -84,4 +85,4 @@
       register: result_package
 
   when:
-    - '"rhel-10" in IMAGE_NAME|lower'
+    - '"rhel-10" in IMAGE_NAME|lower or IMAGE_NAME|lower|regex_search("centos.stream.10")'
