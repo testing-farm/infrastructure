@@ -13,25 +13,25 @@ composes:
     compose: Fedora-38
 
     x86_64:
-      image: Fedora-Cloud-Base-38-20240327.0.x86_64-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-38-20240329.0.x86_64-hvm-us-east-2-gp3-0
     aarch64:
-      image: Fedora-Cloud-Base-38-20240327.0.aarch64-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-38-20240329.0.aarch64-hvm-us-east-2-gp3-0
 
   fedora_39:
     compose: Fedora-39
 
     x86_64:
-      image: Fedora-Cloud-Base-39-20240327.0.x86_64-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-39-20240329.0.x86_64-hvm-us-east-2-gp3-0
     aarch64:
-      image: Fedora-Cloud-Base-39-20240327.0.aarch64-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-39-20240329.0.aarch64-hvm-us-east-2-gp3-0
 
   fedora_40:
     compose: Fedora-40
 
     x86_64: &fedora_latest_ref_x86_64
-      image: Fedora-Cloud-Base-40-20240312.n.0.x86_64-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-40-20240227.n.0.x86_64-hvm-us-east-2-gp3-0
     aarch64: &fedora_latest_ref_aarch64
-      image: Fedora-Cloud-Base-40-20240312.n.0.aarch64-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-40-20240221.n.0.aarch64-hvm-us-east-2-gp3-0
 
   # TFT-1221
   fedora_latest:
