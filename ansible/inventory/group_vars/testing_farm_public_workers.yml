@@ -68,6 +68,8 @@ artemis_ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_artemis"
 artemis_ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_artemis.pub"
 
 # jobs
+job_request_timeout: 720
+nomad_job_args: "[\"${NOMAD_META_REQUEST_ID}\", \"${NOMAD_ALLOC_DIR}\"]"
 jobs:
   - tf-tmt
   - tf-tmt-container

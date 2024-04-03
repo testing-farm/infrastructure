@@ -34,7 +34,7 @@ EOF
 
 set_request_timeout() {
     REQUEST_TIMEOUT="$(echo "$REQUEST" | jq -r '.settings.pipeline.timeout | select (.!=null)')"
-    [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT="1440"
+    [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT="{{ job_request_timeout  }}"
     REQUEST_TIMEOUT="${REQUEST_TIMEOUT}m"
     echo "Request timeout: $REQUEST_TIMEOUT"
 }
@@ -58,25 +58,7 @@ set_citool_image
 
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
-citool-container.sh rules-engine \
-                    hide-secrets \
-                    testing-farm-request --request-id $REQUEST_ID \
-                    coldstore \
-                    archive \
-                    ansible \
-                    artemis \
-                    fedora-copr:copr \
-                    install-repository \
-                    install-copr-build \
-                    install-koji-build-execute \
-                    guest-setup-testing-farm:guest-setup \
-                    guest-setup-order \
-                    git \
-                    testing-farm-request-state-reporter \
-                    test-schedule-tmt-connect:test-schedule-tmt \
-                    test-scheduler-testing-farm \
-                    test-schedule-runner \
-                    test-schedule-report
+{{ job_vars.pipeline }}
 
 # create pipeline error if no results.xml available
 if [ ! -e "results.xml" ]; then
