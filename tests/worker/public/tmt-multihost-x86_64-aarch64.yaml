@@ -263,5 +263,5 @@ checks:
           HOME: /root
           PYTHONUNBUFFERED: 1
           PODMAN_IGNORE_CGROUPSV1_WARNING: 1
-          POLARION_PASSWORD: *****
+          POLARION_PASSWORD: hidden
           POLARION_USERNAME: user

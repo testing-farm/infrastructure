@@ -112,5 +112,5 @@ checks:
   #        TESTING_FARM_TEST_TYPE: fmf
   #        TESTING_FARM_GIT_URL: {{ GIT_CLONE_URL }}
   #        TESTING_FARM_GIT_REF: {{ GIT_REF }}
-  #        POLARION_PASSWORD: *****
+  #        POLARION_PASSWORD: hidden
   #        POLARION_USERNAME: user
