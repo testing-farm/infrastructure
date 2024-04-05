@@ -54,21 +54,15 @@ checks:
           <property name="arch" value="{{ ARCH }}"/>
           <property name="snapshots" value="False"/>
          </testing-environment>
-         <checks checks="3" errors="3" failures="0">
-          <check name="dmesg" result="error" event="before-test">
-           <logs>
-            <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/checks/dmesg-before-test.txt" name="dmesg-before-test.txt"/>
-           </logs>
+         <checks checks="3" errors="0" failures="0">
+          <check name="dmesg" result="skip" event="before-test">
+           <logs/>
           </check>
-          <check name="avc" result="error" event="after-test">
-           <logs>
-            <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/checks/avc.txt" name="avc.txt"/>
-           </logs>
+          <check name="avc" result="skip" event="after-test">
+           <logs/>
           </check>
-          <check name="dmesg" result="error" event="after-test">
-           <logs>
-            <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/checks/dmesg-after-test.txt" name="dmesg-after-test.txt"/>
-           </logs>
+          <check name="dmesg" result="skip" event="after-test">
+           <logs/>
           </check>
          </checks>
         </testcase>
