@@ -29,6 +29,7 @@ checks:
        </properties>
        <testsuite name="{{ PLAN }}" result="failed" tests="1">
         <logs>
+         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/data" name="data"/>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}/tmt-run.log" name="tmt-log"/>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}" name="workdir"/>
@@ -46,6 +47,7 @@ checks:
           <property name="baseosci.variant" value=""/>
          </properties>
          <logs>
+          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1" name="log_dir" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/output.txt" name="testout.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
          </logs>
