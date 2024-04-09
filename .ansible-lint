@@ -1,3 +1,4 @@
 exclude_paths:
+  - ansible/roles/geerlingguy.swap
   - tests/worker/public/pipeline/
   - tests/worker/redhat/pipeline/

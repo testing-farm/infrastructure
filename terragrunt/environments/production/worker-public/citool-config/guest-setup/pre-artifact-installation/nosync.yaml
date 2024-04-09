@@ -1,0 +1,37 @@
+---
+# Speed up dnf/yum significantly
+# https://github.com/comps/anaconda-nosync
+
+- name: Check if nosync available for the architecture
+  delegate_to: localhost
+  stat:
+    path: "{{ playbook_dir }}/files/nosync-{{ ansible_architecture }}.so"
+  register: nosync_stat
+
+- block:
+
+    - name: Add nosync.so to the machine
+      copy:
+        src: "{{ playbook_dir }}/files/nosync-{{ ansible_architecture }}.so"
+        dest: /usr/lib64/nosync.so
+        mode: preserve
+
+    - name: Configure /etc/ld.so.preload
+      lineinfile:
+        create: true
+        path: /etc/ld.so.preload
+        line: /usr/lib64/nosync.so
+
+    - name: Make sure policycoreutils is installed
+      package:
+        name: policycoreutils
+        state: present
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
+
+    - name: Fix selinux context of /usr/lib64/nosync.so
+      command: "restorecon -RvvF /usr/lib64/nosync.so"
+
+  when: nosync_stat.stat.exists

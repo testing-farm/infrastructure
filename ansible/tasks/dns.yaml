@@ -1,0 +1,30 @@
+---
+- block:
+  - name: disable systemd-resolved
+    command: "systemctl disable systemd-resolved"
+    tags:
+      - skip_ansible_lint
+
+  - name: mask systemd-resolved
+    command: "systemctl mask systemd-resolved"
+    tags:
+      - skip_ansible_lint
+
+  - name: remove /etc/resolv.conf
+    command: "rm -f /etc/resolv.conf"
+    tags:
+      - skip_ansible_lint
+
+  - name: restart NetworkManager
+    command: "systemctl restart NetworkManager"
+    tags:
+      - skip_ansible_lint
+
+  - name: get /etc/resolv.conf contents
+    command: "cat /etc/resolv.conf"
+    register: resolv_conf
+
+  - name: print /etc/resolv.conf
+    debug: var=resolv_conf.stdout
+
+  become: true

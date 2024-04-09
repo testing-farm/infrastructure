@@ -1,0 +1,113 @@
+---
+- hosts: localhost
+  vars_files:
+    - ../secrets/credentials.yaml
+  tasks:
+    - name: Provision new EC2 instance
+      amazon.aws.ec2_instance:
+        profile: redhat_us_east_1_create_worker
+        state: running
+        tags:
+          Name: "testing_farm_worker_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
+          # Old tags used for reporting
+          AppCode: TFT-001
+          ServiceOwner: TFT
+          ServicePhase: Prod
+          ServiceName: TestingFarm
+          ServiceComponent: Worker
+          # Unified tagging policy
+          # https://source.redhat.com/departments/it/devit/it-infrastructure/itcloudservices/itpubliccloudpage/cloud/docs/consumer/public_cloud_tagging_policy_for_cloud_providers
+          # https://source.redhat.com/departments/it/devit/it-infrastructure/itcloudservices/itpubliccloudpage/cloud/it_aws_annoucements/updated_it_public_cloud_tagging_policy
+          app-code: TFT-001
+          service-owner: TFT
+          service-component: Worker
+          service-phase: prod
+          service-name: TestingFarm
+          # Thanks to running JDK QE workloads, we have 20% discount in AWS
+          # https://source.redhat.com/groups/public/red_hat_public_cloud_services/public_cloud_services_wiki/aws_map_20_program
+          map-migrated: migN5JR4801JY
+        key_name: tft-artemis-master-key
+        instance_type: i3.2xlarge
+        # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-1-gp3-0
+        image_id: ami-0746fc234df9c1ee0
+        wait: true
+        count: "{{ count|default(1) }}"
+        network:
+          assign_public_ip: false
+        instance_initiated_shutdown_behavior: terminate
+        # TFT-1755 - use ARR-TestingFarm-US-East-1, which has correctly setup DNS
+        security_group: sg-0cb20f3b88c57fa30
+        vpc_subnet_id: subnet-036ad213c3fb0eb7e
+      register: ec2
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.private_ip_address }}"
+        groupname: testing_farm_redhat_workers
+      loop: "{{ ec2.instances }}"
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.private_ip_address }}"
+        groupname: new_workers
+      loop: "{{ ec2.instances }}"
+
+#
+# Wait for ssh connection
+#
+- hosts: new_workers
+  gather_facts: false
+  remote_user: fedora
+  tasks:
+    - name: Wait for SSH to come up
+      wait_for_connection:
+        delay: 10
+        timeout: 600
+
+#
+# Setup storage
+#
+- hosts: new_workers
+  gather_facts: false
+  remote_user: fedora
+  become: true
+  vars:
+    volume_attached_device: /dev/nvme0n1
+    volume_attached_device_mount_path: /data
+    volume_attached_device_owner: root
+    volume_attached_device_group: root
+  roles:
+    - volume
+
+#
+# Setup worker
+#
+- hosts: new_workers
+  remote_user: fedora
+  vars_files:
+    - ../secrets/credentials.yaml
+    - ../vars/common.yaml
+  pre_tasks:
+    - include: ../tasks/rh-certs.yaml
+    - include: ../tasks/dns.yaml
+    - include: ../tasks/ssh-key.yaml
+    - include: ../tasks/podman.yaml
+    - include: ../tasks/jobs.yaml
+    - include: ../tasks/config.yaml
+    - include: ../tasks/image.yaml
+  roles:
+    - name: geerlingguy.swap
+      vars:
+        swap_file_path: /data/swapfile
+        swap_file_size_mb: "16384"
+        swap_file_state: present
+      become: true
+    - name: nomad
+  tasks:
+    - include: ../tasks/jobs-register.yaml
+      when: skip_nomad_start is not defined
+
+- hosts: localhost
+  tasks:
+    - name: Refresh the inventory
+      meta: refresh_inventory

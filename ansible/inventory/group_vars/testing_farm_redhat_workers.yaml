@@ -1,0 +1,50 @@
+---
+# container image with citool and modules
+citool_container_image: quay.io/testing-farm/worker-redhat:2024-02.1
+
+root_dir: "{{ ansible_config_file | dirname }}"
+
+# path to citool-config and jobs to deployment
+worker_deployment_data: "{{ root_dir }}/terragrunt/environments/production/worker-redhat"
+
+# nomad
+nomad_version: 1.0.4
+nomad_user: root
+nomad_group: root
+nomad_disable_update_check: true
+nomad_enabled_schedulers: batch
+nomad_node_role: client
+nomad_group_name: testing-farm-dev-nomad-clients
+nomad_data_dir: /data/nomad
+nomad_servers: >
+  [
+    {% for host in groups["testing_farm_redhat_servers"] %}
+      "{{ hostvars[host].ansible_host }}"{{ "," if not loop.last else "" }}
+    {% endfor %}
+  ]
+
+# ssh key for worker deployment
+ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_worker"
+ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_worker.pub"
+
+# ansible ssh key
+root_dir: "{{ ansible_config_file | dirname }}"
+ansible_dir: "{{ root_dir }}/ansible"
+ansible_ssh_private_key_file: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_worker.decrypted"
+
+# podman container storage
+container_storage_path: /data/containers
+
+# ssh key for connecting to Artemis instance
+artemis_ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_artemis"
+artemis_ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_artemis.pub"
+
+# quay.io authentication / tft-bot
+podman_authfile: "{{ ansible_dir }}/secrets/quay/testing-farm-tftbot-auth.json"
+
+# jobs
+jobs:
+  - tf-tmt
+  - tf-tmt-container
+  - tf-tmt-multihost
+  - tf-sti

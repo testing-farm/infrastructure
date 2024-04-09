@@ -1,0 +1,19 @@
+---
+#
+# Various workarounds for Fedora Rawhide
+#
+- name: workaround-fedora-rawhide | Check for rawhide
+  command: "rpm -q fedora-repos-rawhide"
+  ignore_errors: true
+  register: check_rawhide
+
+- block:
+    # Rawhide does not include required python3 packages for 'package' module to work
+    - name: workaround-fedora-rawhide | Install required python packages for dnf5
+      command: "dnf -y install python3-dnf"
+      register: update_packages
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: update_packages is succeeded
+
+  when: check_rawhide.rc == 0

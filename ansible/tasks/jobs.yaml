@@ -1,0 +1,8 @@
+---
+- name: Copy job scripts
+  become: true
+  copy:
+    dest: "/usr/local/bin/{{ item }}"
+    src: "{{ worker_deployment_data }}/jobs/{{ item }}"
+    mode: "a+rwx"
+  with_items: "{{ jobs }}"

@@ -1,0 +1,40 @@
+---
+
+- hosts: testing_farm_public_servers:testing_farm_public_workers
+  become: true
+  roles:
+    - security
+
+- hosts: testing_farm_redhat_servers:testing_farm_redhat_workers
+  vars_files:
+    - ../secrets/credentials.yaml
+  tasks:
+    - include: ../tasks/rh-certs.yaml
+
+- hosts: testing_farm_public_workers:testing_farm_redhat_workers
+  vars_files:
+    - ../secrets/credentials.yaml
+    - ../vars/common.yaml
+  pre_tasks:
+    - include: ../tasks/dns.yaml
+      tags: update_dns
+    - include: ../tasks/ssh-key.yaml
+    - include: ../tasks/artifacts.yaml
+    - include: ../tasks/podman.yaml
+    - include: ../tasks/jobs.yaml
+      tags: update_jobs
+    - include: ../tasks/config.yaml
+      tags: update_config
+    - include: ../tasks/image.yaml
+      tags: update_image
+  roles:
+    - name: geerlingguy.swap
+      vars:
+        swap_file_path: /data/swapfile
+        swap_file_size_mb: "16384"
+        swap_file_state: present
+    - name: nomad
+      tags: update_nomad
+  tasks:
+    - include: ../tasks/jobs-register.yaml
+      tags: update_jobs

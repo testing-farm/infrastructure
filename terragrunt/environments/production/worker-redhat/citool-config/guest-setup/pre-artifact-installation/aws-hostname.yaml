@@ -1,0 +1,33 @@
+---
+
+#
+# Set hostname to an expected value according to IT AWS setup.
+#
+# TFT-1803 - AWS hostnames were reimplemented by IT, see this issue for details
+# TFT-1987 - Set explicitely as it happens after the machine boots
+#
+
+# Check if machine is an AWS machine
+- name: Make request to EC2 metadata service
+  # To determine whether this instance is located in AWS, verify the existence of the instance metadata URL.
+  # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
+  command: bash -c 'curl --head --connect-timeout 5 -L http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null | grep -o 200'
+  register: aws_metadata_response
+  failed_when: false
+
+# Set the hostname to `<ARTEMIS_GUEST_NAME>.testing-farm`.
+#
+# The search domain is by default `<REGION>.aws.redhat.com`, e.g. `us-east-1.aws.redhat.com`.
+#
+# We cannot set it to FQDN, because hostname can only be 64 chars max:
+#
+#    https://redhat-internal.slack.com/archives/C03BRN71JAF/p1685450197314049
+#
+- name: "Set hostname to {{ GUEST.artemis_id }}.testing-farm"
+  hostname:
+    name: "{{ GUEST.artemis_id }}.testing-farm"
+  when:
+    - GUEST is defined
+    - GUEST.artemis_id is defined
+    - aws_metadata_response is defined
+    - aws_metadata_response.stdout == "200"

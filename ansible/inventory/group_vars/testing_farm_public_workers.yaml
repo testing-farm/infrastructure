@@ -1,0 +1,73 @@
+---
+# container image with citool and modules
+citool_container_image: quay.io/testing-farm/worker:2024-02.1
+
+# path to citool-config and jobs to deployment
+worker_deployment_data: "{{ root_dir }}/terragrunt/environments/production/worker"
+
+# geerlingguy.security role settings
+security_ssh_password_authentication: "no"
+security_ssh_permit_root_login: "no"
+security_ssh_usedns: "no"
+security_ssh_permit_empty_password: "no"
+security_ssh_challenge_response_auth: "no"
+security_ssh_gss_api_authentication: "no"
+security_ssh_x11_forwarding: "no"
+security_sshd_state: started
+security_ssh_restart_handler_state: restarted
+security_sudoers_passwordless:
+  - fedora
+security_fail2ban_enabled: true
+security_fail2ban_custom_configuration_template: "{{ ansible_dir }}/templates/jail.local.j2"
+
+# ssh key worker deployment
+ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker"
+ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker.pub"
+
+# ansible ssh key
+root_dir: "{{ ansible_config_file | dirname }}"
+ansible_dir: "{{ root_dir }}/ansible"
+ansible_ssh_private_key_file: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker.decrypted"
+
+# nomad
+nomad_servers: >
+  [
+    {% for host in groups["testing_farm_public_servers"] %}
+      "{{ hostvars[host].ansible_host }}"{{ "," if not loop.last else "" }}
+    {% endfor %}
+  ]
+
+# nomad role
+nomad_version: 0.12.1
+nomad_user: root
+nomad_group: root
+nomad_disable_update_check: true
+nomad_enabled_schedulers: batch
+nomad_node_role: client
+nomad_group_name: testing-farm-dev-nomad-clients
+nomad_data_dir: /data/nomad
+
+# disk role
+disk_additional_disks:
+  - disk: /dev/nvme0n1
+    part: /dev/nvme0n1p1
+    fstype: ext4
+    mount_options: defaults,noatime
+    mount: /data
+
+# podman container storage
+container_storage_path: /data/containers
+
+# artemis
+artemis_ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_artemis"
+artemis_ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_artemis.pub"
+
+# jobs
+jobs:
+  - tf-tmt
+  - tf-tmt-container
+  - tf-tmt-multihost
+  - tf-sti
+
+# artifacts
+artifacts_hostname: artifacts.dev.testing-farm.io

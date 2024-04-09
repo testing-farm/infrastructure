@@ -1,0 +1,55 @@
+---
+- block:
+  - name: Add RHEL7 updates Extras repository
+    yum_repository:
+      name: rhel-extras
+      description: rhel-extras
+      baseurl: "http://download.eng.brq.redhat.com/rhel-7/rel-eng/EXTRAS-7/latest-EXTRAS-{{ ansible_distribution_version }}-RHEL-7/compose/Server/{{ ansible_architecture }}/os/"
+      enabled: true
+      gpgcheck: false
+      skip_if_unavailable: true
+
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_major_version == "7"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"updates" in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
+    - '"rhui" not in IMAGE_NAME|lower'
+
+- block:
+  - name: Add RHEL7 nightly Extras repository
+    yum_repository:
+      name: rhel-extras
+      description: rhel-extras
+      baseurl: "http://download.eng.brq.redhat.com/rhel-7/nightly/EXTRAS-7/latest-EXTRAS-{{ ansible_distribution_version }}-RHEL-7/compose/Server/{{ ansible_architecture }}/os/"
+      enabled: true
+      gpgcheck: false
+      skip_if_unavailable: true
+
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_major_version == "7"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"updates" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
+    - '"rhui" not in IMAGE_NAME|lower'
+
+- block:
+  - name: Enable released Extras repository on Public Cloud RHUI images
+    ini_file:
+      dest: /etc/yum.repos.d/redhat-rhui.repo
+      section: rhel-7-server-rhui-extras-rpms
+      option: enabled
+      value: 1
+
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_major_version == "7"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"updates" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
+    - '"rhui" in IMAGE_NAME|lower'

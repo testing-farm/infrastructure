@@ -1,0 +1,19 @@
+- block:
+  - name: Make sure dnf core plugins are installed
+    command: "dnf -y install dnf-plugins-core"
+    retries: "{{ pkg_retry_count }}"
+    delay: "{{ pkg_retry_delay }}"
+    until: result_package is succeeded
+    register: result_package
+
+  - name: Enable Buildroot repository
+    command: "dnf config-manager --enable rhel-buildroot"
+    # TODO: this does not work on Beaker, we need better playbooks here
+    ignore_errors: true
+
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_major_version | int >= 8'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'

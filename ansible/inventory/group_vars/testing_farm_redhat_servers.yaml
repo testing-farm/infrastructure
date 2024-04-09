@@ -1,0 +1,16 @@
+---
+# nomad role
+nomad_version: 1.0.4
+nomad_user: root
+nomad_group: root
+nomad_disable_update_check: true
+nomad_enabled_schedulers: batch
+nomad_node_role: server
+nomad_data_dir: /data/nomad
+nomad_bootstrap_expect: 1
+nomad_use_consul: false
+nomad_servers: testing-farm-nomad-server-01
+
+# ssh key
+ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_server"
+ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_server.pub"

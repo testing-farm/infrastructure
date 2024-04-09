@@ -1,0 +1,21 @@
+---
+- block:
+    - name: Create directory with nomad job definitions
+      file:
+        path: "nomad"
+        state: directory
+        mode: "a+rwx"
+
+    - name: Copy nomad job definitions
+      copy:
+        dest: "nomad/{{ item }}.nomad"
+        src: "{{ worker_deployment_data }}/jobs/{{ item }}.nomad"
+        mode: "a+rwx"
+      with_items: "{{ jobs }}"
+
+    - name: Register nomad jobs
+      command: "nomad run nomad/{{ item }}.nomad"
+      with_items: "{{ jobs }}"
+
+  # noamd jobs need to be registered only once
+  run_once: true

@@ -1,0 +1,20 @@
+---
+
+#
+# Enable "beaker-tasks" repository to have available
+# internal beakerlib libraries
+#
+
+- name: Add beaker-tasks repository
+  yum_repository:
+    state: present
+    name: beaker-tasks
+    description: Beaker tasks
+    baseurl: http://beaker.engineering.redhat.com/rpms/
+    gpgcheck: false
+    enabled: true
+    skip_if_unavailable: true
+  when:
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'

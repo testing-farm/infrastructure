@@ -21,13 +21,21 @@ SUPPORTED_ENVIRONMENTS = ['dev', 'staging']
 TERRAGRUNT_ENV_DIR=f'{os.environ["PROJECT_ROOT"]}/terragrunt/environments'
 # Use this variable to override the artemis deployment name, e.g. `artemis-integration`
 ARTEMIS_DEPLOYMENT = os.environ.get('ARTEMIS_DEPLOYMENT', 'artemis')
+SECRETS_FILE = os.environ.get('SECRETS_FILE')
+VAULT_PASS = '.vault_pass'
 
 
 def main() -> None:
-    with open('.vault_pass', 'r') as f:
+    if not SECRETS_FILE or not os.path.exists(SECRETS_FILE):
+        raise Exception('SECRETS_FILE not found in the environment.')
+
+    if not os.path.exists(VAULT_PASS):
+        raise Exception(f'Vault password file {VAULT_PASS} not found.')
+
+    with open(VAULT_PASS, 'r') as f:
         vault_pass = f.read().strip()
 
-    with open(os.path.join('secrets', 'credentials.yaml'), 'r') as f:
+    with open(SECRETS_FILE, 'r') as f:
         credentials_encrypted = f.read()
 
     vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(vault_pass.encode()))])

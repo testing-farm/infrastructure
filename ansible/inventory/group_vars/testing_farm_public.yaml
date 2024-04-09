@@ -1,0 +1,6 @@
+---
+# AWS security groups
+aws_sg_public_test_environment_id: sg-0f4c1a7c071bb9f59
+
+# Public Ranch is hosted in this region
+aws_region: us-east-2

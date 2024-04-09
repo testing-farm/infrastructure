@@ -43,7 +43,7 @@ workflow:
 
   secrets:
     - changes:
-        - secrets/credentials.yaml
+        - ansible/secrets/credentials.yaml
 
   infrastructure:
     - !reference [.rules, secrets]
@@ -149,7 +149,7 @@ ansible-vault:
     - !reference [.direnv, script]
     - dnf -y install ansible-lint
     - >
-      ansible-vault view secrets/credentials.yaml | yamllint -d "rules: {line-length: {level: warning}}" -
+      ansible-vault view $SECRETS_FILE | yamllint -d "rules: {line-length: {level: warning}}" -
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]

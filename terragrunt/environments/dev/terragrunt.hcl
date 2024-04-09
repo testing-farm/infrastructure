@@ -4,10 +4,13 @@ skip = true
 
 locals {
   # development EKS is hosted in this region
+  aws_profile = "fedora_us_east_2"
   aws_region = "us-east-2"
   # AWS region of workers
+  aws_profile_workers = "fedora_us_east_2"
   aws_region_workers = "us-east-2"
   # AWS region of Artemis guests
+  aws_profile_guests = "fedora_us_east_2"
   aws_region_guests = "us-east-2"
   # Use json to pass a map to the provider
   # https://github.com/gruntwork-io/terragrunt/issues/1961
@@ -20,10 +23,10 @@ locals {
 
 # shared inputs
 inputs = {
-  aws_region        = local.aws_region
-  aws_region_guests = local.aws_region_guests
-  route53_zone      = "testing-farm.io"
-  resource_tags     = local.aws_tags
+  aws_profile        = local.aws_profile
+  aws_profile_guests = local.aws_profile_guests
+  route53_zone       = "testing-farm.io"
+  resource_tags      = local.aws_tags
   # NOTE cluster_name is generated, see `eks/terragrunt.hcl`
 }
 
@@ -33,6 +36,7 @@ generate "provider" {
   contents  = <<EOF
 provider "aws" {
 
+  profile = "${local.aws_profile}"
   region = "${local.aws_region}"
 
   default_tags {
@@ -45,6 +49,7 @@ TAGS_EOF
 
 provider "aws" {
 
+  profile = "${local.aws_profile_guests}"
   region = "${local.aws_region_guests}"
   alias = "artemis_guests"
 
@@ -58,6 +63,7 @@ TAGS_EOF
 
 provider "aws" {
 
+  profile = "${local.aws_profile_workers}"
   region = "${local.aws_region_workers}"
   alias = "workers"
 
