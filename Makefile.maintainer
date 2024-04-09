@@ -77,7 +77,7 @@ infra/destroy: .FORCE  ## Destroy | infra
 
 ##@ Infrastructure | Dev
 
-dev/init: .FORCE  ## Initialize | dev | all
+dev/init: generate/dev/server .FORCE  ## Initialize | dev | all
 	$(call run_terragrunt,dev,init)
 
 dev/plan: .FORCE  ## Plan deployment | dev | all
@@ -89,6 +89,9 @@ dev/plan/eks: .FORCE  ## Plan deployment | dev | eks
 dev/plan/artemis: .FORCE  ## Plan deployment | dev | artemis
 	$(call run_terragrunt_app,dev,artemis,plan)
 
+dev/plan/server: generate/dev/server .FORCE  ## Plan deployment | dev | server
+	$(call run_terragrunt_app,dev,server,plan)
+
 dev/apply: .FORCE  ## Deploy | dev | all
 	$(call run_terragrunt,dev,apply)
 
@@ -97,6 +100,9 @@ dev/apply/eks: .FORCE  ## Deploy | dev | eks
 
 dev/apply/artemis: .FORCE  ## Deploy | dev | artemis
 	$(call run_terragrunt_app,dev,artemis,apply)
+
+dev/apply/server: generate/dev/server .FORCE  ## Deploy | dev | server
+	$(call run_terragrunt_app,dev,server,apply)
 
 dev/destroy: .FORCE terminate/artemis/guests/dev  ## Destroy | dev | all
 	$(call run_terragrunt,dev,destroy)
@@ -281,6 +287,9 @@ test/pytest/oculus: .FORCE  ## Download oculus to .pytest directory
 
 generate/dev/citool-config: .FORCE  ## Generate citool-config | dev
 	poetry run python setup/generate_environment.py dev
+
+generate/dev/server: .FORCE  ## Generate server configuration | dev
+	env -C terragrunt/environments/dev/server/ec2 butane -psd $$PROJECT_ROOT/ansible/secrets/ssh -o server.ign server.bu
 
 generate/staging/citool-config: .FORCE  ## Generate citool-config | staging
 	poetry run python setup/generate_environment.py staging
