@@ -1,0 +1,8 @@
+[default]
+coldstore-url-template = http://artifacts.osci.redhat.com/testing-farm/{{ TESTING_FARM_REQUEST_ID }}
+
+artifacts-location-template = {% if TESTING_FARM_REQUEST_ID %}
+                                  {{ COLDSTORE_URL }}/{{ ARTIFACTS_LOCATION }}
+                              {% else %}
+                                  file://localhost/{{ ARTIFACTS_LOCATION }}
+                              {% endif %}

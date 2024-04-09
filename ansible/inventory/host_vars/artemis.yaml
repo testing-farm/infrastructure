@@ -1,0 +1,2 @@
+artemis_db_url: "{{ credentials.artemis.db_url }}"
+artemis_broker_url: "{{ credentials.artemis.broker_url }}"

@@ -37,8 +37,8 @@ provider "helm" {
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       args = [
-        "--region",
-        var.aws_region,
+        "--profile",
+        var.aws_profile,
         "eks",
         "get-token",
         "--cluster-name",
@@ -55,8 +55,8 @@ provider "kubernetes" {
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     args = [
-      "--region",
-      var.aws_region,
+      "--profile",
+      var.aws_profile,
       "eks",
       "get-token",
       "--cluster-name",
@@ -144,12 +144,12 @@ data "aws_route53_zone" "testing_farm_zone" {
 
 data "ansiblevault_path" "pool_access_key_aws" {
   path = var.ansible_vault_credentials
-  key  = "credentials.aws.fedora.access_key"
+  key  = "credentials.aws.profiles.fedora_us_east_2.access_key"
 }
 
 data "ansiblevault_path" "pool_secret_key_aws" {
   path = var.ansible_vault_credentials
-  key  = "credentials.aws.fedora.secret_key"
+  key  = "credentials.aws.profiles.fedora_us_east_2.secret_key"
 }
 
 resource "aws_route53_record" "eks-friendly-endpoint" {

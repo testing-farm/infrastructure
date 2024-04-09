@@ -1,0 +1,10 @@
+enable_debug = {{ nomad_debug | bool | lower }}
+data_dir = "{{ nomad_data_dir }}"
+log_level = "{{ nomad_log_level }}"
+enable_syslog = {{ nomad_syslog_enable | bool | lower }}
+
+advertise {
+  http = "0.0.0.0"
+  rpc  = "0.0.0.0"
+  serf = "0.0.0.0"
+}

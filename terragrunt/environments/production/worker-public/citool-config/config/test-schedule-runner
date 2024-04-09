@@ -1,0 +1,3 @@
+[default]
+parallelize = yes
+parallel-limit = {{ TESTING_FARM_PARALLEL_LIMIT if TESTING_FARM_PARALLEL_LIMIT else 12 }}

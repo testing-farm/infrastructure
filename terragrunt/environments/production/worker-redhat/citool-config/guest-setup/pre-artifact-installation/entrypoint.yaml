@@ -1,0 +1,29 @@
+- hosts: all
+  vars:
+    pkg_retry_count: 5
+    pkg_retry_delay: 30
+  tasks:
+  # workarounds
+  - include_tasks: workaround-beaker-client-repo-unavailable.yaml
+  - include_tasks: workaround-disable-qa-tools.yaml
+  - include_tasks: workaround-centos-8.yaml
+  - include_tasks: workaround-automotive.yaml
+  - include_tasks: workaround-beaker-repos.yaml
+  # IT BREAKS PYTHON TEST SUITE, for example, but for RHEL we accept it as it speeds up a lot installability in PSI Openstack
+  # Disabled, as we test in AWS now anyway
+  # - include_tasks: nosync.yaml
+  - include_tasks: install-koji-brew.yaml
+  - include_tasks: enable-beaker-tasks.yaml
+  - include_tasks: enable-crb.yaml
+  - include_tasks: install-epel.yaml
+  - include_tasks: enable-epel.yaml
+  # Tag repository must be enabled to bring in latest deps which passed gating
+  # https://projects.engineering.redhat.com/browse/TFT-640
+  - include_tasks: tag-repository.yaml
+  # OAMG team needs rhel-extras around
+  - include_tasks: enable-extras.yaml
+  # OSCI users expect buildroot to be enabled by default
+  # https://projects.engineering.redhat.com/browse/TFT-619
+  - include_tasks: enable-buildroot.yaml
+  # TFT-1987 - Hostname on AWS needs to be explicitely set
+  - include_tasks: aws-hostname.yaml

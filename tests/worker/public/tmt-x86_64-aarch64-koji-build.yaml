@@ -12,6 +12,7 @@ variables:
   REQUEST_ID: 56b86bbc-7d6b-4754-bb73-aa48686f48e7
   COMPOSE: Fedora-39
   ARCH: x86_64
+  ARCH_32: i686
   RESULT: PASSED
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
   GIT_REF: main
@@ -80,7 +81,7 @@ checks:
           - tmt
 
   literal-patterns[citool-debug.txt]:
-    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch src vim-9.0.2153-1.fc39 || koji download-task --arch noarch --arch {{ ARCH }} --arch src vim-9.0.2153-1.fc39"
-    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch src tmt-1.29.0-1.fc39 || koji download-task --arch noarch --arch {{ ARCH }} --arch src tmt-1.29.0-1.fc39"
+    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src vim-9.0.2153-1.fc39 || koji download-task --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src vim-9.0.2153-1.fc39"
+    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src tmt-1.29.0-1.fc39 || koji download-task --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src tmt-1.29.0-1.fc39"
     - "koji download-build --debuginfo --task-id --arch noarch --arch aarch64 --arch src vim-9.0.2153-1.fc39 || koji download-task --arch noarch --arch aarch64 --arch src vim-9.0.2153-1.fc39"
     - "koji download-build --debuginfo --task-id --arch noarch --arch aarch64 --arch src tmt-1.29.0-1.fc39 || koji download-task --arch noarch --arch aarch64 --arch src tmt-1.29.0-1.fc39"

@@ -31,6 +31,7 @@ terragrunt/environments/*/worker/citool-config/environment.yaml
 
 # secrets
 .vault_pass
+terragrunt/environments/*/citool-config/*rsa*
 
 # data maintained by direnv
 .direnv

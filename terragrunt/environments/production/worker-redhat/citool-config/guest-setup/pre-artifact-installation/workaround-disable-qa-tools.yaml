@@ -1,0 +1,14 @@
+# workaround - 8.1 image is out
+- block:
+  - name: Disable qa-tools on RHEL-8.1
+    command: "dnf config-manager --disable qa-tools"
+  - name: Disable qa-tools-testing on RHEL-8.1
+    command: "dnf config-manager --disable qa-tools-testing"
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_version == "8.1"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
+  # TODO: this will not work with Beaker, needs more <3
+  ignore_errors: true
