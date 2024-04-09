@@ -25,6 +25,8 @@ locals {
 inputs = {
   aws_profile        = local.aws_profile
   aws_profile_guests = local.aws_profile_guests
+  aws_region_workers = local.aws_region_workers
+  aws_profile_workers = local.aws_profile_workers
   route53_zone       = "testing-farm.io"
   resource_tags      = local.aws_tags
   # NOTE cluster_name is generated, see `eks/terragrunt.hcl`

@@ -29,7 +29,6 @@ install/pre-commit:  ## Install pre-commit hooks
 		pre-commit install; \
 	fi
 
-
 ##@ Cleanup
 
 clean: .FORCE  ## Cleanup

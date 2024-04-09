@@ -185,6 +185,15 @@ if [ ! -e "${TOOLS_PATH}/terragrunt" ]; then
 fi
 
 #
+# install butane
+#
+if [ ! -e "${TOOLS_PATH}/butane" ]; then
+    info "install butane"
+    curl -sLo "${TOOLS_PATH}/butane" https://github.com/coreos/butane/releases/download/v0.20.0/butane-x86_64-unknown-linux-gnu
+    chmod +x "${TOOLS_PATH}/butane"
+fi
+
+#
 # setup git goodies
 #
 if ! grep '\[include\]' .git/config &> /dev/null; then

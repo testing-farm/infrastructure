@@ -32,6 +32,18 @@ echo "SECRET_PASSWORD" > .vault_pass
 $ dnf -y install direnv
 ....
 * Hook `direnv` to your shell, see the https://direnv.net/docs/hook.html[official guide for more information].
+* Install required system dependencies
++
+[WARNING]
+====
+Only Fedora system is supported at this time.
+====
++
+[source,shell]
+....
+make install/fedora
+....
++
 * Allow `direnv` in this directory
 +
 [source,shell]
