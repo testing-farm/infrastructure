@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "Testing Farm Infrastructure."
 authors = ["Miroslav Vadkerti <<mvadkert@redhat.com>>"]
 license = "Apache-2.0"
+packages = [
+    { include = "setup" },
+]
 
 [tool.poetry.dependencies]
 python = "~3.9"
@@ -24,6 +27,9 @@ pytest-gluetool = {git = "https://gitlab.com/testing-farm/pytest-gluetool.git", 
 # Locking without implicitily stating gluetool here doesn't actually propagate the module to the lockfile.
 gluetool = "^2.3"
 yamllint = "^1.29.0"
+
+[tool.poetry.scripts]
+terraform-cloud = "setup.terraform_cloud:main"
 
 [tool.poetry.dev-dependencies]
 yamllint = "^1.28.0"
