@@ -52,7 +52,7 @@ checks:
           </testing-environment>
          </guest>
         </testcase>
-        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" time="{{ '\d+' }}" serial-number="2">
+        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="2">
          <logs>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
@@ -66,7 +66,7 @@ checks:
           </testing-environment>
          </guest>
         </testcase>
-        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" time="{{ '\d+' }}" serial-number="2">
+        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="2">
          <logs>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
@@ -80,7 +80,7 @@ checks:
           </testing-environment>
          </guest>
         </testcase>
-        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" time="{{ '\d+' }}" serial-number="3">
+        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="3">
          <logs>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
@@ -94,7 +94,7 @@ checks:
           </testing-environment>
          </guest>
         </testcase>
-        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" time="{{ '\d+' }}" serial-number="3">
+        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="3">
          <logs>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
@@ -133,7 +133,7 @@ checks:
         <properties>
          <property name="baseosci.result" value="passed"/>
         </properties>
-        <testcase name="/server-setup/testing-farm/tests/multihost/A" result="passed" time="{{ '\d+' }}" serial-number="1">
+        <testcase name="/server-setup/testing-farm/tests/multihost/A" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="1">
          <logs>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
@@ -147,7 +147,7 @@ checks:
           </testing-environment>
          </guest>
         </testcase>
-        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" time="{{ '\d+' }}" serial-number="2">
+        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="2">
          <logs>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
@@ -161,7 +161,7 @@ checks:
           </testing-environment>
          </guest>
         </testcase>
-        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" time="{{ '\d+' }}" serial-number="2">
+        <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="2">
          <logs>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
@@ -175,7 +175,7 @@ checks:
           </testing-environment>
          </guest>
         </testcase>
-        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" time="{{ '\d+' }}" serial-number="3">
+        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="3">
          <logs>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
@@ -189,7 +189,7 @@ checks:
           </testing-environment>
          </guest>
         </testcase>
-        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" time="{{ '\d+' }}" serial-number="3">
+        <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="3">
          <logs>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
           <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
