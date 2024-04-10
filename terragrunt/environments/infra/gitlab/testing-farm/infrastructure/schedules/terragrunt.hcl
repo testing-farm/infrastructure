@@ -4,7 +4,7 @@ include "root" {
 }
 
 terraform {
-  source = "../../../../../modules//gitlab/schedules"
+  source = "../../../../../../modules//gitlab/schedules"
 }
 
 inputs = {
