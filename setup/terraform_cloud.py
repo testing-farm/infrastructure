@@ -104,6 +104,13 @@ def cmd_create_workspace(name: str, ignore_existing: bool = False) -> None:
     Create workspace with given NAME.
     """
 
+    available_workspaces = list_workspaces()
+
+    if any(workspace["attributes"]["name"] == name for workspace in available_workspaces):
+        if ignore_existing:
+            raise typer.Exit
+        error(f"Workspace '{name}' already exists!")
+
     response = request(
         "workspaces",
         method="post",
@@ -121,11 +128,6 @@ def cmd_create_workspace(name: str, ignore_existing: bool = False) -> None:
             },
         },
     )
-
-    if response.status_code == 422:
-        if ignore_existing:
-            raise typer.Exit
-        error(f"Workspace '{name}' already exists!")
 
     if not response:
         error(f"Failed to create workspace '{name}'", response.json())
