@@ -13,8 +13,8 @@ cache_connection: .direnv/aws-cache
 boto_profile: fedora_us_east_2
 
 include_filters:
-  - tag:Name:
-      - "testing_farm_worker_*"
+  - tag:ServiceOwner:
+      - "TFT"
 
 hostnames:
   - "tag:Name"
@@ -23,4 +23,5 @@ compose:
   ansible_host: public_ip_address
 
 groups:
-  testing_farm_public_workers: true
+  testing_farm_public_workers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Worker'
+  testing_farm_public_servers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Server'
