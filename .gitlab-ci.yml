@@ -51,7 +51,7 @@ workflow:
     - changes:
         - .envrc
         - poetry.lock
-        - Makefile
+        - Makefile*
         - setup/*
 
   terragrunt_infra:
