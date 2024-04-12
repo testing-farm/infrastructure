@@ -1,0 +1,22 @@
+#
+# Container image used in CI for this repository.
+# Used to speed up CI with common setup.
+#
+
+FROM docker.io/python:3.9-alpine
+
+WORKDIR /infrastructure
+
+RUN mkdir -p /infrastructure
+
+COPY .envrc .envrc
+COPY setup/environment.sh setup/environment.sh
+
+RUN apk add ansible curl direnv gawk make poetry yq
+
+RUN    mkdir -p /opt/infrastructure \
+    && touch .vault_pass \
+    && direnv allow \
+    && bash -c 'eval "$(direnv export bash)"' \
+    && printf "nameserver 1.1.1.1\nnameserver 8.8.8.8\nnameserver 8.8.4.4\n" > /etc/resolv.conf \
+    && echo 'eval "$(direnv hook bash)"' >> $HOME/.bashrc
