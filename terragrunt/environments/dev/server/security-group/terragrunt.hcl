@@ -40,6 +40,10 @@ dependency "artemis" {
   mock_outputs = {
     localhost_ip = "127.0.0.1"
   }
+
+  # As we added this output to an existing setup, merging with remote state is needed or it will cause issues with existing deployments update
+  # https://terragrunt.gruntwork.io/docs/reference/config-blocks-and-attributes/#dependency
+  mock_outputs_merge_strategy_with_state = "shallow"
 }
 
 inputs = {
