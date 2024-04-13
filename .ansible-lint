@@ -1,4 +1,7 @@
 exclude_paths:
+  # roles from ansible-galaxy
+  - ansible/roles/geerlingguy.node_exporter
   - ansible/roles/geerlingguy.swap
+
   - tests/worker/public/pipeline/
   - tests/worker/redhat/pipeline/
