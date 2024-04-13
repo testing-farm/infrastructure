@@ -5,3 +5,4 @@ collections:
   - community.general
 roles:
   - src: geerlingguy.swap
+  - src: geerlingguy.node_exporter

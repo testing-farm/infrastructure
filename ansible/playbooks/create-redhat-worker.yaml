@@ -102,6 +102,8 @@
         swap_file_size_mb: "16384"
         swap_file_state: present
       become: true
+    - name: geerlingguy.node_exporter
+      become: true
     - name: nomad
   tasks:
     - include: ../tasks/jobs-register.yaml
