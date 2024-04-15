@@ -1,18 +1,5 @@
-generate "backend" {
-  path      = "backend.tf"
-  if_exists = "overwrite_terragrunt"
-  contents  = <<EOF
-terraform {
-  backend "remote" {
-    hostname     = "app.terraform.io"
-    organization = "testing-farm"
-
-    workspaces {
-      name = "gitlab-testing-farm-worker-public"
-    }
-  }
-}
-EOF
+include "root" {
+  path = find_in_parent_folders()
 }
 
 terraform {
