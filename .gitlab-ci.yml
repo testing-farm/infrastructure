@@ -250,6 +250,7 @@ test/infra:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
+    TERRAGRUNT_PARALLELISM: 3
     SCRIPT: >-
       make infra/init &&
       make infra/plan
