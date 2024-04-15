@@ -11,12 +11,13 @@
 import itertools
 import os
 import sys
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 import requests
 import typer
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
+from urllib.parse import urlparse, parse_qs
 
 TFCLOUD_VARIABLE_NAME = "TF_TOKEN_app_terraform_io"
 TFCLOUD_API_URL = f"{os.getenv('TF_VAR_terraform_api_url')}/organizations/testing-farm"
@@ -64,6 +65,7 @@ def get_error_detail(response: requests.Response) -> Any:
 
 def request(
     endpoint: str,
+    params: Optional[Dict[Any, Any]] = None,
     status_codes: Optional[List[int]] = None,
     method: str = "get",
     error_response: bool = False,
@@ -74,7 +76,7 @@ def request(
     """
     status_codes = status_codes or [200, 201]
 
-    response = getattr(session, method)(f"{TFCLOUD_API_URL}/{endpoint}", headers=HEADERS, **kwargs)
+    response = getattr(session, method)(f"{TFCLOUD_API_URL}/{endpoint}", headers=HEADERS, params=params, **kwargs)
 
     if response.status_code >= 400 and response.status_code < 500:
         if error_response:
@@ -93,7 +95,8 @@ def list_workspaces() -> List[Any]:
     responses = [request(endpoint).json()]
 
     while responses[-1]["links"]["next"]:
-        responses.append(request(endpoint).json())
+        params = parse_qs(urlparse(responses[-1]["links"]["next"]).query)
+        responses.append(request(endpoint, params=params).json())
 
     return list(itertools.chain([workspace for response in responses for workspace in response["data"]]))
 
