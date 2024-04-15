@@ -262,7 +262,11 @@ define download_oculus_to_pytest
 endef
 
 test/dev/pipeline: .FORCE wait/artemis/dev generate/dev/citool-config  ## Run worker tests | dev
-	$(call run_pytest_gluetool,dev,-m "public and pipeline")
+	$(call run_pytest_gluetool,dev,-m "public and pipeline and not container")
+	$(call download_oculus_to_pytest)
+
+test/dev/pipeline/container: .FORCE wait/artemis/dev generate/dev/citool-config  ## Run worker tests | dev
+	$(call run_pytest_gluetool,dev,-m "public and pipeline and container")
 	$(call download_oculus_to_pytest)
 
 test/dev/compose: .FORCE wait/artemis/dev generate/dev/citool-config  ## Run compose tests | dev
@@ -270,11 +274,18 @@ test/dev/compose: .FORCE wait/artemis/dev generate/dev/citool-config  ## Run com
 	$(call download_oculus_to_pytest)
 
 test/staging/pipeline: .FORCE wait/artemis/staging generate/staging/citool-config  ## Run worker tests | dev
-	$(call run_pytest_gluetool,staging,-m "public and pipeline")
+	$(call run_pytest_gluetool,staging,-m "public and pipeline and not container")
+	$(call download_oculus_to_pytest)
+
+test/staging/pipeline/container: .FORCE wait/artemis/staging generate/staging/citool-config  ## Run worker tests | dev
+	$(call run_pytest_gluetool,staging,-m "public and pipeline and container")
 	$(call download_oculus_to_pytest)
 
 test/staging/pipeline/ci: .FORCE wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests | staging | CI
-	$(call run_pytest_gluetool,staging,-m "public and pipeline")
+	$(call run_pytest_gluetool,staging,-m "public and pipeline and not container")
+
+test/staging/pipeline/container/ci: .FORCE wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests | staging | CI
+	$(call run_pytest_gluetool,staging,-m "public and pipeline and container")
 
 test/staging/compose: .FORCE wait/artemis/staging generate/staging/citool-config  ## Run compose tests | staging
 	$(call run_pytest_gluetool,staging,-m "public and compose")

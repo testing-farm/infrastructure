@@ -2,6 +2,9 @@
 
 name: base-tmt-container_pipeline
 
+marks:
+  - container
+
 variables:
   REQUEST_ID: change-me
 
