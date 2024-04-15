@@ -37,6 +37,7 @@ yamllint = "^1.28.0"
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
 markers = [
+    "container",
     "compose",
     "hardware",
     "pipeline",
