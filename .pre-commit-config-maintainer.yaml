@@ -23,13 +23,11 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/ansible-community/ansible-lint.git
-    rev: v5.3.2
+    rev: v6.12.2
     hooks:
       - id: ansible-lint
         files: \.(yaml|yml)$
-        # New Ansible breaks older ansible-lint, stick to the old version for now
-        additional_dependencies:
-          - 'ansible-core<2.15'
+        args: ["--profile", "min"]
 
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.1.0
