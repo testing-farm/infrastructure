@@ -11,7 +11,7 @@ storage:
       mode: 0644
       contents:
         local: terragrunt/environments/dev/server/pods/server.yaml
-    - path: /etc/containers/systemd/testing-farm@server.kube
+    - path: /etc/containers/systemd/server.kube
       mode: 0644
       contents:
-        local: terragrunt/environments/dev/server/pods/testing-farm@server.kube
+        local: terragrunt/environments/dev/server/pods/server.kube

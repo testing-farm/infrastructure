@@ -46,9 +46,6 @@ report.html
 # decrypted secrets
 **/*.decrypted
 
-# ignore Ignition files, we use Butane to generate them
-**/*.ign
-
 # python cache
 **/__pycache__
 

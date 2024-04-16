@@ -60,6 +60,7 @@ inputs = {
   associate_public_ip_address = true
 
   user_data              = local.user_data
+
   vpc_security_group_ids = [dependency.security-group.outputs.security_group_id]
 
   root_block_device = [{
