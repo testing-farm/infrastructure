@@ -2,56 +2,62 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  creationTimestamp: "2024-04-16T07:41:47Z"
   labels:
-    app: testing-farm@server
-  name: testing-farm@server
+    app: server
+  name: server
 spec:
   containers:
-  - args:
-    - start-single-node
-    - --insecure
-    image: docker.io/cockroachdb/cockroach:v23.2.3
-    name: cockroach
-    ports:
-    - containerPort: 8001
-      hostPort: 8001
-    - containerPort: 8002
-      hostPort: 8002
-    - containerPort: 8080
-      hostPort: 8080
-    - containerPort: 26257
-      hostPort: 26257
-    volumeMounts:
-    - mountPath: /cockroach/cockroach-data
-      name: cockroach-pvc
-  - args:
-    - public
-    env:
-    - name: TF_API_PORT
-      value: "8001"
-    - name: TF_API_DATABASE_HOST
-      value: localhost
-    - name: TF_API_DATABASE_PORT
-      value: "26257"
-    - name: TF_API_DATABASE_USER
-      value: root
-    image: quay.io/testing-farm/api:23684098
-    name: api-public
-  - args:
-    - internal
-    env:
-    - name: TF_API_PORT
-      value: "8002"
-    - name: TF_API_DATABASE_HOST
-      value: localhost
-    - name: TF_API_DATABASE_USER
-      value: root
-    - name: TF_API_DATABASE_PORT
-      value: "26257"
-    image: quay.io/testing-farm/api:23684098
-    name: api-internal
+    - args:
+        - start-single-node
+        - --insecure
+      image: docker.io/cockroachdb/cockroach:v23.2.4
+      name: cockroach
+      ports:
+        - containerPort: 8001
+          hostPort: 8001
+        - containerPort: 8002
+          hostPort: 8002
+        - containerPort: 8080
+          hostPort: 8080
+        - containerPort: 26257
+          hostPort: 26257
+      volumeMounts:
+        - mountPath: /cockroach/cockroach-data
+          name: cockroach-pvc
+    - args:
+        - public
+      env:
+        - name: TF_API_PORT
+          value: "8001"
+        - name: TF_API_DATABASE_HOST
+          value: 0.0.0.0
+        - name: TF_API_DATABASE_PORT
+          value: "26257"
+        - name: TF_API_DATABASE_USER
+          value: root
+      image: quay.io/testing-farm/api:23684098
+      name: api-public
+    - args:
+        - internal
+      env:
+        - name: TF_API_PORT
+          value: "8002"
+        - name: TF_API_DATABASE_HOST
+          value: 0.0.0.0
+        - name: TF_API_DATABASE_USER
+          value: root
+        - name: TF_API_DATABASE_PORT
+          value: "26257"
+      image: quay.io/testing-farm/api:23684098
+      name: api-internal
+    - env:
+        - name: TF_DISPATCHER_PUBLIC_URL
+          value: "http://api-public:8001"
+        - name: TF_DISPATCHER_INTERNAL_URL
+          value: "http://api-internal:8002"
+      image: quay.io/testing-farm/dispatcher:latest
+      name: dispatcher
   volumes:
-  - name: cockroach-pvc
-    persistentVolumeClaim:
-      claimName: cockroach
+    - name: cockroach-pvc
+      persistentVolumeClaim:
+        claimName: cockroach
