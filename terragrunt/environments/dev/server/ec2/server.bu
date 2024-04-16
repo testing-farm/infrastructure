@@ -5,3 +5,24 @@ passwd:
     - name: core
       ssh_authorized_keys_local:  # pragma: allowlist secret
         - id_rsa_public_server.pub
+storage:
+  files:
+    - path: /var/home/core/tf-pod.yaml
+      mode: 0644
+      contents:
+        local: tf-pod.yaml
+systemd:
+  units:
+    - name: tf-pod.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=A kubernetes yaml based service
+        Before=local-fs.target
+
+        [Kube]
+        Yaml=/var/home/core/tf-pod.yaml
+
+        [Install]
+        # Start by default on boot
+        WantedBy=multi-user.target default.target
