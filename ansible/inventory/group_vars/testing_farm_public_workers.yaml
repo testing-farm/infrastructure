@@ -25,6 +25,7 @@ ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker"
 ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker.pub"
 
 # ansible ssh key
+root_dir: "{{ ansible_config_file | dirname }}"
 ansible_dir: "{{ root_dir }}/ansible"
 ansible_ssh_private_key_file: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker.decrypted"
 
