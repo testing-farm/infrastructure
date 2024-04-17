@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.6.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -23,14 +23,14 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/ansible-community/ansible-lint.git
-    rev: v6.12.2
+    rev: v24.2.2
     hooks:
       - id: ansible-lint
-        files: \.(yaml|yml)$
         args: ["--profile", "min"]
+        entry: ansible-lint -v
 
   - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.1.0
+    rev: v1.4.0
     hooks:
       - id: detect-secrets
 

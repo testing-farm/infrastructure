@@ -1,8 +1,11 @@
+---
 exclude_paths:
+  - .gitlab-ci.yml
+
   # roles from ansible-galaxy
   - ansible/roles/geerlingguy.node_exporter
   - ansible/roles/geerlingguy.swap
 
-  - tests/worker/public/pipeline/
-  - tests/worker/redhat/pipeline/
-  - .gitlab-ci.yml
+  - tests/worker
+
+  - terragrunt/environments

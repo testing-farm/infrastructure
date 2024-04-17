@@ -44,7 +44,7 @@ PATH_add "$(poetry run bash -c 'echo $VIRTUAL_ENV')/bin"
 # install ansible content
 #
 info "install ansible content"
-ansible-galaxy install -r $PROJECT_ROOT/ansible/requirements.yaml &>> $LOG
+ansible-galaxy install --force -r $PROJECT_ROOT/ansible/requirements.yaml &>> $LOG
 
 #
 # download helm
