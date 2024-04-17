@@ -6,6 +6,9 @@ include "root" {
 # Read parent configuration
 locals {
   common = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
+  # get_working_dir is empty during plan, make sure we read the generated ignition file only during apply
+  butane_file = "${get_working_dir()}/server.ign"
+  user_data   = fileexists(local.butane_file) ? base64encode(file(local.butane_file)) : base64encode("error: butane file not generated")
 }
 
 terraform {
@@ -19,7 +22,7 @@ terraform {
 
 # Terraform cannot work well with multiple providers, so generate it here
 # https://github.com/gruntwork-io/terragrunt/issues/1095
-generate "provider" {
+generate "provider-ec2" {
   path      = "provider.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
@@ -56,8 +59,7 @@ inputs = {
   subnet_id                   = "subnet-4f971734"
   associate_public_ip_address = true
 
-  user_data = base64encode(file("server.ign"))
-
+  user_data              = local.user_data
   vpc_security_group_ids = [dependency.security-group.outputs.security_group_id]
 
   root_block_device = [{

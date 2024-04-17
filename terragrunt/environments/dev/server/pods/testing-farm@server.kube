@@ -1,6 +1,5 @@
 [Unit]
 Description=Testing Farm Server Pod
-Before=local-fs.target
 
 [Kube]
 Yaml=/etc/testing-farm/pods/server.yaml

@@ -70,6 +70,7 @@ repos:
         files: ^terragrunt/environments/
         exclude: |
           (?x)^(
+            terragrunt/environments/.*/server/pods/.*|
             terragrunt/environments/.*/artemis/config/.*|
             terragrunt/environments/.*/worker/citool-config/.*|
           )$
