@@ -57,3 +57,4 @@ report.html
 
 # ansible roles from galaxy
 ansible/roles/geerlingguy.swap
+ansible/roles/geerlingguy.node_exporter
