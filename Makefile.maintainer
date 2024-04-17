@@ -91,7 +91,7 @@ dev/plan/artemis: .FORCE  ## Plan deployment | dev | artemis
 	$(call run_terragrunt_app,dev,artemis,plan)
 
 dev/plan/server: generate/dev/server .FORCE  ## Plan deployment | dev | server
-	$(call run_terragrunt_app,dev,server,plan)
+	$(call run_terragrunt_app,dev,server/ec2,plan)
 
 dev/apply: .FORCE  ## Deploy | dev | all
 	$(call run_terragrunt,dev,apply)
@@ -103,7 +103,7 @@ dev/apply/artemis: .FORCE  ## Deploy | dev | artemis
 	$(call run_terragrunt_app,dev,artemis,apply)
 
 dev/apply/server: generate/dev/server .FORCE  ## Deploy | dev | server
-	$(call run_terragrunt_app,dev,server,apply)
+	$(call run_terragrunt_app,dev,server/ec2,apply)
 
 dev/destroy: .FORCE terminate/artemis/guests/dev  ## Destroy | dev | all
 	$(call run_terragrunt,dev,destroy)
@@ -208,7 +208,7 @@ create/public/worker: .FORCE  ## Create a Public ranch worker, use `make create/
 
 define run_pipeline_update
 	@echo -e "$(1) \033[0;32m$(2)\033[0m"
-	ansible-playbook -v -l $(3) -t $(4) ansible/playbooks/testing-farm.yml
+	ansible-playbook -v -l $(3) -t $(4) ansible/playbooks/testing-farm.yaml
 endef
 
 # To pass a comma in the call command arguments
