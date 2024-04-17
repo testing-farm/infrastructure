@@ -61,12 +61,17 @@ repos:
           - --args=-diff
       - id: terraform_tflint
       - id: terraform_tfsec
+        exclude: |
+          (?x)^(
+            # well, tfsec does know nothing about terragrunt inputs :(
+            terragrunt/environments/.*/server/ec2/.*
+          )$
       - id: terragrunt_validate
         files: ^terragrunt/environments/
         exclude: |
           (?x)^(
             terragrunt/environments/.*/artemis/config/.*|
-            terragrunt/environments/.*/worker/citool-config/.*
+            terragrunt/environments/.*/worker/citool-config/.*|
           )$
       - id: terragrunt_fmt
 

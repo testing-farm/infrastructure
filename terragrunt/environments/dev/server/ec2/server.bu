@@ -4,7 +4,7 @@ passwd:
   users:  # pragma: allowlist secret
     - name: core
       ssh_authorized_keys_local:  # pragma: allowlist secret
-        - ansible/ssh/secrets/id_rsa_public_server.pub
+        - ansible/secrets/ssh/id_rsa_public_server.pub
 storage:
   files:
     - path: /etc/testing-farm/pods/server.yaml
