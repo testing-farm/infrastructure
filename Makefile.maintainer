@@ -300,7 +300,7 @@ generate/dev/citool-config: .FORCE  ## Generate citool-config | dev
 	poetry run python setup/generate_environment.py dev
 
 generate/dev/server: .FORCE  ## Generate server configuration | dev
-	env -C terragrunt/environments/dev/server/ec2 butane -psd $$PROJECT_ROOT/ansible/secrets/ssh -o server.ign server.bu
+	env -C terragrunt/environments/dev/server/ec2 butane -psd $$PROJECT_ROOT -o server.ign server.bu
 
 generate/staging/citool-config: .FORCE  ## Generate citool-config | staging
 	poetry run python setup/generate_environment.py staging
