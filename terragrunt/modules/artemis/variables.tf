@@ -61,13 +61,7 @@ variable "ssh_keys" {
 variable "additional_lb_source_ips" {
   description = "List of additional IP addresses"
   type        = list(string)
-  default     = ["127.0.0.1"]
-}
-
-variable "localhost_access" {
-  description = "Add localhost access to Artemis and guests."
-  type        = bool
-  default     = false
+  default     = []
 }
 
 variable "image_tag" {
