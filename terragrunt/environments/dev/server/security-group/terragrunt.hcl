@@ -33,17 +33,13 @@ TAGS_EOF
 EOF
 }
 
-dependency "artemis" {
-  config_path = "../../artemis"
+dependency "localhost" {
+  config_path = "../../localhost"
 
   # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
   mock_outputs = {
-    localhost_ip = "127.0.0.1"
+    localhost_public_ip = "127.0.0.1"
   }
-
-  # As we added this output to an existing setup, merging with remote state is needed or it will cause issues with existing deployments update
-  # https://terragrunt.gruntwork.io/docs/reference/config-blocks-and-attributes/#dependency
-  mock_outputs_merge_strategy_with_state = "shallow"
 }
 
 inputs = {
@@ -51,7 +47,7 @@ inputs = {
   description = "Security group for SSH access from the developer machine"
   vpc_id      = "vpc-a4f084cd"
 
-  ingress_cidr_blocks = ["${dependency.artemis.outputs.localhost_ip}/32"]
+  ingress_cidr_blocks = ["${dependency.localhost.outputs.localhost_public_ip}/32"]
   ingress_rules       = ["ssh-tcp"]
 
   egress_rules = ["all-all"]
