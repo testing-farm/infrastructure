@@ -14,7 +14,7 @@ terraform {
 
 # Terraform cannot work well with multiple providers, so generate it here
 # https://github.com/gruntwork-io/terragrunt/issues/1095
-generate "provider" {
+generate "provider-ec2" {
   path      = "provider.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
@@ -46,12 +46,12 @@ inputs = {
   # fedora-coreos-39.20240407.2.0-x86_64
   ami = "ami-0c16645ea75d9e9b8"
 
-  instance_type = "m7a.medium"
-  key_name = "testing-farm"
-  subnet_id = "subnet-4f971734"
+  instance_type               = "m7a.medium"
+  key_name                    = "testing-farm"
+  subnet_id                   = "subnet-4f971734"
   associate_public_ip_address = true
 
-  user_data =  base64encode(file("server.ign"))
+  user_data = base64encode(file("server.ign"))
 
   vpc_security_group_ids = [dependency.security-group.outputs.security_group_id]
 

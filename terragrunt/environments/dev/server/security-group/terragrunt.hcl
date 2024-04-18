@@ -14,7 +14,7 @@ terraform {
 
 # Terraform cannot work well with multiple providers, so generate it here
 # https://github.com/gruntwork-io/terragrunt/issues/1095
-generate "provider" {
+generate "provider-security-group" {
   path      = "provider.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
