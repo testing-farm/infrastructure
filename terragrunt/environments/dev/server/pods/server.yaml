@@ -1,0 +1,82 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: server
+  name: server
+spec:
+  initContainers:
+    - name: waitdb
+      image: quay.io/testing-farm/api:latest
+      args:
+        - waitdb
+      env:
+        - name: TF_API_PORT
+          value: "8001"
+        - name: TF_API_DATABASE_HOST
+          value: cockroach
+        - name: TF_API_DATABASE_PORT
+          value: "26257"
+        - name: TF_API_DATABASE_USER
+          value: root
+    - name: createdb
+      image: docker.io/cockroachdb/cockroach:v23.2.4
+      command:
+        - sh
+      args:
+        - -c
+        - cockroach sql --insecure --url postgresql://root@cockroach:26257 -e "CREATE DATABASE nucleus" || true
+    - name: initdb
+      image: quay.io/testing-farm/api:latest
+      args:
+        - initdb
+      env:
+        - name: TF_API_PORT
+          value: "8001"
+        - name: TF_API_DATABASE_HOST
+          value: cockroach
+        - name: TF_API_DATABASE_PORT
+          value: "26257"
+        - name: TF_API_DATABASE_USER
+          value: root
+  containers:
+    - name: api-public
+      image: quay.io/testing-farm/api:latest
+      args:
+        - public
+      env:
+        - name: TF_API_PORT
+          value: "8001"
+        - name: TF_API_DATABASE_HOST
+          value: cockroach
+        - name: TF_API_DATABASE_PORT
+          value: "26257"
+        - name: TF_API_DATABASE_USER
+          value: root
+      ports:
+        - containerPort: 8001
+          hostPort: 8001
+    - name: api-internal
+      image: quay.io/testing-farm/api:latest
+      args:
+        - internal
+      env:
+        - name: TF_API_PORT
+          value: "8002"
+        - name: TF_API_DATABASE_HOST
+          value: cockroach
+        - name: TF_API_DATABASE_USER
+          value: root
+        - name: TF_API_DATABASE_PORT
+          value: "26257"
+      ports:
+        - containerPort: 8002
+          hostPort: 8002
+    - name: dispatcher
+      image: quay.io/testing-farm/dispatcher:latest
+      env:
+        - name: TF_DISPATCHER_PUBLIC_URL
+          value: "http://api-public:8001"
+        - name: TF_DISPATCHER_INTERNAL_URL
+          value: "http://api-internal:8002"

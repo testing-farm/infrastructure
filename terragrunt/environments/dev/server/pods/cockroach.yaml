@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: cockroach
+  name: cockroach
+spec:
+  containers:
+    - name: cockroach
+      image: docker.io/cockroachdb/cockroach:v23.2.4
+      args:
+        - start-single-node
+        - --insecure
+      ports:
+        - containerPort: 8080
+          hostPort: 8080
+        - containerPort: 26257
+          hostPort: 26257
+      volumeMounts:
+        - mountPath: /cockroach/cockroach-data
+          name: cockroach-pvc
+  volumes:
+    - name: cockroach-pvc
+      persistentVolumeClaim:
+        claimName: cockroach

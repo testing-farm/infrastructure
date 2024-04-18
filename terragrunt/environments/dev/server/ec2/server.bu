@@ -4,4 +4,22 @@ passwd:
   users:  # pragma: allowlist secret
     - name: core
       ssh_authorized_keys_local:  # pragma: allowlist secret
-        - id_rsa_public_server.pub
+        - ansible/secrets/ssh/id_rsa_public_server.pub
+storage:
+  files:
+    - path: /etc/testing-farm/pods/server.yaml
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/server.yaml
+    - path: /etc/containers/systemd/server.kube
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/server.kube
+    - path: /etc/testing-farm/pods/cockroach.yaml
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/cockroach.yaml
+    - path: /etc/containers/systemd/cockroach.kube
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/cockroach.kube
