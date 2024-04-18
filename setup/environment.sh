@@ -180,8 +180,7 @@ fi
 
 if [ ! -e "${TOOLS_PATH}/terragrunt" ]; then
     info "install terragrunt"
-    # IMPORTANT: Later versions are broken, check https://github.com/gruntwork-io/terragrunt/issues/3028
-    curl -sLo ${TOOLS_PATH}/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.55.5/terragrunt_linux_amd64
+    curl -sLo ${TOOLS_PATH}/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.57.8/terragrunt_linux_amd64
     chmod +x ${TOOLS_PATH}/terragrunt
 fi
 

@@ -9,6 +9,8 @@ locals {
   route53_zone  = local.common.inputs.route53_zone
   namespace     = get_env("TF_VAR_artemis_namespace", "default")
   domain_suffix = local.namespace == "default" ? "" : "-${local.namespace}"
+
+  mocked_cluster_certificate_authority_data = "bW9jay1jbHVzdGVyLWNlcnRpZmljYXRlCg==" # pragma: allowlist secret
 }
 
 # Use eks module from this repository
@@ -19,16 +21,24 @@ terraform {
   source = "../../../modules//artemis"
 }
 
+dependency "localhost" {
+  config_path = "../localhost"
+
+  # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
+  mock_outputs = {
+    localhost_public_ip = "127.0.0.1"
+  }
+}
+
 dependency "eks" {
   config_path = "../eks"
 
   # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
   mock_outputs = {
     cluster = {
-      cluster_name     = "mock-cluster-name"
-      cluster_endpoint = "mock-cluster-endpoint"
-      ## this is not a secret, just mocked output
-      cluster_certificate_authority_data = "bW9jay1jbHVzdGVyLWNlcnRpZmljYXRlCg==" # pragma: allowlist secret
+      cluster_name                       = "mock-cluster-name"
+      cluster_endpoint                   = "mock-cluster-endpoint"
+      cluster_certificate_authority_data = local.mocked_cluster_certificate_authority_data
     }
   }
 }
@@ -44,12 +54,12 @@ inputs = {
   # For example for `testing-farm-production` cluster that would be `artemis.production.testing-farm.io`
   api_domain = "artemis.${trimprefix(dependency.eks.outputs.cluster.cluster_name, "testing-farm-")}${local.domain_suffix}.${local.common.inputs.route53_zone}"
 
-  # Add localhost access to artemis and guests
-  localhost_access = true
-
   release_name = "artemis"
   namespace    = local.namespace
   image_tag    = "v0.0.69"
+
+  # Enable access from localhost
+  additional_lb_source_ips = [dependency.localhost.outputs.localhost_public_ip]
 
   # Testing Farm worker tags used to identify workers for this environment
   testing_farm_worker_tags = {
@@ -100,7 +110,7 @@ inputs = {
       value = "/configuration/artemis-image-map-aws.yaml"
     },
     {
-      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_x86_64_metal",  # pragma: allowlist secret
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_x86_64_metal", # pragma: allowlist secret
       value = "/configuration/artemis-image-map-aws.yaml"
     },
     {
@@ -116,11 +126,11 @@ inputs = {
       value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
     },
     {
-      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_x86_64_metal",  # pragma: allowlist secret
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_x86_64_metal", # pragma: allowlist secret
       value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
     },
     {
-      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_aarch64_metal",  # pragma: allowlist secret
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_aarch64_metal", # pragma: allowlist secret
       value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
     }
   ]

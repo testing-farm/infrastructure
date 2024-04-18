@@ -9,9 +9,6 @@ terraform {
     aws = {
       version = ">=4.0.0"
     }
-    external = {
-      version = ">=2.2.0"
-    }
     helm = {
       version = ">=2.9.0"
     }
@@ -24,8 +21,6 @@ locals {
     for ip in concat(
       # Additional IPs from input variables
       var.additional_lb_source_ips,
-      # Localhost IP, if enabled
-      var.localhost_access ? [data.external.localhost_public_ip.result.output] : [],
       # Additional IPs from secrets
       # we accept a string with comma or newline delimited IPs
       split("\n", replace(trimspace(data.ansiblevault_path.guests_additional_ips.value), " ", "\n"))
@@ -40,8 +35,6 @@ locals {
     for ip in concat(
       # Additional IPs from input variables
       var.additional_lb_source_ips,
-      # Localhost IP, if enabled
-      var.localhost_access ? [data.external.localhost_public_ip.result.output] : [],
       # Additional IPs from secrets
       # we accept a string with comma or newline delimited IPs
       split("\n", replace(trimspace(data.ansiblevault_path.artemis_additional_ips.value), " ", "\n"))
@@ -73,15 +66,6 @@ provider "ansiblevault" {
 
   vault_path  = var.ansible_vault_password_file
   root_folder = var.config_root
-}
-
-# Public IP of localhost, used for development access to Artemis API and provisioned guests
-data "external" "localhost_public_ip" {
-  program = [
-    "sh",
-    "-c",
-    "jq -n --arg output \"$(curl -4s icanhazip.com)\" '{$output}'"
-  ]
 }
 
 # Testing Farm workers, used to provide IPs which have access to Artemis API endpoint

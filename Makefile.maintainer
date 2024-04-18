@@ -146,6 +146,7 @@ staging/apply/artemis: .FORCE  ## Deploy | staging | artemis
 	$(call run_terragrunt_app,staging,artemis,apply)
 
 staging/apply/artemis/ci: .FORCE  ## Deploy | staging | artemis | CI
+	$(call run_terragrunt_app,staging,localhost,apply)
 	$(call run_terragrunt_app,staging,artemis-ci,apply)
 
 staging/destroy: .FORCE terminate/artemis/guests/staging  ## Destroy | staging
@@ -352,16 +353,16 @@ wait/artemis/staging/ci: .FORCE  ## Wait until Artemis is available | staging | 
 ##@ Cleanup | maintainer
 
 terminate/artemis/guests/dev: .FORCE  ## Terminate all EC2 instances created by Artemis | dev
-	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh dev
+	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh dev || true
 
 terminate/artemis/guests/staging: .FORCE  ## Terminate all EC2 instances created by Artemis | staging
-	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging
+	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging || true
 
 terminate/artemis/guests/staging/ci: .FORCE  ## Terminate all EC2 instances created by Artemis | staging | CI
-	@ARTEMIS_DEPLOYMENT=artemis-ci bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging
+	@ARTEMIS_DEPLOYMENT=artemis-ci bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging || true
 
 terminate/artemis/guests/production: .FORCE  ## Terminate all EC2 instances created by Artemis | staging
-	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh production
+	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh production || true
 
 terminate/eks/ci: .FORCE  ## Terminate all EKS CI clusters
 	@bash $$PROJECT_ROOT/setup/terminate_eks_ci_clusters.sh
