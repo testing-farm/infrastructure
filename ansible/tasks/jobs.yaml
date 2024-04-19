@@ -1,8 +1,34 @@
 ---
-- name: Copy job scripts
+- name: Copy job scripts template
   become: true
   copy:
-    dest: "/usr/local/bin/{{ item }}"
-    src: "{{ worker_deployment_data }}/jobs/{{ item }}"
+    dest: "/tmp/job-script.j2"
+    src: "{{ root_dir }}/templates/job-script.j2"
     mode: "a+rwx"
-  with_items: "{{ jobs }}"
+
+- name: Copy nomad jobs template
+  become: true
+  copy:
+    dest: "/tmp/job.nomad.j2"
+    src: "{{ root_dir }}/templates/job-nomad.j2"
+    mode: "a+rwx"
+
+- name: Generate job scripts
+  template:
+    src: "/tmp/job-script.j2"
+    dest: "/usr/local/bin/{{ job_name }}"
+    mode: "a+rwx"
+  loop: "{{ jobs_template_vars | dict2items }}"
+  vars:
+    job_vars: "{{ item.value }}"
+    job_name: "{{ item.key | replace('_', '-') }}"
+
+- name: Generate nomad jobs
+  template:
+    src: "/tmp/job.nomad.j2"
+    dest: "/usr/local/bin/{{ job_name }}.nomad"
+    mode: "a+rwx"
+  loop: "{{ jobs_template_vars | dict2items }}"
+  vars:
+    job_vars: "{{ item.value }}"
+    job_name: "{{ item.key | replace('_', '-') }}"

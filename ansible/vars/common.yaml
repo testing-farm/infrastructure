@@ -1,3 +1,99 @@
 ---
 root_dir: "{{ ansible_config_file | dirname }}"
 ansible_dir: "{{ root_dir }}/ansible"
+
+jobs_template_vars:
+  tf_tmt:
+    group: tmt
+    ephemeral_disk_size: 5000
+    cpu: 500
+    memory: 3072
+    pipeline: >-
+      citool-container.sh rules-engine \
+                          hide-secrets \
+                          testing-farm-request --request-id $REQUEST_ID \
+                          coldstore \
+                          archive \
+                          ansible \
+                          artemis \
+                          fedora-copr:copr \
+                          install-repository \
+                          install-copr-build \
+                          install-koji-build-execute \
+                          guest-setup-testing-farm:guest-setup \
+                          guest-setup-order \
+                          git \
+                          testing-farm-request-state-reporter \
+                          test-schedule-tmt-connect:test-schedule-tmt \
+                          test-scheduler-testing-farm \
+                          test-schedule-runner \
+                          test-schedule-report
+
+  tf_sti:
+    group: sti
+    ephemeral_disk_size: 5000
+    cpu: 500
+    memory: 3072
+    pipeline: >-
+      citool-container.sh rules-engine \
+                          hide-secrets \
+                          testing-farm-request --request-id $REQUEST_ID \
+                          coldstore \
+                          archive \
+                          ansible \
+                          artemis \
+                          fedora-copr:copr \
+                          install-repository \
+                          install-copr-build \
+                          install-koji-build-execute \
+                          guest-setup-testing-farm:guest-setup \
+                          guest-setup-order \
+                          git \
+                          testing-farm-request-state-reporter \
+                          test-scheduler-sti \
+                          test-schedule-runner-sti \
+                          test-scheduler-testing-farm \
+                          test-schedule-runner \
+                          test-schedule-report
+
+  tf_tmt_container:
+    group: tmt
+    # Containers can take a lot of space, especially if they download a lot of data
+    ephemeral_disk_size: 250000
+    cpu: 2000
+    memory: 8192
+    pipeline: >-
+      citool-container.sh rules-engine \
+                          hide-secrets \
+                          testing-farm-request --request-id $REQUEST_ID \
+                          coldstore \
+                          archive \
+                          ansible \
+                          static-guest --guest=localhost \
+                          guest-setup-no-playbooks:guest-setup \
+                          git \
+                          testing-farm-request-state-reporter \
+                          test-schedule-tmt \
+                          test-scheduler-testing-farm \
+                          test-schedule-runner \
+                          test-schedule-report
+
+  tf_tmt_multihost:
+    group: tmt
+    ephemeral_disk_size: 5000
+    cpu: 500
+    memory: 8192
+    pipeline: >-
+      citool-container.sh rules-engine \
+                          hide-secrets \
+                          testing-farm-request --request-id $REQUEST_ID \
+                          coldstore \
+                          archive \
+                          ansible \
+                          artemis \
+                          git \
+                          testing-farm-request-state-reporter \
+                          test-schedule-tmt-multihost \
+                          test-scheduler-testing-farm \
+                          test-schedule-runner-multihost \
+                          test-schedule-report
