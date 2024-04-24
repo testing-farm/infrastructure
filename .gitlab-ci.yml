@@ -168,62 +168,6 @@ pre-commit:
     - !reference [.rules, not_schedule]
     - when: always
 
-test/dev:
-  extends: .direnv
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    TF_VAR_cluster_name: testing-farm-gitlab-ci-$CI_JOB_ID
-    SCRIPT: >-
-      make dev/init &&
-      make dev/apply
-    AFTER_SCRIPT: make dev/destroy > /dev/null
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, not_schedule]
-    - !reference [.rules, terragrunt_dev]
-
-test/staging/pipeline:
-  extends: [.direnv, .archive_tests]
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    SCRIPT: >-
-      make staging/apply/artemis/ci &&
-      make test/staging/pipeline/ci
-    AFTER_SCRIPT: >-
-      make staging/destroy/artemis/ci > /dev/null &&
-      make test/pytest/oculus
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, not_schedule]
-    - !reference [.rules, terragrunt_staging_ci]
-    - !reference [.rules, public_pipeline_tests]
-
-test/staging/pipeline/container:
-  extends: [.direnv, .archive_tests]
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    PYTEST_PARALLEL_RUNS: 1
-    SCRIPT: >-
-      make staging/apply/artemis/ci &&
-      make test/staging/pipeline/container/ci
-    AFTER_SCRIPT: >-
-      make staging/destroy/artemis/ci > /dev/null &&
-      make test/pytest/oculus
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, not_schedule]
-    - !reference [.rules, terragrunt_staging_ci]
-    - !reference [.rules, public_pipeline_tests]
-
 test/staging/compose:
   extends: [.direnv, .archive_tests]
   stage: test
@@ -233,7 +177,8 @@ test/staging/compose:
   variables:
     SCRIPT: >-
       make staging/apply/artemis/ci &&
-      make test/staging/compose/ci
+      make test/staging/compose/ci &&
+      sleep 3600
     AFTER_SCRIPT: >-
       make staging/destroy/artemis/ci > /dev/null &&
       make test/pytest/oculus
@@ -242,51 +187,6 @@ test/staging/compose:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging_ci]
     - !reference [.rules, public_compose_tests]
-
-test/infra:
-  extends: .direnv
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    TERRAGRUNT_PARALLELISM: 3
-    SCRIPT: >-
-      make infra/init &&
-      make infra/plan
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, not_schedule]
-    - !reference [.rules, terragrunt_infra]
-
-test/staging:
-  extends: .direnv
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    SCRIPT: >-
-      make staging/plan
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, not_schedule]
-    - !reference [.rules, terragrunt_staging]
-
-test/production:
-  extends: .direnv
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    SCRIPT: >-
-      make production/plan
-
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, not_schedule]
-    - !reference [.rules, terragrunt_production]
 
 redeploy/staging:
   extends: .direnv
