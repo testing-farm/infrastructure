@@ -58,6 +58,8 @@
             bash -c 'for URL in {{ tag_repository_url_z_stream }} {{ tag_repository_url_mainline }}; do
               curl --head -L $URL 2>/dev/null | grep -q "200" && echo $URL && break;
             done; true'
+          retries: "{{ pkg_retry_count }}"
+          delay: "{{ pkg_retry_delay }}"
           register: output
 
         - name: Set tag_repository_url fact
