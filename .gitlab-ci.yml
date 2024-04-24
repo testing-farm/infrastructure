@@ -177,7 +177,7 @@ test/staging/compose:
   variables:
     SCRIPT: >-
       make staging/apply/artemis/ci &&
-      make test/staging/compose/ci &&
+      make test/staging/compose/ci;
       sleep 3600
     AFTER_SCRIPT: >-
       make staging/destroy/artemis/ci > /dev/null &&
