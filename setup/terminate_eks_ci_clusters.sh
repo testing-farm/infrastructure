@@ -8,8 +8,10 @@
 region="us-east-2"
 aws_eks="aws --profile fedora_us_east_2 eks"
 
+CLUSTER_REGEX="${CLUSTER_REGEX:-testing-farm-gitlab-ci}"
+
 # Get the list of eks clusters created by CI
-clusters=$($aws_eks list-clusters | jq -r '.clusters[]' | grep testing-farm-gitlab-ci)
+clusters=$($aws_eks list-clusters | jq -r '.clusters[]' | grep -E "$CLUSTER_REGEX")
 
 # Check if there are instances to terminate
 if [ -z "$clusters" ]; then
