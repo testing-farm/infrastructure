@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    bind-mount-options: /etc/nginx/conf.d:Z
+  labels:
+    app: nginx
+  name: nginx
+spec:
+  containers:
+    - name: nginx
+      image: quay.io/testing-farm/nginx:latest
+      args:
+        - nginx
+        - -g
+        - daemon off;
+      volumeMounts:
+        - name: nginx
+          mountPath: /etc/nginx/conf.d/
+  hostNetwork: true
+  volumes:
+    - name: nginx
+      hostPath:
+        path: /etc/nginx/conf.d
+        type: Directory
