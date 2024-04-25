@@ -7,6 +7,19 @@ metadata:
   name: server
 spec:
   initContainers:
+    - name: waitdb
+      image: quay.io/testing-farm/api:latest
+      args:
+        - waitdb
+      env:
+        - name: TF_API_PORT
+          value: "8001"
+        - name: TF_API_DATABASE_HOST
+          value: cockroach
+        - name: TF_API_DATABASE_PORT
+          value: "26257"
+        - name: TF_API_DATABASE_USER
+          value: root
     - name: createdb
       image: docker.io/cockroachdb/cockroach:v23.2.4
       command:
