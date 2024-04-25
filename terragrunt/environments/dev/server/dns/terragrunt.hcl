@@ -18,6 +18,8 @@ dependency "ec2" {
   mock_outputs = {
     public_dns = "mocked dns"
   }
+
+  mock_outputs_merge_strategy_with_state = "shallow"
 }
 
 inputs = {
