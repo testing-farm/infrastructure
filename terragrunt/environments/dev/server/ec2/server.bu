@@ -15,3 +15,11 @@ storage:
       mode: 0644
       contents:
         local: terragrunt/environments/dev/server/pods/server.kube
+    - path: /etc/testing-farm/pods/cockroach.yaml
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/cockroach.yaml
+    - path: /etc/containers/systemd/cockroach.kube
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/cockroach.kube

@@ -14,7 +14,12 @@ locals {
 terraform {
   source = "tfr:///terraform-aws-modules/ec2-instance/aws//?version=5.6.1"
 
-  before_hook "before_hook" {
+  before_hook "remove_ign" {
+    commands = ["init", "apply", "plan"]
+    execute  = ["rm", "-f", "server.ign"]
+  }
+
+  before_hook "butane" {
     commands = ["init", "apply", "plan"]
     execute  = ["butane", "-psd", get_env("PROJECT_ROOT"), "-o", "server.ign", "server.bu"]
   }
@@ -59,7 +64,7 @@ inputs = {
   subnet_id                   = "subnet-4f971734"
   associate_public_ip_address = true
 
-  user_data              = local.user_data
+  user_data = local.user_data
 
   vpc_security_group_ids = [dependency.security-group.outputs.security_group_id]
 
