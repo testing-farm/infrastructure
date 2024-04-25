@@ -23,8 +23,8 @@ inputs = {
   node_group_instance_types = ["c6a.2xlarge"]
   node_group_disk_size      = 500
   node_group_scaling = {
-    desired_size = 1
-    max_size     = 2
-    min_size     = 1
+    desired_size = 2
+    max_size     = 3
+    min_size     = 2
   }
 }
