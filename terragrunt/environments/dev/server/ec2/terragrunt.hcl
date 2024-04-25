@@ -68,6 +68,9 @@ inputs = {
 
   vpc_security_group_ids = [dependency.security-group.outputs.security_group_id]
 
+  # make sure the instance is replaced on user data change
+  user_data_replace_on_change = true
+
   root_block_device = [{
     encrypted = true
   }]
