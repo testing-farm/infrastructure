@@ -8,9 +8,6 @@ terraform {
     aws = {
       version = ">=4.0.0"
     }
-    external = {
-      version = ">=2.2.0"
-    }
     helm = {
       version = ">=2.9.0"
     }
