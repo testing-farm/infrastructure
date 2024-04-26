@@ -70,6 +70,7 @@ inputs = {
   key_name                    = "testing-farm"
   subnet_id                   = "subnet-4f971734"
   associate_public_ip_address = true
+  enable_volume_tags = false
 
   user_data = local.user_data
 
@@ -95,4 +96,20 @@ inputs = {
     "ServicePhase"     = "Dev"
     "Name"             = "testing_farm_dev_server_${get_env("USER", "unknown")}"
   }
+
+  # Add ebs block device
+  ebs_block_device = [{
+    device_name = "/dev/xvdf"
+    volume_type = "gp3"
+    volume_size = 100
+    delete_on_termination = true
+    tags = {
+      Name = "testing_farm_dev_server_artifacts_${get_env("USER", "unknown")}"
+      ServiceOwner = "TFT"
+      ServiceComponent = "Server"
+      ServicePhase = "Dev"
+      FedoraGroup = "ci"
+      ServiceName = "TestingFarm"
+    }
+  }]
 }
