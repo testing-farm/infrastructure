@@ -20,6 +20,7 @@ SecretsType = dict[str, Union[str, 'SecretsType']]
 SUPPORTED_ENVIRONMENTS = ['dev', 'staging']
 TERRAGRUNT_ENV_DIR=f'{os.environ["PROJECT_ROOT"]}/terragrunt/environments'
 # Use this variable to override the artemis deployment name, e.g. `artemis-integration`
+# Use none to ignore artemis deployment (for container only testing it is not needed)
 ARTEMIS_DEPLOYMENT = os.environ.get('ARTEMIS_DEPLOYMENT', 'artemis')
 SECRETS_FILE = os.environ.get('SECRETS_FILE')
 VAULT_PASS = '.vault_pass'
@@ -49,38 +50,43 @@ def main() -> None:
     if environment not in SUPPORTED_ENVIRONMENTS:
         raise Exception(f'Unsupported environment "{environment}".')
 
-    print(f'Checking for Artemis "{environment}" deployment ...')
-    artemis_env_path = f'{TERRAGRUNT_ENV_DIR}/{environment}/{ARTEMIS_DEPLOYMENT}'
+    context = {
+        **credentials_decrypted,
+        **dict(os.environ),
+    }
 
-    if not os.path.isdir(artemis_env_path):
-        raise Exception(f'No Artemis deployment "{ARTEMIS_DEPLOYMENT}" found in "{environment}" environment.')
+    if ARTEMIS_DEPLOYMENT.lower() != "none":
+        print(f'Checking for Artemis "{environment}" deployment ...')
+        artemis_env_path = f'{TERRAGRUNT_ENV_DIR}/{environment}/{ARTEMIS_DEPLOYMENT}'
 
-    artemis_api_domain = subprocess.check_output(
-        ['terragrunt', 'output', '--raw', 'artemis_api_domain'],
-        env={
-            **os.environ,
-            'TERRAGRUNT_WORKING_DIR': artemis_env_path
-        },
-    ).decode(sys.stdout.encoding)
+        if not os.path.isdir(artemis_env_path):
+            raise Exception(f'No Artemis deployment "{ARTEMIS_DEPLOYMENT}" found in "{environment}" environment.')
 
-    if 'No outputs found' in artemis_api_domain:
-        raise Exception(f'No Artemis hostname found, "{ARTEMIS_DEPLOYMENT}" not deployed in "{environment}" environment?')
+        artemis_api_domain = subprocess.check_output(
+            ['terragrunt', 'output', '--raw', 'artemis_api_domain'],
+            env={
+                **os.environ,
+                'TERRAGRUNT_WORKING_DIR': artemis_env_path
+            },
+        ).decode(sys.stdout.encoding)
+
+        if 'No outputs found' in artemis_api_domain:
+            raise Exception(f'No Artemis hostname found, "{ARTEMIS_DEPLOYMENT}" not deployed in "{environment}" environment?')
+
+        context.update({
+            'artemis_api_domain': artemis_api_domain
+        })
 
     template_dirpath = os.path.join('terragrunt', 'environments', environment, 'worker', 'citool-config')
     template_filepath = os.path.join(template_dirpath, 'environment.yaml.j2')
     result_template_filepath = os.path.join(template_dirpath, 'environment.yaml')
-
 
     print('Generating "{}"'.format(result_template_filepath))
 
     with open(template_filepath, 'r') as f:
         template = f.read()
 
-    template_rendered = Template(template).render({
-        **credentials_decrypted,
-        **dict(os.environ),
-        'artemis_api_domain': artemis_api_domain
-    })
+    template_rendered = Template(template).render(context)
 
     with open(result_template_filepath, 'w') as f:
         print(template_rendered, file=f)

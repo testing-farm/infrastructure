@@ -215,10 +215,8 @@ test/staging/pipeline/container:
   variables:
     PYTEST_PARALLEL_RUNS: 1
     SCRIPT: >-
-      make staging/apply/artemis/ci &&
       make test/staging/pipeline/container/ci
     AFTER_SCRIPT: >-
-      make staging/destroy/artemis/ci > /dev/null &&
       make test/pytest/oculus
   rules:
     - !reference [.rules, not_default_branch]
