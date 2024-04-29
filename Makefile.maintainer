@@ -286,7 +286,7 @@ test/staging/pipeline/container: .FORCE wait/artemis/staging generate/staging/ci
 test/staging/pipeline/ci: .FORCE wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests, except container | staging | CI
 	$(call run_pytest_gluetool,staging,-m "public and pipeline and not container")
 
-test/staging/pipeline/container/ci: .FORCE wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests, container only | staging | CI
+test/staging/pipeline/container/ci: .FORCE generate/staging/citool-config/container/ci  ## Run worker tests, container only | staging | CI
 	$(call run_pytest_gluetool,staging,-m "public and pipeline and container")
 
 test/staging/compose: .FORCE wait/artemis/staging generate/staging/citool-config  ## Run compose tests | staging
@@ -307,6 +307,9 @@ generate/staging/citool-config: .FORCE  ## Generate citool-config | staging
 
 generate/staging/citool-config/ci: .FORCE  ## Generate citool-config | staging | CI
 	ARTEMIS_DEPLOYMENT=artemis-ci poetry run python setup/generate_environment.py staging
+
+generate/staging/citool-config/container/ci: .FORCE  ## Generate citool-config for containers | staging | CI
+	ARTEMIS_DEPLOYMENT=none poetry run python setup/generate_environment.py staging
 
 generate/public/tests/compose: .FORCE  ## Generate or update compose tests for Public Ranch
 	@TESTING_FARM_API_TOKEN=${TESTING_FARM_PRODUCTION_API_TOKEN_PUBLIC} TESTING_FARM_API_URL=${TESTING_FARM_PRODUCTION_API_URL} poetry run python setup/generate_compose_tests.py
