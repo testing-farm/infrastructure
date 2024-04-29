@@ -19,6 +19,11 @@ terraform {
     execute  = ["rm", "-f", "server.ign"]
   }
 
+  before_hook "render_jinja" {
+    commands = ["init", "apply", "plan"]
+    execute  = ["ansible-playbook", "render_jinja.yaml"]
+  }
+
   before_hook "butane" {
     commands = ["init", "apply", "plan"]
     execute  = ["butane", "-psd", get_env("PROJECT_ROOT"), "-o", "server.ign", "server.bu"]

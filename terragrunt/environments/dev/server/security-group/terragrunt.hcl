@@ -48,7 +48,7 @@ inputs = {
   vpc_id      = "vpc-a4f084cd"
 
   ingress_cidr_blocks = ["${dependency.localhost.outputs.localhost_public_ip}/32"]
-  ingress_rules       = ["ssh-tcp"]
+  ingress_rules       = ["ssh-tcp", "https-443-tcp", "http-80-tcp"]
 
   egress_rules = ["all-all"]
 
