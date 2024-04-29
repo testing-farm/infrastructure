@@ -13,17 +13,17 @@ composes:
     compose: Fedora-38
 
     x86_64:
-      image: Fedora-Cloud-Base-38-20240426.0.x86_64-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-38-20240429.0.x86_64-hvm-us-east-2-gp3-0
     aarch64:
-      image: Fedora-Cloud-Base-38-20240426.0.aarch64-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-38-20240429.0.aarch64-hvm-us-east-2-gp3-0
 
   fedora_39:
     compose: Fedora-39
 
     x86_64:
-      image: Fedora-Cloud-Base-39-20240426.0.x86_64-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-39-20240429.0.x86_64-hvm-us-east-2-gp3-0
     aarch64:
-      image: Fedora-Cloud-Base-39-20240426.0.aarch64-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-39-20240429.0.aarch64-hvm-us-east-2-gp3-0
 
   fedora_40:
     compose: Fedora-40
@@ -44,9 +44,9 @@ composes:
     compose: Fedora-Rawhide
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20240426.n.0-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20240429.n.0-hvm-us-east-2-gp3-0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20240426.n.0-hvm-us-east-2-gp3-0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20240429.n.0-hvm-us-east-2-gp3-0
 
   centos_7:
     compose: CentOS-7
@@ -76,6 +76,6 @@ composes:
     compose: CentOS-Stream-10
 
     x86_64:
-      image: CentOS Stream 10 x86_64 20240228
+      image: CentOS Stream 10 x86_64 20240419
     aarch64:
-      image: CentOS Stream 10 aarch64 20240228
+      image: CentOS Stream 10 aarch64 20240419
