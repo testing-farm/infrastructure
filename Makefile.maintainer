@@ -44,23 +44,7 @@ endef
 ##@ Infrastructure | Infra (Gitlab, etc.)
 
 define run_terragrunt
-	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1 terragrunt run-all $2 --terragrunt-non-interactive
-endef
-
-define run_terragrunt_app
-	@if [ "$3" = "plan" ]; then \
-		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
-		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
-	elif [ "$3" = "apply" ]; then \
-		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
-		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
-	elif [ "$3" = "destroy" ]; then \
-		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
-		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -auto-approve -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
-	else \
-		echo "TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT)"; \
-		TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1/$2 terragrunt $3 -lock-timeout $(DEFAULT_LOCK_TIMEOUT); \
-	fi
+	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1 terragrunt run-all $2 --terragrunt-non-interactive -lock-timeout $(DEFAULT_LOCK_TIMEOUT)
 endef
 
 infra/init: .FORCE  ## Initialize | infra
@@ -85,27 +69,27 @@ dev/plan: .FORCE  ## Plan deployment | dev | all
 	$(call run_terragrunt,dev,plan)
 
 dev/plan/eks: .FORCE  ## Plan deployment | dev | eks
-	$(call run_terragrunt_app,dev,eks,plan)
+	$(call run_terragrunt,dev/eks,plan)
 
 dev/plan/artemis: .FORCE  ## Plan deployment | dev | artemis
-	$(call run_terragrunt_app,dev,artemis,plan)
+	$(call run_terragrunt,dev/artemis,plan)
 
 dev/plan/server: .FORCE  ## Plan deployment | dev | server
-	$(call run_terragrunt_app,dev,server,plan)
+	$(call run_terragrunt,dev/server,plan)
 
 dev/apply: .FORCE  ## Deploy | dev | all
 	# workaround for terragrunt bug having issues with dependencies
-	$(call run_terragrunt_app,dev,server/security-group,apply)
+	$(call run_terragrunt,dev/server/security-group,apply)
 	$(call run_terragrunt,dev,apply)
 
 dev/apply/eks: .FORCE  ## Deploy | dev | eks
-	$(call run_terragrunt_app,dev,eks,apply)
+	$(call run_terragrunt,dev/eks,apply)
 
 dev/apply/artemis: .FORCE  ## Deploy | dev | artemis
-	$(call run_terragrunt_app,dev,artemis,apply)
+	$(call run_terragrunt,dev/artemis,apply)
 
 dev/apply/server: .FORCE  ## Deploy | dev | server
-	$(call run_terragrunt_app,dev,server/ec2,apply)
+	$(call run_terragrunt,dev/server,apply)
 
 dev/destroy: .FORCE terminate/artemis/guests/dev  ## Destroy | dev | all
 	$(call run_terragrunt,dev,destroy)
@@ -117,46 +101,46 @@ dev/kubeconfig: .FORCE  ## Update kubeconfig for development environemnt
 ##@ Infrastructure | Staging
 
 staging/init: .FORCE  ## Initialize | staging | all
-	$(call run_terragrunt_app,staging,eks,init)
-	$(call run_terragrunt_app,staging,artemis,init)
-	$(call run_terragrunt_app,staging,artemis-ci,init)
+	$(call run_terragrunt,staging/eks,init)
+	$(call run_terragrunt,staging/artemis,init)
+	$(call run_terragrunt,staging/artemis-ci,init)
 
 staging/init/artemis/ci: .FORCE  ## Initialize | staging | artemis | CI
-	$(call run_terragrunt_app,staging,artemis-ci,init)
+	$(call run_terragrunt,staging/artemis-ci,init)
 
 staging/plan: .FORCE  ## Plan deployment | staging
-	$(call run_terragrunt_app,staging,eks,plan)
-	$(call run_terragrunt_app,staging,artemis,plan)
+	$(call run_terragrunt,staging/eks,plan)
+	$(call run_terragrunt,staging/artemis,plan)
 
 staging/plan/eks: .FORCE  ## Plan deployment | staging | eks
-	$(call run_terragrunt_app,staging,eks,plan)
+	$(call run_terragrunt,staging/eks,plan)
 
 staging/plan/artemis: .FORCE  ## Plan deployment | staging | artemis
-	$(call run_terragrunt_app,staging,artemis,plan)
+	$(call run_terragrunt,staging/artemis,plan)
 
 staging/plan/artemis/ci: .FORCE  ## Plan deployment | staging | artemis | CI
-	$(call run_terragrunt_app,staging,artemis-ci,plan)
+	$(call run_terragrunt,staging/artemis-ci,plan)
 
 staging/apply: .FORCE  ## Deploy | staging | all
-	$(call run_terragrunt_app,staging,eks,apply)
-	$(call run_terragrunt_app,staging,artemis,apply)
+	$(call run_terragrunt,staging/eks,apply)
+	$(call run_terragrunt,staging/artemis,apply)
 
 staging/apply/eks: .FORCE  ## Deploy | staging | eks
-	$(call run_terragrunt_app,staging,eks,apply)
+	$(call run_terragrunt,staging/eks,apply)
 
 staging/apply/artemis: .FORCE  ## Deploy | staging | artemis
-	$(call run_terragrunt_app,staging,artemis,apply)
+	$(call run_terragrunt,staging/artemis,apply)
 
 staging/apply/artemis/ci: .FORCE  ## Deploy | staging | artemis | CI
-	$(call run_terragrunt_app,staging,localhost,apply)
-	$(call run_terragrunt_app,staging,artemis-ci,apply)
+	$(call run_terragrunt,staging/localhost,apply)
+	$(call run_terragrunt,staging/artemis-ci,apply)
 
 staging/destroy: .FORCE terminate/artemis/guests/staging  ## Destroy | staging
-	$(call run_terragrunt_app,staging,artemis,destroy)
-	$(call run_terragrunt_app,staging,eks,destroy)
+	$(call run_terragrunt,staging/artemis,destroy)
+	$(call run_terragrunt,staging/eks,destroy)
 
 staging/destroy/artemis/ci: .FORCE terminate/artemis/guests/staging/ci  ## Destroy | staging | artemis | CI
-	$(call run_terragrunt_app,staging,artemis-ci,destroy)
+	$(call run_terragrunt,staging/artemis-ci,destroy)
 
 staging/kubeconfig: .FORCE  ## Update kubeconfig for staging environment
 	aws eks --profile fedora_us_east_1 update-kubeconfig --name testing-farm-staging
@@ -165,32 +149,32 @@ staging/kubeconfig: .FORCE  ## Update kubeconfig for staging environment
 ##@ Infrastructure | Production
 
 production/init: .FORCE  ## Initialize | production | all
-	$(call run_terragrunt_app,production,eks,init)
-	$(call run_terragrunt_app,production,artemis,init)
+	$(call run_terragrunt,production/eks,init)
+	$(call run_terragrunt,production/artemis,init)
 
 production/plan: .FORCE  ## Plan deployment | production
-	$(call run_terragrunt_app,production,eks,plan)
-	$(call run_terragrunt_app,production,artemis,plan)
+	$(call run_terragrunt,production/eks,plan)
+	$(call run_terragrunt,production/artemis,plan)
 
 production/plan/eks: .FORCE  ## Plan deployment | production | eks
-	$(call run_terragrunt_app,production,eks,plan)
+	$(call run_terragrunt,production/eks,plan)
 
 production/plan/artemis: .FORCE  ## Plan deployment | production | artemis
-	$(call run_terragrunt_app,production,artemis,plan)
+	$(call run_terragrunt,production/artemis,plan)
 
 production/apply: .FORCE  ## Deploy | production | all
-	$(call run_terragrunt_app,production,eks,apply)
-	$(call run_terragrunt_app,production,artemis,apply)
+	$(call run_terragrunt,production/eks,apply)
+	$(call run_terragrunt,production/artemis,apply)
 
 production/apply/eks: .FORCE  ## Deploy | production | eks
-	$(call run_terragrunt_app,production,eks,apply)
+	$(call run_terragrunt,production/eks,apply)
 
 production/apply/artemis: .FORCE  ## Deploy | production | artemis
-	$(call run_terragrunt_app,production,artemis,apply)
+	$(call run_terragrunt,production/artemis,apply)
 
 production/destroy: .FORCE terminate/artemis/guests/production  ## Destroy | production
-	$(call run_terragrunt_app,production,artemis,destroy)
-	$(call run_terragrunt_app,production,eks,destroy)
+	$(call run_terragrunt,production/artemis,destroy)
+	$(call run_terragrunt,production/eks,destroy)
 
 production/kubeconfig: .FORCE  ## Update kubeconfig for production environment
 	aws eks --profile fedora_us_east_1 update-kubeconfig --name testing-farm-production
