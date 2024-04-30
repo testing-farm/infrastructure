@@ -2,35 +2,44 @@
 - hosts: localhost
   vars_files:
     - ../secrets/credentials.yaml
+  pre_tasks:
+    - name: Check if `deployment` variable set
+      fail:
+        msg: Missing `deployment` variable set to `dev`, `staging` or `production`
+      when:
+        - deployment is undefined or not deployment is regex('(dev|staging|production)')
   tasks:
+    - name: Include variables for the correct deployment (dev, staging)
+      include_vars:
+        file: "../inventory/group_vars/testing_farm_{{ deployment }}_public_workers.yaml"
+      when: deployment is regex('(dev|staging)')
+
+    - name: Include variables for the correct deployment (production)
+      include_vars:
+        file: "../inventory/group_vars/testing_farm_public_workers.yaml"
+      when: deployment is regex('production')
+
     - name: Provision new EC2 instance
       amazon.aws.ec2_instance:
         state: running
         profile: fedora_us_east_2
-        tags:
-          Name: "testing_farm_worker_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
-          FedoraGroup: ci
-          ServiceOwner: TFT
-          ServiceName: TestingFarm
-          ServiceComponent: Worker
-          ServicePhase: Prod
+        tags: "{{ worker_resource_tags }}"
         key_name: testing-farm
-        instance_type: i3.2xlarge
-        # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-2-gp3-0
-        image_id: ami-02942164e2807a6a8
+        instance_type: "{{ worker_instance_type }}"
+        image_id: "{{ worker_image_id }}"
         wait: true
         count: "{{ count|default(1) }}"
         network:
-          subnet_id: subnet-4f971734
+          subnet_id: "{{ worker_subnet }}"
           assign_public_ip: true
         instance_initiated_shutdown_behavior: terminate
-        security_group: sg-0040a2477d37dd6d0
+        security_group: "{{ worker_security_group }}"
       register: ec2
 
     - name: Add new instance to host group
       add_host:
         hostname: "{{ item.public_ip_address }}"
-        groupname: testing_farm_public_workers
+        groupname: "{{ worker_group_name }}"
       loop: "{{ ec2.instances }}"
 
     - name: Add new instance to host group
@@ -46,6 +55,11 @@
   gather_facts: false
   remote_user: fedora
   tasks:
+    - name: Include variables for the correct deployment (dev, staging)
+      include_vars:
+        file: "../inventory/group_vars/testing_farm_{{ deployment }}_public_workers.yaml"
+      when: deployment is regex('(dev|staging)')
+
     - name: Wait for SSH to come up
       wait_for_connection:
         delay: 10
@@ -82,9 +96,7 @@
     - include: ../tasks/jobs.yaml
     - include: ../tasks/config.yaml
     - include: ../tasks/image.yaml
-    - name: "Manual action required to update Artemis and guest access - run terraform for production Testing Farm!"
-      pause:
-        prompt: "Make sure Artemis and guests accept connections from {{ ansible_host }}"
+    - include: ../tasks/terragrunt.yaml
   roles:
     - name: geerlingguy.swap
       vars:

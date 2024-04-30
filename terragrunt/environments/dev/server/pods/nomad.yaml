@@ -7,15 +7,15 @@ metadata:
     app: nomad
   name: nomad
 spec:
+  # Use host network for nomad, so we can easily detect advertised
+  # private IP in the configuration of nomad server
+  hostNetwork: true
   containers:
-    - name: nginx
+    - name: nomad
       image: quay.io/testing-farm/nomad:latest
       args:
         - agent
         - -config=/etc/nomad/server.conf
-      ports:
-        - containerPort: 4646
-          hostPort: 4646
       volumeMounts:
         - name: nomad-config
           mountPath: /etc/nomad/:Z

@@ -42,13 +42,33 @@ dependency "localhost" {
   }
 }
 
+dependency "worker" {
+  config_path = "../../worker"
+
+  # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
+  mock_outputs = {
+    workers_ip_ranges = []
+  }
+}
+
 inputs = {
   name        = "testing_farm_dev_server_${get_env("USER", "unknown")}"
-  description = "Security group for SSH access from the developer machine"
+  description = "Security group for Testing Farm server access"
   vpc_id      = "vpc-a4f084cd"
 
-  ingress_cidr_blocks = ["${dependency.localhost.outputs.localhost_public_ip}/32"]
-  ingress_rules       = ["ssh-tcp", "https-443-tcp", "http-80-tcp"]
+  ingress_cidr_blocks = concat(
+    ["${dependency.localhost.outputs.localhost_public_ip}/32"],
+    dependency.worker.outputs.workers_ip_ranges
+  )
+
+  ingress_with_source_security_group_id = [
+    {
+      rule                     = "nomad-rpc-tcp"
+      source_security_group_id = "sg-0040a2477d37dd6d0"
+    }
+  ]
+
+  ingress_rules = ["ssh-tcp", "https-443-tcp", "http-80-tcp"]
 
   egress_rules = ["all-all"]
 

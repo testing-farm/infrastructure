@@ -1,6 +1,8 @@
 ---
 - name: Render Jinja templates
   hosts: localhost
+  vars:
+    pods_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods"
   tasks:
     - name: Render server.bu
       ansible.builtin.template:
@@ -9,15 +11,15 @@
 
     - name: Render API reverse proxy config
       ansible.builtin.template:
-        src: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods/nginx/api.dev-USER.testing-farm.io.conf.j2"
-        dest: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods/nginx/api.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
+        src: "{{ pods_dir }}/nginx/api.dev-USER.testing-farm.io.conf.j2"
+        dest: "{{ pods_dir }}/nginx/api.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
 
     - name: Render Internal API reverse proxy config
       ansible.builtin.template:
-        src: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods/nginx/internal.api.dev-USER.testing-farm.io.conf.j2"
-        dest: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods/nginx/internal.api.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
+        src: "{{ pods_dir }}/nginx/internal.api.dev-USER.testing-farm.io.conf.j2"
+        dest: "{{ pods_dir }}/nginx/internal.api.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
 
     - name: Render Nomad reverse proxy config
       ansible.builtin.template:
-        src: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods/nginx/nomad.dev-USER.testing-farm.io.conf.j2"
-        dest: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods/nginx/nomad.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
+        src: "{{ pods_dir }}/nginx/nomad.dev-USER.testing-farm.io.conf.j2"
+        dest: "{{ pods_dir }}/nginx/nomad.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
