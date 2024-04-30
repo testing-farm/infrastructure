@@ -51,6 +51,10 @@ storage:
       mode: 0644
       contents:
         local: terragrunt/environments/dev/server/pods/nginx/internal.api.dev-{{ ansible_env.USER }}.testing-farm.io.conf
+    - path: /etc/nginx/conf.d/nomad.dev-{{ ansible_env.USER }}.testing-farm.io.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/nginx/nomad.dev-{{ ansible_env.USER }}.testing-farm.io.conf
   directories:
     - path: /var/nomad
   disks:
