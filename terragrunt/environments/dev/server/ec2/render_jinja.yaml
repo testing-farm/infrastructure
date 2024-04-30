@@ -16,3 +16,8 @@
       ansible.builtin.template:
         src: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods/nginx/internal.api.dev-USER.testing-farm.io.conf.j2"
         dest: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods/nginx/internal.api.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
+
+    - name: Render Nomad reverse proxy config
+      ansible.builtin.template:
+        src: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods/nginx/nomad.dev-USER.testing-farm.io.conf.j2"
+        dest: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods/nginx/nomad.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
