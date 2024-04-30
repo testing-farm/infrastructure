@@ -101,16 +101,13 @@ dev/kubeconfig: .FORCE  ## Update kubeconfig for development environemnt
 ##@ Infrastructure | Staging
 
 staging/init: .FORCE  ## Initialize | staging | all
-	$(call run_terragrunt,staging/eks,init)
-	$(call run_terragrunt,staging/artemis,init)
-	$(call run_terragrunt,staging/artemis-ci,init)
+	$(call run_terragrunt,staging,init)
 
 staging/init/artemis/ci: .FORCE  ## Initialize | staging | artemis | CI
 	$(call run_terragrunt,staging/artemis-ci,init)
 
 staging/plan: .FORCE  ## Plan deployment | staging
-	$(call run_terragrunt,staging/eks,plan)
-	$(call run_terragrunt,staging/artemis,plan)
+	$(call run_terragrunt,staging,plan)
 
 staging/plan/eks: .FORCE  ## Plan deployment | staging | eks
 	$(call run_terragrunt,staging/eks,plan)
@@ -122,8 +119,7 @@ staging/plan/artemis/ci: .FORCE  ## Plan deployment | staging | artemis | CI
 	$(call run_terragrunt,staging/artemis-ci,plan)
 
 staging/apply: .FORCE  ## Deploy | staging | all
-	$(call run_terragrunt,staging/eks,apply)
-	$(call run_terragrunt,staging/artemis,apply)
+	$(call run_terragrunt,staging,apply)
 
 staging/apply/eks: .FORCE  ## Deploy | staging | eks
 	$(call run_terragrunt,staging/eks,apply)
@@ -132,12 +128,10 @@ staging/apply/artemis: .FORCE  ## Deploy | staging | artemis
 	$(call run_terragrunt,staging/artemis,apply)
 
 staging/apply/artemis/ci: .FORCE  ## Deploy | staging | artemis | CI
-	$(call run_terragrunt,staging/localhost,apply)
 	$(call run_terragrunt,staging/artemis-ci,apply)
 
 staging/destroy: .FORCE terminate/artemis/guests/staging  ## Destroy | staging
-	$(call run_terragrunt,staging/artemis,destroy)
-	$(call run_terragrunt,staging/eks,destroy)
+	$(call run_terragrunt,staging,destroy)
 
 staging/destroy/artemis/ci: .FORCE terminate/artemis/guests/staging/ci  ## Destroy | staging | artemis | CI
 	$(call run_terragrunt,staging/artemis-ci,destroy)
@@ -149,12 +143,10 @@ staging/kubeconfig: .FORCE  ## Update kubeconfig for staging environment
 ##@ Infrastructure | Production
 
 production/init: .FORCE  ## Initialize | production | all
-	$(call run_terragrunt,production/eks,init)
-	$(call run_terragrunt,production/artemis,init)
+	$(call run_terragrunt,production,init)
 
 production/plan: .FORCE  ## Plan deployment | production
-	$(call run_terragrunt,production/eks,plan)
-	$(call run_terragrunt,production/artemis,plan)
+	$(call run_terragrunt,production,plan)
 
 production/plan/eks: .FORCE  ## Plan deployment | production | eks
 	$(call run_terragrunt,production/eks,plan)
@@ -163,8 +155,7 @@ production/plan/artemis: .FORCE  ## Plan deployment | production | artemis
 	$(call run_terragrunt,production/artemis,plan)
 
 production/apply: .FORCE  ## Deploy | production | all
-	$(call run_terragrunt,production/eks,apply)
-	$(call run_terragrunt,production/artemis,apply)
+	$(call run_terragrunt,production,apply)
 
 production/apply/eks: .FORCE  ## Deploy | production | eks
 	$(call run_terragrunt,production/eks,apply)
@@ -173,8 +164,7 @@ production/apply/artemis: .FORCE  ## Deploy | production | artemis
 	$(call run_terragrunt,production/artemis,apply)
 
 production/destroy: .FORCE terminate/artemis/guests/production  ## Destroy | production
-	$(call run_terragrunt,production/artemis,destroy)
-	$(call run_terragrunt,production/eks,destroy)
+	$(call run_terragrunt,production,destroy)
 
 production/kubeconfig: .FORCE  ## Update kubeconfig for production environment
 	aws eks --profile fedora_us_east_1 update-kubeconfig --name testing-farm-production
