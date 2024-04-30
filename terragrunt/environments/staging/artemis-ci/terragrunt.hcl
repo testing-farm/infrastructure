@@ -31,6 +31,15 @@ dependency "localhost" {
   }
 }
 
+dependency "worker-ci" {
+  config_path = "../worker-ci"
+
+  # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
+  mock_outputs = {
+    workers_ip_ranges = []
+  }
+}
+
 dependency "eks" {
   config_path = "../eks"
 
@@ -62,14 +71,8 @@ inputs = {
   # Enable access from localhost
   additional_lb_source_ips = [dependency.localhost.outputs.localhost_public_ip]
 
-  # Testing Farm worker tags used to identify workers for this environment
-  testing_farm_worker_tags = {
-    "FedoraGroup"      = "ci"
-    "ServiceOwner"     = "TFT"
-    "ServiceName"      = "TestingFarm"
-    "ServiceComponent" = "Worker"
-    "ServicePhase"     = "StageCI"
-  }
+  # Enable access from workers
+  workers_ip_ranges = dependency.worker-ci.outputs.workers_ip_ranges
 
   ansible_vault_password_file = local.artemis.inputs.ansible_vault_password_file
   ansible_vault_credentials   = local.artemis.inputs.ansible_vault_credentials

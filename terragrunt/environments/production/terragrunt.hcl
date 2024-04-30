@@ -5,19 +5,27 @@ skip = true
 locals {
   # production EKS is hosted in this region
   aws_profile = "fedora_us_east_1"
-  aws_region = "us-east-1"
+  aws_region  = "us-east-1"
   # AWS region of workers
   aws_profile_workers = "fedora_us_east_2"
-  aws_region_workers = "us-east-2"
+  aws_region_workers  = "us-east-2"
   # AWS region of Artemis guests
   aws_profile_guests = "fedora_us_east_2"
-  aws_region_guests = "us-east-2"
+  aws_region_guests  = "us-east-2"
   # Use json to pass a map to the provider
   # https://github.com/gruntwork-io/terragrunt/issues/1961
   aws_tags = {
     FedoraGroup  = "ci"
     ServiceOwner = "TFT"
     ServicePhase = "Prod"
+  }
+  # Testing Farm worker tags used to identify workers for this environment
+  worker_tags = {
+    "FedoraGroup"      = "ci"
+    "ServiceOwner"     = "TFT"
+    "ServiceName"      = "TestingFarm"
+    "ServiceComponent" = "Worker"
+    "ServicePhase"     = "Prod"
   }
 }
 
@@ -27,6 +35,7 @@ inputs = {
   aws_profile_guests = local.aws_profile_guests
   route53_zone       = "testing-farm.io"
   resource_tags      = local.aws_tags
+  worker_tags        = local.worker_tags
   cluster_name       = "testing-farm-production"
 }
 

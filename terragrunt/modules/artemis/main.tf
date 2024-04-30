@@ -43,17 +43,6 @@ locals {
     length(regexall("/[0-9]+", ip)) > 0 ? ip : "${ip}/32"
     if ip != null
   ]))
-
-  # List of tags used to identify Testing Farm worker AWS.
-  # These must be given access to provisioned guests and also the Artemis API.
-  # Terraform doesn't directly support iterating over a map for dynamic filters in a data source.
-  testing_farm_workers_tags_list = [for key, value in var.testing_farm_worker_tags : {
-    key   = key
-    value = value
-  }]
-
-  # List of IP ranges of the Testing Farm workers.
-  testing_farm_workers_ip_ranges = length(data.aws_instances.workers.ids) > 0 ? [for public_ip in data.aws_instances.workers.public_ips : "${public_ip}/32"] : []
 }
 
 provider "ansiblevault" {
@@ -66,22 +55,6 @@ provider "ansiblevault" {
 
   vault_path  = var.ansible_vault_password_file
   root_folder = var.config_root
-}
-
-# Testing Farm workers, used to provide IPs which have access to Artemis API endpoint
-data "aws_instances" "workers" {
-  provider = aws.workers
-
-  dynamic "filter" {
-    for_each = local.testing_farm_workers_tags_list
-
-    content {
-      name   = "tag:${filter.value.key}"
-      values = [filter.value.value]
-    }
-  }
-
-  instance_state_names = ["running"]
 }
 
 resource "aws_security_group" "allow_guest_traffic" {
@@ -97,7 +70,7 @@ resource "aws_security_group" "allow_guest_traffic" {
     # allow guest traffic from workers and given list of addresses comming from variables
     cidr_blocks = concat(
       local.guests_ip_ranges,
-      local.testing_farm_workers_ip_ranges
+      var.workers_ip_ranges
     )
 
     description = "Allow SSH inbound traffic"
@@ -225,7 +198,7 @@ resource "helm_release" "artemis" {
 
         artemis_lb_source_ranges = concat(
           local.artemis_lb_source_ranges,
-          local.testing_farm_workers_ip_ranges,
+          var.workers_ip_ranges,
         )
 
         artemis_api_processes = var.api_processes
