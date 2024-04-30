@@ -198,7 +198,7 @@ variable "cluster_certificate_authority_data" {
   type        = string
 }
 
-variable "testing_farm_worker_tags" {
-  description = "Tags to identify Testing Farm worker AWS instances"
-  type        = map(string)
+variable "workers_ip_ranges" {
+  description = "List of IP ranges of the Testing Farm workers."
+  type        = list(string)
 }
