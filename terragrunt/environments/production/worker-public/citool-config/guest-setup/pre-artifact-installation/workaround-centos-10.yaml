@@ -1,22 +1,7 @@
 ---
-# Mirrorlists are not working - add repositories from ODCS
 # Add F40 repositories as a replacement for non-existing EPEL
 - name: Add repositories for CentOS 10 (workaround)
   block:
-    - copy:
-        src: "{{ playbook_dir }}/files/centos.repo"
-        dest: /etc/yum.repos.d/centos.repo
-        owner: root
-        group: root
-        mode: 0644
-
-    - copy:
-        src: "{{ playbook_dir }}/files/centos-addons.repo"
-        dest: /etc/yum.repos.d/centos-addons.repo
-        owner: root
-        group: root
-        mode: 0644
-
     - copy:
         src: "{{ playbook_dir }}/files/fedora.repo"
         dest: /etc/yum.repos.d/fedora.repo
