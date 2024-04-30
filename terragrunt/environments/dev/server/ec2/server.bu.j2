@@ -31,6 +31,18 @@ storage:
       mode: 0644
       contents:
         local: terragrunt/environments/dev/server/pods/nginx.kube
+    - path: /etc/testing-farm/pods/nomad.yaml
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/nomad.yaml
+    - path: /etc/containers/systemd/nomad.kube
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/nomad.kube
+    - path: /etc/nomad/server.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/nomad/server.conf
     - path: /etc/nginx/conf.d/api.dev-{{ ansible_env.USER }}.testing-farm.io.conf
       mode: 0644
       contents:
@@ -39,6 +51,8 @@ storage:
       mode: 0644
       contents:
         local: terragrunt/environments/dev/server/pods/nginx/internal.api.dev-{{ ansible_env.USER }}.testing-farm.io.conf
+  directories:
+    - path: /var/nomad
   disks:
     - device: /dev/nvme1n1
       wipe_table: false
