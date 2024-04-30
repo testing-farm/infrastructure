@@ -13,12 +13,14 @@ spec:
       args:
         - agent
         - -config=/etc/nomad/server.conf
+      ports:
+        - containerPort: 4646
+          hostPort: 4646
       volumeMounts:
         - name: nomad-config
           mountPath: /etc/nomad/:Z
         - name: nomad-data
           mountPath: /var/nomad:Z
-  hostNetwork: true
   volumes:
     - name: nomad-config
       hostPath:
