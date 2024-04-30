@@ -5,13 +5,13 @@ skip = true
 locals {
   # development EKS is hosted in this region
   aws_profile = "fedora_us_east_2"
-  aws_region = "us-east-2"
+  aws_region  = "us-east-2"
   # AWS region of workers
   aws_profile_workers = "fedora_us_east_2"
-  aws_region_workers = "us-east-2"
+  aws_region_workers  = "us-east-2"
   # AWS region of Artemis guests
   aws_profile_guests = "fedora_us_east_2"
-  aws_region_guests = "us-east-2"
+  aws_region_guests  = "us-east-2"
   # Use json to pass a map to the provider
   # https://github.com/gruntwork-io/terragrunt/issues/1961
   aws_tags = {
@@ -19,16 +19,25 @@ locals {
     ServiceOwner = "TFT"
     ServicePhase = "Dev"
   }
+  # Testing Farm worker tags used to identify workers for this environment
+  worker_tags = {
+    "FedoraGroup"      = "ci"
+    "ServiceOwner"     = "TFT"
+    "ServiceName"      = "TestingFarm"
+    "ServiceComponent" = "Worker"
+    "ServicePhase"     = "Dev"
+  }
 }
 
 # shared inputs
 inputs = {
-  aws_profile        = local.aws_profile
-  aws_profile_guests = local.aws_profile_guests
-  aws_region_workers = local.aws_region_workers
+  aws_profile         = local.aws_profile
+  aws_profile_guests  = local.aws_profile_guests
+  aws_region_workers  = local.aws_region_workers
   aws_profile_workers = local.aws_profile_workers
-  route53_zone       = "testing-farm.io"
-  resource_tags      = local.aws_tags
+  route53_zone        = "testing-farm.io"
+  resource_tags       = local.aws_tags
+  worker_tags         = local.worker_tags
   # NOTE cluster_name is generated, see `eks/terragrunt.hcl`
 }
 
