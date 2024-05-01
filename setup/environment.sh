@@ -154,7 +154,7 @@ if [ ! -e "${TOOLS_PATH}/terraform" ]; then
     info "install terraform"
     TEMPDIR=$(mktemp -d)
     pushd $TEMPDIR &>> $LOG
-    curl -sLo terraform.zip https://releases.hashicorp.com/terraform/1.3.3/terraform_1.3.3_linux_amd64.zip
+    curl -sLo terraform.zip https://releases.hashicorp.com/terraform/1.3.10/terraform_1.3.10_linux_amd64.zip
     unzip terraform.zip &>> $LOG
     mv terraform ${TOOLS_PATH}/terraform
     popd &>> $LOG
