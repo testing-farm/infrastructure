@@ -90,8 +90,8 @@ EOF
 generate "backend" {
   path      = "backend.tf"
   if_exists = "overwrite_terragrunt"
-  # for artemis-ci disable the block, we use local backend for it
-  disable  = path_relative_to_include() == "artemis-ci" ? true : false
+  # for ci disable the block, we use local backend for it
+  disable  = startswith(path_relative_to_include(), "ci") ? true : false
   contents = <<EOF
 terraform {
   backend "remote" {
