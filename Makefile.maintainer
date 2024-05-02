@@ -280,7 +280,7 @@ generate/staging/citool-config: .FORCE  ## Generate citool-config | staging
 	poetry run python setup/generate_environment.py staging
 
 generate/staging/citool-config/ci: .FORCE  ## Generate citool-config | staging | CI
-	ARTEMIS_DEPLOYMENT=ci poetry run python setup/generate_environment.py staging
+	ARTEMIS_DEPLOYMENT=ci/artemis poetry run python setup/generate_environment.py staging
 
 generate/staging/citool-config/container/ci: .FORCE  ## Generate citool-config for containers | staging | CI
 	ARTEMIS_DEPLOYMENT=none poetry run python setup/generate_environment.py staging
@@ -323,7 +323,7 @@ wait/artemis/staging: .FORCE  ## Wait until Artemis is available | staging
 	@bash setup/wait_artemis_available.sh staging
 
 wait/artemis/staging/ci: .FORCE  ## Wait until Artemis is available | staging | CI
-	@ARTEMIS_DEPLOYMENT=ci bash setup/wait_artemis_available.sh staging
+	@ARTEMIS_DEPLOYMENT=ci/artemis bash setup/wait_artemis_available.sh staging
 
 
 ##@ Cleanup | maintainer
@@ -335,7 +335,7 @@ terminate/artemis/guests/staging: .FORCE  ## Terminate all EC2 instances created
 	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging || true
 
 terminate/artemis/guests/staging/ci: .FORCE  ## Terminate all EC2 instances created by Artemis | staging | CI
-	@ARTEMIS_DEPLOYMENT=ci bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging || true
+	@ARTEMIS_DEPLOYMENT=ci/artemis bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging || true
 
 terminate/artemis/guests/production: .FORCE  ## Terminate all EC2 instances created by Artemis | staging
 	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh production || true
