@@ -6,7 +6,7 @@ include "root" {
 # Read parent configuration
 locals {
   common       = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
-  artemis      = read_terragrunt_config("../artemis/terragrunt.hcl")
+  artemis      = read_terragrunt_config("../../artemis/terragrunt.hcl")
   route53_zone = local.common.inputs.route53_zone
   # Generate a random namespace for the deployment
   namespace = "artemis-${uuid()}"
@@ -19,7 +19,7 @@ locals {
 # NOTE: we might want to later put these in a separete repository
 # NOTE: double slash, i.e. '//' is expected, see the above docs
 terraform {
-  source = "../../../modules//artemis"
+  source = "../../../../modules//artemis"
 }
 
 dependency "localhost" {
@@ -31,8 +31,8 @@ dependency "localhost" {
   }
 }
 
-dependency "worker-ci" {
-  config_path = "../worker-ci"
+dependency "worker" {
+  config_path = "../worker"
 
   # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
   mock_outputs = {
@@ -41,7 +41,7 @@ dependency "worker-ci" {
 }
 
 dependency "eks" {
-  config_path = "../eks"
+  config_path = "../../eks"
 
   # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
   mock_outputs = {
@@ -72,7 +72,7 @@ inputs = {
   additional_lb_source_ips = [dependency.localhost.outputs.localhost_public_ip]
 
   # Enable access from workers
-  workers_ip_ranges = dependency.worker-ci.outputs.workers_ip_ranges
+  workers_ip_ranges = dependency.worker.outputs.workers_ip_ranges
 
   ansible_vault_password_file = local.artemis.inputs.ansible_vault_password_file
   ansible_vault_credentials   = local.artemis.inputs.ansible_vault_credentials

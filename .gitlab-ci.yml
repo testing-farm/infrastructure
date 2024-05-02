@@ -195,10 +195,10 @@ test/staging/pipeline:
     - !reference [.script_with_cleanup, script]
   variables:
     SCRIPT: >-
-      make staging/apply/artemis/ci &&
+      make staging/apply/ci &&
       make test/staging/pipeline/ci
     AFTER_SCRIPT: >-
-      make staging/destroy/artemis/ci > /dev/null &&
+      make staging/destroy/ci > /dev/null &&
       make test/pytest/oculus
   rules:
     - !reference [.rules, not_default_branch]
@@ -232,10 +232,10 @@ test/staging/compose:
     - !reference [.script_with_cleanup, script]
   variables:
     SCRIPT: >-
-      make staging/apply/artemis/ci &&
+      make staging/apply/ci &&
       make test/staging/compose/ci
     AFTER_SCRIPT: >-
-      make staging/destroy/artemis/ci > /dev/null &&
+      make staging/destroy/ci > /dev/null &&
       make test/pytest/oculus
   rules:
     - !reference [.rules, not_default_branch]
