@@ -8,7 +8,7 @@ include "root" {
 # NOTE: we might want to later put these in a separete repository
 # NOTE: double slash, i.e. '//' is expected, see the above docs
 terraform {
-  source = "../../../modules//worker"
+  source = "../../../../modules//worker"
 }
 
 inputs = {
