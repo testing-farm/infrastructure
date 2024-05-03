@@ -285,6 +285,9 @@ test/staging/compose/ci: .FORCE wait/artemis/staging/ci generate/staging/citool-
 test/pytest/oculus: .FORCE  ## Download oculus to .pytest directory
 	$(call download_oculus_to_pytest)
 
+test/terraform/modules:  ## Run terratest tests for Teraform modules
+	env -C terragrunt/modules/vault/test go test -v
+
 generate/dev/citool-config: .FORCE  ## Generate citool-config | dev
 	poetry run python setup/generate_environment.py dev
 
