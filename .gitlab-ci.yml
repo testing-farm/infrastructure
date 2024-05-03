@@ -56,17 +56,27 @@ workflow:
         - Makefile*
         - setup/*
 
-  terragrunt_infra:
-    - !reference [.rules, infrastructure]
+  terragrunt_modules_infra:
     - changes:
         - terragrunt/modules/gitlab/**/*
+
+  terragrunt_modules_testing_farm:
+    - changes:
+        - terragrunt/modules/artemis/**/*
+        - terragrunt/modules/eks/**/*
+        - terragrunt/modules/localhost/**/*
+        - terragrunt/modules/vault/**/*
+        - terragrunt/modules/worker/**/*
+
+  terragrunt_infra:
+    - !reference [.rules, infrastructure]
+    - !reference [.rules, terragrunt_modules_infra]
+    - changes:
         - terragrunt/environments/infra/**/*
 
   terragrunt_testing_farm:
     - !reference [.rules, infrastructure]
-    - changes:
-        - terragrunt/modules/artemis/**/*
-        - terragrunt/modules/eks/**/*
+    - !reference [.rules, terragrunt_modules_testing_farm]
 
   terragrunt_dev:
     - !reference [.rules, terragrunt_testing_farm]
@@ -242,6 +252,18 @@ test/staging/compose:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging_ci]
     - !reference [.rules, public_compose_tests]
+
+test/terraform/modules:
+  stage: test
+  image: docker.io/golang:alpine
+  script:
+    - apk add gawk make
+    - make IS_MAINTAINER=yes test/terraform/modules
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
+    - !reference [.rules, terragrunt_modules_infra]
+    - !reference [.rules, terragrunt_modules_testing_farm]
 
 test/infra:
   extends: .direnv
