@@ -2,4 +2,6 @@
 - block:
     - name: Add artifacts storage to known hosts
       shell: "ssh-keyscan -H {{ artifacts_hostname }} >> /root/.ssh/known_hosts"
+  # TODO: recheck for dev/staging later
+  when: deployment is regex('production')
   become: true

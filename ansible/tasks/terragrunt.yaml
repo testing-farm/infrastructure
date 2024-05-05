@@ -1,0 +1,19 @@
+---
+- block:
+    - command: "bash -c pwd"
+      args:
+        chdir: "{{ lookup('env', 'PROJECT_ROOT') }}"
+
+    - name: "Run terragrunt plan for environment {{ deployment }}"
+      command: "make {{ deployment }}/plan"
+      args:
+        chdir: "{{ lookup('env', 'PROJECT_ROOT') }}"
+
+    - name: "Run terragrunt apply for environment {{ deployment }}"
+      command: "make {{ deployment }}/apply"
+      args:
+        chdir: "{{ lookup('env', 'PROJECT_ROOT') }}"
+
+  # run terragrunt only once, not needed for all the hosts
+  delegate_to: localhost
+  run_once: true

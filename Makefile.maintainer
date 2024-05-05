@@ -20,7 +20,7 @@ TESTING_FARM_PRODUCTION_API_TOKEN ?= $(TESTING_FARM_API_TOKEN_PUBLIC)
 
 # For scale-redhat-worker target, make all additional targets parameters
 # https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run
-ifneq (,$(filter $(firstword $(MAKECMDGOALS)),create/public/worker create/redhat/worker))
+ifneq (,$(filter $(firstword $(MAKECMDGOALS)),create/public/worker create/redhat/worker dev/create/public/worker))
   # use the rest as arguments for "SCALE_TARGET"
   SCALE_TARGET := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   SCALE_TARGET := $(if $(SCALE_TARGET),$(SCALE_TARGET),1)
@@ -96,6 +96,14 @@ dev/destroy: .FORCE terminate/artemis/guests/dev  ## Destroy | dev | all
 
 dev/kubeconfig: .FORCE  ## Update kubeconfig for development environemnt
 	aws eks --profile fedora_us_east_2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
+
+.dev/create/public/worker%:
+	ansible-playbook -e deployment=dev -v ansible/playbooks/create-public-worker.yaml
+
+dev/create/public/worker: .FORCE  ## Create a Public ranch worker, use `make create/public/worker N` to create N workers
+	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) dev public worker(s)\033[0m"
+	@$(MAKE) -j $(addprefix .dev/create/public/worker, $(shell seq 1 $(SCALE_TARGET)))
+
 
 
 ##@ Infrastructure | Staging
@@ -181,7 +189,7 @@ create/redhat/worker: .FORCE  ## Create a Red Hat ranch worker, use `make create
 	@$(MAKE) -j $(addprefix .create/redhat/worker, $(shell seq 1 $(SCALE_TARGET)))
 
 .create/public/worker%:
-	ansible-playbook -v ansible/playbooks/create-public-worker.yaml
+	ansible-playbook -e deployment=production -v ansible/playbooks/create-public-worker.yaml
 
 create/public/worker: .FORCE  ## Create a Public ranch worker, use `make create/public/worker N` to create N workers
 	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) public worker(s)\033[0m"
