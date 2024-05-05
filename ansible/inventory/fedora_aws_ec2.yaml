@@ -23,5 +23,7 @@ compose:
   ansible_host: public_ip_address
 
 groups:
-  testing_farm_public_workers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Worker'
-  testing_farm_public_servers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Server'
+  testing_farm_public_workers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Worker' and tags.ServicePhase == "Prod"
+  testing_farm_public_servers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Server' and tags.ServicePhase == "Prod"
+  testing_farm_public_dev_workers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Worker' and tags.ServicePhase == "Dev"
+  testing_farm_public_dev_servers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Server' and tags.ServicePhase == "Dev"
