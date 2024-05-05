@@ -21,9 +21,24 @@ hostnames:
 
 compose:
   ansible_host: public_ip_address
+  ansible_ssh_private_key_file: ../secrets/ssh/id_rsa_public_worker.decrypted
 
 groups:
-  testing_farm_public_workers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Worker' and tags.ServicePhase == "Prod"
-  testing_farm_public_servers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Server' and tags.ServicePhase == "Prod"
-  testing_farm_public_dev_workers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Worker' and tags.ServicePhase == "Dev"
-  testing_farm_public_dev_servers: tags.ServiceOwner == 'TFT' and tags.ServiceComponent == 'Server' and tags.ServicePhase == "Dev"
+  testing_farm_public_workers:
+    tags.ServiceOwner == "TFT"
+    and tags.ServiceComponent == "Worker"
+    and tags.ServicePhase == "Prod"
+  testing_farm_public_servers:
+    tags.ServiceOwner == "TFT"
+    and tags.ServiceComponent == "Server"
+    and tags.ServicePhase == "Prod"
+  testing_farm_dev_public_workers:
+    tags.ServiceOwner == "TFT"
+    and tags.ServiceComponent == "Worker"
+    and tags.ServicePhase == "Dev"
+    and lookup('env', 'USER') in tags.Name
+  testing_farm_dev_public_servers:
+    tags.ServiceOwner == "TFT"
+    and tags.ServiceComponent == "Server"
+    and tags.ServicePhase == "Dev"
+    and lookup('env', 'USER') in tags.Name

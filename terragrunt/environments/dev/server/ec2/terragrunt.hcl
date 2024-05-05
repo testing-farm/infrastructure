@@ -21,7 +21,7 @@ terraform {
 
   before_hook "render_jinja" {
     commands = ["init", "apply", "plan"]
-    execute  = ["ansible-playbook", "render_jinja.yaml"]
+    execute  = ["ansible-playbook", "--vault-password-file", "${get_env("PROJECT_ROOT")}/.vault_pass", "render_jinja.yaml"]
   }
 
   before_hook "butane" {
