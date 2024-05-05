@@ -3,7 +3,7 @@
 citool_container_image: quay.io/testing-farm/worker:2024-02.1
 
 # path to citool-config and jobs to deployment
-worker_deployment_data: "{{ root_dir }}/terragrunt/environments/production/worker-public"
+worker_deployment_data: "{{ root_dir }}/terragrunt/environments/dev/worker-public"
 
 # geerlingguy.security role settings
 security_ssh_password_authentication: "no"

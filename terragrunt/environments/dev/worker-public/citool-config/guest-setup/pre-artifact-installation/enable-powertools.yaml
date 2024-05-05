@@ -1,0 +1,14 @@
+---
+- block:
+    - name: Make sure dnf core plugins are installed
+      command: "dnf -y install dnf-plugins-core"
+
+    - name: Enable Powertools repository
+      command: "dnf config-manager --enable powertools"
+
+  when:
+    - 'ansible_distribution == "CentOS"'
+    - 'ansible_distribution_major_version | int >= 8'
+    - "not IMAGE_NAME|lower|regex_search('centos.stream.9')"
+    - "not IMAGE_NAME|lower|regex_search('centos.stream.10')"
+    - '"auto-osbuild" not in IMAGE_NAME|lower'

@@ -1,0 +1,33 @@
+---
+# https://issues.redhat.com/browse/TFT-838
+- block:
+  - name: Make sure dnf core plugins are installed
+    command: "dnf -y install dnf-plugins-core"
+    retries: "{{ pkg_retry_count }}"
+    delay: "{{ pkg_retry_delay }}"
+    until: result_package is succeeded
+    register: result_package
+
+  - name: Add beakerlib copr repository for CentOS Stream
+    command: "dnf -y copr enable packit/beakerlib-beakerlib-master"
+    when: "not IMAGE_NAME|lower|regex_search('centos.stream.10')"
+
+  # workaround TFT-1284
+  - name: Install beakerlib
+    command: "dnf -y install beakerlib"
+    retries: "{{ pkg_retry_count }}"
+    delay: "{{ pkg_retry_delay }}"
+    until: result_package is succeeded
+    register: result_package
+    when: "not IMAGE_NAME|lower|regex_search('centos.stream.10')"
+
+  # workaround: install beakerlib from cs9, it is not yet available
+  - name: Install cs9 beakerlib on cs10
+    command: "rpm -ivh --nodeps https://kojipkgs.fedoraproject.org/packages/beakerlib/1.29.3/3.fc39/noarch/beakerlib-1.29.3-3.fc39.noarch.rpm"
+    retries: "{{ pkg_retry_count }}"
+    delay: "{{ pkg_retry_delay }}"
+    until: result_package is succeeded
+    register: result_package
+    when: "IMAGE_NAME|lower|regex_search('centos.stream.10')"
+
+  when: "IMAGE_NAME|lower|regex_search('centos.stream')"

@@ -73,8 +73,10 @@ repos:
             terragrunt/environments/.*/server/pods/.*|
             terragrunt/environments/.*/artemis/config/.*|
             terragrunt/environments/.*/worker/citool-config/.*|
+            terragrunt/environments/.*/worker-local/citool-config/.*|
             terragrunt/environments/.*/worker-public/citool-config/.*|
-            terragrunt/environments/.*/worker-redhat/citool-config/.*
+            terragrunt/environments/.*/worker-redhat/citool-config/.*|
+            terragrunt/environments/.*/worker-public/jobs/.*|
           )$
       - id: terragrunt_fmt
 
