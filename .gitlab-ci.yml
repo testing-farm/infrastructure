@@ -127,7 +127,7 @@ direnv:
 
 .direnv:
   before_script:
-    - dnf -y install direnv libffi libffi-devel podman
+    - dnf -y install direnv libffi libffi-devel podman rsync
     - echo -n "$VAULT_PASSWORD" > .vault_pass
     - direnv allow
     - eval "$(direnv export bash)"
@@ -190,7 +190,9 @@ test/dev:
     TF_VAR_cluster_name: testing-farm-gitlab-ci-$CI_JOB_ID
     SCRIPT: >-
       make dev/init &&
-      make dev/apply
+      make dev/apply &&
+      make dev/create/public/worker &&
+      testing-farm-dev-public-developer request --git-url https://gitlab.com/testing-farm/tests --plan /testing-farm/sanity
     AFTER_SCRIPT: make dev/destroy > /dev/null
   rules:
     - !reference [.rules, not_default_branch]

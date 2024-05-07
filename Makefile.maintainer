@@ -62,10 +62,14 @@ infra/destroy: .FORCE  ## Destroy | infra
 
 ##@ Infrastructure | Dev
 
+dev/generate: .FORCE  ## Generate deployment files | dev
+	ansible-playbook terragrunt/environments/dev/generate.yaml
+	env -C terragrunt/environments/dev/server/ec2 butane -psd $(PROJECT_ROOT) -o server.ign server.bu
+
 dev/init: .FORCE  ## Initialize | dev | all
 	$(call run_terragrunt,dev,init)
 
-dev/plan: .FORCE  ## Plan deployment | dev | all
+dev/plan: dev/generate .FORCE  ## Plan deployment | dev | all
 	$(call run_terragrunt,dev,plan)
 
 dev/plan/eks: .FORCE  ## Plan deployment | dev | eks
@@ -74,10 +78,10 @@ dev/plan/eks: .FORCE  ## Plan deployment | dev | eks
 dev/plan/artemis: .FORCE  ## Plan deployment | dev | artemis
 	$(call run_terragrunt,dev/artemis,plan)
 
-dev/plan/server: .FORCE  ## Plan deployment | dev | server
+dev/plan/server: dev/generate .FORCE  ## Plan deployment | dev | server
 	$(call run_terragrunt,dev/server,plan)
 
-dev/apply: .FORCE  ## Deploy | dev | all
+dev/apply: dev/generate .FORCE  ## Deploy | dev | all
 	# workaround for terragrunt bug having issues with dependencies
 	$(call run_terragrunt,dev/server/security-group,apply)
 	$(call run_terragrunt,dev,apply)
@@ -88,7 +92,7 @@ dev/apply/eks: .FORCE  ## Deploy | dev | eks
 dev/apply/artemis: .FORCE  ## Deploy | dev | artemis
 	$(call run_terragrunt,dev/artemis,apply)
 
-dev/apply/server: .FORCE  ## Deploy | dev | server
+dev/apply/server: dev/generate .FORCE  ## Deploy | dev | server
 	$(call run_terragrunt,dev/server,apply)
 
 dev/destroy: .FORCE terminate/artemis/guests/dev  ## Destroy | dev | all
@@ -100,18 +104,18 @@ dev/kubeconfig: .FORCE  ## Update kubeconfig for development environemnt
 .dev/create/public/worker%:
 	ansible-playbook -e deployment=dev -v ansible/playbooks/create-public-worker.yaml
 
-dev/create/public/worker: .FORCE  ## Create a Public ranch worker, use `make create/public/worker N` to create N workers
+dev/create/public/worker: generate/dev/citool-config/public .FORCE  ## Create a Public ranch worker, use `make create/public/worker N` to create N workers
 	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) dev public worker(s)\033[0m"
 	@$(MAKE) -j $(addprefix .dev/create/public/worker, $(shell seq 1 $(SCALE_TARGET)))
 
 dev/update/public/pipeline/image: .FORCE  ## Update pipeline container image on Public ranch | dev
-	$(call run_pipeline_update,💿️,updating Public ranch pipeline image,testing_farm_dev_public_workers,update_image)
+	$(call run_pipeline_update,💿️,updating Public ranch pipeline image,testing_farm_dev_public_workers,update_image,dev)
 
-dev/update/public/pipeline/config: .FORCE  ## Update pipeline configuration on Public ranch | dev
-	$(call run_pipeline_update,🛠,updating Public ranch pipeline configuration,testing_farm_dev_public_workers,update_config)
+dev/update/public/pipeline/config: generate/dev/citool-config/public .FORCE  ## Update pipeline configuration on Public ranch | dev
+	$(call run_pipeline_update,🛠,updating Public ranch pipeline configuration,testing_farm_dev_public_workers,update_config,dev)
 
 dev/update/public/pipeline/jobs: .FORCE  ## Update pipeline jobs on Public ranch | dev
-	$(call run_pipeline_update,⛴️,updating Public ranch pipeline jobs,testing_farm_dev_public_workers,update_jobs)
+	$(call run_pipeline_update,⛴️,updating Public ranch pipeline jobs,testing_farm_dev_public_workers,update_jobs,dev)
 
 
 ##@ Infrastructure | Staging
@@ -205,7 +209,7 @@ create/public/worker: .FORCE  ## Create a Public ranch worker, use `make create/
 
 define run_pipeline_update
 	@echo -e "$(1) \033[0;32m$(2)\033[0m"
-	ansible-playbook -v -l $(3) -t $(4) ansible/playbooks/testing-farm.yaml
+	ansible-playbook -v -e deployment=$(5) -l $(3) -t $(4) ansible/playbooks/testing-farm.yaml
 endef
 
 # To pass a comma in the call command arguments
@@ -213,31 +217,31 @@ endef
 comma := ,
 
 update/pipeline/image: .FORCE  ## Update pipeline container image on all ranches
-	$(call run_pipeline_update,💿️,updating pipeline image on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_image)
+	$(call run_pipeline_update,💿️,updating pipeline image on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_image,production)
 
 update/public/pipeline/image: .FORCE  ## Update pipeline container image on Public ranch
-	$(call run_pipeline_update,💿️,updating Public ranch pipeline image,testing_farm_public_workers,update_image)
+	$(call run_pipeline_update,💿️,updating Public ranch pipeline image,testing_farm_public_workers,update_image,production)
 
 update/redhat/pipeline/image: .FORCE  ## Update pipeline container image on Red Hat ranch
-	$(call run_pipeline_update,💿️,updating Red Hat ranch pipeline image,testing_farm_redhat_workers,update_image)
+	$(call run_pipeline_update,💿️,updating Red Hat ranch pipeline image,testing_farm_redhat_workers,update_image,production)
 
 update/pipeline/config: .FORCE  ## Update pipeline configuration on all ranches
-	$(call run_pipeline_update,🛠,updating pipeline configuration on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_config)
+	$(call run_pipeline_update,🛠,updating pipeline configuration on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_config,production)
 
 update/public/pipeline/config: .FORCE  ## Update pipeline configuration on Public ranch
-	$(call run_pipeline_update,🛠,updating Public ranch pipeline configuration,testing_farm_public_workers,update_config)
+	$(call run_pipeline_update,🛠,updating Public ranch pipeline configuration,testing_farm_public_workers,update_config,production)
 
 update/redhat/pipeline/config: .FORCE  ## Update pipeline configuration on Red Hat ranch
-	$(call run_pipeline_update,🛠,updating Red Hat ranch pipeline configuration,testing_farm_redhat_workers,update_config)
+	$(call run_pipeline_update,🛠,updating Red Hat ranch pipeline configuration,testing_farm_redhat_workers,update_config,production)
 
 update/pipeline/jobs: .FORCE  ## Update pipeline jobs on all ranches
-	$(call run_pipeline_update,⛴️,updating pipeline jobs on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_jobs)
+	$(call run_pipeline_update,⛴️,updating pipeline jobs on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_jobs,production)
 
 update/public/pipeline/jobs: .FORCE  ## Update pipeline jobs on Public ranch
-	$(call run_pipeline_update,⛴️,updating Public ranch pipeline jobs,testing_farm_public_workers,update_jobs)
+	$(call run_pipeline_update,⛴️,updating Public ranch pipeline jobs,testing_farm_public_workers,update_jobs,production)
 
 update/redhat/pipeline/jobs: .FORCE  ## Update pipeline jobs on Red Hat ranch
-	$(call run_pipeline_update,⛴️,updating Red Hat ranch pipeline jobs,testing_farm_redhat_workers,update_jobs)
+	$(call run_pipeline_update,⛴️,updating Red Hat ranch pipeline jobs,testing_farm_redhat_workers,update_jobs,production)
 
 
 ##@ Tests | maintainer

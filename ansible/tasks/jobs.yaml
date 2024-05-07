@@ -1,8 +1,18 @@
 ---
-- name: Copy job scripts
+- name: Copy job scripts (dev, staging)
+  become: true
+  template:
+    dest: "/usr/local/bin/{{ item }}"
+    src: "{{ worker_deployment_data }}/jobs/{{ item }}.j2"
+    mode: "a+rwx"
+  with_items: "{{ jobs }}"
+  when:  deployment is regex('(dev|staging)')
+
+- name: Copy job scripts (production)
   become: true
   copy:
     dest: "/usr/local/bin/{{ item }}"
     src: "{{ worker_deployment_data }}/jobs/{{ item }}"
     mode: "a+rwx"
   with_items: "{{ jobs }}"
+  when:  deployment is regex('production')

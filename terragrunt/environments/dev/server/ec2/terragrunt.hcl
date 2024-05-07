@@ -7,27 +7,12 @@ include "root" {
 locals {
   common = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
   # get_working_dir is empty during plan, make sure we read the generated ignition file only during apply
-  butane_file = "${get_working_dir()}/server.ign"
+  butane_file = "${get_terragrunt_dir()}/server.ign"
   user_data   = fileexists(local.butane_file) ? base64encode(file(local.butane_file)) : base64encode("error: butane file not generated")
 }
 
 terraform {
   source = "tfr:///terraform-aws-modules/ec2-instance/aws//?version=5.6.1"
-
-  before_hook "remove_ign" {
-    commands = ["init", "apply", "plan"]
-    execute  = ["rm", "-f", "server.ign"]
-  }
-
-  before_hook "render_jinja" {
-    commands = ["init", "apply", "plan"]
-    execute  = ["ansible-playbook", "--vault-password-file", "${get_env("PROJECT_ROOT")}/.vault_pass", "render_jinja.yaml"]
-  }
-
-  before_hook "butane" {
-    commands = ["init", "apply", "plan"]
-    execute  = ["butane", "-psd", get_env("PROJECT_ROOT"), "-o", "server.ign", "server.bu"]
-  }
 }
 
 # Terraform cannot work well with multiple providers, so generate it here

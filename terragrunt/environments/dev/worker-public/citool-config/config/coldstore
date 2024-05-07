@@ -1,5 +1,5 @@
 [default]
-coldstore-url-template = https://artifacts.dev.testing-farm.io/{{ TESTING_FARM_REQUEST_ID }}
+coldstore-url-template = {{ artifacts_url }}/{{ TESTING_FARM_REQUEST_ID }}
 
 artifacts-location-template = {% if TESTING_FARM_REQUEST_ID %}
                                   {{ COLDSTORE_URL }}/{{ ARTIFACTS_LOCATION }}

@@ -6,7 +6,7 @@ LOG="$PROJECT_ROOT/.direnv/envrc.log"
 SSH_CONFIG="$DIRENV_PATH/ssh_config"
 
 # create tools dir including .direnv early
-mkdir -p $TOOLS_PATH
+mkdir -p "$TOOLS_PATH"
 
 #
 # helpers
@@ -15,6 +15,20 @@ info() { echo -e "\e[32m$(printf '🍪\n🚀\n🎉\n🚁' | shuf -n1) $@\e[0m"; 
 print_error() { echo -e "\e[31m⛔ $@\e[0m"; echo "[E] $@" >> $LOG; }
 error() { print_error $@; exit 1; }
 warn() { echo -e "\e[33m❕$@\e[0m"; echo "[!] $@" >> $LOG; }
+
+# The function is needed to create aliases, see
+# https://github.com/direnv/direnv/issues/73
+export_alias() {
+  local name=$1
+  shift
+  local target="$TOOLS_PATH/$name"
+
+  echo "#!/usr/bin/env bash" > "$target"
+  echo "PATH=$PATH" >> "$target"
+  echo "$@" >> "$target"
+  chmod +x "$target"
+}
+
 
 # no user specific setup yet
 test -z "$IS_MAINTAINER" && exit 0
@@ -68,10 +82,10 @@ if [ ! -e "$DIRENV_PATH/.aws" ]; then
     mkdir -p "$DIRENV_PATH/.aws"
     export AWS_CONFIG_FILE="$DIRENV_PATH/.aws/config"
     export AWS_SHARED_CREDENTIALS_FILE="$DIRENV_PATH/.aws/credentials"
-    for profile in $(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yaml | yq -r ".credentials.aws.profiles | keys | .[]"); do
-        access_key="$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yaml | yq -r ".credentials.aws.profiles.$profile.access_key")"
-        secret_key="$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yaml | yq -r ".credentials.aws.profiles.$profile.secret_key")"
-        region="$(ansible-vault view --vault-password-file .vault_pass ansible/secrets/credentials.yaml | yq -r ".credentials.aws.profiles.$profile.region")"
+    for profile in $(echo "$VAULT_VIEW" | yq -r ".credentials.aws.profiles | keys | .[]"); do
+        access_key=$(echo "$VAULT_VIEW" | yq -r ".credentials.aws.profiles.$profile.access_key")
+        secret_key=$(echo "$VAULT_VIEW" | yq -r ".credentials.aws.profiles.$profile.secret_key")
+        region=$(echo "$VAULT_VIEW" | yq -r ".credentials.aws.profiles.$profile.region")
         printf "$access_key\n$secret_key\n$region\n\n\n" | aws --profile $profile configure &>> $LOG
     done
 fi
@@ -200,3 +214,19 @@ if ! grep '\[include\]' .git/config &> /dev/null; then
     info "configure git"
     git config --local include.path ../.gitconfig &>> $LOG
 fi
+
+#
+# aliases
+#
+info "configure aliases"
+export TESTING_FARM_DEV_TOKEN_PUBLIC_DEVELOPER=$(echo "$VAULT_VIEW" | yq -r .credentials.testing_farm.dev.public.users.developer.token)
+export TESTING_FARM_DEV_TOKEN_PUBLIC_ADMIN=$(echo "$VAULT_VIEW" | yq -r .credentials.testing_farm.dev.public.users.admin.token)
+export TESTING_FARM_DEV_TOKEN_PUBLIC_WORKER=$(echo "$VAULT_VIEW" | yq -r .credentials.testing_farm.dev.public.users.worker.token)
+export TESTING_FARM_DEV_TOKEN_PUBLIC_DISPATCHER=$(echo "$VAULT_VIEW" | yq -r .credentials.testing_farm.dev.public.users.dispatcher.token)
+export TESTING_FARM_DEV_API_URL_PUBLIC="http://api.dev-$(whoami).testing-farm.io"
+
+for deployment in DEV; do
+    for user in DEVELOPER ADMIN WORKER DISPATCHER; do
+        export_alias "testing-farm-dev-public-${user,,}" "TESTING_FARM_API_TOKEN=\$TESTING_FARM_${deployment}_TOKEN_PUBLIC_${user} TESTING_FARM_API_URL=\$TESTING_FARM_${deployment}_API_URL_PUBLIC testing-farm \$@"
+    done
+done

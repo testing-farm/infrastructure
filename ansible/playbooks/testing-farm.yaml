@@ -1,10 +1,4 @@
 ---
-
-- hosts: testing_farm_public_servers:testing_farm_public_workers:testing_farm_dev_public_workers
-  become: true
-  roles:
-    - security
-
 - hosts: testing_farm_redhat_servers:testing_farm_redhat_workers
   vars_files:
     - ../secrets/credentials.yaml
@@ -33,6 +27,9 @@
         swap_file_path: /data/swapfile
         swap_file_size_mb: "16384"
         swap_file_state: present
+      become: true
+    - name: geerlingguy.node_exporter
+      become: true
     - name: nomad
       tags: update_nomad
   tasks:

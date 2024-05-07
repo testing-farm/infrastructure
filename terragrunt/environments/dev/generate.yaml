@@ -1,0 +1,38 @@
+---
+- name: Generate deployment files
+  hosts: localhost
+  vars:
+    server_ec2_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/ec2"
+    server_pods_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods"
+  vars_files:
+    - "{{ ansible_env.PROJECT_ROOT }}/ansible/secrets/credentials.yaml"
+  tasks:
+    - name: Render server.bu
+      ansible.builtin.template:
+        src: "{{ server_ec2_dir }}/server.bu.j2"
+        dest: "{{ server_ec2_dir }}/server.bu"
+
+    - name: Render API reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/api.dev-USER.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/api.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
+
+    - name: Render Internal API reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/internal.api.dev-USER.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/internal.api.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
+
+    - name: Render Nomad reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/nomad.dev-USER.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/nomad.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
+
+    - name: Render artifacts config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/artifacts.dev-USER.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/artifacts.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
+
+    - name: Render server kube yaml
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/server.yaml.j2"
+        dest: "{{ server_pods_dir }}/server.yaml"
