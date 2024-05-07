@@ -1,0 +1,51 @@
+---
+
+# !test-tag: instruction-map
+
+- rule: >
+    FAILURE
+    and FAILURE.exc_info
+    and  FAILURE.exc_info[0].__name__ == 'FailedToCheckoutRef'
+  reason: >-
+    {{ ERROR_MESSAGE }} The git branch was probably deleted before the testing was ran.
+
+# The 'Failed to list plan' exception is caught
+# and 'Failed to get plan details, TMT metadata are absent or corrupted' is raised.
+# That's why we are checking for the latter string in ERROR_MESSAGE
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Failed to get plan details" in ERROR_MESSAGE
+  reason: >-
+    Unsupported format of the fmf file.
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Condition 'ip_ready' failed to pass within given time" in ERROR_MESSAGE
+  reason: >-
+    Failed to provision test environment. Please check https://status.testing-farm.io for possible outages. If the situation persists after retrying, please report an issue.
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "TMT metadata are absent or corrupted." in ERROR_MESSAGE
+  reason: >-
+    Failed to discover tests, TMT metadata are absent or corrupted. Search for '[E] [test-schedule-tmt' on the artifacts page for details.
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Multiple provision phases not supported, refusing to continue." in ERROR_MESSAGE
+  reason: >-
+    Multiple provision phases not supported in this pipeline. See https://docs.testing-farm.io/Testing%20Farm/0.1/test-request.html#multihost-testing for information on how to run the multihost pipeline.'
+
+# TFT-2202 - treat provisioning errors as test failures
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Artemis resource ended in 'error' state" in ERROR_MESSAGE
+    and EXISTS('TESTING_FARM_FAILED_IF_PROVISION_ERROR')
+    and TESTING_FARM_FAILED_IF_PROVISION_ERROR
+  reason: >-
+    Provisioning of test resources failed. This is considered as a test failure, because `settings.pipeline.provision-error-failed-result` was set.

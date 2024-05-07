@@ -104,6 +104,14 @@ dev/create/public/worker: .FORCE  ## Create a Public ranch worker, use `make cre
 	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) dev public worker(s)\033[0m"
 	@$(MAKE) -j $(addprefix .dev/create/public/worker, $(shell seq 1 $(SCALE_TARGET)))
 
+dev/update/public/pipeline/image: .FORCE  ## Update pipeline container image on Public ranch | dev
+	$(call run_pipeline_update,💿️,updating Public ranch pipeline image,testing_farm_dev_public_workers,update_image)
+
+dev/update/public/pipeline/config: .FORCE  ## Update pipeline configuration on Public ranch | dev
+	$(call run_pipeline_update,🛠,updating Public ranch pipeline configuration,testing_farm_dev_public_workers,update_config)
+
+dev/update/public/pipeline/jobs: .FORCE  ## Update pipeline jobs on Public ranch | dev
+	$(call run_pipeline_update,⛴️,updating Public ranch pipeline jobs,testing_farm_dev_public_workers,update_jobs)
 
 
 ##@ Infrastructure | Staging
@@ -235,12 +243,12 @@ update/redhat/pipeline/jobs: .FORCE  ## Update pipeline jobs on Red Hat ranch
 ##@ Tests | maintainer
 
 define run_pytest_gluetool
-	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) $2 -vvv --basetemp $$PROJECT_ROOT/.pytest \
+	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) $3 -vvv --basetemp $$PROJECT_ROOT/.pytest \
 	--color=yes \
 	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
-	--citool-config terragrunt/environments/$1/worker/citool-config --citool-image $(WORKER_IMAGE) \
+	--citool-config terragrunt/environments/$1/$2/citool-config --citool-image $(WORKER_IMAGE) \
 	--test-assets tests/worker \
-	--variables terragrunt/environments/$1/worker/citool-config/variables.yaml \
+	--variables terragrunt/environments/$1/$2/citool-config/variables.yaml \
 	--variables tests/common.yaml \
 	--html report.html tests/worker/test_pipeline.py
 endef
@@ -249,44 +257,50 @@ define download_oculus_to_pytest
 	curl -s --fail --retry 5 --show-error https://gitlab.com/testing-farm/oculus/-/raw/main/results.html | tee > /dev/null $$(find .pytest -mindepth 2 -maxdepth 2 -type d -exec echo {}/results.html \;)
 endef
 
-test/dev/pipeline: .FORCE wait/artemis/dev generate/dev/citool-config  ## Run worker tests | dev
-	$(call run_pytest_gluetool,dev,-m "public and pipeline and not container")
+test/dev/pipeline: .FORCE wait/artemis/dev generate/dev/citool-config/local  ## Run worker tests | dev
+	$(call run_pytest_gluetool,dev,worker-local,-m "public and pipeline and not container")
 	$(call download_oculus_to_pytest)
 
-test/dev/pipeline/container: .FORCE wait/artemis/dev generate/dev/citool-config  ## Run worker tests | dev
-	$(call run_pytest_gluetool,dev,-m "public and pipeline and container")
+test/dev/pipeline/container: .FORCE wait/artemis/dev generate/dev/citool-config/local  ## Run worker tests | dev
+	$(call run_pytest_gluetool,dev,worker-local,-m "public and pipeline and container")
 	$(call download_oculus_to_pytest)
 
-test/dev/compose: .FORCE wait/artemis/dev generate/dev/citool-config  ## Run compose tests | dev
-	$(call run_pytest_gluetool,dev,-m "public and compose")
+test/dev/compose: .FORCE wait/artemis/dev generate/dev/citool-config/local  ## Run compose tests | dev
+	$(call run_pytest_gluetool,dev,worker-local,-m "public and compose")
 	$(call download_oculus_to_pytest)
 
 test/staging/pipeline: .FORCE wait/artemis/staging generate/staging/citool-config  ## Run worker tests, except container | staging
-	$(call run_pytest_gluetool,staging,-m "public and pipeline and not container")
+	$(call run_pytest_gluetool,staging,worker,-m "public and pipeline and not container")
 	$(call download_oculus_to_pytest)
 
 test/staging/pipeline/container: .FORCE wait/artemis/staging generate/staging/citool-config  ## Run worker tests, container only | staging
-	$(call run_pytest_gluetool,staging,-m "public and pipeline and container")
+	$(call run_pytest_gluetool,staging,worker,-m "public and pipeline and container")
 	$(call download_oculus_to_pytest)
 
 test/staging/pipeline/ci: .FORCE wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests, except container | staging | CI
-	$(call run_pytest_gluetool,staging,-m "public and pipeline and not container")
+	$(call run_pytest_gluetool,staging,worker,-m "public and pipeline and not container")
 
 test/staging/pipeline/container/ci: .FORCE generate/staging/citool-config/container/ci  ## Run worker tests, container only | staging | CI
-	$(call run_pytest_gluetool,staging,-m "public and pipeline and container")
+	$(call run_pytest_gluetool,staging,worker,-m "public and pipeline and container")
 
 test/staging/compose: .FORCE wait/artemis/staging generate/staging/citool-config  ## Run compose tests | staging
-	$(call run_pytest_gluetool,staging,-m "public and compose")
+	$(call run_pytest_gluetool,staging,worker,-m "public and compose")
 	$(call download_oculus_to_pytest)
 
 test/staging/compose/ci: .FORCE wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run compose tests | staging | CI
-	$(call run_pytest_gluetool,staging,-m "public and compose")
+	$(call run_pytest_gluetool,staging,worker,-m "public and compose")
 
 test/pytest/oculus: .FORCE  ## Download oculus to .pytest directory
 	$(call download_oculus_to_pytest)
 
-generate/dev/citool-config: .FORCE  ## Generate citool-config | dev
-	poetry run python setup/generate_environment.py dev
+test/terraform/modules:  ## Run terratest tests for Teraform modules
+	env -C terragrunt/modules/vault/test go test -v
+
+generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
+	WORKER=worker-local poetry run python setup/generate_environment.py dev
+
+generate/dev/citool-config/public: .FORCE  ## Generate citool-config | dev
+	WORKER=worker-public poetry run python setup/generate_environment.py dev
 
 generate/staging/citool-config: .FORCE  ## Generate citool-config | staging
 	poetry run python setup/generate_environment.py staging

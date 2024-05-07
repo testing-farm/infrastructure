@@ -1,0 +1,5 @@
+---
+
+# We support only 'x86_64' and 'aarch64' for now.
+- rule: TEC.arch not in ['x86_64', 'aarch64']
+  drop: true

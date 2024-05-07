@@ -22,6 +22,7 @@ TERRAGRUNT_ENV_DIR=f'{os.environ["PROJECT_ROOT"]}/terragrunt/environments'
 # Use this variable to override the artemis deployment name, e.g. `artemis-integration`
 # Use none to ignore artemis deployment (for container only testing it is not needed)
 ARTEMIS_DEPLOYMENT = os.environ.get('ARTEMIS_DEPLOYMENT', 'artemis')
+WORKER = os.environ.get('WORKER', 'worker')
 SECRETS_FILE = os.environ.get('SECRETS_FILE')
 VAULT_PASS = '.vault_pass'
 
@@ -77,7 +78,7 @@ def main() -> None:
             'artemis_api_domain': artemis_api_domain
         })
 
-    template_dirpath = os.path.join('terragrunt', 'environments', environment, 'worker', 'citool-config')
+    template_dirpath = os.path.join('terragrunt', 'environments', environment, WORKER, 'citool-config')
     template_filepath = os.path.join(template_dirpath, 'environment.yaml.j2')
     result_template_filepath = os.path.join(template_dirpath, 'environment.yaml')
 
@@ -91,7 +92,7 @@ def main() -> None:
     with open(result_template_filepath, 'w') as f:
         print(template_rendered, file=f)
 
-    worker_artemis_ssh_key = f'{TERRAGRUNT_ENV_DIR}/{environment}/worker/citool-config/id_rsa_artemis'
+    worker_artemis_ssh_key = f'{TERRAGRUNT_ENV_DIR}/{environment}/{WORKER}/citool-config/id_rsa_artemis'
     worker_artemis_ssh_key_decrypted = f'{worker_artemis_ssh_key}.decrypted'
 
     print(f'Decrypting "{worker_artemis_ssh_key}"')

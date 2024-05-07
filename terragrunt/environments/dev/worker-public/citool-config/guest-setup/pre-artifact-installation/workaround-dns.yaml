@@ -1,0 +1,24 @@
+---
+#
+# systemd-resolved is not mature enough, for some tests it even
+# causes problems in default configuration, like unbound (dnssec)
+#
+# 2022-06-07 on request from pemensik
+#
+- block:
+    - name: disable systemd-resolved
+      command: "systemctl disable systemd-resolved"
+
+    - name: mask systemd-resolved
+      command: "systemctl mask systemd-resolved"
+
+    - name: remove /etc/resolv.conf
+      command: "rm -f /etc/resolv.conf"
+
+    - name: replace resolve.conf
+      copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 8.8.8.8
+          nameserver 8.8.4.4
+  when: 'ansible_distribution == "Fedora"'
