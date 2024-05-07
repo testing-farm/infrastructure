@@ -68,7 +68,9 @@ jobs:
   - tf-sti
 
 # artifacts
+artifacts_user: artifacts
 artifacts_hostname: artifacts.dev-{{ lookup('env', 'USER') }}.testing-farm.io
+api_hostname: api.dev-{{ lookup('env', 'USER') }}.testing-farm.io
 
 # worker instance details
 worker_instance_type: i3.large

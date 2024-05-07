@@ -5,6 +5,9 @@ passwd:
     - name: core
       ssh_authorized_keys_local:  # pragma: allowlist secret
         - ansible/secrets/ssh/id_rsa_public_server.pub
+    - name: artifacts
+      ssh_authorized_keys_local:  # pragma: allowlist secret
+        - ansible/secrets/ssh/id_rsa_public_worker.pub
 storage:
   files:
     - path: /etc/testing-farm/pods/server.yaml
@@ -55,8 +58,17 @@ storage:
       mode: 0644
       contents:
         local: terragrunt/environments/dev/server/pods/nginx/nomad.dev-{{ ansible_env.USER }}.testing-farm.io.conf
+    - path: /etc/nginx/conf.d/artifacts.dev-{{ ansible_env.USER }}.testing-farm.io.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/nginx/artifacts.dev-{{ ansible_env.USER }}.testing-farm.io.conf
   directories:
     - path: /var/nomad
+    - path: /var/artifacts
+      user:
+        name: artifacts
+      group:
+        name: artifacts
   disks:
     - device: /dev/nvme1n1
       wipe_table: false
@@ -68,3 +80,20 @@ storage:
       device: /dev/disk/by-partlabel/artifacts
       format: xfs
       with_mount_unit: true
+systemd:
+  units:
+    - name: selinux-context-artifacts.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Set SELinux context for /var/artifacts/
+        After=local-fs.target
+        Before=nginx.service
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/chcon -t container_file_t -R /var/artifacts/
+        RemainAfterExit=yes
+
+        [Install]
+        WantedBy=multi-user.target

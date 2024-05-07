@@ -65,6 +65,14 @@ inputs = {
     {
       rule                     = "nomad-rpc-tcp"
       source_security_group_id = "sg-0040a2477d37dd6d0"
+    },
+    {
+      rule                     = "http-80-tcp"
+      source_security_group_id = "sg-0040a2477d37dd6d0"
+    },
+    {
+      rule                     = "ssh-tcp"
+      source_security_group_id = "sg-0040a2477d37dd6d0"
     }
   ]
 

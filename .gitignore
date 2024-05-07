@@ -26,10 +26,12 @@ terragrunt-debug.tfvars.json
 # ansible vault secret
 **/.vault_pass
 
-# rendered files
+# generated / rendered files
 terragrunt/environments/*/worker*/citool-config/environment.yaml
 terragrunt/environments/*/server/pods/nginx/*.conf
 terragrunt/environments/*/server/pods/server.yaml
+terragrunt/environments/*/server/ec2/server.bu
+terragrunt/environments/*/server/ec2/server.ign
 
 # secrets
 .vault_pass
