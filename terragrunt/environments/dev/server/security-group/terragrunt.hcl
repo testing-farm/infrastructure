@@ -43,7 +43,7 @@ dependency "localhost" {
 }
 
 dependency "worker" {
-  config_path = "../../worker"
+  config_path = "../../worker-public"
 
   # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
   mock_outputs = {

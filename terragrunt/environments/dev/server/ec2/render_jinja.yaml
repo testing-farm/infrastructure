@@ -3,6 +3,8 @@
   hosts: localhost
   vars:
     pods_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods"
+  vars_files:
+    - "{{ ansible_env.PROJECT_ROOT }}/ansible/secrets/credentials.yaml"
   tasks:
     - name: Render server.bu
       ansible.builtin.template:
@@ -23,3 +25,8 @@
       ansible.builtin.template:
         src: "{{ pods_dir }}/nginx/nomad.dev-USER.testing-farm.io.conf.j2"
         dest: "{{ pods_dir }}/nginx/nomad.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
+
+    - name: Render server kube yaml
+      ansible.builtin.template:
+        src: "{{ pods_dir }}/server.yaml.j2"
+        dest: "{{ pods_dir }}/server.yaml"

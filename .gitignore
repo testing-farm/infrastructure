@@ -26,8 +26,10 @@ terragrunt-debug.tfvars.json
 # ansible vault secret
 **/.vault_pass
 
-# rendered environment.yaml files
-terragrunt/environments/*/worker/citool-config/environment.yaml
+# rendered files
+terragrunt/environments/*/worker*/citool-config/environment.yaml
+terragrunt/environments/*/server/pods/nginx/*.conf
+terragrunt/environments/*/server/pods/server.yaml
 
 # secrets
 .vault_pass
@@ -37,6 +39,7 @@ terragrunt/environments/*/citool-config/*rsa*
 .direnv
 
 # pytest temporary files
+assets
 .pytest
 report.html
 
