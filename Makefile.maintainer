@@ -2,7 +2,7 @@
 CITOOL_EXTRA_PODMAN_ARGS ?= --pull newer
 
 # default worker image
-WORKER_IMAGE ?= quay.io/testing-farm/worker:latest
+WORKER_IMAGE ?= quay.io/testing-farm/worker-public:latest
 
 # default development cluster name
 DEV_CLUSTER_NAME ?= $(or $(TF_VAR_cluster_name),testing-farm-dev-$$USER)
