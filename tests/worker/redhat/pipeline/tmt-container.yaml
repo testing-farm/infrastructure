@@ -24,7 +24,7 @@ checks:
     - "[testing-farm-request] Initialized with 9e6fa113-a25a-43e1-bb27-671780f152d0:"
     - "[static-guest] added guest 'localhost' with architecture "
     - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
-    - "[coldstore] For the pipeline artifacts, see http://artifacts.osci.redhat.com/testing-farm/9e6fa113-a25a-43e1-bb27-671780f152d0"
+    - "[coldstore] For the pipeline artifacts, see https://artifacts.osci.redhat.com/testing-farm/9e6fa113-a25a-43e1-bb27-671780f152d0"
     - "[testing-farm-request-state-reporter] pipeline complete"
     - "[test-schedule-tmt] cloning repo https://gitlab.com/testing-farm/tests (branch not specified, ref main)"
     - "[test-schedule-report] Result of testing: PASSED"
