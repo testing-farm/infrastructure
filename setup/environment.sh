@@ -227,6 +227,6 @@ export TESTING_FARM_DEV_API_URL_PUBLIC="http://api.dev-$(whoami).testing-farm.io
 
 for deployment in DEV; do
     for user in DEVELOPER ADMIN WORKER DISPATCHER; do
-        export_alias "testing-farm-dev-public-${user,,}" "TESTING_FARM_API_TOKEN=\$TESTING_FARM_${deployment}_TOKEN_PUBLIC_${user} TESTING_FARM_API_URL=\$TESTING_FARM_${deployment}_API_URL_PUBLIC testing-farm \$@"
+        export_alias "testing-farm-dev-public-${user,,}" "TESTING_FARM_API_TOKEN=\$TESTING_FARM_${deployment}_TOKEN_PUBLIC_${user} TESTING_FARM_API_URL=\$TESTING_FARM_${deployment}_API_URL_PUBLIC poetry run testing-farm \$@"
     done
 done
