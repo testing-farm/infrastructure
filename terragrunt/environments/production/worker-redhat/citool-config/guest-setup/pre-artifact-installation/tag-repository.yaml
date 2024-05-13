@@ -74,6 +74,10 @@
     # For < RHEL8 we need to install yum-plugin-priorities
     #
     - block:
+        - name: Enable optional repo on RHUI systems
+          command: yum-config-manager --enable rhel-7-server-rhui-optional-rpms
+          when: "'rhui' in IMAGE_NAME|lower"
+
         - name: Make sure yum-plugin-priorities is installed on < RHEL8
           package:
             name: yum-plugin-priorities
@@ -116,7 +120,6 @@
     - '"auto-osbuild" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'
-    - '"sap" not in IMAGE_NAME|lower'
 
   #
   # block: end
@@ -135,4 +138,3 @@
     or '"auto-osbuild" in IMAGE_NAME|lower'
     or '"composer-api" in IMAGE_NAME|lower'
     or '"hardened" in IMAGE_NAME|lower'
-    or '"sap" in IMAGE_NAME|lower'
