@@ -258,5 +258,6 @@ checks:
   literal-strings[work-basic*/log.txt]:
     - |
       environment:
+          TMT_REPORT_ARTIFACTS_URL: https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}
           POLARION_PASSWORD: *****
           POLARION_USERNAME: user
