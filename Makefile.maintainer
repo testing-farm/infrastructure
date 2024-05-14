@@ -194,7 +194,7 @@ production/public/proxy/nomad:  ## Setup ssh proxy for Public ranch nomad
 	@ssh -fNL 4646:localhost:4646 testing_farm_public_server_01
 
 .create/redhat/worker%:
-	ansible-playbook -v ansible/playbooks/create-redhat-worker.yaml
+	ansible-playbook -e deployment=production -v ansible/playbooks/create-redhat-worker.yaml
 
 create/redhat/worker: .FORCE  ## Create a Red Hat ranch worker, use `make create/redhat/worker N` to create N workers
 	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) redhat worker(s)\033[0m"
