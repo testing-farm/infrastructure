@@ -47,3 +47,9 @@ jobs:
   - tf-tmt-container
   - tf-tmt-multihost
   - tf-sti
+job_request_timeout: 1440
+nomad_job_args: "[\"${NOMAD_META_REQUEST_ID}\", \"${NOMAD_ALLOC_DIR}\", \"12h\"]"
+
+# artifacts
+artifacts_hostname: artifacts.dev.testing-farm.io
+api_hostname: api.dev.testing-farm.io
