@@ -1,6 +1,6 @@
 [fedora]
 name=Fedora 40 - $basearch
-baseurl=https://download.fedoraproject.org/pub/fedora/linux/development/40/Everything/$basearch/os/
+baseurl=https://download.fedoraproject.org/pub/fedora/linux/releases/40/Everything/$basearch/os/
 enabled=1
 gpgcheck=0
 priority=999
