@@ -7,8 +7,8 @@ printf "\n[pipeline-start] $(date)\n\n"
 
 export REQUEST_ID=$1
 
-ARTIFACTS_URL="https://artifacts.dev.testing-farm.io"
-API_URL="https://api.dev.testing-farm.io/v0.1"
+ARTIFACTS_URL="http://{{ artifacts_hostname }}"
+API_URL="http://{{ api_hostname }}/v0.1"
 
 [ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
 
@@ -34,7 +34,7 @@ EOF
 
 set_request_timeout() {
     REQUEST_TIMEOUT="$(echo "$REQUEST" | jq -r '.settings.pipeline.timeout | select (.!=null)')"
-    [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT="1440"
+    [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT="{{ job_request_timeout  }}"
     REQUEST_TIMEOUT="${REQUEST_TIMEOUT}m"
     echo "Request timeout: $REQUEST_TIMEOUT"
 }
@@ -52,32 +52,14 @@ create_results_xml in-progress skipped progress.xml
 
 # deploy oculus viewer
 curl -s --fail --retry 5 --show-error -o index.html https://gitlab.com/testing-farm/oculus/-/raw/main/results.html
+sed -i 's/https:\/\/api\.testing-farm\.io/http:\/\/{{ api_hostname }}/' index.html
 
 set_request_timeout
 set_citool_image
 
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
-citool-container.sh rules-engine \
-                    hide-secrets \
-                    testing-farm-request --request-id $REQUEST_ID \
-                    coldstore \
-                    testing-farm-request-state-reporter \
-                    archive \
-                    ansible \
-                    artemis \
-                    fedora-copr:copr \
-                    install-repository \
-                    install-copr-build \
-                    install-koji-build-execute \
-                    guest-setup-testing-farm:guest-setup \
-                    guest-setup-order \
-                    git \
-                    test-scheduler-sti \
-                    test-schedule-runner-sti \
-                    test-scheduler-testing-farm \
-                    test-schedule-report \
-                    test-schedule-runner
+{{ job_vars.pipeline }}
 
 # create pipeline error if no results.xml available
 if [ ! -e "results.xml" ]; then
