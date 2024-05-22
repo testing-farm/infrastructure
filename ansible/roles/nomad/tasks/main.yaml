@@ -5,7 +5,7 @@
   include_vars: "{{ ansible_distribution }}.yaml"
 
 - name: Install OS packages
-  include: install.yaml
+  include_tasks: install.yaml
 
 - block:
     - name: Create directories

@@ -89,14 +89,14 @@
     - ../secrets/credentials.yaml
     - ../vars/common.yaml
   pre_tasks:
-    - include: ../tasks/dns.yaml
-    - include: ../tasks/ssh-key.yaml
-    - include: ../tasks/artifacts.yaml
-    - include: ../tasks/podman.yaml
-    - include: ../tasks/jobs.yaml
-    - include: ../tasks/config.yaml
-    - include: ../tasks/image.yaml
-    - include: ../tasks/terragrunt.yaml
+    - include_tasks: ../tasks/dns.yaml
+    - include_tasks: ../tasks/ssh-key.yaml
+    - include_tasks: ../tasks/artifacts.yaml
+    - include_tasks: ../tasks/podman.yaml
+    - include_tasks: ../tasks/jobs.yaml
+    - include_tasks: ../tasks/config.yaml
+    - include_tasks: ../tasks/image.yaml
+    - include_tasks: ../tasks/terragrunt.yaml
   roles:
     - name: geerlingguy.swap
       vars:
@@ -108,7 +108,7 @@
       become: true
     - name: nomad
   tasks:
-    - include: ../tasks/jobs-register.yaml
+    - include_tasks: ../tasks/jobs-register.yaml
       when: skip_nomad_start is not defined
 
 - hosts: localhost
