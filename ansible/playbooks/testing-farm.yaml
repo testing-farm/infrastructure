@@ -3,23 +3,23 @@
   vars_files:
     - ../secrets/credentials.yaml
   tasks:
-    - include: ../tasks/rh-certs.yaml
+    - include_tasks: ../tasks/rh-certs.yaml
 
 - hosts: testing_farm_public_workers:testing_farm_redhat_workers:testing_farm_dev_public_workers
   vars_files:
     - ../secrets/credentials.yaml
     - ../vars/common.yaml
   pre_tasks:
-    - include: ../tasks/dns.yaml
+    - include_tasks: ../tasks/dns.yaml
       tags: update_dns
-    - include: ../tasks/ssh-key.yaml
-    - include: ../tasks/artifacts.yaml
-    - include: ../tasks/podman.yaml
-    - include: ../tasks/jobs.yaml
+    - include_tasks: ../tasks/ssh-key.yaml
+    - include_tasks: ../tasks/artifacts.yaml
+    - include_tasks: ../tasks/podman.yaml
+    - include_tasks: ../tasks/jobs.yaml
       tags: update_jobs
-    - include: ../tasks/config.yaml
+    - include_tasks: ../tasks/config.yaml
       tags: update_config
-    - include: ../tasks/image.yaml
+    - include_tasks: ../tasks/image.yaml
       tags: update_image
   roles:
     - name: geerlingguy.swap
@@ -33,5 +33,5 @@
     - name: nomad
       tags: update_nomad
   tasks:
-    - include: ../tasks/jobs-register.yaml
+    - include_tasks: ../tasks/jobs-register.yaml
       tags: update_jobs
