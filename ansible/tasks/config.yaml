@@ -17,6 +17,15 @@
   with_fileglob:
     - "{{ worker_deployment_data }}/citool-config/config/*.j2"
 
+- name: Render config templates (root)
+  become: true
+  template:
+    src: "{{ item }}"
+    dest: "/etc/citool.d/{{ item | basename | regex_replace('.j2','') }}"
+    mode: 0644
+  with_fileglob:
+    - "{{ worker_deployment_data }}/citool-config/*.j2"
+
 - name: Copy Artemis Private Key
   become: true
   copy:
