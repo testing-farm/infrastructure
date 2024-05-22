@@ -1,0 +1,8 @@
+[default]
+artifacts-host = {{ artifacts_user }}@{{ artifacts_hostname }}
+artifacts-root = /var/artifacts
+source-destination-map = ${config_root}/source-destination-map.yaml
+rsync-mode = ssh
+rsync-options = --links,--times,--verbose,--compress
+enable-parallel-archiving = yes
+rsync-timeout = 600
