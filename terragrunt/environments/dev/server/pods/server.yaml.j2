@@ -13,10 +13,12 @@ spec:
         - name: config-volume
           mountPath: /api
     - name: ranch-public
-      image: quay.io/testing-farm/ranch-public:latest
+      image: quay.io/testing-farm/ranch-public:162ab506
       volumeMounts:
-        - name: ranch-public-volume
+        - name: ranch-public-api-volume
           mountPath: /api
+        - name: ranch-public-dispatcher-volume
+          mountPath: /dispatcher
     - name: waitdb
       image: quay.io/testing-farm/api:latest
       args:
@@ -24,7 +26,7 @@ spec:
       volumeMounts:
         - name: config-volume
           mountPath: /etc/testing-farm/api
-        - name: ranch-public-volume
+        - name: ranch-public-api-volume
           mountPath: /etc/testing-farm/ranch-public/api
     - name: createdb
       image: docker.io/cockroachdb/cockroach:v23.2.4
@@ -40,7 +42,7 @@ spec:
       volumeMounts:
         - name: config-volume
           mountPath: /etc/testing-farm/api
-        - name: ranch-public-volume
+        - name: ranch-public-api-volume
           mountPath: /etc/testing-farm/ranch-public/api
       env:
         - name: TF_API_PORT
@@ -82,7 +84,7 @@ spec:
       volumeMounts:
         - name: config-volume
           mountPath: /etc/testing-farm/api
-        - name: ranch-public-volume
+        - name: ranch-public-api-volume
           mountPath: /etc/testing-farm/ranch-public/api
     - name: api-internal
       image: quay.io/testing-farm/api:latest
@@ -97,7 +99,7 @@ spec:
       volumeMounts:
         - name: config-volume
           mountPath: /etc/testing-farm/api
-        - name: ranch-public-volume
+        - name: ranch-public-api-volume
           mountPath: /etc/testing-farm/ranch-public/api
     - name: dispatcher
       image: quay.io/testing-farm/dispatcher:latest
@@ -110,8 +112,13 @@ spec:
           value: "{{ credentials.testing_farm.dev.public.users.dispatcher.token }}"
         - name: NOMAD_ADDR
           value: "http://nomad.dev-{{ ansible_env.USER }}.testing-farm.io:4646"
+      volumeMounts:
+        - name: ranch-public-dispatcher-volume
+          mountPath: /etc/testing-farm/dispatcher
   volumes:
     - name: config-volume
       emptyDir: {}
-    - name: ranch-public-volume
+    - name: ranch-public-api-volume
+      emptyDir: {}
+    - name: ranch-public-dispatcher-volume
       emptyDir: {}
