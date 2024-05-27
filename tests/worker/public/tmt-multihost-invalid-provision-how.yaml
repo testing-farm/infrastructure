@@ -27,7 +27,7 @@ checks:
        <properties>
         <property name="baseosci.overall-result" value="error"/>
        </properties>
-       <testsuite name="{{ PLAN }}" result="error" tests="0">
+       <testsuite name="{{ PLAN }}" result="error" tests="0" stage="complete">
         <logs>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}{{ PLAN }}/data" name="data"/>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}/tmt-run.log" name="tmt-log"/>
