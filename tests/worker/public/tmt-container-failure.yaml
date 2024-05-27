@@ -27,7 +27,7 @@ checks:
        <properties>
         <property name="baseosci.overall-result" value="failed"/>
        </properties>
-       <testsuite name="{{ PLAN }}" result="failed" tests="1">
+       <testsuite name="{{ PLAN }}" result="failed" tests="1" stage="complete">
         <logs>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/data" name="data"/>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}/tmt-run.log" name="tmt-log"/>
