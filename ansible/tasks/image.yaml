@@ -19,6 +19,10 @@
 
     - name: Pull the required image
       command: "podman pull {{ citool_container_image }}"
+      register: result
+      until: result.rc == 0
+      retries: "{{ retries }}"
+      delay: "{{ retries_delay }}"
 
     - name: Tag the required image to `citool:latest`
       command: "podman tag {{ citool_container_image }} citool:latest"

@@ -18,6 +18,9 @@ locals {
 
   # List of IP ranges of the Testing Farm workers.
   workers_ip_ranges = length(data.aws_instances.workers.ids) > 0 ? [for public_ip in data.aws_instances.workers.public_ips : "${public_ip}/32"] : []
+
+  # List of instance IDs
+  workers_instance_ids = length(data.aws_instances.workers.ids) > 0 ? [for id in data.aws_instances.workers.ids : id] : []
 }
 
 # Testing Farm workers, used to provide IPs which have access to Artemis API endpoint

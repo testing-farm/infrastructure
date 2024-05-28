@@ -223,7 +223,7 @@ export TESTING_FARM_DEV_TOKEN_PUBLIC_DEVELOPER=$(echo "$VAULT_VIEW" | yq -r .cre
 export TESTING_FARM_DEV_TOKEN_PUBLIC_ADMIN=$(echo "$VAULT_VIEW" | yq -r .credentials.testing_farm.dev.public.users.admin.token)
 export TESTING_FARM_DEV_TOKEN_PUBLIC_WORKER=$(echo "$VAULT_VIEW" | yq -r .credentials.testing_farm.dev.public.users.worker.token)
 export TESTING_FARM_DEV_TOKEN_PUBLIC_DISPATCHER=$(echo "$VAULT_VIEW" | yq -r .credentials.testing_farm.dev.public.users.dispatcher.token)
-export TESTING_FARM_DEV_API_URL_PUBLIC="http://api.dev-$(whoami).testing-farm.io"
+export TESTING_FARM_DEV_API_URL_PUBLIC="http://api.dev-${USER}.testing-farm.io"
 
 for deployment in DEV; do
     for user in DEVELOPER ADMIN WORKER DISPATCHER; do

@@ -1,3 +1,7 @@
 ---
 root_dir: "{{ ansible_config_file | dirname }}"
 ansible_dir: "{{ root_dir }}/ansible"
+
+# default retries used across various tasks, 300 seconds = 5 minutes
+retries: 10
+retries_delay: 30
