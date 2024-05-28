@@ -56,6 +56,15 @@ workflow:
         - Makefile*
         - setup/*
 
+  ansible:
+    - changes:
+        - ansible/files/**/*
+        - ansible/inventory/**/*
+        - ansible/requirements.yaml
+        - ansible/roles/**/*
+        - ansible/tasks/**/*
+        - ansible/vars/**/*
+
   terragrunt_modules_infra:
     - changes:
         - terragrunt/modules/gitlab/**/*
@@ -197,6 +206,7 @@ test/dev:
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
+    - !reference [.rules, ansible]
     - !reference [.rules, terragrunt_dev]
 
 test/staging/pipeline:
