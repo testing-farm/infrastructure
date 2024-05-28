@@ -25,6 +25,8 @@
     mode: 0644
   with_fileglob:
     - "{{ worker_deployment_data }}/citool-config/*.j2"
+  # TODO: this needs revisit once we unify staging and development config
+  when: deployment is regex('production')
 
 - name: Copy Artemis Private Key
   become: true
