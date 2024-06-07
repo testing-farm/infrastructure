@@ -15,6 +15,7 @@ provider "gitlab" {
 
 resource "gitlab_project" "project" {
   name = var.project_name
+  description = var.description
   visibility_level = "public"
   namespace_id = 5515434
   default_branch = "main"
