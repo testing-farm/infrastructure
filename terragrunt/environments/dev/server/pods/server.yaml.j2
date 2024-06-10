@@ -60,7 +60,7 @@ spec:
         - >
 {% set users = credentials.testing_farm.dev.public.users %}
 {% for user in users.keys() %}
-          tft-add-user {{ users[user].name }} {{ users[user].token }} {{ users[user].ranch }} {{ users[user].role }};
+          tft-add-token {{ users[user].name }} {{ users[user].token }} {{ users[user].ranch }} {{ users[user].role }};
 {% endfor %}
       env:
         - name: TF_API_PORT
