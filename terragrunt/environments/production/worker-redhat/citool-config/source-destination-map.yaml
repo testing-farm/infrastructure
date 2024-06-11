@@ -36,7 +36,8 @@ destroy:
   # TFT-2413 - critical files to be present for our users
   - source: "./*"
     permissions: "777"
-    verify: "true"
+    # disabling verification of archived directories as a workaround for TFT-2661
+    # verify: "true"
 
   - source: "pipeline.log"
     destination: pipeline.log
