@@ -62,12 +62,12 @@ citool-container.sh rules-engine \
                     hide-secrets \
                     testing-farm-request --request-id $REQUEST_ID \
                     coldstore \
+                    testing-farm-request-state-reporter \
                     archive \
                     ansible \
                     static-guest --guest=localhost \
                     guest-setup-no-playbooks:guest-setup \
                     git \
-                    testing-farm-request-state-reporter \
                     test-schedule-tmt \
                     test-scheduler-testing-farm \
                     test-schedule-report \
