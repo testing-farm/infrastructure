@@ -85,5 +85,6 @@ worker_resource_tags:
   ServiceName: TestingFarm
   ServiceComponent: Worker
   ServicePhase: Dev
+  Developer: "{ lookup('env', 'USER') }}"
 
 worker_group_name: testing_farm_public_dev_workers

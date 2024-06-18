@@ -26,6 +26,7 @@ locals {
     "ServiceName"      = "TestingFarm"
     "ServiceComponent" = "Worker"
     "ServicePhase"     = "Dev"
+    "Developer"        = get_env("USER", "unknown")
   }
 }
 
