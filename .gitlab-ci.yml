@@ -201,13 +201,15 @@ test/dev:
       make dev/init &&
       make dev/apply &&
       make dev/create/public/worker &&
-      testing-farm-dev-public-developer request --git-url https://gitlab.com/testing-farm/tests --plan /testing-farm/sanity
+      testing-farm-dev-public-developer request --git-url https://gitlab.com/testing-farm/tests --plan /testing-farm/sanity;
+      sleep 7200
     AFTER_SCRIPT: make dev/destroy > /dev/null
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, ansible]
     - !reference [.rules, terragrunt_dev]
+  timeout: 2h
 
 test/staging/pipeline:
   extends: [.direnv, .archive_tests]
