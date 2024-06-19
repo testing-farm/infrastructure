@@ -20,6 +20,39 @@ guest_tags:
   ServicePhase: "Dev"
 
 pools:
+  - name: azure
+    driver: azure
+
+    guest_tags: {'ProvisionedBy': 'azure-LEAPPArtemisAzureDriver'}
+
+    parameters:
+
+      login: "service-principal"
+      tenant: "${azure_tenant}"
+      username: "${azure_username}"
+      password: "${azure_password}"
+
+      default-location: "eastus"
+      default-flavor: "Standard_B2ms"
+      default-resource-group: "artemis-internals"
+      post-install-script: "./configuration/userdata_allow_root"
+
+      capabilities:
+        supports-spot-instances: false
+        supported-architectures:
+          - x86_64
+        supported-guest-logs:
+          - console:dump/blob
+
+      boot-log-storage: artemisautocreated
+
+      resources: {}
+      image-filters:
+        - publisher: RedHat
+          name-regex: "(.*RHEL:7_9.*)|(.*RHEL:8_.*)|(.*RHEL:9_.*)"
+
+      use-only-when-addressed: true
+
   - name: fedora-aws-x86_64
     driver: aws
     parameters:
