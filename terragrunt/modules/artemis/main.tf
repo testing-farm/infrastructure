@@ -138,6 +138,21 @@ data "ansiblevault_path" "vault_ssh_key" {
   key      = var.ssh_keys[count.index].key
 }
 
+data "ansiblevault_path" "pool_tenant_azure" {
+  path = var.ansible_vault_credentials
+  key  = "credentials.azure.profiles.oamg_us_east.tenant"
+}
+
+data "ansiblevault_path" "pool_username_azure" {
+  path = var.ansible_vault_credentials
+  key  = "credentials.azure.profiles.oamg_us_east.username"
+}
+
+data "ansiblevault_path" "pool_password_azure" {
+  path = var.ansible_vault_credentials
+  key  = "credentials.azure.profiles.oamg_us_east.password"
+}
+
 resource "helm_release" "artemis" {
   name       = var.release_name
   repository = "https://testing-farm.gitlab.io/artemis-helm/dev"
@@ -172,6 +187,9 @@ resource "helm_release" "artemis" {
               )
             ]
             aws_security_group_id = aws_security_group.allow_guest_traffic.id
+            azure_tenant          = sensitive(data.ansiblevault_path.pool_tenant_azure.value)
+            azure_username        = sensitive(data.ansiblevault_path.pool_username_azure.value)
+            azure_password        = sensitive(data.ansiblevault_path.pool_password_azure.value)
           }
         )
 

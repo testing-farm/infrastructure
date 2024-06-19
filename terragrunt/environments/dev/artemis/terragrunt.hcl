@@ -65,7 +65,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "v0.0.70.2"
+  image_tag    = "main"
 
   # Enable access from localhost
   additional_lb_source_ips = [dependency.localhost.outputs.localhost_public_ip]
@@ -91,7 +91,14 @@ inputs = {
     source = "artemis-image-map-aws.yaml.tftpl"
     target = "artemis-image-map-aws.yaml"
     vars   = ["${get_original_terragrunt_dir()}/config/variables_images.yaml"]
-  }]
+    },
+    {
+      source = "artemis-image-map-azure.yaml.tftpl"
+      target = "artemis-image-map-azure.yaml"
+      # XXX FIXME Later use azure-specific images!
+      vars = ["${get_original_terragrunt_dir()}/config/variables_images.yaml"]
+    }
+  ]
 
   ssh_keys = [{
     name  = "master-key"
@@ -104,6 +111,14 @@ inputs = {
   api_threads   = 1
 
   worker_extra_env = [
+    {
+      name  = "ARTEMIS_AZURE_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_azure",
+      value = "/configuration/artemis-image-map-azure.yaml"
+    },
+    {
+      name  = "ARTEMIS_AZURE_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE",
+      value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
+    },
     {
       name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_x86_64",
       value = "/configuration/artemis-image-map-aws.yaml"
