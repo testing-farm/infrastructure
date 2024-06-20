@@ -11,8 +11,8 @@
 
   when:
     - 'ansible_distribution == "CentOS"'
-    - 'ansible_distribution_major_version == "8"'
-    - 'IMAGE_NAME|lower|regex_search("(centos.stream.8|debezium)")'
+    - 'ansible_distribution_release == "Stream"'
+    - "ansible_distribution_major_version | int == 8"
     - '"auto-osbuild" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'
