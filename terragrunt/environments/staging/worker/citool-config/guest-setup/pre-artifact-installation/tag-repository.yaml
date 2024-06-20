@@ -58,8 +58,10 @@
       set_fact:
         tag_repository_name: "c8s-build"
         tag_repository_url: "https://kojihub.stream.centos.org/kojifiles/repos/c8s-build/latest/{{ ansible_architecture }}/"
-      when: IMAGE_NAME|lower|regex_search('centos.stream.8')
-
+      when:
+        - 'ansible_distribution == "CentOS"'
+        - 'ansible_distribution_release == "Stream"'
+        - "ansible_distribution_major_version | int == 8"
     #
     # Add tag repository for CentOS Stream 9
     #
@@ -67,7 +69,10 @@
       set_fact:
         tag_repository_name: "c9s-build"
         tag_repository_url: "https://kojihub.stream.centos.org/kojifiles/repos/c9s-build/latest/{{ ansible_architecture }}/"
-      when: IMAGE_NAME|lower|regex_search('centos.stream.9')
+      when:
+        - 'ansible_distribution == "CentOS"'
+        - 'ansible_distribution_release == "Stream"'
+        - "ansible_distribution_major_version | int == 9"
 
     #
     # Add tag repository for CentOS Stream 10
@@ -76,7 +81,10 @@
       set_fact:
         tag_repository_name: "c10s-build"
         tag_repository_url: "https://kojihub.stream.centos.org/kojifiles/repos/c10s-build/latest/{{ ansible_architecture }}/"
-      when: IMAGE_NAME|lower|regex_search('centos.stream.10')
+      when:
+        - 'ansible_distribution == "CentOS"'
+        - 'ansible_distribution_release == "Stream"'
+        - "ansible_distribution_major_version | int == 10"
 
     #
     # Check if tag repository exists.
@@ -112,7 +120,12 @@
   # block: end
   #
   when:
-    - ansible_distribution == "Fedora" or IMAGE_NAME|lower|regex_search('centos.stream')
+    - >
+      ansible_distribution == "Fedora"
+      or (
+        ansible_distribution == "CentOS"
+        and ansible_distribution_release == "Stream"
+      )
 
 #
 # Be verbose about the fact we skipped this play
@@ -121,4 +134,9 @@
     msg: |
       Skipping adding tag repository, because the distrubution is not Fedora or CentOS Stream.
 
-  when: ansible_distribution != "Fedora" and not IMAGE_NAME|lower|regex_search('centos.stream')
+  when:
+    - 'ansible_distribution != "Fedora"'
+    - 'not (
+        ansible_distribution == "CentOS"
+        and ansible_distribution_release == "Stream"
+      )'

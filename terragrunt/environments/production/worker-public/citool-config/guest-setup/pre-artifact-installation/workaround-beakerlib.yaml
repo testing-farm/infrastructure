@@ -10,7 +10,8 @@
 
   - name: Add beakerlib copr repository for CentOS Stream
     command: "dnf -y copr enable packit/beakerlib-beakerlib-master"
-    when: "not IMAGE_NAME|lower|regex_search('centos.stream.10')"
+    when:
+      - "ansible_distribution_major_version | int < 10"
 
   # workaround TFT-1284
   - name: Install beakerlib
@@ -19,7 +20,7 @@
     delay: "{{ pkg_retry_delay }}"
     until: result_package is succeeded
     register: result_package
-    when: "not IMAGE_NAME|lower|regex_search('centos.stream.10')"
+    when: "ansible_distribution_major_version | int < 10"
 
   # workaround: install beakerlib from cs9, it is not yet available
   - name: Install cs9 beakerlib on cs10
@@ -28,6 +29,8 @@
     delay: "{{ pkg_retry_delay }}"
     until: result_package is succeeded
     register: result_package
-    when: "IMAGE_NAME|lower|regex_search('centos.stream.10')"
+    when: "ansible_distribution_major_version | int >= 10"
 
-  when: "IMAGE_NAME|lower|regex_search('centos.stream')"
+  when:
+    - 'ansible_distribution == "CentOS"'
+    - 'ansible_distribution_release == "Stream"'
