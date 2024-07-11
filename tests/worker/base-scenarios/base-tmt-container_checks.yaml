@@ -97,4 +97,4 @@ checks:
     - "git-{{ GIT_REF }}[a-z0-9_]+"
     - "results\\.xml"
     - "results-junit\\.xml"
-    - "work-[a-z0-9_-]+/tmt-reproducer\\.sh"
+    - "work-[a-zA-Z0-9_-]+\\/tmt-reproducer\\.sh"

@@ -96,4 +96,4 @@ checks:
     - "citool-debug\\.txt"
     - "citool-debug\\.verbose\\.txt"
     - "results\\.xml"
-    - "work-[a-z0-9_-]+\\/tmt-reproducer\\.sh"
+    - "work-[a-zA-Z0-9_-]+\\/tmt-reproducer\\.sh"
