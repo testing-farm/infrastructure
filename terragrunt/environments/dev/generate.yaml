@@ -12,6 +12,16 @@
         src: "{{ server_ec2_dir }}/server.bu.j2"
         dest: "{{ server_ec2_dir }}/server.bu"
 
+    - name: Render UI frontend reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/dev-USER.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/dev-{{ ansible_env.USER }}.testing-farm.io.conf"
+
+    - name: Render UI backend reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/ui-backend.dev-USER.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/ui-backend.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
+
     - name: Render API reverse proxy config
       ansible.builtin.template:
         src: "{{ server_pods_dir }}/nginx/api.dev-USER.testing-farm.io.conf.j2"

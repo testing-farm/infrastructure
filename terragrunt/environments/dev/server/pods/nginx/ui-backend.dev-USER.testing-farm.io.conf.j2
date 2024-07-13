@@ -1,0 +1,11 @@
+server {
+    server_name  ui-backend.dev-{{ ansible_env.USER }}.testing-farm.io;
+    add_header Access-Control-Allow-Origin *;
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+    }
+    listen       80;
+}
