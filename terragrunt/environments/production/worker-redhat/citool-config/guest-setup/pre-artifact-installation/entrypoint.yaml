@@ -6,6 +6,7 @@
   # workarounds
   - include_tasks: workaround-beaker-client-repo-unavailable.yaml
   - include_tasks: workaround-disable-qa-tools.yaml
+  - include_tasks: workaround-centos-7.yaml
   - include_tasks: workaround-centos-8.yaml
   - include_tasks: workaround-centos-stream-8.yaml
   - include_tasks: workaround-automotive.yaml
