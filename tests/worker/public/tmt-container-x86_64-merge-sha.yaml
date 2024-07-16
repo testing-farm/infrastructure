@@ -27,7 +27,7 @@ checks:
        <properties>
         <property name="baseosci.overall-result" value="passed"/>
        </properties>
-       <testsuite name="{{ PLAN }}" result="passed" tests="1">
+       <testsuite name="{{ PLAN }}" result="passed" tests="1" stage="complete">
         <logs>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/data" name="data"/>
          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/tmt-run.log" name="tmt-log"/>
