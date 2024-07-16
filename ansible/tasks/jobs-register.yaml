@@ -6,12 +6,16 @@
         state: directory
         mode: "a+rwx"
 
-    - name: Copy nomad job definitions
-      copy:
-        dest: "nomad/{{ item }}.nomad"
-        src: "{{ worker_deployment_data }}/jobs/{{ item }}.nomad"
+    - name: Generate nomad jobs
+      become: true
+      template:
+        src: "{{ root_dir }}/ansible/templates/job-nomad.j2"
+        dest: "nomad/{{ job_name }}.nomad"
         mode: "a+rwx"
-      with_items: "{{ jobs }}"
+      loop: "{{ jobs_template_vars | dict2items }}"
+      vars:
+        job_vars: "{{ item.value }}"
+        job_name: "{{ item.key | replace('_', '-') }}"
 
     - name: Register nomad jobs
       command: "nomad run nomad/{{ item }}.nomad"

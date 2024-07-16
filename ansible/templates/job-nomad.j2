@@ -1,4 +1,4 @@
-job "tf-tmt-multihost" {
+job "{{ job_name }}" {
   type        = "batch"
   datacenters = ["dc1"]
 
@@ -6,7 +6,7 @@ job "tf-tmt-multihost" {
       meta_required = ["REQUEST_ID"]
   }
 
-  group "tmt" {
+  group "{{ job_vars.group }}" {
 
     # Restart up to 2 times
     restart {
@@ -18,20 +18,20 @@ job "tf-tmt-multihost" {
     }
 
     ephemeral_disk {
-      size = "5000"
+      size = "{{ job_vars.ephemeral_disk_size }}"
     }
 
-    task "tmt" {
+    task "{{ job_vars.group }}" {
       driver = "raw_exec"
 
       resources {
-        cpu    = 500
-        memory = 3072
+        cpu    = {{ job_vars.cpu }}
+        memory = {{ job_vars.memory }}
       }
 
       config {
-        command = "tf-tmt-multihost"
-        args = ["${NOMAD_META_REQUEST_ID}", "${NOMAD_ALLOC_DIR}"]
+        command = "{{ job_name }}"
+        args = {{ nomad_job_args }}
       }
     }
   }
