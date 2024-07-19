@@ -44,7 +44,7 @@ endef
 ##@ Infrastructure | Infra (Gitlab, etc.)
 
 define run_terragrunt
-	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1 terragrunt run-all $2 --terragrunt-non-interactive -lock-timeout $(DEFAULT_LOCK_TIMEOUT)
+	TERRAGRUNT_WORKING_DIR=terragrunt/environments/$1 terragrunt run-all $2 -lock-timeout $(DEFAULT_LOCK_TIMEOUT)
 endef
 
 infra/init: .FORCE  ## Initialize | infra
