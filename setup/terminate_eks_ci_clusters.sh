@@ -19,15 +19,19 @@ fi
 
 # Terminate node groups
 for cluster in $clusters; do
-  echo "[+] Processing cluster '$cluster'"
-  for nodegroup in $($aws_eks list-nodegroups --cluster-name $cluster | jq -r .nodegroups[]); do
-      echo "[+] Deleting nodegroup '$nodegroup'"
-      $aws_eks delete-nodegroup --cluster-name $cluster --nodegroup-name $nodegroup
-      echo "[+] Waiting for nodegroup '$nodegroup' deletion"
-      $aws_eks wait nodegroup-deleted --cluster-name $cluster --nodegroup-name $nodegroup
-  done
-  echo "[+] Deleting cluster $cluster"
-  $aws_eks delete-cluster --name $cluster
-  echo "[+] Waiting for cluster $cluster deletion"
-  $aws_eks wait cluster-deleted --name $cluster
+  (
+      echo "[+] Processing cluster '$cluster'"
+      for nodegroup in $($aws_eks list-nodegroups --cluster-name $cluster | jq -r .nodegroups[]); do
+          echo "[+] Deleting nodegroup '$nodegroup'"
+          $aws_eks delete-nodegroup --cluster-name $cluster --nodegroup-name $nodegroup
+          echo "[+] Waiting for nodegroup '$nodegroup' deletion"
+          $aws_eks wait nodegroup-deleted --cluster-name $cluster --nodegroup-name $nodegroup
+      done
+      echo "[+] Deleting cluster $cluster"
+      $aws_eks delete-cluster --name $cluster
+      echo "[+] Waiting for cluster $cluster deletion"
+      $aws_eks wait cluster-deleted --name $cluster
+  ) &
 done
+
+wait
