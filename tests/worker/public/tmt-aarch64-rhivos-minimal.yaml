@@ -1,0 +1,19 @@
+---
+
+extends:
+  - base-tmt_pipeline
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+  - rhivos
+
+variables:
+  REQUEST_ID: 51736194-d752-4267-ba69-bfc1f92477a9
+  COMPOSE: auto-osbuild-qemu-autosd9-minimal-ostree-aarch64-1358288888.6ace1ca7
+  ARCH: aarch64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/redhat/edge/tests/base-image.git
+  GIT_REF: main
+  PLAN: /smoke/plans/MinimalOstree

@@ -42,7 +42,8 @@ markers = [
     "hardware",
     "pipeline",
     "public",
-    "redhat"
+    "redhat",
+    "rhivos"
 ]
 
 [build-system]
