@@ -76,6 +76,6 @@ composes:
     compose: CentOS-Stream-10
 
     x86_64:
-      image: CentOS Stream 10 x86_64 20240419
+      image: CentOS Stream 10 x86_64 20240709
     aarch64:
-      image: CentOS Stream 10 aarch64 20240419
+      image: CentOS Stream 10 aarch64 20240709
