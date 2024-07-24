@@ -27,6 +27,14 @@ locals {
     "ServiceComponent" = "Worker"
     "ServicePhase"     = "Prod"
   }
+  # Testing Farm github runner tags used to identify github runners for this environment
+  github_runner_tags = {
+    "FedoraGroup"      = "ci"
+    "ServiceOwner"     = "TFT"
+    "ServiceName"      = "GitHub"
+    "ServiceComponent" = "Runner"
+    "ServicePhase"     = "Prod"
+  }
 }
 
 # shared inputs
@@ -36,6 +44,7 @@ inputs = {
   route53_zone       = "testing-farm.io"
   resource_tags      = local.aws_tags
   worker_tags        = local.worker_tags
+  github_runner_tags = local.github_runner_tags
   cluster_name       = "testing-farm-production"
 }
 

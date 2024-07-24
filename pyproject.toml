@@ -30,6 +30,7 @@ yamllint = "^1.29.0"
 
 [tool.poetry.scripts]
 terraform-cloud = "setup.terraform_cloud:main"
+github = "setup.github:main"
 
 [tool.poetry.dev-dependencies]
 yamllint = "^1.28.0"
