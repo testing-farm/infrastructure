@@ -20,11 +20,10 @@ pipeline: |
 
 checks:
   literal-strings:
-    - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.staging.testing-farm.io'"
+    - "[testing-farm-request] Connected to Testing Farm Service 'http://internal.api.staging.testing-farm.io'"
     - "[testing-farm-request] Initialized with 9e6fa113-a25a-43e1-bb27-671780f152d0:"
     - "[static-guest] added guest 'localhost' with architecture "
     - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
-    - "[coldstore] For the pipeline artifacts, see https://artifacts.osci.redhat.com/testing-farm/9e6fa113-a25a-43e1-bb27-671780f152d0"
     - "[testing-farm-request-state-reporter] pipeline complete"
     - "[test-schedule-tmt] cloning repo https://gitlab.com/testing-farm/tests (branch not specified, ref main)"
     - "[test-schedule-report] Result of testing: PASSED"
@@ -34,6 +33,7 @@ checks:
     - "[test-schedule-report] results saved into results.xml"
 
   literal-patterns:
+    - "[coldstore] For the pipeline artifacts, see {{ artifacts_url_pattern }}/testing-farm/9e6fa113-a25a-43e1-bb27-671780f152d0"
     - table:
         -
           - "None:x86_64:/testing-farm/sanity"

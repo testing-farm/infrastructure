@@ -1,0 +1,148 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: server
+  name: server
+spec:
+  initContainers:
+    - name: config
+      image: quay.io/testing-farm/config:latest
+      volumeMounts:
+        - name: config-volume
+          mountPath: /api
+    - name: ranch-public
+      image: quay.io/testing-farm/ranch-public:latest
+      volumeMounts:
+        - name: ranch-public-api-volume
+          mountPath: /api
+        - name: ranch-public-dispatcher-volume
+          mountPath: /dispatcher
+
+    - name: waitdb
+      image: quay.io/testing-farm/api:latest
+      args:
+        - waitdb
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/testing-farm/api
+        - name: ranch-public-api-volume
+          mountPath: /etc/testing-farm/ranch-public/api
+
+    - name: restoredb
+      image: quay.io/testing-farm/api:latest
+      args:
+        - restoredb
+        - {{ backup_url }}
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/testing-farm/api
+        - name: ranch-public-api-volume
+          mountPath: /etc/testing-farm/ranch-public/api
+      env:
+        - name: TF_API_PORT
+          value: "8001"
+        - name: TF_API_DATABASE_HOST
+          value: cockroach
+        - name: TF_API_DATABASE_PORT
+          value: "26257"
+        - name: TF_API_DATABASE_USER
+          value: root
+
+    - name: users
+      image: quay.io/testing-farm/api:latest
+      command:
+        - sh
+      args:
+        - -c
+        - >
+{% set users = credentials.testing_farm.staging.public.users %}
+{% for user in users.keys() %}
+          tft-add-token {{ users[user].name }} {{ users[user].token }} {{ users[user].ranch }} {{ users[user].role }};
+{% endfor %}
+      env:
+        - name: TF_API_PORT
+          value: "8001"
+        - name: TF_API_DATABASE_HOST
+          value: cockroach
+        - name: TF_API_DATABASE_PORT
+          value: "26257"
+        - name: TF_API_DATABASE_USER
+          value: root
+
+  containers:
+    - name: api-public
+      image: quay.io/testing-farm/api:latest
+      args:
+        - public
+      ports:
+        - containerPort: 8001
+          hostPort: 8001
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/testing-farm/api
+        - name: ranch-public-api-volume
+          mountPath: /etc/testing-farm/ranch-public/api
+      env:
+        - name: TF_API_JWT_SECRET
+          value: "{{ credentials.testing_farm.staging.public.jwt_secret }}"
+        - name: TF_API_GITHUB_CLIENT_ID
+          value: "{{ credentials.github.staging.oauth.client_name }}"
+        - name: TF_API_GITHUB_CLIENT_SECRET
+          value: "{{ credentials.github.staging.oauth.client_secret }}"
+        - name: TF_API_FEDORA_CLIENT_ID
+          value: "{{ credentials.fedora.staging.oauth.client_name }}"
+        - name: TF_API_FEDORA_CLIENT_SECRET
+          value: "{{ credentials.fedora.staging.oauth.client_secret }}"
+    - name: api-internal
+      image: quay.io/testing-farm/api:latest
+      args:
+        - internal
+      env:
+        - name: TF_API_PORT
+          value: "8002"
+      ports:
+        - containerPort: 8002
+          hostPort: 8002
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/testing-farm/api
+        - name: ranch-public-api-volume
+          mountPath: /etc/testing-farm/ranch-public/api
+
+    - name: dispatcher
+      image: quay.io/testing-farm/dispatcher:latest
+      env:
+        - name: TF_DISPATCHER_PUBLIC_URL
+          value: "http://api-public:8001"
+        - name: TF_DISPATCHER_INTERNAL_URL
+          value: "http://api-internal:8002"
+        - name: TF_DISPATCHER_API_KEY
+          value: "{{ credentials.testing_farm.staging.public.users.dispatcher.token }}"
+        - name: NOMAD_ADDR
+          value: "http://nomad.staging.testing-farm.io:4646"
+      volumeMounts:
+        - name: ranch-public-dispatcher-volume
+          mountPath: /etc/testing-farm/dispatcher
+
+    - name: ui
+      image: quay.io/testing-farm/ui:latest
+      env:
+        - name: TF_UI_TESTING_FARM_PUBLIC_API
+          value: "http://api.staging.testing-farm.io"
+        - name: API_URL  # URL of Reflex Backend server
+          value: "http://ui-backend.staging.testing-farm.io"
+      ports:
+        - containerPort: 3000
+          hostPort: 3000
+        - containerPort: 8000
+          hostPort: 8000
+
+  volumes:
+    - name: config-volume
+      emptyDir: {}
+    - name: ranch-public-api-volume
+      emptyDir: {}
+    - name: ranch-public-dispatcher-volume
+      emptyDir: {}

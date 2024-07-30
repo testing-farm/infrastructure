@@ -1,0 +1,34 @@
+#
+# Various workarounds for Automotive
+#
+# * fix yum repositories, seems $stream is not expanded correctly
+# * install rsync, because tmt requires it ...
+#
+
+- block:
+    - name: Fix unexpanded $stream in yum repositories
+      shell: "sed -i 's/$stream/9-stream/' /etc/yum.repos.d/*"
+
+    - name: "Check if 'rsync' package is already present"
+      command: rpm -q rsync
+      register: rsync_package_check
+      changed_when: false
+      ignore_errors: true
+
+    - name: Install rsync via rpm-ostree
+      command: "rpm-ostree install rsync"
+      when: rsync_package_check is failed
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
+
+    - name: Restart
+      reboot:
+
+    - name: Wait for connection for 5 minutes
+      wait_for_connection:
+        delay: 5
+        timeout: 300
+
+  when: '"auto-osbuild" in IMAGE_NAME|lower'
