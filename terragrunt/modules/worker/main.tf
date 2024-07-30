@@ -25,8 +25,6 @@ locals {
 
 # Testing Farm workers, used to provide IPs which have access to Artemis API endpoint
 data "aws_instances" "workers" {
-  provider = aws.workers
-
   dynamic "filter" {
     for_each = local.workers_tags_list
 

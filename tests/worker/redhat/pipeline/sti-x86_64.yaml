@@ -25,11 +25,10 @@ pipeline: |
 
 checks:
   literal-strings:
-    - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.staging.testing-farm.io'"
+    - "[testing-farm-request] Connected to Testing Farm Service 'http://internal.api.staging.testing-farm.io'"
     - "[testing-farm-request] Initialized with f8b712c2-1baa-43b9-a5ab-b1668a31981e"
     - "[artemis] Using Artemis API"
     - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
-    - "[coldstore] For the pipeline artifacts, see https://artifacts.osci.redhat.com/testing-farm/f8b712c2-1baa-43b9-a5ab-b1668a31981e"
     - "[testing-farm-request-state-reporter] pipeline complete"
     - "[test-scheduler-sti] cloning repo"
     - "[test-schedule-runner] running test schedule of 1 entries:"
@@ -38,6 +37,7 @@ checks:
     - "[test-schedule-report] Result of testing: PASSED"
 
   literal-patterns:
+    - "[coldstore] For the pipeline artifacts, see {{ artifacts_url_pattern }}/testing-farm/f8b712c2-1baa-43b9-a5ab-b1668a31981e"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest is being provisioned"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest is ready"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest has become alive"

@@ -1,0 +1,13 @@
+[Unit]
+Description=Testing Farm Server Pod
+
+[Kube]
+Yaml=/etc/testing-farm/pods/server.yaml
+
+[Service]
+# With restoredb this can take a long time
+TimeoutStartSec=7200
+
+[Install]
+# Start by default on boot
+WantedBy=multi-user.target default.target

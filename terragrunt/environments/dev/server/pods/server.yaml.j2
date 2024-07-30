@@ -19,6 +19,7 @@ spec:
           mountPath: /api
         - name: ranch-public-dispatcher-volume
           mountPath: /dispatcher
+
     - name: waitdb
       image: quay.io/testing-farm/api:latest
       args:
@@ -35,6 +36,7 @@ spec:
       args:
         - -c
         - cockroach sql --insecure --url postgresql://root@cockroach:26257 -e "CREATE DATABASE nucleus" || true
+
     - name: initdb
       image: quay.io/testing-farm/api:latest
       args:
@@ -53,6 +55,7 @@ spec:
           value: "26257"
         - name: TF_API_DATABASE_USER
           value: root
+
     - name: users
       image: quay.io/testing-farm/api:latest
       command:
@@ -73,6 +76,7 @@ spec:
           value: "26257"
         - name: TF_API_DATABASE_USER
           value: root
+
   containers:
     - name: api-public
       image: quay.io/testing-farm/api:latest
@@ -112,6 +116,7 @@ spec:
           mountPath: /etc/testing-farm/api
         - name: ranch-public-api-volume
           mountPath: /etc/testing-farm/ranch-public/api
+
     - name: dispatcher
       image: quay.io/testing-farm/dispatcher:latest
       env:
@@ -126,6 +131,7 @@ spec:
       volumeMounts:
         - name: ranch-public-dispatcher-volume
           mountPath: /etc/testing-farm/dispatcher
+
     - name: ui
       image: quay.io/testing-farm/ui:latest
       env:
@@ -138,6 +144,7 @@ spec:
           hostPort: 3000
         - containerPort: 8000
           hostPort: 8000
+
   volumes:
     - name: config-volume
       emptyDir: {}

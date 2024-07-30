@@ -15,9 +15,8 @@ variables:
 
 checks:
   literal-strings:
-    - "[testing-farm-request] Connected to Testing Farm Service 'https://internal.api.staging.testing-farm.io'"
+    - "[testing-farm-request] Connected to Testing Farm Service 'http://internal.api.staging.testing-farm.io'"
     - "[git] <RemoteGitRepository(clone_url={{ GIT_CLONE_URL }}, branch=not specified, ref={{ GIT_REF }})>"
-    - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}"
     - "[testing-farm-request-state-reporter] pipeline complete"
     - "[test-schedule-tmt-connect] cloning repo {{ GIT_CLONE_URL }} (branch not specified, ref {{ GIT_REF }})"
     - "[test-schedule-tmt-connect] tmt exited with code {{ TMT_EXIT_CODE }}"
@@ -31,7 +30,7 @@ checks:
     - "[test-schedule-report] results saved into results-junit.xml"
 
   literal-patterns:
-    - "[coldstore] For the pipeline artifacts, see https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}"
+    - "[coldstore] For the pipeline artifacts, see {{ artifacts_url_pattern }}/{{ REQUEST_ID }}"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest is being provisioned"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest is ready"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest has become alive"

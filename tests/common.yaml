@@ -5,4 +5,7 @@
 #
 
 artemis_guestname_pattern: "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
+artifacts_url_pattern: "https?:\\/\\/artifacts\\..+\\.testing-farm\\.io"
+console_log_pattern: "console-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\\.log"
 hostname_ip_address_pattern: "(?:[a-zA-Z0-9\\.\\-_]+?|\\d+\\.\\d+\\.\\d+\\.\\d+)"
+workdir_pattern: "work-.+"
