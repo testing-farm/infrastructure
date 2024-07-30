@@ -1,0 +1,21 @@
+server {
+    server_name  artifacts.staging.testing-farm.io;
+    add_header Access-Control-Allow-Origin *;
+
+    root /var/artifacts;
+    disable_symlinks off;
+
+    location ~ "^.*\.txt\.gz$" {
+        root /archive;
+        types { } default_type "text/plain gz";
+        add_header  Content-Encoding  gzip;
+        gzip off;
+        rewrite "^(.*)$" $1 break;
+    }
+
+    location ~ "^/.*/" {
+        autoindex on;
+    }
+
+    listen 80;
+}

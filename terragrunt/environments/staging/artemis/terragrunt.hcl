@@ -21,17 +21,8 @@ terraform {
   source = "../../../modules//artemis"
 }
 
-dependency "localhost" {
-  config_path = "../localhost"
-
-  # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
-  mock_outputs = {
-    localhost_public_ip = "127.0.0.1"
-  }
-}
-
 dependency "worker" {
-  config_path = "../worker"
+  config_path = "../worker-public"
 
   # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
   mock_outputs = {
@@ -66,9 +57,6 @@ inputs = {
   release_name = "artemis"
   namespace    = local.namespace
   image_tag    = "v0.0.70.2"
-
-  # Enable access from localhost
-  additional_lb_source_ips = [dependency.localhost.outputs.localhost_public_ip]
 
   # Enable access from workers
   workers_ip_ranges = dependency.worker.outputs.workers_ip_ranges

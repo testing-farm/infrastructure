@@ -1,0 +1,79 @@
+# Include terragrunt.hcl from the parent folder
+include "root" {
+  path = find_in_parent_folders()
+}
+
+# Read parent configuration
+locals {
+  common = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
+  # get_working_dir is empty during plan, make sure we read the generated ignition file only during apply
+  butane_file = "${get_terragrunt_dir()}/server.ign"
+  user_data   = fileexists(local.butane_file) ? base64encode(file(local.butane_file)) : base64encode("error: butane file not generated")
+}
+
+terraform {
+  source = "tfr:///terraform-aws-modules/ec2-instance/aws//?version=5.6.1"
+}
+
+dependency "security-group" {
+  config_path = "../security-group"
+
+  # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
+  mock_outputs = {
+    security_group_id = "mock-security-group-id"
+  }
+
+  mock_outputs_merge_strategy_with_state = "shallow"
+}
+
+inputs = {
+  # fedora-coreos-39.20240407.2.0-x86_64
+  ami = "ami-0c16645ea75d9e9b8"
+
+  instance_type               = "m7a.medium"
+  key_name                    = "testing-farm"
+  subnet_id                   = "subnet-4f971734"
+  associate_public_ip_address = true
+  enable_volume_tags          = false
+
+  user_data = local.user_data
+
+  vpc_security_group_ids = [dependency.security-group.outputs.security_group_id]
+
+  # make sure the instance is replaced on user data change
+  user_data_replace_on_change = true
+
+  root_block_device = [{
+    encrypted = true
+  }]
+
+  metadata_options = {
+    http_tokens = "required"
+  }
+
+  # Testing Farm worker tags used to identify servers for this environment
+  tags = {
+    "FedoraGroup"      = "ci"
+    "ServiceOwner"     = "TFT"
+    "ServiceName"      = "TestingFarm"
+    "ServiceComponent" = "Server"
+    "ServicePhase"     = "Stage"
+    "Name"             = "testing_farm_stage_server"
+  }
+
+  # Add ebs block device
+  ebs_block_device = [{
+    device_name           = "/dev/xvdf"
+    volume_type           = "gp3"
+    volume_size           = local.common.inputs.data_volume_size
+    delete_on_termination = true
+    tags = {
+      Name             = "testing_farm_stage_server_data"
+      ServiceOwner     = "TFT"
+      ServiceComponent = "Server"
+      ServicePhase     = "Stage"
+      FedoraGroup      = "ci"
+      ServiceName      = "TestingFarm"
+    }
+  }]
+}
