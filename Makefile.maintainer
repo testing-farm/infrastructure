@@ -244,6 +244,17 @@ update/redhat/pipeline/jobs: .FORCE  ## Update pipeline jobs on Red Hat ranch
 	$(call run_pipeline_update,⛴️,updating Red Hat ranch pipeline jobs,testing_farm_redhat_workers,update_jobs,production)
 
 
+##@ Infrastructure | GitHub
+
+github/init: .FORCE  ## Initialize | github
+	$(call run_terragrunt,github,init)
+
+github/plan: .FORCE  ## Validate | github
+	$(call run_terragrunt,github,plan)
+
+github/apply: .FORCE  ## Validate | github
+	$(call run_terragrunt,github,apply)
+
 ##@ Tests | maintainer
 
 define run_pytest_gluetool
