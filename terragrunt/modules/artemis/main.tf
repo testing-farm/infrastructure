@@ -64,16 +64,16 @@ resource "aws_security_group" "allow_guest_traffic" {
   provider    = aws.artemis_guests
 
   ingress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     # allow guest traffic from workers and given list of addresses comming from variables
     cidr_blocks = concat(
       local.guests_ip_ranges,
       var.workers_ip_ranges
     )
 
-    description = "Allow SSH inbound traffic"
+    description = "Allow all inbound traffic"
   }
 
   egress {

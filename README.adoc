@@ -134,6 +134,53 @@ Details of the deployment:
 * the cluster name is `testing-farm-staging`
 * the Artemis API endpoint is `artemis.dev-mvadkert.testing-farm.io`
 
+== GitHub Environment
+
+We use this environment to manage various GitHub related infrastructure.
+
+=== GitHub Runners
+
+We optionally provide GitHub runners for the users using Testing Farm reservations for their testing workflows on GitHub.
+The runners are required to be able to easily provide access to Testing Farm provisioned guests directly from the runners.
+The runners IP addresses are injected to the production Artemis deployment because of this.
+The runners are looked up in AWS based on their tags.
+
+The configured runners can be found under `terragrunt/environments/github`.
+The structure of the directories follows the following naming scheme:
+
+[source,shell]
+----
+terragrunt/environments/github/<ORG>/runners/repositories/<REPOSITORY>
+----
+
+So for example for the `securesign` GitHub organization, the runner infrastructure code for the repository `artifact-signer-ansible` can be found under link:terragrunt/environments/github/securesign/runners/repositories/artifact-signer-ansible[].
+
+The other important directories and files are:
+
+* `terragrunt/environments/github/<ORG>/runners/components` - Contains additional components of the runners, e.g. the SSH key pair, the security group of the runner instance, etc.
+* `terragrunt/environments/github/<ORG>/runners/user_data.sh.tfpl` - A templated shell script run at the first boot, used to setup the runner, so it can function as needed.
+
+The state file is managed in Terraform Cloud.
+
+=== Adding a New Organization
+
+* Create a copy of link:`terragrunt/environments/github/<ORG>/runners` directory for the new organization.
+* Continue with <<Adding a New Repository>>.
+
+=== Adding a New Repository
+
+* Ask the responsible team to create a token which has https://docs.github.com/en/rest/actions/self-hosted-runners#create-a-registration-token-for-a-repository--fine-grained-access-tokens[permissions to retrieve runner registration tokens] for the specific repository.
+* Store the registration token in credentials file under the `credentials.github.<ORG>.runners.<REPOSITORY>.registration_token` key.
+* Create a copy of the link:`terragrunt/environments/github/<ORG>/runners/<REPOSITORY>` directory, or rename it if you added a new organization.
+* Adjust the `terragrunt.hcl` files if needed, e.g. you can adjust the instance type, disk size, etc. based on the user requirements,
+* Submit an MR with the changes.
+* The runner will be automatically provisioned and connected to the GitHub Actions if the MR is merged.
+
+=== Development and Testing
+
+You can use the `testing-farm` organization and `test-runner` for development and testing.
+The organization is not managed automatically, it is excluded from execution using link:terragrunt/environments/github/.terragrunt-excludes[] file.
+
 == Integration Tests
 
 === Worker integration tests
