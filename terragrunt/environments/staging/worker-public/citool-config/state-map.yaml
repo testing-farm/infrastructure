@@ -1,0 +1,50 @@
+---
+
+# !test-tag: instruction-map
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Failed to checkout ref" in ERROR_MESSAGE
+  state: complete
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Failed to list plans" in ERROR_MESSAGE
+  state: complete
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Did not find any plans" in ERROR_MESSAGE
+  state: complete
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Failed to get plan details" in ERROR_MESSAGE
+  state: complete
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "TMT metadata are absent or corrupted." in ERROR_MESSAGE
+  state: complete
+
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Multiple provision phases not supported, refusing to continue." in ERROR_MESSAGE
+  state: complete
+
+# TFT-2202 - treat provisioning errors as test failures
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Artemis resource ended in 'error' state" in ERROR_MESSAGE
+    and EXISTS('TESTING_FARM_FAILED_IF_PROVISION_ERROR')
+    and TESTING_FARM_FAILED_IF_PROVISION_ERROR
+  state: complete
+
+# Default hard-coded rules apply for the rest - "error" when FAILURE exists, "complete" otherwise

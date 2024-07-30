@@ -1,0 +1,28 @@
+---
+
+name: base-sti_pipeline
+
+variable:
+  REQUEST_ID: change-me
+
+pipeline: |
+  rules-engine
+  hide-secrets
+  testing-farm-request --request-id {{ REQUEST_ID }}
+  coldstore
+  testing-farm-request-state-reporter
+  archive
+  ansible
+  artemis
+  fedora-copr:copr
+  install-repository
+  install-copr-build
+  install-koji-build-execute
+  guest-setup-testing-farm:guest-setup
+  guest-setup-order
+  git
+  test-scheduler-sti
+  test-schedule-runner-sti
+  test-scheduler-testing-farm
+  test-schedule-report
+  test-schedule-runner

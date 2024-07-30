@@ -1,0 +1,19 @@
+[testing-farm-tag-repository]
+name=Tag repository for {{ tag_repository_name }}
+baseurl={{ tag_repository_url }}
+gpgcheck=0
+enabled=1
+priority=9
+skip_if_unavailable=True
+# See TFT-847 - glibc32*
+# See TFT-1284 - beakerlib
+exclude=glibc32* beakerlib
+
+{% if ansible_architecture == 'x86_64' %}
+[testing-farm-tag-repository-i386]
+name=Tag repository for {{ IMAGE_NAME }} (i386)
+baseurl={{ tag_repository_url | replace('x86_64', 'i386') }}
+gpgcheck=0
+enabled=0
+skip_if_unavailable=True
+{% endif %}

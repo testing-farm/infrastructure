@@ -22,7 +22,7 @@ TERRAGRUNT_ENV_DIR=f'{os.environ["PROJECT_ROOT"]}/terragrunt/environments'
 # Use this variable to override the artemis deployment name, e.g. `artemis-integration`
 # Use none to ignore artemis deployment (for container only testing it is not needed)
 ARTEMIS_DEPLOYMENT = os.environ.get('ARTEMIS_DEPLOYMENT', 'artemis')
-WORKER = os.environ.get('WORKER', 'worker')
+WORKER = os.environ.get('WORKER', 'worker-public')
 SECRETS_FILE = os.environ.get('SECRETS_FILE')
 VAULT_PASS = '.vault_pass'
 

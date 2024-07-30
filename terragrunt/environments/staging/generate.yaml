@@ -1,0 +1,59 @@
+---
+- name: Generate deployment files
+  hosts: localhost
+  vars:
+    server_ec2_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/staging/server/ec2"
+    server_pods_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/staging/server/pods"
+  vars_files:
+    - "{{ ansible_env.PROJECT_ROOT }}/ansible/secrets/credentials.yaml"
+  tasks:
+    - name: Generate presign url for the latest production dump
+      amazon.aws.s3_object:
+        bucket: tft-backups-prod
+        object: testing-farm-backup-today-latest.sql.xz
+        mode: geturl
+        profile: redhat_us_east_1_backups
+        expiry: 600
+      register: presign
+
+    - name: Render server.bu
+      ansible.builtin.template:
+        src: "{{ server_ec2_dir }}/server.bu.j2"
+        dest: "{{ server_ec2_dir }}/server.bu"
+
+    - name: Render UI frontend reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/staging.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/staging.testing-farm.io.conf"
+
+    - name: Render UI backend reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/ui-backend.staging.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/ui-backend.staging.testing-farm.io.conf"
+
+    - name: Render API reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/api.staging.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/api.staging.testing-farm.io.conf"
+
+    - name: Render Internal API reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/internal.api.staging.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/internal.api.staging.testing-farm.io.conf"
+
+    - name: Render Nomad reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/nomad.staging.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/nomad.staging.testing-farm.io.conf"
+
+    - name: Render artifacts config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/artifacts.staging.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/artifacts.staging.testing-farm.io.conf"
+
+    - name: Render server kube yaml
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/server.yaml.j2"
+        dest: "{{ server_pods_dir }}/server.yaml"
+      vars:
+        backup_url: "{{ presign.url }}"

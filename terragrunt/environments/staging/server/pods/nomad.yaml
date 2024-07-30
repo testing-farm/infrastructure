@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    bind-mount-options: /etc/nomad:Z
+  labels:
+    app: nomad
+  name: nomad
+spec:
+  # Use host network for nomad, so we can easily detect advertised
+  # private IP in the configuration of nomad server
+  hostNetwork: true
+  containers:
+    - name: nomad
+      image: quay.io/testing-farm/nomad:latest
+      args:
+        - agent
+        - -config=/etc/nomad/server.conf
+      volumeMounts:
+        - name: nomad-config
+          mountPath: /etc/nomad/:Z
+        - name: nomad-data
+          mountPath: /var/nomad:Z
+  volumes:
+    - name: nomad-config
+      hostPath:
+        path: /etc/nomad
+        type: Directory
+    - name: nomad-data
+      hostPath:
+        path: /var/data/nomad
+        type: Directory

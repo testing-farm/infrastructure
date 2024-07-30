@@ -18,13 +18,14 @@ variables:
   PLAN: /testing-farm/sanity
 
 checks:
-  literal-strings[work-sanity*/log.txt]:
+  literal-patterns[work-sanity*/log.txt]:
     - |
       environment:
-          TMT_REPORT_ARTIFACTS_URL: https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}
+          TMT_REPORT_ARTIFACTS_URL: {{ artifacts_url_pattern }}/{{ REQUEST_ID }}
           PATH: /usr/bin:/usr/sbin
           HOME: /root
           PYTHONUNBUFFERED: 1
           PODMAN_IGNORE_CGROUPSV1_WARNING: 1
           POLARION_PASSWORD: hidden
           POLARION_USERNAME: user
+          LC_CTYPE: C.UTF-8
