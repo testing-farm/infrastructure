@@ -435,3 +435,4 @@ deploy/production:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_production]
+    - !reference [.rules, terragrunt_github]
