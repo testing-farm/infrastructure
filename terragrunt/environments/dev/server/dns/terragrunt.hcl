@@ -26,6 +26,22 @@ inputs = {
   zone_name = local.common.inputs.route53_zone
   records_jsonencoded = jsonencode([
     {
+      name = "dev-${get_env("USER")}"
+      type = "CNAME"
+      ttl  = 60
+      records = [
+        dependency.ec2.outputs.public_dns,
+      ]
+    },
+    {
+      name = "ui-backend.dev-${get_env("USER")}"
+      type = "CNAME"
+      ttl  = 60
+      records = [
+        dependency.ec2.outputs.public_dns,
+      ]
+    },
+    {
       name = "api.dev-${get_env("USER")}"
       type = "CNAME"
       ttl  = 60
