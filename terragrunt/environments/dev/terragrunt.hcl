@@ -2,6 +2,18 @@
 # https://terragrunt.gruntwork.io/docs/reference/config-blocks-and-attributes/#skip
 skip = true
 
+# Create terraform cloud workspace
+terraform {
+  before_hook "terraform_cloud_project" {
+    commands = ["apply", "init", "import", "plan"]
+    execute = [
+      "terraform-cloud",
+      "create-workspace", "--ignore-existing",
+      "dev-${get_env("USER", "unknown")}-${replace(path_relative_to_include(), "/", "-")}"
+    ]
+  }
+}
+
 locals {
   # development EKS is hosted in this region
   aws_profile = "fedora_us_east_2"
@@ -95,7 +107,14 @@ generate "backend" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 terraform {
-  backend "local" {}
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "testing-farm"
+
+    workspaces {
+      name = "dev-${get_env("USER", "unknown")}-${replace(path_relative_to_include(), "/", "-")}"
+    }
+  }
 }
 EOF
 }
