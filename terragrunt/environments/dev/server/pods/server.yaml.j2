@@ -62,7 +62,7 @@ spec:
         - >
 {% set users = credentials.testing_farm.dev.public.users %}
 {% for user in users.keys() %}
-          tft-add-user {{ users[user].name }} {{ users[user].token }} {{ users[user].ranch }} {{ users[user].role }};
+          tft-add-token {{ users[user].name }} {{ users[user].token }} {{ users[user].ranch }} {{ users[user].role }};
 {% endfor %}
       env:
         - name: TF_API_PORT
@@ -86,6 +86,17 @@ spec:
           mountPath: /etc/testing-farm/api
         - name: ranch-public-api-volume
           mountPath: /etc/testing-farm/ranch-public/api
+      env:
+        - name: TF_API_JWT_SECRET
+          value: "{{ credentials.testing_farm.dev.public.jwt_secret }}"
+        - name: TF_API_GITHUB_CLIENT_ID
+          value: "{{ credentials.github['dev-' + ansible_env.USER].oauth.client_name }}"
+        - name: TF_API_GITHUB_CLIENT_SECRET
+          value: "{{ credentials.github['dev-' + ansible_env.USER].oauth.client_secret }}"
+        - name: TF_API_FEDORA_CLIENT_ID
+          value: "{{ credentials.fedora.staging.oauth.client_name }}"
+        - name: TF_API_FEDORA_CLIENT_SECRET
+          value: "{{ credentials.fedora.staging.oauth.client_secret }}"
     - name: api-internal
       image: quay.io/testing-farm/api:latest
       args:
@@ -115,6 +126,18 @@ spec:
       volumeMounts:
         - name: ranch-public-dispatcher-volume
           mountPath: /etc/testing-farm/dispatcher
+    - name: ui
+      image: quay.io/testing-farm/ui:latest
+      env:
+        - name: TF_UI_TESTING_FARM_PUBLIC_API
+          value: "http://api.dev-{{ ansible_env.USER }}.testing-farm.io"
+        - name: API_URL  # URL of Reflex Backend server
+          value: "http://ui-backend.dev-{{ ansible_env.USER }}.testing-farm.io"
+      ports:
+        - containerPort: 3000
+          hostPort: 3000
+        - containerPort: 8000
+          hostPort: 8000
   volumes:
     - name: config-volume
       emptyDir: {}
