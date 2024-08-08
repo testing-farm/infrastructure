@@ -334,7 +334,6 @@ pools:
               cpuid, asimdrdm, lrcpc, dcpop, asimddp, ssbs
             ]
           virtualization:
-            hypervisor: nitro
             is-supported: false
             is-virtualized: true
 
@@ -569,3 +568,331 @@ pools:
           virtualization:
             is-supported: true
             is-virtualized: false
+
+  - name: fedora-aws-x86_64-gpu
+    driver: aws
+    parameters:
+      access-key-id: "${aws_access_key_id}"
+      secret-access-key: "${aws_secret_access_key}"
+
+      default-region: us-east-2
+
+      command: aws
+      master-key-name: testing-farm-worker
+
+  ***REMOVED*** availability zone match chosen subnet
+      availability-zone: us-east-2b
+
+  ***REMOVED*** seems 4k machines
+      subnet-id: subnet-4f971734
+
+  ***REMOVED*** security group for test environment
+      security-group: "${aws_security_group_id}"
+
+  ***REMOVED*** spot request details
+  ***REMOVED*** NOTE: not working yet https://pagure.io/fedora-infrastructure/issue/11848
+  ***REMOVED*** use-spot-request: true
+  ***REMOVED*** spot-price-bid-percentage: 5
+
+  ***REMOVED*** wait timeout/tick for instance becoming running
+  ***REMOVED*** instance-running-timeout: 120
+  ***REMOVED*** instance-running-tick: 1
+
+  ***REMOVED*** image filters
+      image-filters:
+        - owner: self
+    ***REMOVED*** Automotive images
+        - owner: "587138297281"
+    ***REMOVED*** Debezium images
+        - owner: "133133877115"
+    ***REMOVED*** Packit Image Builder images
+        - owner: "463606842039"
+
+      capabilities:
+        supports-snapshots: false
+        supported-architectures:
+          - x86_64
+
+      use-public-ip: true
+
+  ***REMOVED***
+  ***REMOVED*** Flavors
+  ***REMOVED***
+  ***REMOVED*** Default instance type.
+      default-instance-type: p3.2xlarge
+
+  ***REMOVED*** Default root disk size.
+      default-root-disk-size: 100
+
+  ***REMOVED*** Control the subset of flavors available for provisioning.
+      flavor-regex: ^p[2345].+$
+
+  ***REMOVED*** Do not use the default instance when no suitable can be found. When not having a suitable flavor,
+  ***REMOVED*** pool simply cannot satisfy the request.
+      use-default-flavor-when-no-suitable: false
+
+  ***REMOVED*** Create custom flavors.
+      custom-flavors:
+    ***REMOVED***
+    ***REMOVED*** P2
+    ***REMOVED***
+        - name: p2.xlarge-100
+          base: p2.xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p2.xlarge-250
+          base: p2.xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p2.xlarge-500
+          base: p2.xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p2.8xlarge-100
+          base: p2.8xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p2.8xlarge-250
+          base: p2.8xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p2.8xlarge-500
+          base: p2.8xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p2.16xlarge-100
+          base: p2.16xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p2.16xlarge-250
+          base: p2.16xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p2.16xlarge-500
+          base: p2.16xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    ***REMOVED***
+    ***REMOVED*** P3
+    ***REMOVED***
+        - name: p3.2xlarge-100
+          base: p3.2xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p3.2xlarge-250
+          base: p3.2xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p3.2xlarge-500
+          base: p3.2xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p3.8xlarge-100
+          base: p3.8xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p3.8xlarge-250
+          base: p3.8xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p3.8xlarge-500
+          base: p3.8xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p3.16xlarge-100
+          base: p3.16xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p3.16xlarge-250
+          base: p3.16xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p3.16xlarge-500
+          base: p3.16xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    ***REMOVED***
+    ***REMOVED*** P4
+    ***REMOVED***
+        - name: p4d.24xlarge-100
+          base: p4d.24xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p4d.24xlarge-250
+          base: p4d.24xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p4d.24xlarge-500
+          base: p4d.24xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    ***REMOVED***
+    ***REMOVED*** P5
+    ***REMOVED***
+        - name: p5.48xlarge-100
+          base: p5.48xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p5.48xlarge-250
+          base: p5.48xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: p5.48xlarge-500
+          base: p5.48xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+  ***REMOVED*** Provide flavor info we cannot extract from API.
+  ***REMOVED*** Based on AWS documentation, https://aws.amazon.com/ec2/instance-types/
+      patch-flavors:
+
+        - name-regex: 'p2.+'
+          virtualization:
+            is-supported: false
+            is-virtualized: true
+          gpu:
+            device-name: GK210 (Tesla K80)
+            vendor-name: NVIDIA
+
+        - name-regex: 'p3.+'
+          virtualization:
+            is-supported: false
+            is-virtualized: true
+          gpu:
+            device-name: GV100 (Tesla V100)
+            vendor-name: NVIDIA
+
+        - name-regex: 'p4.+'
+          virtualization:
+            is-supported: false
+            is-virtualized: true
+          gpu:
+            device-name: GA100 (A100)
+            vendor-name: NVIDIA
+
+        - name-regex: 'p5.+'
+          virtualization:
+            is-supported: false
+            is-virtualized: true
+          gpu:
+            device-name: GH100 (H100)
+            vendor-name: NVIDIA
