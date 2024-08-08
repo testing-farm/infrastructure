@@ -86,6 +86,33 @@ def policy_prefer_non_metal(
     ))
 
 
+@policy_boilerplate
+def policy_prefer_non_gpu(
+    logger: gluetool.log.ContextAdapter,
+    session: sqlalchemy.orm.session.Session,
+    pools: List[PoolDriver],
+    guest_request: GuestRequest,
+) -> PolicyReturnType:
+
+    # Do not apply the policy when a pool is requested explicitly.
+    if guest_request.environment.pool is not None:
+        return pools
+
+    preferred_pools = [
+        pool
+        for pool in pools
+        if 'gpu' not in pool.poolname
+    ]
+
+    if not preferred_pools:
+        return Ok(PolicyRuling.from_pools(pools))
+
+    return Ok(PolicyRuling.from_pools(
+        pools,
+        lambda pool: PoolPolicyRuling(pool=pool, allowed=bool(pool in preferred_pools))
+    ))
+
+
 POLICIES = [
     policy_timeout_reached,
     policy_pool_enabled,
@@ -101,6 +128,7 @@ POLICIES = [
     policy_prefer_clouds,
     policy_prefer_aws,
     policy_prefer_non_metal,
+    policy_prefer_non_gpu,
     policy_prefer_spot_instances,
     policy_least_crowded,
 ]
