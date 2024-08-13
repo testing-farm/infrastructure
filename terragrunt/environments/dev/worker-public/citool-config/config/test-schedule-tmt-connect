@@ -27,17 +27,21 @@ accepted-environment-variables =
     TMT_PLUGIN_REPORT_POLARION_SAMPLE_IMAGE,
     TMT_PLUGIN_REPORT_POLARION_TEMPLATE,
     TMT_PLUGIN_REPORT_POLARION_TITLE,
-    TMT_PLUGIN_REPORT_REPORTPORTAL_URL,
-    TMT_PLUGIN_REPORT_REPORTPORTAL_PROJECT,
+    TMT_PLUGIN_REPORT_REPORTPORTAL_API_VERSION,
+    TMT_PLUGIN_REPORT_REPORTPORTAL_ARTIFACTS_URL,
+    TMT_PLUGIN_REPORT_REPORTPORTAL_DEFECT_TYPE,
+    TMT_PLUGIN_REPORT_REPORTPORTAL_EXCLUDE_VARIABLES,
     TMT_PLUGIN_REPORT_REPORTPORTAL_LAUNCH,
     TMT_PLUGIN_REPORT_REPORTPORTAL_LAUNCH_DESCRIPTION,
+    TMT_PLUGIN_REPORT_REPORTPORTAL_LAUNCH_PER_PLAN,
     TMT_PLUGIN_REPORT_REPORTPORTAL_LAUNCH_RERUN,
+    TMT_PLUGIN_REPORT_REPORTPORTAL_PROJECT,
+    TMT_PLUGIN_REPORT_REPORTPORTAL_SUITE_PER_PLAN,
     TMT_PLUGIN_REPORT_REPORTPORTAL_UPLOAD_TO_LAUNCH,
     TMT_PLUGIN_REPORT_REPORTPORTAL_UPLOAD_TO_SUITE,
-    TMT_PLUGIN_REPORT_REPORTPORTAL_SUITE_PER_PLAN,
-    TMT_PLUGIN_REPORT_REPORTPORTAL_DEFECT_TYPE,
+    TMT_PLUGIN_REPORT_REPORTPORTAL_URL,
     TMT_REPORT_ARTIFACTS_URL
 
-# NOTE: gluetool treats '#' as a string value (not a comment), therefore the last comma after the last variable is
-# required to split the string into two values 'TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN' and '# pragma: allowlist secret'
-accepted-environment-secrets = POLARION_PASSWORD, POLARION_TOKEN, TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN,  # pragma: allowlist secret
+# note: gluetool treats '#' as a string value (not a comment), therefore the last comma after the last variable is
+# required to split the string into two values 'tmt_plugin_report_reportportal_token' and '# pragma: allowlist secret'
+accepted-environment-secrets = polarion_password, polarion_token, tmt_plugin_report_reportportal_token,  # pragma: allowlist secret
