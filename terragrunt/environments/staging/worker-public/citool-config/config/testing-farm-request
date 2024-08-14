@@ -1,5 +1,6 @@
 [default]
-api-url = http://internal.api.staging.testing-farm.io
+internal-api-url = http://internal.api.staging.testing-farm.io
+public-api-url = http://api.staging.testing-farm.io
 api-key = {{ testing_farm_request_api_key }}
 # See TFT-712
 # NOTE: due to integration testing, this is lowered
