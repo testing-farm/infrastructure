@@ -41,7 +41,7 @@ def main() -> None:
         credentials_encrypted = f.read()
 
     vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(vault_pass.encode()))])
-    credentials_decrypted: SecretsType = ruamel.yaml.safe_load(vault.decrypt(credentials_encrypted))
+    credentials_decrypted: SecretsType = ruamel.yaml.YAML(typ='safe').load(vault.decrypt(credentials_encrypted))
 
     environment = sys.argv[1] if len(sys.argv) == 2 else None
 

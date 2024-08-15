@@ -10,6 +10,14 @@ passwd:
         - ansible/secrets/ssh/id_rsa_public_worker.pub
 storage:
   files:
+    # Disable auto-updates, we cannot currently do this now with a single server
+    # https://docs.fedoraproject.org/en-US/fedora-coreos/auto-updates/
+    # https://coreos.github.io/zincati/usage/auto-updates/#disabling-auto-updates
+    - path: /etc/zincati/config.d/90-disable-auto-updates.toml
+      contents:
+        inline: |
+          [updates]
+          enabled = false
     - path: /etc/testing-farm/pods/server.yaml
       mode: 0644
       contents:
@@ -70,6 +78,10 @@ storage:
       mode: 0644
       contents:
         local: terragrunt/environments/dev/server/pods/nginx/artifacts.dev-{{ ansible_env.USER }}.testing-farm.io.conf
+    - path: /etc/nginx/conf.d/server.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/nginx/server.conf
   directories:
     - path: /var/nomad
     - path: /var/artifacts

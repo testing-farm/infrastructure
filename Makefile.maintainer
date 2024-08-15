@@ -95,8 +95,19 @@ dev/apply/artemis: .FORCE  ## Deploy | dev | artemis
 dev/apply/server: dev/generate .FORCE  ## Deploy | dev | server
 	$(call run_terragrunt,dev/server,apply)
 
-dev/destroy: .FORCE terminate/artemis/guests/dev  ## Destroy | dev | all
+dev/destroy: .FORCE terminate/artemis/guests/dev dev/destroy/workers  ## Destroy | dev | all
 	$(call run_terragrunt,dev,destroy)
+
+dev/destroy/workers: .FORCE  ## Destroy | dev | all
+	$(call run_terragrunt,dev/worker-public,apply)
+	worker_instance_ids=$$( \
+			env -C $(PROJECT_ROOT)/terragrunt/environments/dev/worker-public \
+			terragrunt output -json | jq -r '.workers_instance_ids.value | join(" ")' \
+	); \
+	if [ -n "$$worker_instance_ids" ]; then \
+		echo "Worker instance ids: $$worker_instance_ids"; \
+		aws --profile fedora_us_east_2 ec2 terminate-instances --instance-ids $$worker_instance_ids; \
+	fi
 
 dev/kubeconfig: .FORCE  ## Update kubeconfig for development environemnt
 	aws eks --profile fedora_us_east_2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
@@ -107,6 +118,11 @@ dev/kubeconfig: .FORCE  ## Update kubeconfig for development environemnt
 dev/create/public/worker: generate/dev/citool-config/public .FORCE  ## Create a Public ranch worker, use `make create/public/worker N` to create N workers
 	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) dev public worker(s)\033[0m"
 	@$(MAKE) -j $(addprefix .dev/create/public/worker, $(shell seq 1 $(SCALE_TARGET)))
+
+dev/update/public/pipeline: .FORCE  ## Update pipeline container image on Public ranch | dev
+	$(call run_pipeline_update,💿️,updating Public ranch pipeline image,testing_farm_dev_public_workers,update_image,dev)
+	$(call run_pipeline_update,🛠,updating Public ranch pipeline configuration,testing_farm_dev_public_workers,update_config,dev)
+	$(call run_pipeline_update,⛴️,updating Public ranch pipeline jobs,testing_farm_dev_public_workers,update_jobs,dev)
 
 dev/update/public/pipeline/image: .FORCE  ## Update pipeline container image on Public ranch | dev
 	$(call run_pipeline_update,💿️,updating Public ranch pipeline image,testing_farm_dev_public_workers,update_image,dev)
