@@ -90,9 +90,9 @@ spec:
         - name: TF_API_JWT_SECRET
           value: "{{ credentials.testing_farm.dev.public.jwt_secret }}"
         - name: TF_API_GITHUB_CLIENT_ID
-          value: "{{ credentials.github['dev-' + ansible_env.USER].oauth.client_name }}"
+          value: "{{ credentials.github['dev-' + ansible_env.USER].oauth.client_name | default('unavailable') }}"
         - name: TF_API_GITHUB_CLIENT_SECRET
-          value: "{{ credentials.github['dev-' + ansible_env.USER].oauth.client_secret }}"
+          value: "{{ credentials.github['dev-' + ansible_env.USER].oauth.client_secret | default('unavailable') }}"
         - name: TF_API_FEDORA_CLIENT_ID
           value: "{{ credentials.fedora.staging.oauth.client_name }}"
         - name: TF_API_FEDORA_CLIENT_SECRET

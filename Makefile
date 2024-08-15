@@ -35,6 +35,7 @@ clean: .FORCE  ## Cleanup
 	rm -rf $(ROOT_DIR)/.direnv
 	rm -rf $(ROOT_DIR)/.venv
 	rm -rf $$PROJECT_ROOT/.pytest
+	find . -name .terragrunt-cache | xargs rm -rf
 
 
 # See https://www.thapaliya.com/en/writings/well-documented-makefiles/ for details.
