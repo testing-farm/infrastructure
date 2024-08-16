@@ -34,6 +34,13 @@ export_alias() {
 test -z "$IS_MAINTAINER" && exit 0
 
 #
+# install system deps
+#
+info "install system deps"
+rpm -q parallel >/dev/null || sudo dnf -y install parallel
+echo 'will cite' | parallel --citation 2>/dev/null || true
+
+#
 # install all requirements via poetry
 #
 info "install python deps"
