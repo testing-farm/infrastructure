@@ -98,6 +98,20 @@ dev/apply/server: dev/generate .FORCE  ## Deploy | dev | server
 dev/destroy: .FORCE terminate/artemis/guests/dev dev/destroy/workers  ## Destroy | dev | all
 	$(call run_terragrunt,dev,destroy)
 
+dev/destroy/force: .FORCE  ## Force destroy od dev environment, set USER env var to force a specific user
+	# NOTE: this destroy method is special to mitigate issues with frequently changing dev environment
+	TERRAGRUNT_WORKING_DIR=terragrunt/environments/dev terragrunt run-all init -lock-timeout $(DEFAULT_LOCK_TIMEOUT) || true
+	TERRAGRUNT_WORKING_DIR=terragrunt/environments/dev terragrunt run-all init -reconfigure -lock-timeout $(DEFAULT_LOCK_TIMEOUT) || true
+	make dev/destroy/workers || true
+	make terminate/artemis/guests/dev || true
+	find terragrunt/environments/dev/ -iname terragrunt.hcl | grep -v \\.terragrunt-cache | sed 's/terragrunt.hcl//' | \
+		parallel -I{} env -C {} terragrunt destroy -auto-approve || true
+	# TODO: remove once security groups are not part of artemis deployment, they can easily stay as leftovers
+	aws --profile fedora_us_east_2 ec2 describe-security-groups | \
+		jq -r ".SecurityGroups[] | select(.GroupName | contains(\"dev-$$USER\")) | .GroupId" | \
+		parallel echo aws --profile fedora_us_east_2 ec2 delete-security-groups --security-groups-id
+	terraform-cloud list-workspaces | grep dev-$$USER | parallel -n1 terraform-cloud delete-workspace --confirm || true
+
 dev/destroy/workers: .FORCE  ## Destroy | dev | all
 	$(call run_terragrunt,dev/worker-public,apply)
 	worker_instance_ids=$$( \
