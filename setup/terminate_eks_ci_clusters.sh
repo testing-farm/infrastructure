@@ -5,11 +5,17 @@
 #
 
 # Region of the development instances
-region="us-east-2"
-aws_eks="aws --profile fedora_us_east_2 eks"
+region=${CLUSTERS_REGION:-us-east-2}
+aws_eks="aws --profile fedora_$region eks"
+
+# These clusters are protected
+protected_clusters="testing-farm testing-farm-production testing-farm-staging"
+
+# Clusters to remove
+CLUSTERS_REGEX=${CLUSTERS_REGEX:-testing-farm-gitlab-ci}
 
 # Get the list of eks clusters created by CI
-clusters=$($aws_eks list-clusters | jq -r '.clusters[]' | grep testing-farm-gitlab-ci)
+clusters=$($aws_eks list-clusters | jq -r '.clusters[]' | grep -E "$CLUSTERS_REGEX")
 
 # Check if there are instances to terminate
 if [ -z "$clusters" ]; then
@@ -17,8 +23,14 @@ if [ -z "$clusters" ]; then
   exit 0
 fi
 
+# Make sure we do not remove the production clusters
+
 # Terminate node groups
 for cluster in $clusters; do
+  if grep -E "$cluster" <<< "$protected_clusters"; then
+      echo "[!] Refusing to remove protected cluster '$cluster'"
+      continue
+  fi
   (
       echo "[+] Processing cluster '$cluster'"
       for nodegroup in $($aws_eks list-nodegroups --cluster-name $cluster | jq -r .nodegroups[]); do
