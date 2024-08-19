@@ -28,10 +28,38 @@
     #
     # The tag repository name can be transformed from IMAGE_NAME variable.
     #
-    - name: Transform build target to a tag repository name (RHEL)
+    - name: Transform build target to a tag repository name (RHEL-X.Y or RHEL-X.Y.Z)
       set_fact:
-        tag_repository_name_mainline: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+(?:\\.\\d+)?(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-build') | lower }}"
-        tag_repository_name_z_stream: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+(?:\\.\\d+)?(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-z-build') | lower }}"
+        tag_repository_name_mainline: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+\\.\\d+(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-build') | lower }}"
+        tag_repository_name_z_stream: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+\\.\\d+(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-z-build') | lower }}"
+
+    # TFT-2798: find a better solution then hardcoding the mappings here
+    # Note that on purpose we do not add mappings for RHEL-8-Updated and RHEL-8-Released,
+    # would be weird to include there the latest built packages wouldn't it?
+    - name: Transform build target to a tag repository name (RHEL-8-Nightly)
+      set_fact:
+        tag_repository_name_mainline: "rhel-8.10.0-build"
+        tag_repository_name_z_stream: "rhel-8.10.0-z-build"
+      when: IMAGE_NAME == "RHEL-8-Nightly" or IMAGE_NAME == "RHEL-8-Devel"
+
+    - name: Transform build target to a tag repository name (RHEL-9-Nightly)
+      set_fact:
+        tag_repository_name_mainline: "rhel-9.5.0-build"
+        tag_repository_name_z_stream: "rhel-9.5.0-z-build"
+      when: IMAGE_NAME == "RHEL-9-Nightly"
+
+    - name: Transform build target to a tag repository name (RHEL-10-Beta-Nightly)
+      set_fact:
+        tag_repository_name_mainline: "rhel-10.0-beta-build"
+        tag_repository_name_z_stream: ""
+      when: IMAGE_NAME == "RHEL-10-Beta-Nightly"
+
+    # NOTE: needs change once RHEL-10 non Beta image starts to exist, for now it maps to Beta
+    - name: Transform build target to a tag repository name (RHEL-10-Nightly)
+      set_fact:
+        tag_repository_name_mainline: "rhel-10.0-beta-build"
+        tag_repository_name_z_stream: ""
+      when: IMAGE_NAME == "RHEL-10-Nightly"
 
     - name: Create tag repository base url (RHEL)
       set_fact:
