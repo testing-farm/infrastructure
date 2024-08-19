@@ -7,7 +7,7 @@ variables:
   # https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
   ANSIBLE_CONFIG: ansible.cfg
   # Set USER used to derive certain dev environment resource names
-  USER: testing-farm-gitlab-ci-$CI_JOB_ID
+  USER: gitlab-ci-$CI_JOB_ID
 
 workflow:
   rules:
