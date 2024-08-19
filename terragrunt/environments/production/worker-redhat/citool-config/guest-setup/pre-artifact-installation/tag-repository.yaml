@@ -30,8 +30,8 @@
     #
     - name: Transform build target to a tag repository name (RHEL)
       set_fact:
-        tag_repository_name_mainline: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+\\.\\d+(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-build') | lower }}"
-        tag_repository_name_z_stream: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+\\.\\d+(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-z-build') | lower }}"
+        tag_repository_name_mainline: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+(?:\\.\\d+)?(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-build') | lower }}"
+        tag_repository_name_z_stream: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+(?:\\.\\d+)?(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-z-build') | lower }}"
 
     - name: Create tag repository base url (RHEL)
       set_fact:
