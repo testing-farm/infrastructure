@@ -29,9 +29,17 @@ composes:
     compose: Fedora-40
 
     x86_64: &fedora_latest_ref_x86_64
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-40-20240805.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-40-20240818.0
     aarch64: &fedora_latest_ref_aarch64
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-40-20240805.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-40-20240818.0
+
+  fedora_41:
+    compose: Fedora-41
+
+    x86_64:
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20240818.0
+    aarch64:
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-20240818.0
 
   # TFT-1221
   fedora_latest:
@@ -44,9 +52,9 @@ composes:
     compose: Fedora-Rawhide
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20240805.n.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-42-20240818.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20240805.n.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-42-20240818.0
 
   centos_7:
     compose: CentOS-7
