@@ -1,0 +1,4 @@
+[default]
+# NOTE: google-noto-fonts has more then 300 packages :O
+# https://gitlab.com/redhat/centos-stream/rpms/google-noto-fonts/-/blob/c9s/google-noto-fonts.spec?ref_type=heads
+packages-amount-threshold = 350

@@ -1,0 +1,120 @@
+variant: fcos
+version: 1.5.0
+passwd:
+  users:  # pragma: allowlist secret
+    - name: core
+      ssh_authorized_keys_local:  # pragma: allowlist secret
+        - ansible/secrets/ssh/id_rsa_public_server.pub
+    - name: artifacts
+      ssh_authorized_keys_local:  # pragma: allowlist secret
+        - ansible/secrets/ssh/id_rsa_public_worker.pub
+storage:
+  files:
+    # Disable auto-updates, we cannot currently do this now with a single server
+    # https://docs.fedoraproject.org/en-US/fedora-coreos/auto-updates/
+    # https://coreos.github.io/zincati/usage/auto-updates/#disabling-auto-updates
+    - path: /etc/zincati/config.d/90-disable-auto-updates.toml
+      contents:
+        inline: |
+          [updates]
+          enabled = false
+    - path: /etc/testing-farm/pods/server.yaml
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/server.yaml
+    - path: /etc/containers/systemd/server.kube
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/server.kube
+    - path: /etc/testing-farm/pods/cockroach.yaml
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/cockroach.yaml
+    - path: /etc/containers/systemd/cockroach.kube
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/cockroach.kube
+    - path: /etc/testing-farm/pods/nginx.yaml
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/nginx.yaml
+    - path: /etc/containers/systemd/nginx.kube
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/nginx.kube
+    - path: /etc/testing-farm/pods/nomad.yaml
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/nomad.yaml
+    - path: /etc/containers/systemd/nomad.kube
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/nomad.kube
+    - path: /etc/nomad/server.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/nomad/server.conf
+    - path: /etc/nginx/conf.d/staging.testing-farm.io.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/nginx/staging.testing-farm.io.conf
+    - path: /etc/nginx/conf.d/ui-backend.staging.testing-farm.io.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/nginx/ui-backend.staging.testing-farm.io.conf
+    - path: /etc/nginx/conf.d/api.staging.testing-farm.io.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/nginx/api.staging.testing-farm.io.conf
+    - path: /etc/nginx/conf.d/internal.api.staging.testing-farm.io.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/nginx/internal.api.staging.testing-farm.io.conf
+    - path: /etc/nginx/conf.d/nomad.staging.testing-farm.io.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/nginx/nomad.staging.testing-farm.io.conf
+    - path: /etc/nginx/conf.d/artifacts.staging.testing-farm.io.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/staging/server/pods/nginx/artifacts.staging.testing-farm.io.conf
+    - path: /etc/nginx/conf.d/server.conf
+      mode: 0644
+      contents:
+        local: terragrunt/environments/dev/server/pods/nginx/server.conf
+  directories:
+    - path: /var/data/artifacts
+      user:
+        name: artifacts
+      group:
+        name: artifacts
+    - path: /var/data/cockroach
+    - path: /var/data/nomad
+  disks:
+    - device: /dev/nvme1n1
+      wipe_table: false
+      partitions:
+      - size_mib: 0
+        label: data
+  filesystems:
+    - path: /var/data
+      device: /dev/disk/by-partlabel/data
+      format: xfs
+      with_mount_unit: true
+systemd:
+  units:
+    - name: selinux-context-artifacts.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Set SELinux context for /var/data
+        After=local-fs.target
+        Before=nginx.service
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/chcon -t container_file_t -R /var/data
+        RemainAfterExit=yes
+
+        [Install]
+        WantedBy=multi-user.target
