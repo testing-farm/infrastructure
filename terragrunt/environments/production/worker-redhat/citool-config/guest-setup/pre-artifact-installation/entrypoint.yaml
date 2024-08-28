@@ -29,3 +29,4 @@
   - include_tasks: enable-buildroot.yaml
   # TFT-1987 - Hostname on AWS needs to be explicitely set
   - include_tasks: aws-hostname.yaml
+  - include_tasks: set-timezone.yaml
