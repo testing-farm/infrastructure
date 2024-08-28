@@ -29,15 +29,15 @@ checks:
        </properties>
        <testsuite name="{{ PLAN }}" result="failed" tests="1" stage="complete">
         <logs>
-         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/data" name="data"/>
-         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}/tmt-run.log" name="tmt-log"/>
-         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
-         <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}" name="workdir"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/data" name="data"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}/tmt-run.log" name="tmt-log"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}" name="workdir"/>
         </logs>
         <properties>
          <property name="baseosci.result" value="failed"/>
         </properties>
-        <testcase name="/testing-farm/failure" result="failed" time="{{ '\d+' }}">
+        <testcase name="/testing-farm/failure" result="failed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}">
          <properties>
           <property name="baseosci.arch" value="{{ ARCH }}"/>
           <property name="baseosci.connectable_host" value="localhost"/>
@@ -47,9 +47,9 @@ checks:
           <property name="baseosci.variant" value=""/>
          </properties>
          <logs>
-          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1" name="log_dir" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="https://artifacts.dev.testing-farm.io/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/output.txt" name="testout.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1" name="log_dir" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/output.txt" name="testout.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
          </logs>
          <failure/>
          <testing-environment name="requested">
@@ -79,7 +79,7 @@ checks:
       <?xml version="1.0" encoding="UTF-8"?>
       <testsuites>
        <testsuite name="{{ PLAN }}" tests="1" failures="1" errors="0" skipped="0">
-        <testcase name="/testing-farm/failure" classname="tests" time="{{ '\d+' }}">
+        <testcase name="/testing-farm/failure" classname="tests" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}">
          <system-out>NAME=&amp;quot;Fedora Linux&amp;quot;
       VERSION=&amp;quot;{{ '\d+' }} (Container Image)&amp;quot;
       ID=fedora

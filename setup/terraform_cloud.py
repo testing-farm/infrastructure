@@ -41,7 +41,12 @@ session = requests.Session()
 session.mount(
     "https://",
     HTTPAdapter(
-        max_retries=Retry(total=5, backoff_factor=0.1, status_forcelist=[502, 503, 504]),
+        max_retries=Retry(
+            total=5,
+            backoff_factor=0.1,
+            status_forcelist=[429, 502, 503, 504],
+            raise_on_status=False
+        ),
     ),
 )
 
