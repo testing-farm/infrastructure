@@ -98,7 +98,12 @@ workflow:
         # NOTE: need to be explicit here, no nice excludes supported yet
         # We do not run this when variables-composes changed for example
         # https://gitlab.com/gitlab-org/gitlab/-/issues/198688
-        - terragrunt/environments/dev/**/*
+        #
+        # NOTE: we do not want this run on config changes, validation is done against staging
+        - terragrunt/environments/dev/*/terragrunt.hcl
+        - terragrunt/environments/dev/artemis/**/*
+        - terragrunt/environments/dev/server/**/*
+        - terragrunt/environments/dev/worker-public/jobs/**/*
 
   terragrunt_staging:
     - !reference [.rules, terragrunt_testing_farm]
@@ -109,7 +114,7 @@ workflow:
     - !reference [.rules, terragrunt_testing_farm]
     - changes:
         - terragrunt/environments/staging/artemis/**/*
-        - terragrunt/environments/staging/worker/**/*
+        - terragrunt/environments/staging/worker-local/**/*
 
   terragrunt_production:
     - !reference [.rules, infrastructure]
