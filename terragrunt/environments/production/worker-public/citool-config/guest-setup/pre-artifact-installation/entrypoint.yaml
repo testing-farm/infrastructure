@@ -22,3 +22,4 @@
     # It is considered a nice to have, but should not fail the setup.
     - include_tasks: tag-repository.yaml
       ignore_errors: true
+    - include_tasks: set-timezone.yaml
