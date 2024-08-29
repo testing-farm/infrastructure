@@ -1,5 +1,6 @@
 [default]
-api-url = https://internal.api.dev.testing-farm.io
+internal-api-url = https://internal.api.dev.testing-farm.io
+public-api-url = https://api.dev.testing-farm.io
 api-key = f72f8dd8-b01c-4aab-968f-d3ce6a87f564
 # TFT-712
 retry-timeout = 600
