@@ -23,5 +23,9 @@ echo-tick = 30
 # TFT-892
 guest-logs-enable = yes
 
+# Make sure we do not gather guest logs too often, this can easily fill up debug log.
+# Set to 30 minutes.
+guest-log-tick = 1800
+
 # Artemis log configuration
 guest-logs-config = ${config_root}/artemis-log-config.yaml
