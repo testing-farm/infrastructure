@@ -1,6 +1,6 @@
 [default]
 api-url = {{ artemis_api_url }}
-api-version = 0.0.69
+api-version = 0.0.70
 ssh-options = UserKnownHostsFile=/dev/null, StrictHostKeyChecking=no
 ssh-key = ${config_root}/id_rsa_artemis.decrypted
 key = master-key
@@ -27,6 +27,10 @@ skip-prepare-verify-ssh = true
 
 # TFT-892
 guest-logs-enable = yes
+
+# Make sure we do not gather guest logs too often, this can easily fill up debug log.
+# Set to 30 minutes.
+guest-log-tick = 1800
 
 # Artemis log configuration
 guest-logs-config = ${config_root}/artemis-log-config.yaml
