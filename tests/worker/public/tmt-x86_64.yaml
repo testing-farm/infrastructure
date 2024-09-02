@@ -22,6 +22,7 @@ checks:
     - |
       environment:
           TMT_REPORT_ARTIFACTS_URL: {{ artifacts_url_pattern }}/{{ REQUEST_ID }}
+          TMT_PLUGIN_REPORT_REPORTPORTAL_ARTIFACTS_URL: {{ artifacts_url_pattern }}/{{ REQUEST_ID }}
           PATH: /usr/bin:/usr/sbin
           HOME: /root
           PYTHONUNBUFFERED: 1

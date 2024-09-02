@@ -2,7 +2,7 @@
 reproducer-comment = # tmt reproducer | https://docs.testing-farm.io/Testing%20Farm/0.1/test-results.html#_reproducer
 
 # TFT-2545 - set  TMT_REPORT_ARTIFACTS_URL
-environment-variables = TMT_REPORT_ARTIFACTS_URL={{ COLDSTORE_URL }}, PATH=/usr/bin:/usr/sbin, HOME=/root, PYTHONUNBUFFERED=1, PODMAN_IGNORE_CGROUPSV1_WARNING=1
+environment-variables = TMT_REPORT_ARTIFACTS_URL={{ COLDSTORE_URL }}, TMT_PLUGIN_REPORT_REPORTPORTAL_ARTIFACTS_URL={{ COLDSTORE_URL }}, PATH=/usr/bin:/usr/sbin, HOME=/root, PYTHONUNBUFFERED=1, PODMAN_IGNORE_CGROUPSV1_WARNING=1
 
 #
 # polarion report plugin - pylero env vars https://github.com/RedHatQE/pylero#configuration
