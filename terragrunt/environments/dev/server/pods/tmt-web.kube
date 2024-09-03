@@ -1,0 +1,9 @@
+[Unit]
+Description=tmt Web Server Pod
+
+[Kube]
+Yaml=/etc/testing-farm/pods/tmt-web.yaml
+
+[Install]
+# Start by default on boot
+WantedBy=multi-user.target default.target
