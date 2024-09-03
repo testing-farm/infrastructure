@@ -11,12 +11,18 @@ terraform {
   source = "../../../modules//eks"
 }
 
+locals {
+  common        = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
+}
+
 inputs = {
   cluster_name = get_env("TF_VAR_cluster_name", "testing-farm-dev-${get_env("USER", "unknown")}")
   eks_version  = 1.25
 
   # aws_profile is set in the parent
   # route53_zone is set in the parent
+
+  resource_tags = local.common.inputs.resource_tags
 
   vpc_id                    = "vpc-0f6baa3d6bae8d912"
   subnets                   = ["subnet-010f90da92f36876e", "subnet-0a704a759f7671044"]
