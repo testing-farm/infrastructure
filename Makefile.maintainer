@@ -68,7 +68,8 @@ infra/destroy: .FORCE  ## Destroy | infra
 
 dev/generate: .FORCE  ## Generate deployment files | dev
 	ansible-playbook terragrunt/environments/dev/generate.yaml
-	env -C terragrunt/environments/dev/server/ec2 butane -psd $(PROJECT_ROOT) -o server.ign server.bu
+	env -C terragrunt/environments/dev/server/ec2 butane -psd $(PROJECT_ROOT) -o server.ign.json server.bu
+	jq -c < $$PROJECT_ROOT/terragrunt/environments/dev/server/ec2/server.ign.json > $$PROJECT_ROOT/terragrunt/environments/dev/server/ec2/server.ign
 
 dev/init: .FORCE  ## Initialize | dev | all
 	$(call run_terragrunt,dev,init)
