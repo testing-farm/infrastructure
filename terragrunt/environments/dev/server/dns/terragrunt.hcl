@@ -72,6 +72,14 @@ inputs = {
       records = [
         dependency.ec2.outputs.public_dns
       ]
+    },
+    {
+      name = "tmt.dev-${get_env("USER")}"
+      type = "CNAME"
+      ttl  = 60
+      records = [
+        dependency.ec2.outputs.public_dns
+      ]
     }
   ])
 }

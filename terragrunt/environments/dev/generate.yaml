@@ -46,3 +46,13 @@
       ansible.builtin.template:
         src: "{{ server_pods_dir }}/server.yaml.j2"
         dest: "{{ server_pods_dir }}/server.yaml"
+
+    - name: Render tmt web pod yaml
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/tmt-web.yaml.j2"
+        dest: "{{ server_pods_dir }}/tmt-web.yaml"
+
+    - name: Render tmt web reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/tmt.dev-USER.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/tmt.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
