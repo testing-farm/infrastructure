@@ -57,3 +57,8 @@
         dest: "{{ server_pods_dir }}/server.yaml"
       vars:
         backup_url: "{{ presign.url }}"
+
+    - name: Render tmt web reverse proxy config
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/tmt.staging.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/tmt.staging.testing-farm.io.conf"
