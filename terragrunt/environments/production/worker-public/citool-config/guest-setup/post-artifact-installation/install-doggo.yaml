@@ -19,4 +19,5 @@
       shell: nohup /usr/local/bin/doggo --pushgateway-url http://pushgateway.dev.testing-farm.io:9091/ \
              --request-id {{ TESTING_FARM_REQUEST_ID }} &>/var/tmp/doggo.log &
 
-  when: ansible_distribution == "Fedora"
+  # Disabled, seems we will not use it
+  when: false
