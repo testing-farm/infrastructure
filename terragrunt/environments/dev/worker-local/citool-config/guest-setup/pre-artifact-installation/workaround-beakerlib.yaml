@@ -34,3 +34,24 @@
   when:
     - 'ansible_distribution == "CentOS"'
     - 'ansible_distribution_release == "Stream"'
+    - '"bootc" not in IMAGE_NAME|lower'
+
+- block:
+  - name: Add beakerlib copr repository for CentOS Stream
+    command: "curl -Lo /etc/yum.repos.d/beakerlib-beakerlib-master.repo https://copr.fedorainfracloud.org/coprs/packit/beakerlib-beakerlib-master/repo/epel-{{ ansible_distribution_major_version }}"
+    when:
+      - "ansible_distribution_major_version | int < 10"
+
+  # workaround TFT-1284
+  - name: Install beakerlib
+    shell: "rpm -q beakerlib || rpm-ostree install -y -A beakerlib"
+    retries: "{{ pkg_retry_count }}"
+    delay: "{{ pkg_retry_delay }}"
+    until: result_package is succeeded
+    register: result_package
+    when: "ansible_distribution_major_version | int < 10"
+
+  when:
+    - 'ansible_distribution == "CentOS"'
+    - 'ansible_distribution_release == "Stream"'
+    - '"bootc" in IMAGE_NAME|lower'
