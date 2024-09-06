@@ -26,11 +26,14 @@
   # 2022-05-24: Added CentOS Stream 8 update, due to podman broken with old libseccomp
   # 2022-12-01: Added CentOS Stream 9 update, due to podman broken with libselinux
   when: >
-    check_rawhide.rc == 0
-    or (
-      'ansible_distribution == "CentOS"'
-      and 'ansible_distribution_release == "Stream"'
+    (
+      check_rawhide.rc == 0
+      or (
+        'ansible_distribution == "CentOS"'
+        and 'ansible_distribution_release == "Stream"'
+      )
     )
+    and 'bootc' not in IMAGE_NAME|lower
 
   # This task is best effort
   ignore_errors: true
