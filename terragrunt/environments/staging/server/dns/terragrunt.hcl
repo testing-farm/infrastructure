@@ -72,6 +72,14 @@ inputs = {
       records = [
         dependency.ec2.outputs.public_dns
       ]
+    },
+    {
+      name = "tmt.staging"
+      type = "CNAME"
+      ttl  = 60
+      records = [
+        dependency.ec2.outputs.public_dns
+      ]
     }
   ])
 }
