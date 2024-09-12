@@ -158,6 +158,7 @@ Host $host
   Hostname $ansible_host
   User $ansible_user
   IdentityFile ${ssh_private_key}.decrypted
+  IdentitiesOnly yes
 EOF
     done
 
