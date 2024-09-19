@@ -4,6 +4,9 @@ CITOOL_EXTRA_PODMAN_ARGS ?= --pull newer
 # default worker image
 WORKER_IMAGE ?= quay.io/testing-farm/worker-public:latest
 
+# skip nomadstart if asked
+SKIP_NOMAD_START := $(if $(SKIP_NOMAD_START),-e skip_nomad_start=true,)
+
 # default development cluster name
 DEV_CLUSTER_NAME ?= $(or $(TF_VAR_cluster_name),testing-farm-dev-$$USER)
 
@@ -37,6 +40,7 @@ Usage:
 Variables defaults:
 
   WORKER_IMAGE = $(WORKER_IMAGE)     ⚙️  test/* targets
+  SKIP_NOMAD_START = <UNDEFINED>     ⚙️  create/*/worker targets
 
 endef
 
@@ -132,7 +136,7 @@ dev/kubeconfig: .FORCE  ## Update kubeconfig for development environemnt
 	aws eks --profile fedora_us_east_2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
 
 .dev/create/public/worker%:
-	ansible-playbook -e deployment=dev -v ansible/playbooks/create-public-worker.yaml
+	ansible-playbook -e deployment=dev ${SKIP_NOMAD_START} -v ansible/playbooks/create-public-worker.yaml
 
 dev/create/public/worker: generate/dev/citool-config/public .FORCE  ## Create a Public ranch worker, use `make create/public/worker N` to create N workers
 	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) dev public worker(s)\033[0m"
@@ -252,7 +256,7 @@ production/public/proxy/nomad:  ## Setup ssh proxy for Public ranch nomad
 	@ssh -fNL 4646:localhost:4646 testing_farm_public_server_01
 
 .create/redhat/worker%:
-	ansible-playbook -e deployment=production -v ansible/playbooks/create-redhat-worker.yaml
+	ansible-playbook -e deployment=production ${SKIP_NOMAD_START} -v ansible/playbooks/create-redhat-worker.yaml
 
 create/redhat/worker: .FORCE  ## Create a Red Hat ranch worker, use `make create/redhat/worker N` to create N workers
 	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) redhat worker(s)\033[0m"
