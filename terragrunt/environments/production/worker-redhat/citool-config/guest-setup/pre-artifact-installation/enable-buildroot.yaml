@@ -1,4 +1,38 @@
 - block:
+  - name: Detect compose id
+    shell: "grep DISTRO /etc/motd.orig | head -n 1 | grep -o 'RHEL.*'"
+    register: compose_id
+    ignore_errors: true
+  - name: Check if rhel.repo exists
+    stat:
+      path: /etc/yum.repos.d/rhel.repo
+    register: rhel_repo
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
+    - '"image-mode" not in IMAGE_NAME|lower'
+
+- block:
+  - name: Install repos using repogen
+    local_action:
+      module: command
+      cmd: yumrepogen -insecure -arch={{ ansible_architecture }} -compose-id={{ compose_id.stdout }} -outfile=rhel.repo
+  - name: Copy generated rhel.repo
+    copy:
+      src: rhel.repo
+      dest: /etc/yum.repos.d/rhel.repo
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
+    - '"image-mode" not in IMAGE_NAME|lower'
+    - not rhel_repo.stat.exists
+    - compose_id is success
+
+- block:
   - name: Make sure dnf core plugins are installed
     command: "dnf -y install dnf-plugins-core"
     retries: "{{ pkg_retry_count }}"
@@ -8,8 +42,6 @@
 
   - name: Enable Buildroot repository
     command: "dnf config-manager --enable rhel-buildroot"
-    # TODO: this does not work on Beaker, we need better playbooks here
-    ignore_errors: true
 
   when:
     - 'ansible_distribution == "RedHat"'
