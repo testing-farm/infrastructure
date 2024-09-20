@@ -19,4 +19,10 @@ tar xzf ./actions-runner-linux-x64-${version}.tar.gz
 sudo ./bin/installdependencies.sh
 ./config.sh --url "https://github.com/${owner}/${repository}" --token "${token}" --labels testing-farm --unattended
 ./run.sh
+
+# Add user specific ssh keys
+## lul
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCy2sAVsmqTZOSp3B/+aNwuLuYil5csev6ezn/jJRHrgwV+bwpgqEuN/72aRwFMXZEZEoYAmsVhTOddH52psbcdY8MvP0jK3x/GYXgjHWbjhFzkn3RL8ZesHr6vHkuofOwobX4+z0jgAV6rUBTxyh8n0AUSL+DK2etBiPoM/LXbTmuc7tMTXNeCWAedmpSnzgl0s2QHZVj/C8BHmW5yzKebCLh1EVKrbChQLhuYe0BV4ozLiUNWSGDbppZQlIcJ1rvNAiFbWPxlF/VMinn6n07TSuq4yhFfrgSfsehZZXLUw+lxUPw1nC2HxJsfMTvVzy4mPjwyFtjKVhLGfNvXxi0RpG+aPsXaCvuBaO5ZGFClFbBxEqcJIRoc8CLQc2n7nN1pxjzu7eiStUm5DwkFnWnGu3+yqxTIPWDtDYRzsdXsSy6HqcD0Qjwvh2p83Lel1qU8zn5dZz7yUkGhoHUdAQu4vvvcaK/B7YLBUKw4ROiWxJ+t6BOBVwlWhkQibMK3n70=" >> /home/fedora/.ssh/authorized_keys
+## mvadkert
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIH32qvjPWzrW2WIfOcOeO+SqOimkgWGkSfb/vMox+kL" >> /home/fedora/.ssh/authorized_keys
 EOF
