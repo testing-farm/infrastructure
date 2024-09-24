@@ -32,6 +32,7 @@ checks:
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/data" name="data"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}/tmt-run.log" name="tmt-log"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}/log.txt" name="tmt-verbose-log"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}" name="workdir"/>
         </logs>
         <properties>
