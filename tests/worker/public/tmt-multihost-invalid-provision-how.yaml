@@ -32,6 +32,7 @@ checks:
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}{{ PLAN }}/data" name="data"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}/tmt-run.log" name="tmt-log"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}/log.txt" name="tmt-verbose-log"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}" name="workdir"/>
         </logs>
         <properties>
