@@ -1,5 +1,5 @@
 server {
-    server_name  nomad.staging.testing-farm.io;
+    server_name  nomad.staging{{ staging_suffix | default("") }}.testing-farm.io;
     location / {
         # https://developer.hashicorp.com/nomad/tutorials/manage-clusters/reverse-proxy-ui
         proxy_pass http://127.0.0.1:4646;

@@ -20,7 +20,6 @@ pipeline: |
 
 checks:
   literal-strings:
-    - "[testing-farm-request] Connected to Testing Farm Service 'http://api.staging.testing-farm.io', 'http://internal.api.staging.testing-farm.io'"
     - "[testing-farm-request] Initialized with 9e6fa113-a25a-43e1-bb27-671780f152d0:"
     - "[static-guest] added guest 'localhost' with architecture "
     - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
@@ -33,6 +32,7 @@ checks:
     - "[test-schedule-report] results saved into results.xml"
 
   literal-patterns:
+    - "[testing-farm-request] Connected to Testing Farm Service '{{ testing_farm_public_api_url }}', '{{ testing_farm_internal_api_url }}'"
     - "[coldstore] For the pipeline artifacts, see {{ artifacts_url_pattern }}/testing-farm/9e6fa113-a25a-43e1-bb27-671780f152d0"
     - table:
         -
