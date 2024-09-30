@@ -228,6 +228,7 @@ test/staging/pipeline:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
+    STAGING_CI_SUFFIX: $CI_PIPELINE_ID
     SCRIPT: >-
       make staging/apply/ci &&
       make test/staging/pipeline/ci
@@ -248,6 +249,7 @@ test/staging/pipeline/container:
     - !reference [.script_with_cleanup, script]
   variables:
     PYTEST_PARALLEL_RUNS: 1
+    STAGING_CI_SUFFIX: $CI_PIPELINE_ID
     SCRIPT: >-
       make test/staging/pipeline/container/ci
     AFTER_SCRIPT: >-
@@ -265,6 +267,7 @@ test/staging/compose:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
+    STAGING_CI_SUFFIX: $CI_PIPELINE_ID
     SCRIPT: >-
       make staging/apply/ci &&
       make test/staging/compose/ci
