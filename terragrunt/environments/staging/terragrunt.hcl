@@ -5,7 +5,8 @@ skip = true
 # Create terraform cloud workspace
 terraform {
   before_hook "terraform_cloud_project" {
-    commands = ["apply", "init", "import", "plan"]
+    # do not run the hook for ci
+    commands = startswith(path_relative_to_include(), "ci") ? [] : ["apply", "init", "import", "plan"]
     execute = [
       "terraform-cloud",
       "create-workspace", "--ignore-existing",
