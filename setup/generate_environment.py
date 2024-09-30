@@ -7,6 +7,7 @@ import stat
 import subprocess
 import sys
 
+import requests
 import ruamel.yaml
 
 from ansible.constants import DEFAULT_VAULT_ID_MATCH
@@ -17,7 +18,7 @@ from typing import Union
 
 SecretsType = dict[str, Union[str, 'SecretsType']]
 
-SUPPORTED_ENVIRONMENTS = ['dev', 'staging']
+SUPPORTED_ENVIRONMENTS = ['dev', 'staging', 'staging/ci']
 TERRAGRUNT_ENV_DIR=f'{os.environ["PROJECT_ROOT"]}/terragrunt/environments'
 # Use this variable to override the artemis deployment name, e.g. `artemis-integration`
 # Use none to ignore artemis deployment (for container only testing it is not needed)
@@ -74,8 +75,14 @@ def main() -> None:
         if 'No outputs found' in artemis_api_domain:
             raise Exception(f'No Artemis hostname found, "{ARTEMIS_DEPLOYMENT}" not deployed in "{environment}" environment?')
 
+        response = requests.get(f"http://{artemis_api_domain}/current/about", allow_redirects=True)
+
+        if response.status_code != 200:
+            raise Exception(f"Artemis about endpoint '{response.url}' returned status code '{response.status_code}'.")
+
         context.update({
-            'artemis_api_domain': artemis_api_domain
+            'artemis_api_domain': artemis_api_domain,
+            'staging_suffix': f"-{os.getenv('STAGING_CI_SUFFIX')}" if os.getenv('STAGING_CI_SUFFIX') else ''
         })
 
     template_dirpath = os.path.join('terragrunt', 'environments', environment, WORKER, 'citool-config')
