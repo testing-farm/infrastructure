@@ -8,10 +8,9 @@ locals {
   common       = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
   artemis      = read_terragrunt_config("../../artemis/terragrunt.hcl")
   route53_zone = local.common.inputs.route53_zone
-  # Generate a random namespace for the deployment
-  namespace = "artemis-${uuid()}"
+  namespace    = "artemis-${get_env("STAGING_CI_SUFFIX")}"
 
-  mocked_cluster_certificate_authority_data = "bW9jay1jbHVzdGVyLWNlcnRpZmljYXRlCg==" # pragma: allowlist secret
+  mocked_cluster_certificate_authority_data = "bW9jay1jbHVzdGVyLWNlcnRpZmljYXRlCg=="  # pragma: allowlist secret
 }
 
 # Use eks module from this repository
@@ -66,7 +65,7 @@ inputs = {
 
   release_name = local.artemis.inputs.release_name
   namespace    = local.namespace
-  image_tag    = "v0.0.70"
+  image_tag    = get_env("STAGING_CI_ARTEMIS_TAG", local.artemis.inputs.image_tag)
 
   # Enable access from localhost
   additional_lb_source_ips = [dependency.localhost.outputs.localhost_public_ip]

@@ -25,7 +25,6 @@ pipeline: |
 
 checks:
   literal-strings:
-    - "[testing-farm-request] Connected to Testing Farm Service 'http://api.staging.testing-farm.io', 'http://internal.api.staging.testing-farm.io'"
     - "[git] <RemoteGitRepository(clone_url=https://gitlab.com/testing-farm/tests, branch=not specified, ref=main)>"
     - "[testing-farm-request-state-reporter] pipeline complete"
     - "[test-schedule-tmt-connect] cloning repo https://gitlab.com/testing-farm/tests (branch not specified, ref main)"
@@ -36,6 +35,7 @@ checks:
 
 
   literal-patterns:
+    - "[testing-farm-request] Connected to Testing Farm Service '{{ testing_farm_public_api_url }}', '{{ testing_farm_internal_api_url }}'"
     - "[coldstore] For the pipeline artifacts, see {{ artifacts_url_pattern }}/59274f1b-4c6d-4a3d-9bd0-c35ab0b5b394"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest is being provisioned"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest is ready"

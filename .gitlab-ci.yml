@@ -6,6 +6,8 @@ variables:
   # GitLab CI runs in world writable directory, we need to explicitely set ANSIBLE_CONFIG
   # https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
   ANSIBLE_CONFIG: ansible.cfg
+  # Used only for staging/ci environment, no-op for others
+  STAGING_CI_SUFFIX: $CI_MERGE_REQUEST_ID-$CI_JOB_ID
   # Set USER used to derive certain dev environment resource names
   USER: gitlab-ci-$CI_JOB_ID
 
