@@ -10,7 +10,7 @@ marks:
 
 variables:
   #REQUEST_ID: d9c01cf5-0340-4782-bef0-1b46e5cc2a3e  # TODO: enable this test once TFT-2425 is fixed
-  REQUEST_ID: e18543bb-8147-47d5-9598-734280d78e43
+  REQUEST_ID: 8af61fc3-932a-48c1-a927-e70fae546c19
   ARCH: x86_64
   RESULT: PASSED
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
