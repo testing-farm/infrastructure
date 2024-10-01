@@ -9,6 +9,7 @@
 #
 
 import itertools
+import json as json_module
 import os
 import sys
 from typing import Any, Dict, List, Optional
@@ -144,7 +145,7 @@ def cmd_create_workspace(name: str, ignore_existing: bool = False) -> None:
 
 
 @app.command("list-workspaces")
-def cmd_list_workspaces() -> None:
+def cmd_list_workspaces(json: bool = False) -> None:
     """
     List available workspaces.
     """
@@ -154,7 +155,10 @@ def cmd_list_workspaces() -> None:
         error("No workspaces found")
         return
 
-    print("\n".join(workspace["attributes"]["name"] for workspace in workspaces))
+    if json:
+        print(json_module.dumps(workspaces, indent=2))
+    else:
+        print("\n".join(workspace["attributes"]["name"] for workspace in workspaces))
 
 
 @app.command("delete-workspace")
