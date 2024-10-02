@@ -29,6 +29,10 @@ progress:
 
   - source: "work-*/tmt-run.log"
 
+  - source: "work-*/log.txt"
+
+  - source: "work-*/**/output.txt"
+
   - source: "results.xml"
     destination: results.xml
 
