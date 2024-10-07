@@ -31,16 +31,38 @@ ifneq (,$(filter $(firstword $(MAKECMDGOALS)),create/public/worker create/redhat
   $(eval $(SCALE_TARGET):;@:)
 endif
 
+# output helpers
+ccred=$(shell tput setaf 1)
+ccgreen=$(shell tput setaf 2)
+ccend=$(shell tput sgr0)
+ccbold=$(shell tput bold)
+
 # Help prelude
 define PRELUDE
+Testing Farm Infrastructure
 
-Usage:
-  make [target]
+$(ccbold)Usage$(ccend)
 
-Variables defaults:
+  [variables] make [target] [parameter]
 
-  WORKER_IMAGE = $(WORKER_IMAGE)     ⚙️  test/* targets
-  SKIP_NOMAD_START = <UNDEFINED>     ⚙️  create/*/worker targets
+$(ccbold)Environment Variables$(ccend)
+
+  ⚙️  $(ccgreen)test/*$(ccend) targets
+
+     WORKER_IMAGE                 ... Adjust worker image when running tests [$(WORKER_IMAGE)]
+
+  ⚙️  $(ccgreen)create/*/worker$(ccend) targets
+
+     SKIP_NOMAD_START             ... Skip registering the worker to Nomad
+
+  ⚙️  $(ccgreen)staging/*/ci$(ccend) targets
+
+     STAGING_CI_SUFFIX            ... Suffix added to staging subdomains, $(ccbold)required$(ccend)
+     STAGING_CI_API_TAG           ... Override API image tag [latest]
+     STAGING_CI_ARTEMIS_TAG       ... Override Artemis image tag [latest]
+     STAGING_CI_DISPATCHER_TAG    ... Override Dispatcher image tag [latest]
+     STAGING_CI_RANCH_PUBLIC_TAG  ... Override Public Ranch Configuration image tag [latest]
+     STAGING_CI_UI_TAG            ... Override UI image tag [latest]
 
 endef
 
@@ -159,12 +181,27 @@ dev/update/public/pipeline/jobs: .FORCE  ## Update pipeline jobs on Public ranch
 
 ##@ Infrastructure | Staging
 
+define check_staging_ci_env
+	@if [ -z "$$STAGING_CI_SUFFIX" ]; then \
+		echo -e "⛔️ \033[0;31mEnvironment variable 'STAGING_CI_SUFFIX' is required.\033[0m"; \
+		exit 1; \
+	fi
+endef
+
 staging/generate: .FORCE  ## Generate deployment files | staging
 	ansible-playbook terragrunt/environments/staging/generate.yaml
 	env -C $$PROJECT_ROOT/terragrunt/environments/staging/server/ec2 butane -psd $(PROJECT_ROOT) -o server.ign.json server.bu
 	# Compact the json, because AWS user data is limited to 16k characters
 	jq -c < $$PROJECT_ROOT/terragrunt/environments/staging/server/ec2/server.ign.json > $$PROJECT_ROOT/terragrunt/environments/staging/server/ec2/server.ign
 	rm -f $$PROJECT_ROOT/terragrunt/environments/staging/server/ec2/server.ign.json
+
+staging/generate/ci: .FORCE  ## Generate deployment files | staging
+	$(call check_staging_ci_env)
+	ansible-playbook terragrunt/environments/staging/generate-ci.yaml
+	env -C $$PROJECT_ROOT/terragrunt/environments/staging/ci/server/ec2 butane -psd $(PROJECT_ROOT) -o server.ign.json server.bu
+	# Compact the json, because AWS user data is limited to 16k characters
+	jq -c < $$PROJECT_ROOT/terragrunt/environments/staging/ci/server/ec2/server.ign.json > $$PROJECT_ROOT/terragrunt/environments/staging/ci/server/ec2/server.ign
+	rm -f $$PROJECT_ROOT/terragrunt/environments/staging/ci/server/ec2/server.ign.json
 
 staging/init: .FORCE  ## Initialize | staging | all
 	$(call run_terragrunt,staging,init)
@@ -187,7 +224,8 @@ staging/plan/artemis: .FORCE  ## Plan deployment | staging | artemis
 staging/plan/server: staging/generate .FORCE  ## Plan deployment | staging | server
 	$(call run_terragrunt,staging/server,plan)
 
-staging/plan/ci: .FORCE  ## Plan deployment | staging | artemis | CI
+staging/plan/ci: staging/generate/ci .FORCE  ## Plan deployment | staging | artemis | CI
+	$(call check_staging_ci_env)
 	$(call run_terragrunt,staging/ci,plan)
 
 staging/apply: staging/generate .FORCE  ## Deploy | staging | all
@@ -200,7 +238,8 @@ staging/apply/eks: .FORCE  ## Deploy | staging | eks
 staging/apply/artemis: .FORCE  ## Deploy | staging | artemis
 	$(call run_terragrunt,staging/artemis,apply)
 
-staging/apply/ci: .FORCE  ## Deploy | staging | artemis | CI
+staging/apply/ci: staging/generate/ci .FORCE  ## Deploy | staging | artemis | CI
+	$(call check_staging_ci_env)
 	$(call run_terragrunt,staging/ci,apply)
 
 staging/apply/server: staging/generate .FORCE  ## Deploy | staging | server
@@ -210,6 +249,7 @@ staging/destroy: .FORCE terminate/artemis/guests/staging  ## Destroy | staging
 	$(call run_terragrunt,staging,destroy)
 
 staging/destroy/ci: .FORCE terminate/artemis/guests/staging/ci  ## Destroy | staging | artemis | CI
+	$(call check_staging_ci_env)
 	# NOTE: do not use run-all here, as it would also destroy the EKS cluster
 	$(call run_terragrunt_single,staging/ci/artemis,destroy)
 	$(call run_terragrunt_single,staging/ci/localhost,destroy)
@@ -221,6 +261,9 @@ staging/kubeconfig: .FORCE  ## Update kubeconfig for staging environment
 staging/server/connect: .FORCE  ## Connect to staging server
 	ssh -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted core@$$(env -C terragrunt/environments/staging/server/ec2 terragrunt output -json | jq -r .public_ip.value)
 
+staging/server/connect/ci: .FORCE  ## Connect to staging server
+	$(call check_staging_ci_env)
+	ssh -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted core@$$(env -C terragrunt/environments/staging/ci/server/ec2 terragrunt output -json | jq -r .public_ip.value)
 
 ##@ Infrastructure | Production
 
@@ -326,6 +369,7 @@ define run_pytest_gluetool
 	--citool-config terragrunt/environments/$1/$2/citool-config --citool-image $(WORKER_IMAGE) \
 	--test-assets tests/worker \
 	--variables terragrunt/environments/$1/$2/citool-config/variables.yaml \
+	--variables terragrunt/environments/$1/$2/citool-config/environment.yaml \
 	--variables tests/common.yaml \
 	--html report.html tests/worker/test_pipeline.py
 endef
@@ -379,13 +423,15 @@ generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
 generate/dev/citool-config/public: .FORCE  ## Generate citool-config | dev
 	WORKER=worker-public poetry run python setup/generate_environment.py dev
 
-generate/staging/citool-config: .FORCE  ## Generate citool-config | staging
+generate/staging/citool-config: .FORCE  ## Generate citool-config for public workers | staging
 	poetry run python setup/generate_environment.py staging
 
 generate/staging/citool-config/ci: .FORCE  ## Generate citool-config | staging | CI
-	WORKER=worker-local ARTEMIS_DEPLOYMENT=ci/artemis poetry run python setup/generate_environment.py staging
+	$(call check_staging_ci_env)
+	WORKER=worker-local ARTEMIS_DEPLOYMENT=ci/artemis STAGING_CI_SUFFIX=$$STAGING_CI_SUFFIX poetry run python setup/generate_environment.py staging
 
-generate/staging/citool-config/container/ci: .FORCE  ## Generate citool-config for containers | staging | CI
+generate/staging/citool-config/container/ci: .FORCE  ## Generate citool-config for container testing only (no Artemis) | staging | CI
+	$(call check_staging_ci_env)
 	WORKER=worker-local ARTEMIS_DEPLOYMENT=none poetry run python setup/generate_environment.py staging
 
 generate/public/tests/compose: .FORCE  ## Generate or update compose tests for Public Ranch
@@ -426,6 +472,7 @@ wait/artemis/staging: .FORCE  ## Wait until Artemis is available | staging
 	@bash setup/wait_artemis_available.sh staging
 
 wait/artemis/staging/ci: .FORCE  ## Wait until Artemis is available | staging | CI
+	$(call check_staging_ci_env)
 	@ARTEMIS_DEPLOYMENT=ci/artemis bash setup/wait_artemis_available.sh staging
 
 
@@ -438,6 +485,7 @@ terminate/artemis/guests/staging: .FORCE  ## Terminate all EC2 instances created
 	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging || true
 
 terminate/artemis/guests/staging/ci: .FORCE  ## Terminate all EC2 instances created by Artemis | staging | CI
+	$(call check_staging_ci_env)
 	@ARTEMIS_DEPLOYMENT=ci/artemis bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh staging || true
 
 terminate/artemis/guests/production: .FORCE  ## Terminate all EC2 instances created by Artemis | staging

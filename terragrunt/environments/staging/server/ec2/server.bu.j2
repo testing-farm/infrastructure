@@ -21,71 +21,71 @@ storage:
     - path: /etc/testing-farm/pods/server.yaml
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/server.yaml
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/server.yaml
     - path: /etc/containers/systemd/server.kube
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/server.kube
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/server.kube
     - path: /etc/testing-farm/pods/cockroach.yaml
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/cockroach.yaml
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/cockroach.yaml
     - path: /etc/containers/systemd/cockroach.kube
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/cockroach.kube
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/cockroach.kube
     - path: /etc/testing-farm/pods/nginx.yaml
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nginx.yaml
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx.yaml
     - path: /etc/containers/systemd/nginx.kube
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nginx.kube
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx.kube
     - path: /etc/testing-farm/pods/nomad.yaml
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nomad.yaml
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nomad.yaml
     - path: /etc/containers/systemd/nomad.kube
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nomad.kube
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nomad.kube
     - path: /etc/nomad/server.conf
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nomad/server.conf
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nomad/server.conf
     - path: /etc/nginx/conf.d/staging.testing-farm.io.conf
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nginx/staging.testing-farm.io.conf
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/staging.testing-farm.io.conf
     - path: /etc/nginx/conf.d/ui-backend.staging.testing-farm.io.conf
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nginx/ui-backend.staging.testing-farm.io.conf
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/ui-backend.staging.testing-farm.io.conf
     - path: /etc/testing-farm/pods/tmt-web.yaml
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/tmt-web.yaml
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/tmt-web.yaml
     - path: /etc/containers/systemd/tmt-web.kube
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/tmt-web.kube
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/tmt-web.kube
     - path: /etc/nginx/conf.d/api.staging.testing-farm.io.conf
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nginx/api.staging.testing-farm.io.conf
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/api.staging.testing-farm.io.conf
     - path: /etc/nginx/conf.d/internal.api.staging.testing-farm.io.conf
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nginx/internal.api.staging.testing-farm.io.conf
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/internal.api.staging.testing-farm.io.conf
     - path: /etc/nginx/conf.d/nomad.staging.testing-farm.io.conf
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nginx/nomad.staging.testing-farm.io.conf
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/nomad.staging.testing-farm.io.conf
     - path: /etc/nginx/conf.d/artifacts.staging.testing-farm.io.conf
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nginx/artifacts.staging.testing-farm.io.conf
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/artifacts.staging.testing-farm.io.conf
     - path: /etc/nginx/conf.d/server.conf
       mode: 0644
       contents:
@@ -93,7 +93,7 @@ storage:
     - path: /etc/nginx/conf.d/tmt.staging.testing-farm.io.conf
       mode: 0644
       contents:
-        local: terragrunt/environments/staging/server/pods/nginx/tmt.staging.testing-farm.io.conf
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/tmt.staging.testing-farm.io.conf
   directories:
     - path: /var/data/artifacts
       user:
