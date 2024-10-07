@@ -1,0 +1,164 @@
+---
+summary: Run Testing Farm integration tests against staging
+description: |
+  Runs Testing Farm integration tests against staging instance.
+
+  Required variables:
+
+    VAULT_PASSWORD     ... Ansible Vault password to unlock the credentials
+
+  Optional variables:
+
+    STAGING_CI_SUFFIX            ... Override staging CI suffix [randomly generated UUID]
+
+    STAGING_CI_API_TAG           ... Override API image tag [latest]
+    STAGING_CI_ARTEMIS_TAG       ... Override Artemis image tag [latest]
+    STAGING_CI_DISPATCHER_TAG    ... Override Dispatcher image tag [latest]
+    STAGING_CI_RANCH_PUBLIC_TAG  ... Override Public Ranch Configuration image tag [latest]
+    STAGING_CI_UI_TAG            ... Override UI image tag [latest]
+
+provision:
+  how: virtual
+  image: Fedora-40
+
+environment:
+  TF_INFRA: /root/infrastructure
+
+prepare:
+  - name: Sanity checks and setup
+    how: shell
+    script: |
+      set -e
+
+      # Check for require vault password
+      if [ -z "$VAULT_PASSWORD" ]; then
+        echo "Error: Required VAULT_PASSWORD environment variable not found"
+        exit 1
+      fi
+
+      # Install make, the only dependency needed for the infrastructure setup
+      dnf -y install make nosync
+
+      # Make sure the testing farm infra repository exists
+      mkdir -p "$(dirname $TF_INFRA)"
+
+      # Copy the tmt tree to TF_INFRA directory
+      cp -rvf $TMT_TREE /root/infrastructure
+
+  - name: setup infrastructure repository
+    how: shell
+    script: |
+      set -e
+
+      # Speed up installation
+      export LD_PRELOAD=/usr/lib64/nosync/nosync.so
+
+      # Instal system dependencies
+      make install/fedora
+
+      # Move to the tree root, setup expects this
+      cd $TF_INFRA
+
+      # Set STAGING_CI_SUFFIX
+      echo "${STAGING_CI_SUFFIX:-$(uuidgen)}" > staging_ci_suffix
+
+      # Load STAGING_CI_SUFFIX
+      export STAGING_CI_SUFFIX=$(cat staging_ci_suffix)
+
+      # Set the vault secret
+      echo -n "$VAULT_PASSWORD" > .vault_pass
+
+      # Enable direnv
+      direnv allow
+      eval "$(direnv export bash)"
+
+      # Use Google DNS for stability reasons
+      printf "nameserver 1.1.1.1\nnameserver 8.8.8.8\nnameserver 8.8.4.4\n" > /etc/resolv.conf
+
+execute:
+  how: tmt
+  framework: shell
+  script: |
+
+finish:
+  - name: run cleanup
+    how: shell
+    script: |
+      set -e
+
+      # Move to the tree root, setup expects this
+      cd "$TF_INFRA"
+
+      # Enable direnv
+      direnv allow
+      eval "$(direnv export bash)"
+
+      # Load STAGING_CI_SUFFIX
+      export STAGING_CI_SUFFIX=$(cat staging_ci_suffix)
+
+      # Destroy the staging CI environment
+      make staging/destroy/ci > /dev/null
+      make test/pytest/oculus
+
+/compose:
+  adjust:
+    - execute:
+        script: |
+          set -e
+
+          # Move to the tree root, setup expects this
+          cd "$TF_INFRA"
+
+          # Enable direnv
+          eval "$(direnv export bash)"
+
+          # Load STAGING_CI_SUFFIX
+          export STAGING_CI_SUFFIX=$(cat staging_ci_suffix)
+
+          # Create staging CI
+          make staging/apply/ci
+
+          # Run tests
+          make test/staging/compose/ci
+
+/pipeline/machine:
+  adjust:
+    - execute:
+        script: |
+          set -e
+
+          # Move to the tree root, setup expects this
+          cd "$TF_INFRA"
+
+          # Enable direnv
+          eval "$(direnv export bash)"
+
+          # Load STAGING_CI_SUFFIX
+          export STAGING_CI_SUFFIX=$(cat staging_ci_suffix)
+
+          # Create staging CI
+          make staging/apply/ci
+
+          # Run tests
+          make test/staging/pipeline/ci
+
+/pipeline/container:
+  adjust:
+    - execute:
+        script: |
+          set -e
+
+          # Move to the tree root, setup expects this
+          cd "$TF_INFRA"
+
+          # Enable direnv
+          eval "$(direnv export bash)"
+
+          # Load STAGING_CI_SUFFIX
+          export STAGING_CI_SUFFIX=$(cat staging_ci_suffix)
+
+          # Create staging CI
+          make staging/apply/ci
+
+          # Run tests
+          make test/staging/pipeline/container/ci
