@@ -1,4 +1,4 @@
-module vault-test
+module wait-for-test
 
 go 1.20
 
