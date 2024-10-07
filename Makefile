@@ -29,6 +29,9 @@ install/pre-commit:  ## Install pre-commit hooks
 		pre-commit install; \
 	fi
 
+install/fedora: .FORCE  ## Install Fedora system dependencies (requires root)
+	sudo dnf -y install ansible-core direnv git libffi libffi-devel podman poetry python3.9 rsync yq unzip
+
 ##@ Cleanup
 
 clean: .FORCE  ## Cleanup
