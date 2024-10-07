@@ -15,7 +15,6 @@ variables:
 
 checks:
   literal-strings:
-    - "[testing-farm-request] Connected to Testing Farm Service 'http://api.staging.testing-farm.io', 'http://internal.api.staging.testing-farm.io'"
     - "[git] <RemoteGitRepository(clone_url={{ GIT_CLONE_URL }}, branch=not specified, ref={{ GIT_REF }})>"
     - "[testing-farm-request-state-reporter] pipeline complete"
     - "[test-schedule-tmt-multihost] cloning repo {{ GIT_CLONE_URL }} (branch not specified, ref {{ GIT_REF }})"
@@ -30,6 +29,7 @@ checks:
     - "[test-schedule-report] results saved into results-junit.xml"
 
   literal-patterns:
+    - "[testing-farm-request] Connected to Testing Farm Service '{{ testing_farm_public_api_url }}', '{{ testing_farm_internal_api_url }}'"
     - "[coldstore] For the pipeline artifacts, see {{ artifacts_url_pattern }}/{{ REQUEST_ID }}"
 
     - table:
