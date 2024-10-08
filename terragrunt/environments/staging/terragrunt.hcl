@@ -19,9 +19,11 @@ locals {
   # staging EKS is hosted in this region
   aws_profile_us_east_1 = "fedora_us_east_1"
   aws_region_us_east_1  = "us-east-1"
+
   # AWS region hosting workers and guests
   aws_profile_us_east_2 = "fedora_us_east_2"
   aws_region_us_east_2  = "us-east-2"
+
   # Use json to pass a map to the provider
   # https://github.com/gruntwork-io/terragrunt/issues/1961
   aws_tags = {
@@ -29,6 +31,7 @@ locals {
     ServiceOwner = "TFT"
     ServicePhase = "Stage"
   }
+
   # Testing Farm worker tags used to identify workers for this environment
   worker_tags = {
     "FedoraGroup"      = "ci"
@@ -37,6 +40,7 @@ locals {
     "ServiceComponent" = "Worker"
     "ServicePhase"     = "Stage"
   }
+
   # Server settings
   data_volume_size = 200
 }
@@ -52,6 +56,14 @@ inputs = {
   worker_tags         = local.worker_tags
   cluster_name        = "testing-farm-staging"
   data_volume_size    = local.data_volume_size
+
+  # URLs to wait for after deployment of the server
+  # Used only for `ci/server`
+  wait_urls = [
+    "api.staging-${get_env("STAGING_CI_SUFFIX")}.testing-farm.io/v0.1/about",
+    "internal.api.staging-${get_env("STAGING_CI_SUFFIX")}.testing-farm.io/v0.1/about",
+    "tmt.staging-${get_env("STAGING_CI_SUFFIX")}.testing-farm.io/health"
+  ]
 }
 
 # Provider for artemis and eks, has 2 regions
