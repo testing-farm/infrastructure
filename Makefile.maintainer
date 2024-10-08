@@ -416,6 +416,7 @@ test/pytest/oculus: .FORCE  ## Download oculus to .pytest directory
 
 test/terraform/modules:  ## Run terratest tests for Teraform modules
 	env -C terragrunt/modules/vault/test go test -v
+	env -C terragrunt/modules/url_wait/test go test -v
 
 generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
 	WORKER=worker-local poetry run python setup/generate_environment.py dev
