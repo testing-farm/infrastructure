@@ -157,6 +157,9 @@ dev/destroy/workers: .FORCE  ## Destroy | dev | all
 dev/kubeconfig: .FORCE  ## Update kubeconfig for development environemnt
 	aws eks --profile fedora_us_east_2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
 
+dev/server/connect: .FORCE  ## Connect to dev server
+	ssh -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted core@$$(env -C terragrunt/environments/dev/server/ec2 terragrunt output -json | jq -r .public_ip.value)
+
 .dev/create/public/worker%:
 	ansible-playbook -e deployment=dev ${SKIP_NOMAD_START} -v ansible/playbooks/create-public-worker.yaml
 
