@@ -1,0 +1,24 @@
+---
+summary: Test guest-setup on CentOS Stream 9
+
+provision:
+  how: virtual
+  image: CentOS-Stream-9
+
+prepare:
+  - name: pre-artifact-installation
+    how: ansible
+    playbook: ranch/redhat/citool-config/guest-setup/pre-artifact-installation/entrypoint.yaml
+    extra-args: "-e IMAGE_NAME=CentOS-Stream-9"
+
+discover+:
+  how: shell
+  tests+:
+    - name: Test installed brewkoji package
+      test: rpm -qi brewkoji
+
+    - name: Check if epel repo enabled
+      test: dnf repolist | grep '^epel '
+
+    - name: Check if epel repo enabled
+      test: dnf repolist | grep '^epel-next '

@@ -1,0 +1,30 @@
+---
+summary: Test guest-setup on Fedora Rawhide
+
+provision:
+  how: virtual
+  image: Fedora-Rawhide
+
+prepare:
+  - name: pre-artifact-installation
+    how: ansible
+    playbook: terragrunt/environments/production/worker-public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yaml
+    extra-args: "-e IMAGE_NAME=Fedora-Rawhide -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
+
+  - name: post-artifact-installation
+    how: ansible
+    playbook: terragrunt/environments/production/worker-public/citool-config/guest-setup/post-artifact-installation/entrypoint.yaml
+    extra-args: "-e IMAGE_NAME=Fedora-Rawhide -e TESTING_FARM_REQUEST_ID=43e75b22-7fc5-4492-92a7-d24f469a7eba"
+
+
+discover+:
+  how: shell
+  tests+:
+    - name: Test installed koji package
+      test: rpm -qi koji
+
+    - name: Test doggo running
+      test: ps ax | egrep -o '[S]l.*/usr/local/bin/doggo --pushgateway-url http://pushgateway.dev.testing-farm.io:9091/ --request-id 43e75b22-7fc5-4492-92a7-d24f469a7eba'
+
+    - name: Make sure tag repository is present
+      test: test -e /etc/yum.repos.d/tag-repository.repo
