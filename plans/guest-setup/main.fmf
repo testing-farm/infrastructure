@@ -1,0 +1,11 @@
+---
+summary: Generic tests for guest-setup
+
+discover:
+  how: shell
+  tests:
+    - name: Try yum makecache
+      test: yum makecache
+
+execute:
+  how: tmt

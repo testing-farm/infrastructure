@@ -1,0 +1,18 @@
+---
+summary: Test guest-setup on RHEL 9
+
+provision:
+  how: minute
+  image: RHEL-8
+
+prepare:
+  - name: pre-artifact-installation
+    how: ansible
+    playbook: ranch/redhat/citool-config/guest-setup/pre-artifact-installation/entrypoint.yaml
+    extra-args: "-e IMAGE_NAME=RHEL-9"
+
+discover+:
+  how: shell
+  tests+:
+    - name: Test installed brewkoji package
+      test: rpm -qi brewkoji

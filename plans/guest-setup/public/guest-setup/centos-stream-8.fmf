@@ -1,0 +1,24 @@
+---
+summary: Test guest-setup on CentOS Stream 8
+
+provision:
+  how: virtual
+  image: CentOS-Stream-8
+
+prepare:
+  - name: pre-artifact-installation
+    how: ansible
+    playbook: terragrunt/environments/production/worker-public/citool-config/guest-setup/pre-artifact-installation/entrypoint.yaml
+    extra-args: "-e IMAGE_NAME=CentOS-Stream-8"
+
+discover+:
+  how: shell
+  tests+:
+    - name: Test installed koji and beakerlib package
+      test: rpm -qi koji beakerlib
+
+    - name: Test if tag repository added
+      test: test -e /etc/yum.repos.d/tag-repository.repo
+
+    - name: Test if incorrect beakerlib version not installed (TFT-1284)
+      test: test "$(rpm -q beakerlib)" != beakerlib-1.17-19.el8.x86_64
