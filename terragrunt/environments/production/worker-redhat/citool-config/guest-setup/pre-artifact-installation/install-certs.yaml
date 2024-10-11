@@ -1,0 +1,34 @@
+---
+
+#
+# Install Red Hat certificates
+#
+
+- name: Install ca-certificates package
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - ca-certificates
+    - curl
+  retries: "{{ pkg_retry_count }}"
+  delay: "{{ pkg_retry_delay }}"
+  until: result_install_ca is succeeded
+  register: result_install_ca
+
+# https://source.redhat.com/groups/public/identity-access-management/identity__access_management_blog/action_required_removal_of_ca_certs_from_passwordcorpredhatcom
+- name: Download certificates to '/etc/pki/ca-trust/source/anchors/'
+  command: "curl -skL -o /etc/pki/ca-trust/source/anchors/{{ item | basename }} {{ item }}"
+  with_items:
+    - "https://certs.corp.redhat.com/certs/Current-IT-Root-CAs.pem"
+  retries: "{{ pkg_retry_count }}"
+  delay: "{{ pkg_retry_delay }}"
+  until: result_download_certs is succeeded
+  register: result_download_certs
+
+- name: Enable dynamic CA configuration (RHEL-6)
+  command: "update-ca-trust force-enable"
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == '6'
+
+- name: Update the system trust store in /etc/pki/ca-trust/extracted
+  command: "update-ca-trust extract"
