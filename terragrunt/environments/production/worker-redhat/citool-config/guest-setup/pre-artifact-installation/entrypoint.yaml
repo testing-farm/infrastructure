@@ -3,7 +3,14 @@
     pkg_retry_count: 5
     pkg_retry_delay: 30
   tasks:
-  # workarounds
+  # For accessing internal network resources, certs should be installed early.
+  - name: Install RH certificates
+    include_tasks: install-certs.yaml
+    when:
+      - '"auto-osbuild" not in IMAGE_NAME|lower'
+      - '"composer-api" not in IMAGE_NAME|lower'
+      - '"hardened" not in IMAGE_NAME|lower'
+  # Workarounds
   - include_tasks: workaround-beaker-client-repo-unavailable.yaml
   - include_tasks: workaround-disable-qa-tools.yaml
   - include_tasks: workaround-centos-7.yaml
