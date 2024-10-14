@@ -67,18 +67,14 @@ repos:
             terragrunt/environments/.*/server/ec2/.*
           )$
       - id: terragrunt_validate
-        files: ^terragrunt/environments/
+        files: ^terragrunt/environments/.*/terragrunt.hcl
+        args:
+          - --hook-config="--parallelism-limit=1"
         exclude: |
-          (?x)^(
-            terragrunt/environments/.*/server/pods/.*|
-            terragrunt/environments/.*/artemis/config/.*|
-            terragrunt/environments/.*/worker/citool-config/.*|
-            terragrunt/environments/.*/worker-local/citool-config/.*|
-            terragrunt/environments/.*/worker-public/citool-config/.*|
-            terragrunt/environments/.*/worker-redhat/citool-config/.*|
-            terragrunt/environments/.*/worker-public/jobs/.*|
-            terragrunt/environments/.*/worker-redhat/jobs/.*
-          )$
+            (?x)^(
+              .*/\.terragrunt_cache|
+              terragrunt/environments/github/ORG/.*
+            )$
       - id: terragrunt_fmt
 
   # Generate Public Ranch compose tests

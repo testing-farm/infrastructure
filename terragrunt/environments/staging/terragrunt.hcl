@@ -56,14 +56,7 @@ inputs = {
   worker_tags         = local.worker_tags
   cluster_name        = "testing-farm-staging"
   data_volume_size    = local.data_volume_size
-
-  # URLs to wait for after deployment of the server
-  # Used only for `ci/server`
-  wait_urls = [
-    "api.staging-${get_env("STAGING_CI_SUFFIX")}.testing-farm.io/v0.1/about",
-    "internal.api.staging-${get_env("STAGING_CI_SUFFIX")}.testing-farm.io/v0.1/about",
-    "tmt.staging-${get_env("STAGING_CI_SUFFIX")}.testing-farm.io/health"
-  ]
+  staging_ci_suffix   = "${get_env("STAGING_CI_SUFFIX", get_env("USER", "unknown"))}"
 }
 
 # Provider for artemis and eks, has 2 regions

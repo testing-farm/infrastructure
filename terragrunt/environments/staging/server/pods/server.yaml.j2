@@ -134,9 +134,9 @@ spec:
       image: quay.io/testing-farm/ui:{{ lookup('ansible.builtin.env', 'STAGING_CI_UI_TAG', default="latest") }}
       env:
         - name: TF_UI_TESTING_FARM_PUBLIC_API
-          value: "http://api.staging{{ staging_suffix | default("") }}.testing-farm.io"
+          value: "http://api.staging{{ staging_ci_suffix | default("") }}.testing-farm.io"
         - name: API_URL  # URL of Reflex Backend server
-          value: "http://ui-backend.staging{{ staging_suffix | default("") }}.testing-farm.io"
+          value: "http://ui-backend.staging{{ staging_ci_suffix | default("") }}.testing-farm.io"
       ports:
         - containerPort: 3000
           hostPort: 3000

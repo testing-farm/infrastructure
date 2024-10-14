@@ -21,6 +21,9 @@ DEFAULT_LOCK_TIMEOUT ?= 10m
 TESTING_FARM_PRODUCTION_API_URL ?= $(TESTING_FARM_API_URL)
 TESTING_FARM_PRODUCTION_API_TOKEN_PUBLIC ?= $(TESTING_FARM_API_TOKEN_PUBLIC)
 
+# Staging CI exclude directories
+STAGING_CI_EXCLUDE_DIR = $(PROJECT_ROOT)/terragrunt/environments/staging/ci/**/*
+
 # For scale-redhat-worker target, make all additional targets parameters
 # https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run
 ifneq (,$(filter $(firstword $(MAKECMDGOALS)),create/public/worker create/redhat/worker dev/create/public/worker))
@@ -207,16 +210,19 @@ staging/generate/ci: .FORCE  ## Generate deployment files | staging
 	rm -f $$PROJECT_ROOT/terragrunt/environments/staging/ci/server/ec2/server.ign.json
 
 staging/init: .FORCE  ## Initialize | staging | all
-	$(call run_terragrunt,staging,init)
+	TERRAGRUNT_EXCLUDE_DIR=$(STAGING_CI_EXCLUDE_DIR) \
+		$(call run_terragrunt,staging,init)
 
 staging/init/reconfigure: .FORCE  ## Initialize and reconfigure | staging | all
-	$(call run_terragrunt,staging,init -reconfigure)
+	TERRAGRUNT_EXCLUDE_DIR=$(STAGING_CI_EXCLUDE_DIR) \
+		$(call run_terragrunt,staging,init -reconfigure)
 
 staging/init/ci: .FORCE  ## Initialize | staging | artemis | CI
 	$(call run_terragrunt,staging/ci,init)
 
 staging/plan: staging/generate .FORCE  ## Plan deployment | staging
-	$(call run_terragrunt,staging,plan)
+	TERRAGRUNT_EXCLUDE_DIR=$(STAGING_CI_EXCLUDE_DIR) \
+		$(call run_terragrunt,staging,plan)
 
 staging/plan/eks: .FORCE  ## Plan deployment | staging | eks
 	$(call run_terragrunt,staging/eks,plan)
@@ -232,8 +238,8 @@ staging/plan/ci: staging/generate/ci .FORCE  ## Plan deployment | staging | arte
 	$(call run_terragrunt,staging/ci,plan)
 
 staging/apply: staging/generate .FORCE  ## Deploy | staging | all
-	# workaround for terragrunt bug having issues with dependencies
-	$(call run_terragrunt,staging,apply)
+	TERRAGRUNT_EXCLUDE_DIR=$(STAGING_CI_EXCLUDE_DIR) \
+		$(call run_terragrunt,staging,apply)
 
 staging/apply/eks: .FORCE  ## Deploy | staging | eks
 	$(call run_terragrunt,staging/eks,apply)
@@ -249,7 +255,8 @@ staging/apply/server: staging/generate .FORCE  ## Deploy | staging | server
 	$(call run_terragrunt,staging/server,apply)
 
 staging/destroy: .FORCE terminate/artemis/guests/staging  ## Destroy | staging
-	$(call run_terragrunt,staging,destroy)
+	TERRAGRUNT_EXCLUDE_DIR=$(STAGING_CI_EXCLUDE_DIR) \
+		$(call run_terragrunt,staging,destroy)
 
 staging/destroy/ci: .FORCE terminate/artemis/guests/staging/ci  ## Destroy | staging | artemis | CI
 	$(call check_staging_ci_env)
