@@ -1,25 +1,27 @@
 terraform {
+  required_version = ">=1.2.0"
+
   required_providers {
     null = {
-      source = "hashicorp/null"
-      version = "3.2.3"
+      source  = "hashicorp/null"
+      version = ">=3.2.3"
     }
   }
 }
 
 locals {
-   url_map = { for url in var.urls : url => url }
+  url_map = { for url in var.urls : url => url }
 }
 
 resource "null_resource" "wait_for_urls" {
   for_each = local.url_map
 
   provisioner "local-exec" {
-    command = <<EOT
+    command     = <<EOT
 url="${each.value}"
 timeout=${var.timeout}
 start_time=$(date +%s)
-while ! curl -s --fail "$url" > /dev/null; do
+while ! curl -Ls --fail "$url" > /dev/null; do
   echo "Waiting for $url..."
   sleep 5
   current_time=$(date +%s)

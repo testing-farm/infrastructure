@@ -8,5 +8,5 @@ terraform {
 
 inputs = {
   gitlab_token = get_env("TF_VAR_gitlab_testing_farm_bot")
-  project_name   = "dispatcher"
+  project_name = "dispatcher"
 }

@@ -18,7 +18,7 @@ inputs = {
   vpc_id      = "vpc-a4f084cd"
 
   ingress_cidr_blocks = ["0.0.0.0/0"]
-  ingress_rules = ["ssh-tcp"]
+  ingress_rules       = ["ssh-tcp"]
 
   egress_rules = ["all-all"]
 

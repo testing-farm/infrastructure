@@ -82,7 +82,7 @@ def main() -> None:
 
         context.update({
             'artemis_api_domain': artemis_api_domain,
-            'staging_suffix': f"-{os.getenv('STAGING_CI_SUFFIX')}" if os.getenv('STAGING_CI_SUFFIX') else ''
+            'staging_ci_suffix': f"-{os.getenv('STAGING_CI_SUFFIX')}" if os.getenv('STAGING_CI_SUFFIX') else ''
         })
 
     template_dirpath = os.path.join('terragrunt', 'environments', environment, WORKER, 'citool-config')

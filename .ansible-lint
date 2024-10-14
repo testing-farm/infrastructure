@@ -2,6 +2,9 @@
 exclude_paths:
   - .gitlab-ci.yml
 
+  # go based tools
+  - go
+
   # roles from ansible-galaxy
   - ansible/roles/geerlingguy.node_exporter
   - ansible/roles/geerlingguy.swap

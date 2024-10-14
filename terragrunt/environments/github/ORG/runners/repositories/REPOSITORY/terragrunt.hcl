@@ -5,7 +5,7 @@ include "root" {
 
 # Read parent configuration
 locals {
-  common = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
+  common     = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
   repository = basename(get_terragrunt_dir())
 }
 
@@ -57,8 +57,8 @@ inputs = {
   tags = local.common.inputs.aws_tags
 
   user_data = templatefile("${get_parent_terragrunt_dir()}/user_data.sh.tfpl", {
-    version = local.common.inputs.actions_runner_version,
-    owner = local.common.inputs.owner,
+    version    = local.common.inputs.actions_runner_version,
+    owner      = local.common.inputs.owner,
     repository = local.repository,
     token = run_cmd(
       "--terragrunt-quiet",
