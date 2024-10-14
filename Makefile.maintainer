@@ -19,7 +19,7 @@ DEFAULT_LOCK_TIMEOUT ?= 10m
 
 # Testing Farm production API
 TESTING_FARM_PRODUCTION_API_URL ?= $(TESTING_FARM_API_URL)
-TESTING_FARM_PRODUCTION_API_TOKEN ?= $(TESTING_FARM_API_TOKEN_PUBLIC)
+TESTING_FARM_PRODUCTION_API_TOKEN_PUBLIC ?= $(TESTING_FARM_API_TOKEN_PUBLIC)
 
 # For scale-redhat-worker target, make all additional targets parameters
 # https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run
