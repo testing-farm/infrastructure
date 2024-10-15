@@ -13,7 +13,7 @@ composes:
     compose: Fedora-39
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-39-20240929.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-39-20241009.0
     aarch64:
       image: Fedora-Cloud-Base-39-20240805.0.aarch64
 
@@ -21,9 +21,9 @@ composes:
     compose: Fedora-40
 
     x86_64: &fedora_latest_ref_x86_64
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-40-20240929.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-40-20241014.0
     aarch64: &fedora_latest_ref_aarch64
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-40-20240929.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-40-20241014.0
 
   fedora_41:
     compose: Fedora-41
@@ -31,7 +31,7 @@ composes:
     x86_64:
       image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20240818.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-Prerelease-20240919.1
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-Prerelease-20241003.1
 
   # TFT-1221
   fedora_latest:
@@ -44,9 +44,9 @@ composes:
     compose: Fedora-Rawhide
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20240927.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20241014.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20240927.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20241014.0
 
   centos_7:
     compose: CentOS-7
@@ -68,14 +68,14 @@ composes:
     compose: CentOS-Stream-9
 
     x86_64:
-      image: CentOS Stream 9 x86_64 20240923
+      image: CentOS Stream 9 x86_64 20241014
     aarch64:
-      image: CentOS Stream 9 aarch64 20240923
+      image: CentOS Stream 9 aarch64 20241014
 
   centos_stream_10:
     compose: CentOS-Stream-10
 
     x86_64:
-      image: CentOS Stream 10 x86_64 20240926
+      image: CentOS Stream 10 x86_64 20241014
     aarch64:
-      image: CentOS Stream 10 aarch64 20240926
+      image: CentOS Stream 10 aarch64 20241014
