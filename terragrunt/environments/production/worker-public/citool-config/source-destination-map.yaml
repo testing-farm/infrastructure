@@ -33,6 +33,8 @@ progress:
 
   - source: "work-*/**/output.txt"
 
+  - source: "work-*/**/guests.yaml"
+
   - source: "results.xml"
     destination: results.xml
 
