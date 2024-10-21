@@ -95,6 +95,10 @@ spec:
           value: "{{ credentials.fedora.staging.oauth.client_name }}"
         - name: TF_API_FEDORA_CLIENT_SECRET
           value: "{{ credentials.fedora.staging.oauth.client_secret }}"
+        - name: TF_API_REDHAT_CLIENT_ID
+          value: "{{ credentials.redhat.staging.oauth.client_name }}"
+        - name: TF_API_REDHAT_CLIENT_SECRET
+          value: "{{ credentials.redhat.staging.oauth.client_secret }}"
     - name: api-internal
       image: quay.io/testing-farm/api:{{ lookup('ansible.builtin.env', 'STAGING_CI_API_TAG', default="latest") }}
       args:
