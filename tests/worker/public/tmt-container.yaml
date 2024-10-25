@@ -30,7 +30,6 @@ checks:
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/data" name="data"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/tmt-run.log" name="tmt-log"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
-         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-sanity{{ '.+' }}/log.txt" name="tmt-verbose-log"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-sanity{{ '.+' }}" name="workdir"/>
         </logs>
         <properties>
