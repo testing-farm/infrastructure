@@ -10,7 +10,6 @@ locals {
   # get_working_dir is empty during plan, make sure we read the generated ignition file only during apply
   butane_file = "${get_terragrunt_dir()}/server.ign"
   user_data   = fileexists(local.butane_file) ? base64encode(file(local.butane_file)) : base64encode("error: butane file not generated")
-  staging_suffix = get_env("STAGING_CI_SUFFIX")
 }
 
 terraform {
@@ -50,8 +49,8 @@ inputs = {
 
   # Testing Farm worker tags used to identify servers for this environment
   tags = merge(local.server.inputs.tags, {
-    "ServicePhase"     = "StageCI"
-    "Name"             = "testing_farm_stage_server_${local.staging_suffix}"
+    "ServicePhase" = "StageCI"
+    "Name"         = "testing_farm_stage_server_${local.common.inputs.staging_ci_suffix}"
   })
 
   # Add ebs block device
@@ -61,8 +60,8 @@ inputs = {
     volume_size           = local.server.inputs.ebs_block_device[0].volume_size
     delete_on_termination = local.server.inputs.ebs_block_device[0].delete_on_termination
     tags = merge(local.server.inputs.ebs_block_device[0].tags, {
-      Name             = "testing_farm_stage_server_${local.staging_suffix}_data"
-      ServicePhase     = "StageCI"
+      Name         = "testing_farm_stage_server_${local.common.inputs.staging_ci_suffix}_data"
+      ServicePhase = "StageCI"
     })
   }]
 }

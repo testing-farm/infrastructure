@@ -44,9 +44,12 @@ session.mount(
     HTTPAdapter(
         max_retries=Retry(
             total=5,
-            backoff_factor=0.1,
+            backoff_factor=2,
             status_forcelist=[429, 502, 503, 504],
-            raise_on_status=False
+            raise_on_status=False,
+            # Make sure we retry also on POST, not done by default
+            # https://urllib3.readthedocs.io/en/1.26.8/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS
+            allowed_methods=False
         ),
     ),
 )
@@ -113,13 +116,6 @@ def cmd_create_workspace(name: str, ignore_existing: bool = False) -> None:
     Create workspace with given NAME.
     """
 
-    available_workspaces = list_workspaces()
-
-    if any(workspace["attributes"]["name"] == name for workspace in available_workspaces):
-        if ignore_existing:
-            raise typer.Exit
-        error(f"Workspace '{name}' already exists!")
-
     response = request(
         "workspaces",
         method="post",
@@ -138,8 +134,14 @@ def cmd_create_workspace(name: str, ignore_existing: bool = False) -> None:
         },
     )
 
+    if response.status_code == 422:
+        if ignore_existing:
+            print(f"Workspace '{name}' already exists, ignoring!")
+            raise typer.Exit
+        error(f"Workspace '{name}' already exists!")
+
     if not response:
-        error(f"Failed to create workspace '{name}'", response.json())
+        error(f"Failed to create workspace '{name}' ({response.status_code}), ", response.json())
 
     print(f"Workspace '{name}' created.")
 
@@ -180,7 +182,11 @@ def cmd_delete_workspace(name: str, confirm: bool = False, production_confirm: b
 
 
 @app.callback()
-def callback() -> None:
+def callback(debug: bool = False) -> None:
+    if debug:
+        import logging
+        logging.basicConfig(level=logging.DEBUG)
+
     if not os.getenv(TFCLOUD_VARIABLE_NAME):
         error(f"No {TFCLOUD_VARIABLE_NAME} environment variable, please setup correctly the infrastructure repository!")
 

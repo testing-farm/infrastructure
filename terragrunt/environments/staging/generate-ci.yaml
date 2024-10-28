@@ -7,4 +7,4 @@
     server_pods_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/staging/ci/server/pods"
     # this is the suffix added to the subdomains
     # e.g. for environment variable STAGING_CI_SUFFIX=123 the api subdomain will be api.staging-123.testing-farm.io
-    staging_suffix: "-{{ lookup('ansible.builtin.env', 'STAGING_CI_SUFFIX') | default(lookup('community.general.random_string')) }}"
+    staging_ci_suffix: "-{{ lookup('ansible.builtin.env', 'STAGING_CI_SUFFIX') | default(lookup('community.general.random_string')) }}"
