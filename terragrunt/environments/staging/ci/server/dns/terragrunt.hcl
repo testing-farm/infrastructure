@@ -7,7 +7,7 @@ include "root" {
 locals {
   common = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
   # Generate a suffix for the deployment
-  name = "staging-${get_env("STAGING_CI_SUFFIX")}"
+  name = "staging-${local.common.inputs.staging_ci_suffix}"
 }
 
 terraform {

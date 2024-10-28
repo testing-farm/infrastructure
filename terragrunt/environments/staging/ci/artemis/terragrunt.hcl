@@ -8,9 +8,9 @@ locals {
   common       = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
   artemis      = read_terragrunt_config("../../artemis/terragrunt.hcl")
   route53_zone = local.common.inputs.route53_zone
-  namespace    = "artemis-${get_env("STAGING_CI_SUFFIX")}"
+  namespace    = "artemis-${local.common.inputs.staging_ci_suffix}"
 
-  mocked_cluster_certificate_authority_data = "bW9jay1jbHVzdGVyLWNlcnRpZmljYXRlCg=="  # pragma: allowlist secret
+  mocked_cluster_certificate_authority_data = "bW9jay1jbHVzdGVyLWNlcnRpZmljYXRlCg==" # pragma: allowlist secret
 }
 
 # Use eks module from this repository

@@ -6,8 +6,7 @@ include "root" {
 # Read parent configuration
 locals {
   common = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
-  sg = read_terragrunt_config("../../../server/security-group/terragrunt.hcl")
-  staging_suffix = get_env("STAGING_CI_SUFFIX")
+  sg     = read_terragrunt_config("../../../server/security-group/terragrunt.hcl")
 }
 
 terraform {
@@ -15,7 +14,7 @@ terraform {
 }
 
 inputs = {
-  name        = "testing_farm_staging_${local.staging_suffix}_server"
+  name        = "testing_farm_staging_${local.common.inputs.staging_ci_suffix}_server"
   description = local.sg.inputs.description
   vpc_id      = local.sg.inputs.vpc_id
 
@@ -26,6 +25,6 @@ inputs = {
   egress_rules = local.sg.inputs.egress_rules
 
   tags = merge(local.sg.inputs.tags, {
-    "ServicePhase"     = "StageCI"
+    "ServicePhase" = "StageCI"
   })
 }

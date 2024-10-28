@@ -1,5 +1,5 @@
 server {
-    server_name  artifacts.staging{{ staging_suffix | default("") }}.testing-farm.io;
+    server_name  artifacts.staging{{ staging_ci_suffix | default("") }}.testing-farm.io;
     add_header Access-Control-Allow-Origin *;
 
     root /var/artifacts;

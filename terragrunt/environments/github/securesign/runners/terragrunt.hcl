@@ -38,17 +38,17 @@ locals {
 
 # Shared inputs
 inputs = {
-  name                = local.aws_tags.Name
-  aws_profile         = local.aws_profile
-  aws_region          = local.aws_region
-  aws_tags            = local.aws_tags
-  route53_zone        = "testing-farm.io"
-  resource_tags       = local.aws_tags
+  name                   = local.aws_tags.Name
+  aws_profile            = local.aws_profile
+  aws_region             = local.aws_region
+  aws_tags               = local.aws_tags
+  route53_zone           = "testing-farm.io"
+  resource_tags          = local.aws_tags
   actions_runner_version = local.actions_runner_version
-  ami                 = local.ami
-  instance_type       = local.instance_type
-  subnet              = local.subnet
-  owner               = local.owner
+  ami                    = local.ami
+  instance_type          = local.instance_type
+  subnet                 = local.subnet
+  owner                  = local.owner
 }
 
 # Create terraform cloud workspace

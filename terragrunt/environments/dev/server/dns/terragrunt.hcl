@@ -26,7 +26,7 @@ inputs = {
   zone_name = local.common.inputs.route53_zone
   records_jsonencoded = jsonencode([
     {
-      name = "dev-${get_env("USER")}"
+      name = "dev-${get_env("USER", "unknown")}"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -34,7 +34,7 @@ inputs = {
       ]
     },
     {
-      name = "ui-backend.dev-${get_env("USER")}"
+      name = "ui-backend.dev-${get_env("USER", "unknown")}"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -42,7 +42,7 @@ inputs = {
       ]
     },
     {
-      name = "api.dev-${get_env("USER")}"
+      name = "api.dev-${get_env("USER", "unknown")}"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -50,7 +50,7 @@ inputs = {
       ]
     },
     {
-      name = "internal.api.dev-${get_env("USER")}"
+      name = "internal.api.dev-${get_env("USER", "unknown")}"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -58,7 +58,7 @@ inputs = {
       ]
     },
     {
-      name = "artifacts.dev-${get_env("USER")}"
+      name = "artifacts.dev-${get_env("USER", "unknown")}"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -66,7 +66,7 @@ inputs = {
       ]
     },
     {
-      name = "nomad.dev-${get_env("USER")}"
+      name = "nomad.dev-${get_env("USER", "unknown")}"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -74,7 +74,7 @@ inputs = {
       ]
     },
     {
-      name = "tmt.dev-${get_env("USER")}"
+      name = "tmt.dev-${get_env("USER", "unknown")}"
       type = "CNAME"
       ttl  = 60
       records = [
