@@ -410,9 +410,11 @@ test/staging/pipeline/container: .FORCE wait/artemis/staging generate/staging/ci
 
 test/staging/pipeline/ci: .FORCE wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run worker tests, except container | staging | CI
 	$(call run_pytest_gluetool,staging,worker-local,-m "public and pipeline and not container")
+	$(call download_oculus_to_pytest)
 
 test/staging/pipeline/container/ci: .FORCE generate/staging/citool-config/container/ci  ## Run worker tests, container only | staging | CI
 	$(call run_pytest_gluetool,staging,worker-local,-m "public and pipeline and container")
+	$(call download_oculus_to_pytest)
 
 test/staging/compose: .FORCE wait/artemis/staging generate/staging/citool-config  ## Run compose tests | staging
 	$(call run_pytest_gluetool,staging,worker-local,-m "public and compose")
@@ -420,6 +422,7 @@ test/staging/compose: .FORCE wait/artemis/staging generate/staging/citool-config
 
 test/staging/compose/ci: .FORCE wait/artemis/staging/ci generate/staging/citool-config/ci  ## Run compose tests | staging | CI
 	$(call run_pytest_gluetool,staging,worker-local,-m "public and compose")
+	$(call download_oculus_to_pytest)
 
 test/pytest/oculus: .FORCE  ## Download oculus to .pytest directory
 	$(call download_oculus_to_pytest)
