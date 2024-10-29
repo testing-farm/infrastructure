@@ -7,6 +7,14 @@
   vars_files:
     - "{{ ansible_env.PROJECT_ROOT }}/ansible/secrets/credentials.yaml"
   tasks:
+    - name: Fetch public IP
+      ansible.builtin.command: curl icanhazip.com
+      register: icanhazip_output
+
+    - name: Set variable from icanhazip.com output
+      set_fact:
+        localhost_public_ip: "{{ icanhazip_output.stdout }}"
+
     - name: Render server.bu
       ansible.builtin.template:
         src: "{{ server_ec2_dir }}/server.bu.j2"
@@ -51,6 +59,11 @@
       ansible.builtin.template:
         src: "{{ server_pods_dir }}/tmt-web.yaml.j2"
         dest: "{{ server_pods_dir }}/tmt-web.yaml"
+
+    - name: Render nginx pod yaml
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx.yaml.j2"
+        dest: "{{ server_pods_dir }}/nginx.yaml"
 
     - name: Render tmt web reverse proxy config
       ansible.builtin.template:

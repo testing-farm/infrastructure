@@ -17,5 +17,10 @@ server {
     	autoindex on;
     }
 
+    location / {
+        allow {{ localhost_public_ip }}/32;
+        deny all;
+    }
+
     listen 80;
 }

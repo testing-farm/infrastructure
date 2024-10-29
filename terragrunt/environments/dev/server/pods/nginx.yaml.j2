@@ -9,7 +9,7 @@ metadata:
 spec:
   containers:
     - name: nginx
-      image: quay.io/testing-farm/nginx:latest
+      image: quay.io/testing-farm/nginx:1517991776
       args:
         - nginx
         - -g
@@ -19,6 +19,9 @@ spec:
           mountPath: /etc/nginx/conf.d/
         - name: artifacts
           mountPath: /var/artifacts
+      env:
+        - name: DOMAINS
+          value: "dev-{{ ansible_env.USER }}.testing-farm.io,api.dev-{{ ansible_env.USER }}.testing-farm.io,internal.api.dev-{{ ansible_env.USER }}.testing-farm.io,artifacts.dev-{{ ansible_env.USER }}.testing-farm.io,nomad.dev-{{ ansible_env.USER }}.testing-farm.io,tmt.dev-{{ ansible_env.USER }}.testing-farm.io,ui-backend.dev-{{ ansible_env.USER }}.testing-farm.io"
   hostNetwork: true
   volumes:
     - name: nginx

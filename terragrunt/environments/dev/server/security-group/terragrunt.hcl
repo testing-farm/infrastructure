@@ -57,7 +57,7 @@ inputs = {
   vpc_id      = "vpc-a4f084cd"
 
   ingress_cidr_blocks = concat(
-    ["${dependency.localhost.outputs.localhost_public_ip}/32"],
+    ["0.0.0.0/0"],
     dependency.worker.outputs.workers_ip_ranges
   )
 
