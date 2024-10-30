@@ -39,7 +39,8 @@ accepted-environment-variables =
     TMT_PLUGIN_REPORT_REPORTPORTAL_UPLOAD_TO_LAUNCH,
     TMT_PLUGIN_REPORT_REPORTPORTAL_UPLOAD_TO_SUITE,
     TMT_PLUGIN_REPORT_REPORTPORTAL_URL,
-    TMT_REPORT_ARTIFACTS_URL
+    TMT_REPORT_ARTIFACTS_URL,
+    TMT_SCRIPTS_DIR
 
 # NOTE: gluetool treats '#' as a string value (not a comment), therefore the last comma after the last variable is
 # required to split the string into two values 'TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN' and '# pragma: allowlist secret'
