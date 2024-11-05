@@ -1,0 +1,19 @@
+---
+#
+# Workarounds for dnf5, Fedora 41 and later
+#
+- name: workaround-dnf5 | Check for rawhide
+  command: "rpm -q fedora-repos-rawhide"
+  ignore_errors: true
+  register: check_rawhide
+
+- block:
+    # Rawhide does not include required python3 packages for 'package' module to work
+    - name: workaround-dnf5 | Install required python packages for dnf5
+      command: "dnf -y install python3-dnf dnf5-plugins"
+      register: update_packages
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: update_packages is succeeded
+
+  when: check_rawhide.rc == 0 or (ansible_distribution == 'Fedora' and ansible_distribution_major_version|int >= 41)
