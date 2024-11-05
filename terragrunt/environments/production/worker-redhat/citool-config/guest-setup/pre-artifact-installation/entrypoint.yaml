@@ -3,6 +3,8 @@
     pkg_retry_count: 5
     pkg_retry_delay: 30
   tasks:
+  # DNF5 needs an early workaround
+  - include_tasks: workaround-dnf5.yaml
   # For accessing internal network resources, certs should be installed early.
   - name: Install RH certificates
     include_tasks: install-certs.yaml
