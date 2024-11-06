@@ -83,6 +83,7 @@ checks:
         <testcase name="/testing-farm/failure" classname="tests" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}">
          <system-out>NAME=&amp;quot;Fedora Linux&amp;quot;
       VERSION=&amp;quot;{{ '\d+' }} (Container Image)&amp;quot;
+      RELEASE_TYPE=stable
       ID=fedora
       VERSION_ID={{ '\d+' }}
       VERSION_CODENAME=&amp;quot;&amp;quot;
