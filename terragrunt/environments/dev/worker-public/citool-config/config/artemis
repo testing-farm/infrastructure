@@ -5,7 +5,7 @@ ssh-options = UserKnownHostsFile=/dev/null, StrictHostKeyChecking=no
 ssh-key = ${config_root}/id_rsa_artemis.decrypted
 key = master-key
 user-data-vars-template-file = ${config_root}/artemis-user-data.yaml
-post-install-script = ${config_root}/post-install-scripts/enable-root.sh
+post-install-script = ${config_root}/post-install-scripts/cloud-init-root
 
 # Provisioning a guest in AWS should not take more then 30 minutes (artemis needs to become quicker).
 # Timeout increased to 1 hour to support AutoSD's use case (TFT-2281).

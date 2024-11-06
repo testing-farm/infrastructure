@@ -5,6 +5,9 @@ exclude_paths:
   # go based tools
   - go
 
+  # goss
+  - images/bootc/goss.yaml
+
   # roles from ansible-galaxy
   - ansible/roles/geerlingguy.node_exporter
   - ansible/roles/geerlingguy.swap
