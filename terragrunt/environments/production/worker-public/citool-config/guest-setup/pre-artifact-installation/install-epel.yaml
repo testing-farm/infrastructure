@@ -7,7 +7,7 @@
     - 'ansible_distribution == "CentOS"'
     - 'ansible_distribution_major_version | int < 9'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
-    - '"bootc" not in IMAGE_NAME|lower'
+    - '"image-mode" not in IMAGE_NAME|lower'
   retries: "{{ pkg_retry_count }}"
   delay: "{{ pkg_retry_delay }}"
   until: result_package is succeeded
@@ -23,31 +23,31 @@
     - 'ansible_distribution == "CentOS"'
     - 'ansible_distribution_release == "Stream"'
     - 'ansible_distribution_major_version | int == 9'
-    - '"bootc" not in IMAGE_NAME|lower'
+    - '"image-mode" not in IMAGE_NAME|lower'
   retries: "{{ pkg_retry_count }}"
   delay: "{{ pkg_retry_delay }}"
   until: result_package is succeeded
   register: result_package
 
-- name: Install EPEL on CentOS Stream 9 bootc
+- name: Install EPEL on CentOS Stream 9 image-mode
   shell: "rpm -q epel-release || rpm-ostree install -y -A epel-release"
   when:
     - 'ansible_distribution == "CentOS"'
     - 'ansible_distribution_release == "Stream"'
     - 'ansible_distribution_major_version | int == 9'
-    - '"bootc" in IMAGE_NAME|lower'
+    - '"image-mode" in IMAGE_NAME|lower'
   retries: "{{ pkg_retry_count }}"
   delay: "{{ pkg_retry_delay }}"
   until: result_package is succeeded
   register: result_package
 
-- name: Install EPEL Next on CentOS Stream 9 bootc
+- name: Install EPEL Next on CentOS Stream 9 image-mode
   shell: "rpm -q epel-next-release || rpm-ostree install -y -A epel-next-release"
   when:
     - 'ansible_distribution == "CentOS"'
     - 'ansible_distribution_release == "Stream"'
     - 'ansible_distribution_major_version | int == 9'
-    - '"bootc" in IMAGE_NAME|lower'
+    - '"image-mode" in IMAGE_NAME|lower'
   retries: "{{ pkg_retry_count }}"
   delay: "{{ pkg_retry_delay }}"
   until: result_package is succeeded
