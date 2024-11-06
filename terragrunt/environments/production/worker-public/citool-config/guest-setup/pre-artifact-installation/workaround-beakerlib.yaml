@@ -34,7 +34,7 @@
   when:
     - 'ansible_distribution == "CentOS"'
     - 'ansible_distribution_release == "Stream"'
-    - '"bootc" not in IMAGE_NAME|lower'
+    - '"image-mode" not in IMAGE_NAME|lower'
 
 - block:
   - name: Add beakerlib copr repository for CentOS Stream
@@ -54,4 +54,4 @@
   when:
     - 'ansible_distribution == "CentOS"'
     - 'ansible_distribution_release == "Stream"'
-    - '"bootc" in IMAGE_NAME|lower'
+    - '"image-mode" in IMAGE_NAME|lower'
