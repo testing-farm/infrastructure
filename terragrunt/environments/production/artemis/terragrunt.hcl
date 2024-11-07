@@ -133,7 +133,15 @@ inputs = {
       value = "/configuration/artemis-image-map-aws.yaml"
     },
     {
-      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_x86_64_gpu", # pragma: allowlist secret
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_us_east_2a_x86_64_gpu", # pragma: allowlist secret
+      value = "/configuration/artemis-image-map-aws.yaml"
+    },
+    {
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_us_east_2b_x86_64_gpu", # pragma: allowlist secret
+      value = "/configuration/artemis-image-map-aws.yaml"
+    },
+    {
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_us_east_2c_x86_64_gpu", # pragma: allowlist secret
       value = "/configuration/artemis-image-map-aws.yaml"
     },
     {
@@ -153,7 +161,15 @@ inputs = {
       value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
     },
     {
-      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_x86_64_gpu", # pragma: allowlist secret
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_us_east_2a_x86_64_gpu", # pragma: allowlist secret
+      value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
+    },
+    {
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_us_east_2b_x86_64_gpu", # pragma: allowlist secret
+      value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
+    },
+    {
+      name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_NEEDLE_fedora_aws_us_east_2c_x86_64_gpu", # pragma: allowlist secret
       value = "{{\"{{\"}} os.compose {{\"}}\"}}:{{\"{{\"}} hw.arch {{\"}}\"}}"
     }
   ]
