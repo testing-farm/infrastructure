@@ -1,18 +1,4 @@
 ARG BASE_IMAGE
 FROM $BASE_IMAGE
 
-RUN <<EOF
-# Use strict mode
-set -euo pipefail
-
-# Get OS details
-source /etc/os-release
-
-# Install epel
-if [ "$ID" = "centos" ]; then
-    dnf -y install epel-release epel-next-release
-fi
-
-# Install required dependencies for tmt and Testing Farm
-dnf -y install beakerlib cloud-init koji rsync
-EOF
+RUN dnf -y install cloud-init rsync
