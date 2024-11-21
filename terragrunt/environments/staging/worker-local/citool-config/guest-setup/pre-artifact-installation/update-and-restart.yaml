@@ -33,7 +33,7 @@
         and 'ansible_distribution_release == "Stream"'
       )
     )
-    and 'image-mode' not in IMAGE_NAME|lower
+    and 'bootc' not in IMAGE_NAME|lower
 
   # This task is best effort
   ignore_errors: true

@@ -13,7 +13,6 @@ repos:
           - "--allow-multiple-documents"
           # https://github.com/pre-commit/pre-commit-hooks/issues/273
           - "--unsafe"
-        exclude: ^images/bootc/goss.yaml
       - id: detect-private-key
       - id: end-of-file-fixer
       - id: mixed-line-ending
