@@ -16,8 +16,8 @@ provider "gitlab" {
 resource "gitlab_project" "project" {
   name                                             = var.project_name
   description                                      = var.description
+  namespace_id                                     = var.namespace_id
   visibility_level                                 = "public"
-  namespace_id                                     = 5515434
   default_branch                                   = "main"
   approvals_before_merge                           = 2
   merge_method                                     = "ff"
