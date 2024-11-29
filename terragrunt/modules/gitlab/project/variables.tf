@@ -13,3 +13,9 @@ variable "description" {
   type        = string
   default     = null
 }
+
+variable "namespace_id" {
+  description = "The ID of the namespace to create the project in. Default to testing-farm group."
+  type        = number
+  default     = 5515434
+}
