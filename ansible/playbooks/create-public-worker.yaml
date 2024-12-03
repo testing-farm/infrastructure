@@ -40,12 +40,14 @@
       add_host:
         hostname: "{{ item.public_ip_address }}"
         groupname: "{{ worker_group_name }}"
+        ansible_ssh_extra_args: "-o IdentitiesOnly=yes"
       loop: "{{ ec2.instances }}"
 
     - name: Add new instance to host group
       add_host:
         hostname: "{{ item.public_ip_address }}"
         groupname: new_workers
+        ansible_ssh_extra_args: "-o IdentitiesOnly=yes"
       loop: "{{ ec2.instances }}"
 
 #
