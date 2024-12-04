@@ -7,6 +7,7 @@
     dest: "/etc/citool.d"
     archive: false
     recursive: true
+    use_ssh_args: true
 
 - name: Render config templates
   become: true
