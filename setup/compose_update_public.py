@@ -19,8 +19,14 @@ Y.indent(sequence=2, mapping=2, offset=2)
 
 
 def get_available_images() -> list[str]:
-    return requests.get('{}_cache/pools/fedora-aws-x86_64/image-info'.format(ARTEMIS_URL)).json()
-
+    try:
+        return requests.get('{}_cache/pools/fedora-aws-x86_64/image-info'.format(ARTEMIS_URL), timeout=5).json()
+    except requests.exceptions.ConnectTimeout as error:
+        rich.print(f"[red]⛔️ Failed to load images from Artemis '{ARTEMIS_URL}', do you have access to Artemis?[/red]")
+        raise
+    except requests.exceptions.ConnectionError as error:
+        rich.print(f"[red]⛔️ Failed to connect to Artemis '{ARTEMIS_URL}', possible Artemis outage?[/red]")
+        raise
 
 def check_sanity(image: str, available_images: list[str]) -> bool:
     if image in available_images:
