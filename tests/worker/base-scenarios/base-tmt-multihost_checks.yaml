@@ -18,7 +18,6 @@ checks:
     - "[git] <RemoteGitRepository(clone_url={{ GIT_CLONE_URL }}, branch=not specified, ref={{ GIT_REF }})>"
     - "[testing-farm-request-state-reporter] pipeline complete"
     - "[test-schedule-tmt-multihost] cloning repo {{ GIT_CLONE_URL }} (branch not specified, ref {{ GIT_REF }})"
-    - "[test-schedule-tmt-multihost] tmt exited with code {{ TMT_EXIT_CODE }}"
     - "[test-schedule-tmt-multihost] cloning repo"
     - "[test-schedule-runner-multihost] running test schedule of {{ SCHEDULE_ENTRIES }} entries"
     - "[test-schedule-report] Result of testing: {{ RESULT }}"
@@ -31,6 +30,7 @@ checks:
   literal-patterns:
     - "[testing-farm-request] Connected to Testing Farm Service '{{ testing_farm_public_api_url }}', '{{ testing_farm_internal_api_url }}'"
     - "[coldstore] For the pipeline artifacts, see {{ artifacts_url_pattern }}/{{ REQUEST_ID }}"
+    - "[test-schedule-tmt-multihost] tmt exited with code {{ TMT_EXIT_CODE }}"
 
     - table:
         -

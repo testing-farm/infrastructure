@@ -18,10 +18,8 @@ checks:
     - "[git] <RemoteGitRepository(clone_url={{ GIT_CLONE_URL }}, branch=not specified, ref={{ GIT_REF }})>"
     - "[testing-farm-request-state-reporter] pipeline complete"
     - "[test-schedule-tmt-connect] cloning repo {{ GIT_CLONE_URL }} (branch not specified, ref {{ GIT_REF }})"
-    - "[test-schedule-tmt-connect] tmt exited with code {{ TMT_EXIT_CODE }}"
     - "[test-schedule-tmt-connect] cloning repo"
     - "[test-schedule-runner] running test schedule of {{ SCHEDULE_ENTRIES }} entries"
-    - "[test-schedule-report] Result of testing: {{ RESULT }}"
 
   literal-strings[citool-debug.txt]:
     - "[archive] syncing ./citool-config to /tmp/{{ REQUEST_ID }}/."
@@ -37,6 +35,8 @@ checks:
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest provisioned"
     - "[artemis] [{{ artemis_guestname_pattern }}] destroying guest"
     - "[artemis] [{{ artemis_guestname_pattern }}] successfully released"
+    - "[test-schedule-tmt-connect] tmt exited with code {{ TMT_EXIT_CODE }}"
+    - "[test-schedule-report] Result of testing: {{ RESULT }}"
 
     - table:
         -
