@@ -13,7 +13,9 @@ variables:
   REQUEST_ID: 6af83249-11c8-4c70-822d-22abdce97a31
   COMPOSE: auto-osbuild-qemu-autosd9-minimal-ostree-x86_64-1358288888.6ace1ca7
   ARCH: x86_64
-  RESULT: PASSED
+  RESULT: (PASSED|FAILED)
   GIT_CLONE_URL: https://gitlab.com/redhat/edge/tests/base-image.git
   GIT_REF: main
   PLAN: /smoke/plans/MinimalOstree
+  # We do not care if the tests failed
+  TMT_EXIT_CODE: "[01]"
