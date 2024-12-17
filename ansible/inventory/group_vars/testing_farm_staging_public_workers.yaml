@@ -1,0 +1,87 @@
+---
+# container image with citool and modules
+citool_container_image: quay.io/testing-farm/worker-public:latest
+
+# path to citool-config and jobs to deployment
+worker_deployment_data: "{{ root_dir }}/terragrunt/environments/staging/worker-public"
+
+# geerlingguy.security role settings
+security_ssh_password_authentication: "no"
+security_ssh_permit_root_login: "no"
+security_ssh_usedns: "no"
+security_ssh_permit_empty_password: "no"
+security_ssh_challenge_response_auth: "no"
+security_ssh_gss_api_authentication: "no"
+security_ssh_x11_forwarding: "no"
+security_sshd_state: started
+security_ssh_restart_handler_state: restarted
+security_sudoers_passwordless:
+  - fedora
+security_fail2ban_enabled: true
+security_fail2ban_custom_configuration_template: "{{ ansible_dir }}/templates/jail.local.j2"
+
+# ssh key worker deployment
+ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker"
+ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker.pub"
+
+# ansible ssh key
+root_dir: "{{ ansible_config_file | dirname }}"
+ansible_dir: "{{ root_dir }}/ansible"
+ansible_ssh_private_key_file: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker.decrypted"
+
+# nomad
+nomad_servers:
+  - "nomad.staging.testing-farm.io"
+
+# nomad role
+nomad_version: 1.7.7
+nomad_user: root
+nomad_group: root
+nomad_disable_update_check: true
+nomad_enabled_schedulers: batch
+nomad_node_role: client
+nomad_group_name: testing-farm-staging-nomad-clients
+nomad_data_dir: /data/nomad
+
+# disk role
+disk_additional_disks:
+  - disk: /dev/nvme0n1
+    part: /dev/nvme0n1p1
+    fstype: ext4
+    mount_options: defaults,noatime
+    mount: /data
+
+# podman container storage
+container_storage_path: /data/containers
+
+# artemis
+artemis_ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_artemis"
+artemis_ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_artemis.pub"
+
+# jobs
+jobs:
+  - tf-tmt
+  - tf-tmt-container
+  - tf-tmt-multihost
+  - tf-sti
+
+# artifacts
+artifacts_user: artifacts
+artifacts_hostname: artifacts.staging.testing-farm.io
+api_hostname: api.staging.testing-farm.io
+
+# worker instance details
+worker_instance_type: i3.large
+worker_image_id: ami-02942164e2807a6a8  # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-2-gp3-0
+worker_subnet: subnet-4f971734
+worker_security_group: sg-0040a2477d37dd6d0
+
+worker_resource_tags:
+  Name: "testing_farm_staging_worker_{{ lookup('env', 'USER') }}_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
+  FedoraGroup: ci
+  ServiceOwner: TFT
+  ServiceName: TestingFarm
+  ServiceComponent: Worker
+  ServicePhase: Stage
+
+worker_group_name: testing_farm_public_staging_workers
