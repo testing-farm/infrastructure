@@ -26,7 +26,7 @@ STAGING_CI_EXCLUDE_DIR = $(PROJECT_ROOT)/terragrunt/environments/staging/ci/**/*
 
 # For scale-redhat-worker target, make all additional targets parameters
 # https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run
-ifneq (,$(filter $(firstword $(MAKECMDGOALS)),create/public/worker create/redhat/worker dev/create/public/worker))
+ifneq (,$(filter $(firstword $(MAKECMDGOALS)),create/public/worker create/redhat/worker dev/create/public/worker staging/create/public/worker))
   # use the rest as arguments for "SCALE_TARGET"
   SCALE_TARGET := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   SCALE_TARGET := $(if $(SCALE_TARGET),$(SCALE_TARGET),1)
@@ -273,6 +273,7 @@ staging/apply/server: staging/generate .FORCE  ## Deploy | staging | server
 	$(call run_terragrunt,staging/server,apply)
 
 staging/destroy: .FORCE terminate/artemis/guests/staging  ## Destroy | staging
+	make staging/destroy/workers || true
 	TERRAGRUNT_EXCLUDE_DIR=$(STAGING_CI_EXCLUDE_DIR) \
 		$(call run_terragrunt,staging,destroy)
 
@@ -283,6 +284,17 @@ staging/destroy/ci: .FORCE terminate/artemis/guests/staging/ci  ## Destroy | sta
 	$(call run_terragrunt_single,staging/ci/localhost,destroy)
 	$(call run_terragrunt_single,staging/ci/worker,destroy)
 
+staging/destroy/workers: .FORCE  ## Destroy | staging | all
+	$(call run_terragrunt,staging/worker-public,apply)
+	worker_instance_ids=$$( \
+			env -C $(PROJECT_ROOT)/terragrunt/environments/staging/worker-public \
+			terragrunt output -json | jq -r '.workers_instance_ids.value | join(" ")' \
+	); \
+	if [ -n "$$worker_instance_ids" ]; then \
+		echo "Worker instance ids: $$worker_instance_ids"; \
+		aws --profile fedora_us_east_2 ec2 terminate-instances --instance-ids $$worker_instance_ids; \
+	fi
+
 staging/kubeconfig: .FORCE  ## Update kubeconfig for staging environment
 	aws eks --profile fedora_us_east_1 update-kubeconfig --name testing-farm-staging
 
@@ -292,6 +304,28 @@ staging/server/connect: .FORCE  ## Connect to staging server
 staging/server/connect/ci: .FORCE  ## Connect to staging server
 	$(call check_staging_ci_env)
 	ssh -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted core@$$(env -C terragrunt/environments/staging/ci/server/ec2 terragrunt output -json | jq -r .public_ip.value)
+
+.staging/create/public/worker%:
+	ansible-playbook -e deployment=staging ${SKIP_NOMAD_START} -v ansible/playbooks/create-public-worker.yaml
+
+staging/create/public/worker: generate/staging/citool-config .FORCE  ## Create a Public ranch worker, use `make create/public/worker N` to create N workers
+	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) staging public worker(s)\033[0m"
+	@$(MAKE) -j $(addprefix .staging/create/public/worker, $(shell seq 1 $(SCALE_TARGET)))
+
+staging/update/public/pipeline: .FORCE  ## Update pipeline container image on Public ranch | staging
+	$(call run_pipeline_update,💿️,updating Public ranch pipeline image,testing_farm_staging_public_workers,update_image,staging)
+	$(call run_pipeline_update,🛠,updating Public ranch pipeline configuration,testing_farm_staging_public_workers,update_config,staging)
+	$(call run_pipeline_update,⛴️,updating Public ranch pipeline jobs,testing_farm_staging_public_workers,update_jobs,staging)
+
+staging/update/public/pipeline/image: .FORCE  ## Update pipeline container image on Public ranch | staging
+	$(call run_pipeline_update,💿️,updating Public ranch pipeline image,testing_farm_staging_public_workers,update_image,staging)
+
+staging/update/public/pipeline/config: generate/staging/citool-config .FORCE  ## Update pipeline configuration on Public ranch | staging
+	$(call run_pipeline_update,🛠,updating Public ranch pipeline configuration,testing_farm_staging_public_workers,update_config,staging)
+
+staging/update/public/pipeline/jobs: .FORCE  ## Update pipeline jobs on Public ranch | staging
+	$(call run_pipeline_update,⛴️,updating Public ranch pipeline jobs,testing_farm_staging_public_workers,update_jobs,staging)
+
 
 ##@ Infrastructure | Production
 
