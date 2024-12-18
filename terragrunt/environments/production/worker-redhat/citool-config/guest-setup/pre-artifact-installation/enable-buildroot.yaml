@@ -23,6 +23,10 @@
     copy:
       src: rhel.repo
       dest: /etc/yum.repos.d/rhel.repo
+      # This is needed because in some cases the file does not have expected checksum.
+      # It differs from the renamed `beaker.repo` in the previous task.
+      # We will resolve this with profiles TFT-2794.
+      force: true
   when:
     - 'ansible_distribution == "RedHat"'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
