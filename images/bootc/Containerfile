@@ -10,9 +10,25 @@ source /etc/os-release
 
 # Install epel
 if [ "$ID" = "centos" ]; then
-    dnf -y install epel-release epel-next-release
+    if [ $VERSION_ID -eq 9 ]; then
+        dnf -y install epel-release epel-next-release
+    elif [ $VERSION_ID -eq 10 ]; then
+        dnf -y install epel-release
+    else
+        echo "Unsupported CentOS Stream version $VERSION_ID"
+        exit 1
+    fi
+fi
+
+# Install fedora-release
+if [ "$ID" = "fedora" ]; then
+    dnf -y install fedora-release
 fi
 
 # Install required dependencies for tmt and Testing Farm
-dnf -y install beakerlib cloud-init koji rsync
+dnf -y install audit beakerlib cloud-init createrepo_c dnf-plugins-core glibc-langpack-en koji rsync
+
+# Enable auditd
+systemctl enable auditd
+
 EOF
