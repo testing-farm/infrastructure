@@ -26,7 +26,7 @@ endif
 ##@ Install
 
 install/pre-commit:  ## Install pre-commit hooks
-	@if test -n "$(IS_MAINTAINER)"; then \
+	if test -n "$(IS_MAINTAINER)"; then \
 		pre-commit install --config .pre-commit-config-maintainer.yaml; \
 	else \
 		pre-commit install; \

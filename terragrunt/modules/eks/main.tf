@@ -15,11 +15,16 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = ">=2.18.1"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = "3.2.3"
+    }
   }
 }
 
 locals {
   kube_addons_namespace = "kube-addons"
+  asg_name              = module.eks.eks_managed_node_groups.default_node_group.node_group_autoscaling_group_names[0]
 }
 
 provider "ansiblevault" {
@@ -240,5 +245,23 @@ EOF
   set {
     name  = "extraArgs"
     value = "{--aws-zone-type=public}"
+  }
+}
+
+# ASGs created by EKS do not inherit tags, need to set them separately and refresh the instances to get the new tags
+# https://github.com/aws/containers-roadmap/issues/608
+# https://github.com/terraform-aws-modules/terraform-aws-eks/issues/860
+resource "null_resource" "add_custom_tags_to_asg" {
+  triggers = {
+    node_group = local.asg_name
+    tags       = jsonencode(var.resource_tags)
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+aws --profile ${var.aws_profile} autoscaling create-or-update-tags \
+    --tags $(echo '${jsonencode([for key, value in var.resource_tags : { Key = key, Value = value, PropagateAtLaunch = true, ResourceId = local.asg_name, ResourceType = "auto-scaling-group" }])}' | jq -c '.[]') && \
+aws --profile ${var.aws_profile} autoscaling start-instance-refresh --auto-scaling-group-name ${local.asg_name}
+EOF
   }
 }
