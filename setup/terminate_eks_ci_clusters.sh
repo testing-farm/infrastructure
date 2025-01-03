@@ -5,7 +5,7 @@
 #
 
 # Region of the development instances
-region=${CLUSTERS_REGION:-us-east-2}
+region=${CLUSTERS_REGION:-us_east_2}
 aws_eks="aws --profile fedora_$region eks"
 
 # These clusters are protected
@@ -13,6 +13,12 @@ protected_clusters="testing-farm testing-farm-production testing-farm-staging"
 
 # Clusters to remove
 CLUSTERS_REGEX=${CLUSTERS_REGEX:-testing-farm-gitlab-ci}
+
+# Clusters delta seconds for cleanup, will not cleanup clusters newer than this
+CLUSTERS_CLEANUP_DELTA_SECONDS=${CLUSTERS_CLEANUP_DELTA_SECONDS:-7200}
+
+# Get current epoch
+CURRENT_EPOCH=$(date +%s)
 
 # Get the list of eks clusters created by CI
 clusters=$($aws_eks list-clusters | jq -r '.clusters[]' | grep -E "$CLUSTERS_REGEX")
@@ -23,16 +29,24 @@ if [ -z "$clusters" ]; then
   exit 0
 fi
 
-# Make sure we do not remove the production clusters
-
 # Terminate node groups
 for cluster in $clusters; do
+  # Ignore protected clusters
   if grep -E "$cluster" <<< "$protected_clusters"; then
       echo "[!] Refusing to remove protected cluster '$cluster'"
       continue
   fi
+
+  # Ignore clusters not older than CLUSTERS_CLEANUP_DELTA_SECONDS seconds
+  creation_epoch=$($aws_eks describe-cluster --name "$cluster" --query "cluster.createdAt" --output text | cut -d. -f1)
+  age_seconds=$((CURRENT_EPOCH - creation_epoch))
+  if [ $age_seconds -le $CLUSTERS_CLEANUP_DELTA_SECONDS ]; then
+      echo "Ignoring cluster '$cluster', age $age_seconds seconds"
+      continue
+  fi
+
   (
-      echo "[+] Processing cluster '$cluster'"
+      echo "[+] Processing cluster '$cluster', age $age_seconds seconds"
       for nodegroup in $($aws_eks list-nodegroups --cluster-name $cluster | jq -r .nodegroups[]); do
           echo "[+] Deleting nodegroup '$nodegroup'"
           $aws_eks delete-nodegroup --cluster-name $cluster --nodegroup-name $nodegroup
