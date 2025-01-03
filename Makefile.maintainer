@@ -557,8 +557,10 @@ terminate/artemis/guests/staging/ci: .FORCE  ## Terminate all EC2 instances crea
 terminate/artemis/guests/production: .FORCE  ## Terminate all EC2 instances created by Artemis | staging
 	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh production || true
 
-cleanup/staging/ci: .FORCE staging/kubeconfig  ## Cleanup CI leftovers from staging
-	# Cleanup clusters older than 2 hours
+cleanup/ci: .FORCE staging/kubeconfig  ## Cleanup CI leftovers
+	@echo "$(ccgreen)Deleting leftover EKS CI clusters$(ccend)"
 	@bash $$PROJECT_ROOT/setup/terminate_eks_ci_clusters.sh
-	# Cleanup leftover namespaces from staging EKS cluster
+	@echo "$(ccgreen)Terminating leftover namespaces from staging EKS$(ccend)"
 	@bash $$PROJECT_ROOT/setup/terminate_eks_ci_namespaces.sh
+	@echo "$(ccgreen)Removing unused load balancers$(ccend)"
+	@bash $$PROJECT_ROOT/setup/terminate_unused_loadbalancers.sh
