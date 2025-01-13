@@ -9,8 +9,8 @@ marks:
   - pipeline
 
 variables:
-  REQUEST_ID: 56b86bbc-7d6b-4754-bb73-aa48686f48e7
-  COMPOSE: Fedora-39
+  REQUEST_ID: 1b63d2f7-11af-41a7-a01f-c2de36dbefbc
+  COMPOSE: Fedora-Rawhide
   ARCH: x86_64
   ARCH_32: i686
   RESULT: PASSED
@@ -18,13 +18,15 @@ variables:
   GIT_REF: main
   PLAN: /testing-farm/sanity
   SCHEDULE_ENTRIES: 2
+  NVR1: tzdata-2024b-1.fc42
+  NVR2: hwdata-0.391-1.fc42
 
 checks:
   literal-patterns:
     - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] installing the artifact"
     - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] installing the artifact"
-    - "[artemis] [{{ artemis_guestname_pattern }}] Download task id vim-9.0.2153-1.fc39"
-    - "[artemis] [{{ artemis_guestname_pattern }}] Download task id tmt-1.29.0-1.fc39"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download task id {{ NVR1 }}"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download task id {{ NVR2 }}"
     - "[artemis] [{{ artemis_guestname_pattern }}] Get package list"
     - "[artemis] [{{ artemis_guestname_pattern }}] Reinstall packages"
     - "[artemis] [{{ artemis_guestname_pattern }}] Install packages"
@@ -81,7 +83,7 @@ checks:
           - tmt
 
   literal-patterns[citool-debug.txt]:
-    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src vim-9.0.2153-1.fc39 || koji download-task --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src vim-9.0.2153-1.fc39"
-    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src tmt-1.29.0-1.fc39 || koji download-task --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src tmt-1.29.0-1.fc39"
-    - "koji download-build --debuginfo --task-id --arch noarch --arch aarch64 --arch src vim-9.0.2153-1.fc39 || koji download-task --arch noarch --arch aarch64 --arch src vim-9.0.2153-1.fc39"
-    - "koji download-build --debuginfo --task-id --arch noarch --arch aarch64 --arch src tmt-1.29.0-1.fc39 || koji download-task --arch noarch --arch aarch64 --arch src tmt-1.29.0-1.fc39"
+    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src {{ NVR1 }} || koji download-task --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src {{ NVR1 }}"
+    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src {{ NVR2 }} || koji download-task --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src {{ NVR2 }}"
+    - "koji download-build --debuginfo --task-id --arch noarch --arch aarch64 --arch src {{ NVR1 }} || koji download-task --arch noarch --arch aarch64 --arch src {{ NVR1 }}"
+    - "koji download-build --debuginfo --task-id --arch noarch --arch aarch64 --arch src {{ NVR2 }} || koji download-task --arch noarch --arch aarch64 --arch src {{ NVR2 }}"
