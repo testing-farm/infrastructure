@@ -96,6 +96,7 @@
       command: "bash -c 'curl --head -L {{ tag_repository_url }} | grep -o -E \"(200|403|404)\"'"
       retries: "{{ pkg_retry_count }}"
       delay: "{{ pkg_retry_delay }}"
+      until: http_status_code is succeeded
       register: http_status_code
 
     #
