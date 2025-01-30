@@ -7,24 +7,53 @@ marks:
   - public
   - pipeline
 
-expected_failure: true
-
 variables:
   REQUEST_ID: 4eb65f1e-c7d8-40fd-9aae-63760b9cac61
   ARCH: x86_64
-  RESULT: FAILED
+  RESULT: SKIPPED
   COMPOSE: Fedora-Rawhide
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
   GIT_REF: main
-  TMT_EXIT_CODE: 3
   PLAN: /testing-farm/empty
 
 checks:
   literal-strings:
     - "[git] <RemoteGitRepository(clone_url={{ GIT_CLONE_URL }}, branch=not specified, ref={{ GIT_REF }})>"
     - "[{{ COMPOSE }}:{{ ARCH }}] looking for plans"
-    - "[test-scheduler-testing-farm] Exception raised: No plans to execute after applying filters and removing empty plans. Cowardly refusing to continue."
+    - "[W] [test-schedule-report] Result of testing: {{ RESULT }}"
+    - "[testing-farm-request-state-reporter] pipeline complete"
+    - "[artemis] no guests to remove during module destroy"
 
   literal-patterns:
     - "[testing-farm-request] Connected to Testing Farm Service '{{ testing_farm_public_api_url }}', '{{ testing_farm_internal_api_url }}'"
     - "[coldstore] For the pipeline artifacts, see {{ artifacts_url_pattern }}/{{ REQUEST_ID }}"
+
+  literal-patterns[results.xml]:
+    - |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <testsuites overall-result="skipped">
+       <properties>
+        <property name="baseosci.overall-result" value="skipped"/>
+       </properties>
+       <testsuite name="{{ PLAN }}" result="skipped" tests="0" stage="complete">
+        <logs>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-empty{{ '.+' }}/tmt-discover.log" name="tmt-discover-log"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-empty{{ '.+' }}" name="workdir"/>
+        </logs>
+        <properties>
+         <property name="baseosci.result" value="skipped"/>
+        </properties>
+        <testing-environment name="requested">
+         <property name="arch" value="{{ ARCH }}"/>
+         <property name="compose" value="{{ COMPOSE }}"/>
+         <property name="snapshots" value="False"/>
+        </testing-environment>
+       </testsuite>
+      </testsuites>
+
+  literal-patterns[results-junit.xml]:
+    - |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <testsuites>
+       <testsuite name="{{ PLAN }}" tests="0" failures="0" errors="0" skipped="0"/>
+      </testsuites>
