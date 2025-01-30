@@ -1,0 +1,16 @@
+#
+# In January 2024 AlmaLinux lost their master key to extend
+# the life of their GPG keys.
+# Starting to sign with a new GPG key, this one needs
+# to be imported to the rpm db first.
+#
+- name: Import the new Alma Linux GPG key
+  shell: >-
+    rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
+
+  when:
+    - 'ansible_distribution == "AlmaLinux"'
+    - 'ansible_distribution_version == "8.8"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
