@@ -13,9 +13,9 @@ composes:
     compose: Fedora-41
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-Prerelease-20241025.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20250202.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-Prerelease-20241017.1
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-20250203.0
 
   # TFT-1221
   fedora_latest:
