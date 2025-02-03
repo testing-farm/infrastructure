@@ -24,6 +24,33 @@ checks:
        <properties>
         <property name="baseosci.overall-result" value="passed"/>
        </properties>
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
        <testsuite name="{{ PLAN }}" result="passed" tests="1" stage="complete">
         <logs>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-test-filter{{ '.+' }}{{ PLAN }}/data" name="data"/>
@@ -69,12 +96,40 @@ checks:
          <property name="snapshots" value="False"/>
         </testing-environment>
        </testsuite>
+       {{ skipped_testsuite_pattern }}
       </testsuites>
 
   literal-patterns[results-junit.xml]:
     - |
       <?xml version="1.0" encoding="UTF-8"?>
       <testsuites>
+       <testsuite name="/check-composes/plan/arr-aws" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/check-composes/plan/bci-beaker" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/check-composes/plan/bci-psi-x86_64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/check-composes/plan/bci-staging-psi-x86_64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/dgoss/build" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/gating/sanity" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/packit/installation" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/empty" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/environments/CentOS-7/aarch64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/environments/CentOS-7/x86_64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/environments/CentOS-Stream-10/aarch64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/environments/CentOS-Stream-10/x86_64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/environments/CentOS-Stream-8/aarch64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/environments/CentOS-Stream-8/x86_64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/environments/CentOS-Stream-9/aarch64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/environments/CentOS-Stream-9/x86_64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/environments/container" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/environments/fedora-rawhide/aarch64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/environments/fedora-rawhide/x86_64" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/exclude" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/failure" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/filter" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/multihost/basic" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/multihost/invalid-provision-how" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/reboot" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/reserve" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/sanity" tests="0" failures="0" errors="0" skipped="0"/>
        <testsuite name="{{ PLAN }}" tests="1" failures="0" errors="0" skipped="0">
         <testcase name="/testing-farm/test-filter-script" classname="tests" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}">
          <system-out>NAME=&amp;quot;Fedora Linux&amp;quot;
@@ -103,4 +158,5 @@ checks:
       </system-out>
         </testcase>
        </testsuite>
+       <testsuite name="/vm-image-diff/sanity" tests="0" failures="0" errors="0" skipped="0"/>
       </testsuites>

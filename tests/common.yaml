@@ -10,3 +10,17 @@ console_log_pattern: "console-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a
 hostname_ip_address_pattern: "(?:[a-zA-Z0-9\\.\\-_]+?|\\d+\\.\\d+\\.\\d+\\.\\d+)"
 workdir_pattern: "work-.+"
 timestamp_pattern: "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}\\+[0-9]{2}:[0-9]{2}"
+skipped_testsuite_pattern: |-
+  <testsuite name=".+" result="skipped" tests="0" stage="complete">
+    <logs>
+     <log href="https?:\/\/artifacts\..+\.testing-farm\.io/.+/.+/tmt-discover.log" name="tmt-discover-log"/>
+     <log href="https?:\/\/artifacts\..+\.testing-farm\.io/.+/.+" name="workdir"/>
+    </logs>
+    <properties>
+     <property name="baseosci.result" value="skipped"/>
+    </properties>
+    <testing-environment name="requested">
+     <property name="arch" value="x86_64"/>
+     <property name="snapshots" value="False"/>
+    </testing-environment>
+   </testsuite>
