@@ -46,11 +46,12 @@ checks:
          </properties>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data/result.json" name="data/result.json" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data/results.yaml" name="data/results.yaml" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data/verbose.log" name="data/verbose.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data/viewer.html" name="data/viewer.html" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1" name="log_dir" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data/result.json" name="result.json" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/output.txt" name="testout.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data/verbose.log" name="verbose.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data/viewer.html" name="viewer.html" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
          </logs>
          <testing-environment name="requested">
           <property name="arch" value="{{ ARCH }}"/>
