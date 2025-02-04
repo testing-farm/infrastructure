@@ -1,11 +1,22 @@
 #
 # Since CentOS 8 has reached it's EOL all the URLs migrated
 # to the 'vault'. In order to run yum update we need to
-# change the URLs of AppStream and BaseOS repository.
+# change the URLs of AppStream, BaseOS and Extras repository.
 #
 # Workaround required by convert2rhel team.
 #
 - block:
+  - name: Overwrite Extras repository
+    yum_repository:
+      name: extras
+      description: Extras repo
+      baseurl: https://vault.centos.org/$contentdir/$releasever/extras/$basearch/os/
+      state: present
+      gpgcheck: yes
+      enabled: yes
+      gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+      file: CentOS-Linux-Extras
+
   - name: Overwrite AppStream repository
     yum_repository:
       name: appstream
