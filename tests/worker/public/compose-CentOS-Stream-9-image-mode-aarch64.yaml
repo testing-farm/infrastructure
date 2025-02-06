@@ -15,6 +15,10 @@ marks:
   - public
   - compose
 
+  - name: skip
+    reason: |
+      Image is broken currently.
+
 variables:
   REQUEST_ID: f194d3bf-2981-44e2-8641-0c759d9c9464
   COMPOSE: CentOS-Stream-9-image-mode
