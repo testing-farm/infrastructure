@@ -15,13 +15,9 @@ marks:
   - public
   - compose
 
-  - name: skip
-    reason: |
-      Image is broken currently.
-
 variables:
-  REQUEST_ID: f194d3bf-2981-44e2-8641-0c759d9c9464
-  COMPOSE: CentOS-Stream-9-image-mode
+  REQUEST_ID: 9e8a420f-be84-4715-a299-3dba88950f39
+  COMPOSE: Fedora-42
   ARCH: aarch64
   RESULT: PASSED
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
