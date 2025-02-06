@@ -15,6 +15,10 @@ marks:
   - public
   - compose
 
+  - name: skip
+    reason: |
+      Image is broken currently.
+
 variables:
   REQUEST_ID: 7e8fb47c-aeca-4d6a-8cf7-708e47966d50
   COMPOSE: Fedora-40-image-mode
