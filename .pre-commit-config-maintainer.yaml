@@ -30,10 +30,10 @@ repos:
       - id: ansible-lint
         args: ["--profile", "min"]
 
-  - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.4.0
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.23.3
     hooks:
-      - id: detect-secrets
+      - id: gitleaks
 
   - repo: https://gitlab.com/devopshq/gitlab-ci-linter
     rev: v1.0.6
