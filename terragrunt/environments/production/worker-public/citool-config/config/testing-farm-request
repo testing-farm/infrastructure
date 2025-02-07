@@ -1,7 +1,0 @@
-[default]
-internal-api-url = https://internal.api.dev.testing-farm.io
-public-api-url = https://api.dev.testing-farm.io
-api-key = d1443f0c-4960-455c-8565-6ad32eea596c
-# TFT-712
-retry-timeout = 600
-enable-pipeline-cancellation = true
