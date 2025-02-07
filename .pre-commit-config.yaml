@@ -30,10 +30,10 @@ repos:
         args: ["--profile", "min"]
         entry: ansible-lint -v
 
-  - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.4.0
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.23.3
     hooks:
-      - id: detect-secrets
+      - id: gitleaks
 
   # Disallow `.yml` files in the repo, i.e. assume usage of `.yaml` for YAML
   - repo: local
