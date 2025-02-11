@@ -16,9 +16,9 @@ marks:
   - compose
 
 variables:
-  REQUEST_ID: 1aaa600e-0358-4099-839c-0ea0280ec2b1
-  COMPOSE: CentOS-Stream-10
-  ARCH: aarch64
+  REQUEST_ID: 437b1090-dc34-4596-af71-b97b42308ce2
+  COMPOSE: Fedora-42
+  ARCH: x86_64
   RESULT: PASSED
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
   GIT_REF: main
