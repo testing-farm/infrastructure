@@ -16,9 +16,9 @@ marks:
   - compose
 
 variables:
-  REQUEST_ID: 34d28408-30ae-46a7-ac76-bbb471f5248c
-  COMPOSE: Fedora-Rawhide
-  ARCH: aarch64
+  REQUEST_ID: 437b1090-dc34-4596-af71-b97b42308ce2
+  COMPOSE: Fedora-42
+  ARCH: x86_64
   RESULT: PASSED
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
   GIT_REF: main
