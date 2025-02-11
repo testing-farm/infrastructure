@@ -1,19 +1,18 @@
 ---
-- hosts: all
-  tasks:
-    - name: Update system packages with provided artifacts
-      ansible.builtin.dnf:
-        name: "*"
-        state: latest
-        enablerepo: "test-artifacts"
-        disablerepo: "*"
 
-    - name: Check if reboot is required
-      ansible.builtin.command: "dnf needs-restarting --reboothint"
-      register: reboot_required
-      changed_when: "reboot_required.rc == 1"
-      failed_when: "reboot_required.rc not in (0, 1)"
+- name: Update system packages with provided artifacts
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+    enablerepo: "test-artifacts"
+    disablerepo: "*"
 
-    - name: Reboot the machine if required
-      ansible.builtin.reboot:
-      when: "reboot_required.rc == 1"
+- name: Check if reboot is required
+  ansible.builtin.command: "dnf needs-restarting --reboothint"
+  register: reboot_required
+  changed_when: "reboot_required.rc == 1"
+  failed_when: "reboot_required.rc not in (0, 1)"
+
+- name: Reboot the machine if required
+  ansible.builtin.reboot:
+  when: "reboot_required.rc == 1"
