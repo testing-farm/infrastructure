@@ -20,7 +20,7 @@ marks:
       Image is broken currently.
 
 variables:
-  REQUEST_ID: f194d3bf-2981-44e2-8641-0c759d9c9464
+  REQUEST_ID: dd8769e5-f3e9-41b5-98a5-a9647e81e6db
   COMPOSE: CentOS-Stream-9-image-mode
   ARCH: aarch64
   RESULT: PASSED
