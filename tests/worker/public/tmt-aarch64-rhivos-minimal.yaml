@@ -10,12 +10,12 @@ marks:
   - rhivos
 
 variables:
-  REQUEST_ID: 51736194-d752-4267-ba69-bfc1f92477a9
+  REQUEST_ID: 88d9ca53-0098-4d3a-8e83-00d46408d626
   COMPOSE: auto-osbuild-qemu-autosd9-minimal-ostree-aarch64-1358288888.6ace1ca7
   ARCH: aarch64
   RESULT: (PASSED|FAILED)
   GIT_CLONE_URL: https://gitlab.com/redhat/edge/tests/base-image.git
   GIT_REF: main
-  PLAN: /smoke/plans/MinimalOstree
+  PLAN: /smoke/plans/core
   # We do not care if the tests failed
   TMT_EXIT_CODE: "[01]"
