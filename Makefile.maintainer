@@ -136,14 +136,32 @@ dev/destroy/force: .FORCE  ## Force destroy od dev environment, set USER env var
 	# NOTE: this destroy method is special to mitigate issues with frequently changing dev environment
 	TERRAGRUNT_WORKING_DIR=terragrunt/environments/dev terragrunt run-all init -lock-timeout $(DEFAULT_LOCK_TIMEOUT) || true
 	TERRAGRUNT_WORKING_DIR=terragrunt/environments/dev terragrunt run-all init -reconfigure -lock-timeout $(DEFAULT_LOCK_TIMEOUT) || true
+
+	# Remove Testing Farm workers
 	make dev/destroy/workers || true
+
+	# Terminate leftover Artemis guests
 	make terminate/artemis/guests/dev || true
+
+	# Force destroy all components
 	find terragrunt/environments/dev/ -iname terragrunt.hcl | grep -v \\.terragrunt-cache | sed 's/terragrunt.hcl//' | \
 		parallel -I{} env -C {} terragrunt destroy -auto-approve || true
-	# TODO: remove once security groups are not part of artemis deployment, they can easily stay as leftovers
+
+	# Remove security groups
 	aws --profile fedora_us_east_2 ec2 describe-security-groups | \
 		jq -r ".SecurityGroups[] | select(.GroupName | contains(\"dev-$$USER\")) | .GroupId" | \
 		parallel echo aws --profile fedora_us_east_2 ec2 delete-security-groups --security-groups-id
+
+	# Remove leftover DNS records
+	aws --profile fedora_us_east_2 \
+		route53 list-resource-record-sets --hosted-zone-id Z0711647188EWQGM661TT \
+			--query "ResourceRecordSets[?contains(Name, 'dev-$$USER')]" --output json | \
+		jq -c '.[]' | while read -r record; do \
+			aws --profile fedora_us_east_2 route53 change-resource-record-sets --hosted-zone-id Z0711647188EWQGM661TT \
+				--change-batch "$$(jq -n --argjson rec "$$record" '{Changes: [{Action: "DELETE", ResourceRecordSet: $$rec}]}')"; \
+		done
+
+	# Remove terraform cloud workspaces
 	terraform-cloud list-workspaces | grep dev-$$USER | parallel -n1 terraform-cloud delete-workspace --confirm || true
 
 dev/destroy/workers: .FORCE  ## Destroy | dev | all
