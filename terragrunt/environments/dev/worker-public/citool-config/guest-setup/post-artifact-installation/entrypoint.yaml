@@ -3,3 +3,9 @@
   tasks:
     - include_tasks: workaround-openssh.yaml
     - include_tasks: install-doggo.yaml
+    - include_tasks: update-from-artifacts.yaml
+      when:
+        - UPDATE_FROM_ARTIFACTS
+        - '"auto-osbuild" not in IMAGE_NAME|lower'
+        - '"ostree" not in IMAGE_NAME|lower'
+        - '"image-mode" not in IMAGE_NAME|lower'

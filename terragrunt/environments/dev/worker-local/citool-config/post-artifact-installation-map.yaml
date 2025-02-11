@@ -5,10 +5,5 @@
   extra_vars:
     TESTING_FARM_REQUEST_ID: "{{ TESTING_FARM_REQUEST_ID }}"
 
-- rule: "(GUEST.environment.settings or {}).get('pipeline', {}).get('update_from_artifacts', False) is True"
-  playbooks:
-    - /CONFIG/guest-setup/post-artifact-installation/entrypoint.yaml
-    - /CONFIG/guest-setup/post-artifact-installation/update-from-artifacts.yaml
-
 - rule: MATCH(GUEST.environment.compose, '^fedora-coreos.*')
   playbooks: []
