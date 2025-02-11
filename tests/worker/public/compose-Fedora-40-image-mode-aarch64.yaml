@@ -20,7 +20,7 @@ marks:
       Image is broken currently.
 
 variables:
-  REQUEST_ID: fc9fe637-80be-49c5-8fcb-90a8c78b3850
+  REQUEST_ID: e06cedb8-c80d-4853-8ed5-5484652337b7
   COMPOSE: Fedora-40-image-mode
   ARCH: aarch64
   RESULT: PASSED
