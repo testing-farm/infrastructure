@@ -56,7 +56,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "v0.0.72"
+  image_tag    = "v0.0.74"
 
   # Enable access from workers
   workers_ip_ranges = dependency.worker.outputs.workers_ip_ranges
