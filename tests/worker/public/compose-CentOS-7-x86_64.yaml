@@ -16,7 +16,7 @@ marks:
   - compose
 
 variables:
-  REQUEST_ID: 6008c28d-b04f-4504-b707-e5df3c1a8407
+  REQUEST_ID: 6456a7b4-03cd-43dd-8b5b-e3cd4472a5eb
   COMPOSE: CentOS-7
   ARCH: x86_64
   RESULT: PASSED
