@@ -148,7 +148,7 @@ direnv:
 
 .direnv:
   before_script:
-    - dnf -y install direnv libffi libffi-devel podman rsync
+    - dnf -y install direnv libffi libffi-devel podman rsync awk
     - echo -n "$VAULT_PASSWORD" > .vault_pass
     - direnv allow
     - eval "$(direnv export bash)"
