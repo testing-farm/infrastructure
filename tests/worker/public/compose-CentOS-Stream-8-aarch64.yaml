@@ -16,7 +16,7 @@ marks:
   - compose
 
 variables:
-  REQUEST_ID: fc000435-f64e-4346-85bb-161934214ff3
+  REQUEST_ID: 012df60e-b42f-40d8-be7d-e223a8d2cd95
   COMPOSE: CentOS-Stream-8
   ARCH: aarch64
   RESULT: PASSED

@@ -16,7 +16,7 @@ marks:
   - compose
 
 variables:
-  REQUEST_ID: f732cf05-ff42-4778-a538-2a85f4c756dc
+  REQUEST_ID: 36d936ae-201f-48d5-a684-a3447ba272fd
   COMPOSE: CentOS-Stream-10
   ARCH: x86_64
   RESULT: PASSED

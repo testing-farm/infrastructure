@@ -16,7 +16,7 @@ marks:
   - compose
 
 variables:
-  REQUEST_ID: 019b943d-300f-40ea-9b21-7cd11ce44e9c
+  REQUEST_ID: 826bb64e-a810-465c-8c55-50d9c024e019
   COMPOSE: Fedora-latest
   ARCH: aarch64
   RESULT: PASSED
