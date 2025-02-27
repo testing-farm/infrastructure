@@ -26,6 +26,7 @@
       vars:
         swap_file_path: /data/swapfile
         swap_file_size_mb: "16384"
+        some_other_var: foo
         swap_file_state: present
       become: true
     - name: geerlingguy.node_exporter

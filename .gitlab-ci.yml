@@ -158,6 +158,7 @@ direnv:
   script:
     - eval "$(direnv export bash)"
 
+# just triggering more pre-commit checks
 # Workaround for after_script timing-out
 .script_with_cleanup:
   script:
