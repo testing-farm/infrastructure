@@ -60,7 +60,6 @@ repos:
       - id: terraform_fmt
         args:
           - --args=-diff
-          - --hook-config=--parallelism-ci-cpu-cores=4
       - id: terraform_tflint
       - id: terraform_tfsec
         exclude: |
@@ -78,6 +77,8 @@ repos:
               terragrunt/environments/github/ORG/.*
             )$
       - id: terragrunt_fmt
+        args:
+          - --hook-config=--parallelism-ci-cpu-cores=4
 
   # Generate Public Ranch compose tests
   - repo: local
