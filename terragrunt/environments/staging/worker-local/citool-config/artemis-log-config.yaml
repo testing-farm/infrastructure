@@ -3,3 +3,33 @@
   type: console:dump/blob
   filename: console-{guestname}.log
   datetime_filename: console-{guestname}.{datetime}.log
+
+- name: Generated kickstart configuration
+  type: ks.cfg:dump/blob
+  filename: ks.cfg-{guestname}.log
+  datetime_filename: ks.cfg-{guestname}.{datetime}.log
+  save_empty: false
+
+- name: Kickstart installation anaconda.log log
+  type: anaconda.log:dump/blob
+  filename: anaconda.log-{guestname}.log
+  datetime_filename: anaconda.log-{guestname}.{datetime}.log
+  save_empty: false
+
+- name: Kickstart installation storage.log log
+  type: storage.log:dump/blob
+  filename: storage.log-{guestname}.log
+  datetime_filename: storage.log-{guestname}.{datetime}.log
+  save_empty: false
+
+- name: Kickstart installation packaging.log log
+  type: packaging.log:dump/blob
+  filename: packaging.log-{guestname}.log
+  datetime_filename: packaging.log-{guestname}.{datetime}.log
+  save_empty: false
+
+- name: Kickstart installation program.log log
+  type: program.log:dump/blob
+  filename: program.log-{guestname}.log
+  datetime_filename: program.log-{guestname}.{datetime}.log
+  save_empty: false
