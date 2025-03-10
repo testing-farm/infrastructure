@@ -10,5 +10,9 @@ info = yes
 pid = yes
 
 no-sentry-exceptions = gluetool_modules.infrastructure.koji_fedora.NoArtifactsError
+
 # Note that process names are truncated at 15 characters
 terminate-process-tree = ansible-playboo
+
+# TFT-3073 - ignore failures during destroy to mitigate stuck threads
+ignore-destroy-failures = yes
