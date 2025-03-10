@@ -5,7 +5,7 @@
   tasks:
     - import_tasks: ../tasks/rh-certs.yaml
 
-- hosts: testing_farm_public_workers:testing_farm_redhat_workers:testing_farm_dev_public_workers
+- hosts: testing_farm_public_workers:testing_farm_redhat_workers:testing_farm_dev_public_workers:testing_farm_staging_public_workers
   vars_files:
     - ../secrets/credentials.yaml
     - ../vars/common.yaml

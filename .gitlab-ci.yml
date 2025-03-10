@@ -148,7 +148,7 @@ direnv:
 
 .direnv:
   before_script:
-    - dnf -y install direnv libffi libffi-devel podman rsync
+    - dnf -y install direnv libffi libffi-devel podman rsync awk
     - echo -n "$VAULT_PASSWORD" > .vault_pass
     - direnv allow
     - eval "$(direnv export bash)"
@@ -360,7 +360,8 @@ redeploy/staging:
     SCRIPT: >-
       make staging/init &&
       make staging/destroy &&
-      make staging/apply
+      make staging/apply &&
+      make staging/create/public/worker
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, only_schedule]

@@ -17,10 +17,18 @@ inputs = {
   description = "Security group for Testing Farm server access"
   vpc_id      = "vpc-a4f084cd"
 
-  # server is open to the world, lock down needs to happen on nginx side
-  ingress_cidr_blocks = ["0.0.0.0/0"],
+  # Server is open to the world except nomad
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_rules       = ["ssh-tcp", "https-443-tcp", "http-80-tcp"]
 
-  ingress_rules = ["ssh-tcp", "https-443-tcp", "http-80-tcp"]
+  # Nomad is accessible via private subnets to workers
+  # SG will get generated once we start spinning up workers using Terragrunt, for now hardcoded
+  ingress_with_source_security_group_id = [
+    {
+      rule                     = "nomad-rpc-tcp"
+      source_security_group_id = "sg-0040a2477d37dd6d0"
+    },
+  ]
 
   egress_rules = ["all-all"]
 
