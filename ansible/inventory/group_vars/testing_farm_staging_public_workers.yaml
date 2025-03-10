@@ -1,9 +1,9 @@
 ---
 # container image with citool and modules
-citool_container_image: quay.io/testing-farm/worker-public:2025-01.3
+citool_container_image: quay.io/testing-farm/worker-public:latest
 
 # path to citool-config and jobs to deployment
-worker_deployment_data: "{{ root_dir }}/terragrunt/environments/production/worker-public"
+worker_deployment_data: "{{ root_dir }}/terragrunt/environments/staging/worker-public"
 
 # geerlingguy.security role settings
 security_ssh_password_authentication: "no"
@@ -30,21 +30,17 @@ ansible_dir: "{{ root_dir }}/ansible"
 ansible_ssh_private_key_file: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_worker.decrypted"
 
 # nomad
-nomad_servers: >
-  [
-    {% for host in groups["testing_farm_public_servers"] %}
-      "{{ hostvars[host].ansible_host }}"{{ "," if not loop.last else "" }}
-    {% endfor %}
-  ]
+nomad_servers:
+  - "nomad.staging.testing-farm.io"
 
 # nomad role
-nomad_version: 0.12.1
+nomad_version: 1.7.7
 nomad_user: root
 nomad_group: root
 nomad_disable_update_check: true
 nomad_enabled_schedulers: batch
 nomad_node_role: client
-nomad_group_name: testing-farm-dev-nomad-clients
+nomad_group_name: testing-farm-staging-nomad-clients
 nomad_data_dir: /data/nomad
 
 # disk role
@@ -70,20 +66,22 @@ jobs:
   - tf-sti
 
 # artifacts
-artifacts_hostname: artifacts.dev.testing-farm.io
+artifacts_user: artifacts
+artifacts_hostname: artifacts.staging.testing-farm.io
+api_hostname: api.staging.testing-farm.io
 
 # worker instance details
-worker_instance_type: i3.2xlarge
+worker_instance_type: i3.large
 worker_image_id: ami-02942164e2807a6a8  # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-2-gp3-0
 worker_subnet: subnet-4f971734
 worker_security_group: sg-0040a2477d37dd6d0
 
 worker_resource_tags:
-  Name: "testing_farm_worker_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
+  Name: "testing_farm_staging_worker_{{ lookup('env', 'USER') }}_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
   FedoraGroup: ci
   ServiceOwner: TFT
   ServiceName: TestingFarm
   ServiceComponent: Worker
-  ServicePhase: Prod
+  ServicePhase: Stage
 
-worker_group_name: testing_farm_public_workers
+worker_group_name: testing_farm_public_staging_workers
