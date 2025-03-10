@@ -1,6 +1,6 @@
 ---
 # container image with citool and modules
-citool_container_image: quay.io/testing-farm/worker-redhat:2025-01.2
+citool_container_image: quay.io/testing-farm/worker-redhat:2025-01.3
 
 root_dir: "{{ ansible_config_file | dirname }}"
 
