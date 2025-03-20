@@ -1,5 +1,12 @@
 #!/bin/bash
 
+{#
+
+We use {[]} for templating in the file because the default {{}}
+collides with formatting option of podman
+
+#}
+
 if [ "$DEBUG" != "" ]; then
   set -x
 fi
@@ -41,5 +48,9 @@ exec podman run --init \
                 -v ${CITOOL_CONFIG_DIR}:/CONFIG:Z \
                 -v ${CITOOL_RUN_DIR}:/var/ARTIFACTS:Z \
                 -v /root/.ssh:/root/.ssh:Z \
+                -e SENTRY_DSN={[ sentry_dsn ]} \
+                -e SENTRY_BASE_URL={[ sentry_base_url ]} \
+                -e SENTRY_ENVIRONMENT={[ deployment ]} \
+                -e SENTRY_RELEASE={[ release ]} \
                 ${CITOOL_EXTRA_PODMAN_ARGS} \
                 "$CITOOL_IMAGE" "$@"
