@@ -1,6 +1,6 @@
 ---
 # container image with citool and modules
-citool_container_image: quay.io/testing-farm/worker-public:2025-01.4
+citool_container_image: quay.io/testing-farm/worker-public:2025-01.3
 
 # path to citool-config and jobs to deployment
 worker_deployment_data: "{{ root_dir }}/terragrunt/environments/production/worker-public"
