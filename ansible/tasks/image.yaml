@@ -12,10 +12,12 @@
         state: present
 
     - name: Install wrapper script
-      copy:
-        src: "{{ ansible_dir }}/files/citool-container.sh"
+      template:
+        src: "{{ ansible_dir }}/files/citool-container.sh.j2"
         dest: "/usr/bin/citool-container.sh"
         mode: "ugo=rx"
+        variable_start_string: "{["
+        variable_end_string: "]}"
 
     - name: Pull the required image
       command: "podman pull {{ citool_container_image }}"
