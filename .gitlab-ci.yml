@@ -414,6 +414,14 @@ test/production:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_production]
 
+backport-release:
+  stage: deploy
+  script:
+    - bash backport-mr.sh
+  rules:
+    - !reference [.rules, only_default_branch]
+    - !reference [.rules, not_schedule]
+
 redeploy/staging:
   extends: .direnv
   stage: deploy
