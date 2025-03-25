@@ -45,7 +45,8 @@ accepted-environment-variables =
     TMT_REPORT_ARTIFACTS_URL,
     TMT_SCRIPTS_DIR,
     TMT_SSH_CONNECTION_ATTEMPTS,
-    TMT_SSH_CONNECTION_TIMEOUT
+    TMT_SSH_CONNECTION_TIMEOUT,
+    TMT_SSH_HOST_KEY_ALGORITHMS
 
 # NOTE: gluetool treats '#' as a string value (not a comment), therefore the last comma after the last variable is
 # required to split the string into two values 'TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN' and '# pragma: allowlist secret'
