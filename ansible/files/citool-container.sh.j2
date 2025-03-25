@@ -19,6 +19,7 @@ fi
 CITOOL_IMAGE="${CITOOL_IMAGE:-citool:latest}"
 CITOOL_CONFIG_DIR="${CITOOL_CONFIG_DIR:-/etc/citool.d}"
 CITOOL_RUN_DIR="${CITOOL_RUN_DIR:-$PWD}"
+MEMORY_LIMIT="${MEMORY_LIMIT:-16g}"
 
 echo "Known images:"
 podman images
@@ -35,6 +36,7 @@ export CITOOL_IMAGE
 export CITOOL_IMAGE_ID="$image_id"
 export CITOOL_IMAGE_CTIME="$ctime"
 export SENTRY_TAG_MAP="citool_image=${CITOOL_IMAGE},citool_image_id=${CITOOL_IMAGE_ID},hostname=$(hostname),ip=$(curl ipv4.icanhazip.com),request_id=${REQUEST_ID},artifacts_url=${ARTIFACTS_URL}"
+export MEMORY_LIMIT
 
 # --init is required to collect zombies processes
 # --rm is required to cleanup the container after it has been run
@@ -46,6 +48,7 @@ exec podman run --init \
                 --privileged \
                 --network=host \
                 --name ${REQUEST_ID:-no-request-$RANDOM} \
+                --memory=${MEMORY_LIMIT} \
                 -v ${CITOOL_CONFIG_DIR}:/CONFIG:Z \
                 -v ${CITOOL_RUN_DIR}:/var/ARTIFACTS:Z \
                 -v /root/.ssh:/root/.ssh:Z \
