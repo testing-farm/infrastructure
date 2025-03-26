@@ -31,7 +31,7 @@ job "tf-sti" {
 
       config {
         command = "tf-sti"
-        args = ["${NOMAD_META_REQUEST_ID}", "${NOMAD_ALLOC_DIR}"]
+        args = ["${NOMAD_META_REQUEST_ID}", "${NOMAD_ALLOC_DIR}", "3072m"]
       }
     }
   }

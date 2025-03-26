@@ -32,7 +32,7 @@ job "tf-tmt-container" {
 
       config {
         command = "tf-tmt-container"
-        args = ["${NOMAD_META_REQUEST_ID}", "${NOMAD_ALLOC_DIR}", "12h"]
+        args = ["${NOMAD_META_REQUEST_ID}", "${NOMAD_ALLOC_DIR}", "12h", "3072m"]
       }
     }
   }
