@@ -6,11 +6,13 @@ exec > >(stdbuf -i0 -o0 tee pipeline.log) 2>&1
 printf "\n[pipeline-start] $(date)\n\n"
 
 export REQUEST_ID=$1
+export MEMORY_LIMIT=$4
 
 export ARTIFACTS_URL="https://artifacts.dev.testing-farm.io"
 API_URL="https://api.dev.testing-farm.io/v0.1"
 
 [ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
+[ -z "$MEMORY_LIMIT" ] && { echo "No memory limit given"; exit 1; }
 
 REQUEST="$(curl -s --retry 5 $API_URL/requests/$REQUEST_ID)"
 

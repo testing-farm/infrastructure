@@ -31,7 +31,7 @@ job "tf-tmt-multihost" {
 
       config {
         command = "tf-tmt-multihost"
-        args = ["${NOMAD_META_REQUEST_ID}", "${NOMAD_ALLOC_DIR}", "12h"]
+        args = ["${NOMAD_META_REQUEST_ID}", "${NOMAD_ALLOC_DIR}", "12h", "3072m"]
       }
     }
   }
