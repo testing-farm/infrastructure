@@ -27,10 +27,12 @@ pytest-gluetool = {git = "https://gitlab.com/testing-farm/pytest-gluetool.git", 
 # Locking without implicitily stating gluetool here doesn't actually propagate the module to the lockfile.
 gluetool = "^2.3"
 yamllint = "^1.29.0"
+gitpython = "^3.1.44"
 
 [tool.poetry.scripts]
 terraform-cloud = "setup.terraform_cloud:main"
 github = "setup.github:main"
+gitlab = "setup.gitlab:main"
 
 [tool.poetry.dev-dependencies]
 yamllint = "^1.28.0"
