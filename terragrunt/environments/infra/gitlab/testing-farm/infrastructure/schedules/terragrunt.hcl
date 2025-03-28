@@ -26,6 +26,14 @@ inputs = {
       variables = {
         "SCHEDULED_JOB" : "cleanup/staging/ci"
       }
+    },
+    {
+      description   = "Public Ranch compose update"
+      git_ref       = "main"
+      cron_schedule = "0 7 * * mon-fri"
+      variables = {
+        "SCHEDULED_JOB" : "compose/update/public"
+      }
     }
   ]
 }
