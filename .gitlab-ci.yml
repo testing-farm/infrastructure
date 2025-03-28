@@ -446,11 +446,10 @@ deploy/production:
     - !reference [.rules, terragrunt_github]
 
 update/composes/public:
+  extends: .direnv
   stage: deploy
+  needs: []
   script:
     - !reference [.direnv, script]
     - make compose/update/public
     - gitlab create-merge-request --title="Update public composes $(date -u --rfc-3339=date)"
-  rules:
-    - !reference [.rules, only_schedule]
-    - if: '$SCHEDULED_JOB == "compose/update/public"'
