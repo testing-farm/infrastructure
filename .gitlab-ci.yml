@@ -162,6 +162,7 @@ direnv:
 .script_with_cleanup:
   script:
     - /bin/bash -c "${SCRIPT}" && EXIT_CODE=$? || EXIT_CODE=$?
+    - if [ ${EXIT_CODE} -ne 0 ] && [ -n "$ERROR_SCRIPT" ]; then /bin/bash -c "${ERROR_SCRIPT}" || true; fi
     - /bin/bash -c "${AFTER_SCRIPT}"
     - "[ ${EXIT_CODE} = 0 ]"
 
@@ -214,6 +215,20 @@ test/dev:
       make dev/apply &&
       make dev/create/public/worker &&
       testing-farm-dev-public-developer request --git-url https://gitlab.com/testing-farm/tests --plan /testing-farm/sanity
+    ERROR_SCRIPT: >-
+      make dev/kubeconfig &&
+      echo &&
+      echo "==============================================" &&
+      echo "==   Kubernetes Container Logs" &&
+      echo "==============================================" &&
+      echo &&
+      kubectl stern --no-follow -A . &&
+      echo &&
+      echo "==============================================" &&
+      echo "==   Kubernetes Event Logs" &&
+      echo "==============================================" &&
+      echo &&
+      kubectl get events --all-namespaces -o wide
     AFTER_SCRIPT: make dev/destroy > /dev/null
   rules:
     - !reference [.rules, not_default_branch]
@@ -231,6 +246,21 @@ test/staging/pipeline:
     SCRIPT: >-
       make staging/apply/ci &&
       make test/staging/pipeline/ci
+    ERROR_SCRIPT: >-
+      make staging/kubeconfig &&
+      NAMESPACE="$(env -C terragrunt/environments/staging/ci/artemis terragrunt output --raw namespace)" &&
+      echo &&
+      echo "==============================================" &&
+      echo "==   Kubernetes Container Logs" &&
+      echo "==============================================" &&
+      echo &&
+      kubectl stern --no-follow -n "$NAMESPACE" .
+      echo &&
+      echo "==============================================" &&
+      echo "==   Kubernetes Event Logs" &&
+      echo "==============================================" &&
+      echo &&
+      kubectl get events -n "$NAMESPACE" -o wide
     AFTER_SCRIPT: >-
       make staging/destroy/ci > /dev/null &&
       make test/pytest/oculus
@@ -268,6 +298,21 @@ test/staging/compose:
     SCRIPT: >-
       make staging/apply/ci &&
       make test/staging/compose/ci
+    ERROR_SCRIPT: >-
+      make staging/kubeconfig &&
+      NAMESPACE="$(env -C terragrunt/environments/staging/ci/artemis terragrunt output --raw namespace)" &&
+      echo &&
+      echo "==============================================" &&
+      echo "==   Kubernetes Container Logs" &&
+      echo "==============================================" &&
+      echo &&
+      kubectl stern --no-follow -n "$NAMESPACE" .
+      echo &&
+      echo "==============================================" &&
+      echo "==   Kubernetes Event Logs" &&
+      echo "==============================================" &&
+      echo &&
+      kubectl get events -n "$NAMESPACE" -o wide
     AFTER_SCRIPT: >-
       make staging/destroy/ci > /dev/null &&
       make test/pytest/oculus
