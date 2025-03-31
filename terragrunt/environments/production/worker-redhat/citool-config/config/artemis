@@ -26,3 +26,4 @@ guest-logs-enable = yes
 
 # Artemis log configuration
 guest-logs-config = ${config_root}/artemis-log-config.yaml
+guest-logs-without-history = yes
