@@ -18,7 +18,7 @@ from urllib3 import Retry
 
 GITLAB_DOMAIN = os.getenv('CI_SERVER_HOST', 'gitlab.com')
 PROJECT_ID = os.getenv('CI_PROJECT_ID', '17754827')
-GITLAB_TOKEN = os.getenv('CI_JOB_TOKEN') or os.getenv('GITLAB_PRIVATE_TOKEN')
+GITLAB_TOKEN = os.getenv('GITLAB_PRIVATE_TOKEN') or os.getenv('CI_JOB_TOKEN')
 
 GITLAB_API_URL = f"https://{GITLAB_DOMAIN}/api/v4"
 
