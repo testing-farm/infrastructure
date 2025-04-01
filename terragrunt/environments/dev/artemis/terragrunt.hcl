@@ -172,7 +172,7 @@ inputs = {
   resources = {
     artemis_api = {
       limits = {
-        memory = "512Mi"
+        memory = "2Gi"
       }
       requests = {
         cpu    = "100m"
@@ -182,7 +182,7 @@ inputs = {
 
     artemis_dispatcher = {
       limits = {
-        memory = "128Mi"
+        memory = "1Gi"
       }
       requests = {
         cpu    = "100m"
@@ -212,7 +212,7 @@ inputs = {
 
     artemis_scheduler = {
       limits = {
-        memory = "128Mi"
+        memory = "2Gi"
       }
       requests = {
         cpu    = "50m"
@@ -222,7 +222,7 @@ inputs = {
 
     artemis_worker = {
       limits = {
-        memory = "512Mi"
+        memory = "6Gi"
       }
       requests = {
         cpu    = "150m"
@@ -232,7 +232,7 @@ inputs = {
 
     rabbitmq = {
       limits = {
-        memory = "512Mi"
+        memory = "4Gi"
       }
       requests = {
         cpu    = "200m"
@@ -242,7 +242,7 @@ inputs = {
 
     postgresql = {
       limits = {
-        memory = "256Mi"
+        memory = "8Gi"
       }
       requests = {
         cpu    = "100m"
@@ -262,7 +262,7 @@ inputs = {
 
     redis = {
       limits = {
-        memory = "48Mi"
+        memory = "256Mi"
       }
       requests = {
         cpu    = "100m"
