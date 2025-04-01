@@ -452,6 +452,7 @@ update/composes/public:
   script:
     - !reference [.direnv, script]
     - make compose/update/public
+    - git remote set-url origin https://oauth2:${CI_JOB_TOKEN}@gitlab.com/testing-farm/infrastructure.git
     - gitlab create-merge-request --title="Update public composes $(date -u --rfc-3339=date)"
   # rules:
   #   - !reference [.rules, only_schedule]
