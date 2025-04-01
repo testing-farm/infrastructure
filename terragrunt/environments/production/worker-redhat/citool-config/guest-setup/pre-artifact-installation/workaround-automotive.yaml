@@ -6,7 +6,17 @@
 #
 
 - block:
-    - name: "Check if 'rsync' package is already present"
+    - name: Install rsync
+      package:
+        name: rsync
+        state: present
+
+  when:
+    - '"auto-osbuild" in IMAGE_NAME|lower'
+    - '"ostree" not in IMAGE_NAME|lower'
+
+- block:
+    - name: Check if 'rsync' package is already present
       command: rpm -q rsync
       register: rsync_package_check
       changed_when: false
@@ -15,6 +25,10 @@
     - name: Install rsync via rpm-ostree
       shell: "rpm-ostree install --apply-live http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/rsync/3.2.3/16.el9/$(arch)/rsync-3.2.3-16.el9.$(arch).rpm"
       when: rsync_package_check is failed
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
 
   when:
     - '"auto-osbuild" in IMAGE_NAME|lower'
