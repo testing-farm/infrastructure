@@ -8,3 +8,7 @@ BusinessUnit: >-
   {% else %}
     unknown
   {% endif %}
+TestingFarmRequestTimeout: >-
+  {% if TESTING_FARM_REQUEST_TIMEOUT %}
+    {{ TESTING_FARM_REQUEST_TIMEOUT }}
+  {% endif %}

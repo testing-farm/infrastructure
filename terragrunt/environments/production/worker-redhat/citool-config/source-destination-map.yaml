@@ -39,11 +39,20 @@ progress:
     destination: results.xml
 
 destroy:
-  # TFT-2413 - critical files to be present for our users
   - source: "./*"
+    exclude:
+      - "^citool-debug.txt$"
+      - "^citool-debug.verbose.txt$"
     permissions: "777"
-    # disabling verification of archived directories as a workaround for TFT-2661
-    # verify: "true"
+
+  # TFT-2413 - critical files to be present for our users
+  - source: "results-junit.xml"
+    verify: "true"
 
   - source: "pipeline.log"
     destination: pipeline.log
+
+  # This file should be uploaded as a last step to make sure that user's artifacts
+  # are not affected.
+  - source: "citool-debug.txt"
+  - source: "citool-debug.verbose.txt"
