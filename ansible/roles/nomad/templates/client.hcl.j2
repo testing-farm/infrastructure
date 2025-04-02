@@ -7,6 +7,12 @@ client {
             {{ comma() }}"{{ server }}"
         {%- endfor -%}
     ]
+
+    # Garbage collection interval, by default 7 days
+    gc_interval = "{{ gc_interval|default("168h") }}"
+
+    # Garbage collection if disk usage is over threshold, by default 80%
+    gc_disk_usage_threshold = {{ gc_disk_usage_threshold|default(80) }}
 }
 
 plugin "raw_exec" {
