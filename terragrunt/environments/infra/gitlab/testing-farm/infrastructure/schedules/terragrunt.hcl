@@ -20,11 +20,11 @@ inputs = {
       }
     },
     {
-      description   = "Run make cleanup/staging/ci"
+      description   = "Run make cleanup/ci"
       git_ref       = "main"
       cron_schedule = "0 */8 * * *"
       variables = {
-        "SCHEDULED_JOB" : "cleanup/staging/ci"
+        "SCHEDULED_JOB" : "cleanup/ci"
       }
     },
     {

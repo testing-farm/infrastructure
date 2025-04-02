@@ -412,18 +412,18 @@ redeploy/staging:
     - !reference [.rules, only_schedule]
     - if: '$SCHEDULED_JOB == "redeploy/staging"'
 
-cleanup/staging/ci:
+cleanup/ci:
   extends: .direnv
   stage: deploy
   script:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
-    SCRIPT: make cleanup/staging/ci
+    SCRIPT: make cleanup/ci
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, only_schedule]
-    - if: '$SCHEDULED_JOB == "cleanup/staging/ci"'
+    - if: '$SCHEDULED_JOB == "cleanup/ci"'
 
 deploy/github:
   extends: .direnv
