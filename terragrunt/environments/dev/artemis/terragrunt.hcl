@@ -65,7 +65,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "v0.0.72"
+  image_tag    = "v0.0.75.1"
 
   # Enable access from localhost
   additional_lb_source_ips = [dependency.localhost.outputs.localhost_public_ip]
@@ -82,6 +82,9 @@ inputs = {
     "ARTEMIS_HOOK_AWS_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_AZURE_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_BEAKER_ENVIRONMENT_TO_IMAGE.py",
+    "ARTEMIS_HOOK_GCP_ENVIRONMENT_TO_IMAGE.py",
+    "ARTEMIS_HOOK_IBMCLOUD_POWER_ENVIRONMENT_TO_IMAGE.py",
+    "ARTEMIS_HOOK_IBMCLOUD_VPC_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_OPENSTACK_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_ROUTE.py",
     "variables_images.yaml"
@@ -169,7 +172,7 @@ inputs = {
   resources = {
     artemis_api = {
       limits = {
-        memory = "512Mi"
+        memory = "2Gi"
       }
       requests = {
         cpu    = "100m"
@@ -179,7 +182,7 @@ inputs = {
 
     artemis_dispatcher = {
       limits = {
-        memory = "128Mi"
+        memory = "1Gi"
       }
       requests = {
         cpu    = "100m"
@@ -189,7 +192,7 @@ inputs = {
 
     artemis_initdb = {
       limits = {
-        memory = "128Mi"
+        memory = "256Mi"
       }
       requests = {
         cpu    = "200m"
@@ -199,7 +202,7 @@ inputs = {
 
     artemis_init_containers = {
       limits = {
-        memory = "48Mi"
+        memory = "128Mi"
       }
       requests = {
         cpu    = "20m"
@@ -209,7 +212,7 @@ inputs = {
 
     artemis_scheduler = {
       limits = {
-        memory = "128Mi"
+        memory = "2Gi"
       }
       requests = {
         cpu    = "50m"
@@ -219,7 +222,7 @@ inputs = {
 
     artemis_worker = {
       limits = {
-        memory = "512Mi"
+        memory = "6Gi"
       }
       requests = {
         cpu    = "150m"
@@ -229,7 +232,7 @@ inputs = {
 
     rabbitmq = {
       limits = {
-        memory = "512Mi"
+        memory = "4Gi"
       }
       requests = {
         cpu    = "200m"
@@ -239,7 +242,7 @@ inputs = {
 
     postgresql = {
       limits = {
-        memory = "256Mi"
+        memory = "8Gi"
       }
       requests = {
         cpu    = "100m"
@@ -259,7 +262,7 @@ inputs = {
 
     redis = {
       limits = {
-        memory = "48Mi"
+        memory = "256Mi"
       }
       requests = {
         cpu    = "100m"
