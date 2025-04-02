@@ -121,6 +121,7 @@ if [ ! -e "$TOOLS_PATH/kubectl" ]; then
     chmod +x $TOOLS_PATH/krew
     krew install ctx &>> $LOG
     krew install ns &>> $LOG
+    krew install stern &>> $LOG
     rm -rf $TEMPDIR
 
     mkdir -p $DIRENV_PATH/.kube
