@@ -192,10 +192,17 @@ ansible-vault:
 pre-commit:
   extends: .direnv
   stage: test
+  variables:
+    # Disable parallelism on all levels to mitigate test flakes
+    GOMAXPROCS: 1
+    TF_PARALLELISM: 1
+    TERRAGRUNT_PARALLELISM: 1
   script:
     - !reference [.direnv, script]
     # Need to init the modules, or pre-commit terragrunt_validate will fail :(
     - make -j4 dev/init staging/init staging/init/ci production/init
+    # Check if no changes after init (replacement for unstable terragrunt_validate pre-commit hook)
+    - "if ! git diff --quiet; then echo 'Error: terragrunt init shows some changes.'; exit 1; fi"
     - pre-commit run --config .pre-commit-config-maintainer.yaml --all-files
   rules:
     - !reference [.rules, not_default_branch]
