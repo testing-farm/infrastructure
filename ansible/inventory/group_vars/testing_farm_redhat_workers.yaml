@@ -1,6 +1,8 @@
 ---
+release: 2025-01.4
+
 # container image with citool and modules
-citool_container_image: quay.io/testing-farm/worker-redhat:2025-01.3
+citool_container_image: "quay.io/testing-farm/worker-redhat:{{ release }}"
 
 root_dir: "{{ ansible_config_file | dirname }}"
 
@@ -47,3 +49,6 @@ jobs:
   - tf-tmt-container
   - tf-tmt-multihost
   - tf-sti
+
+sentry_base_url: "{{ credentials.sentry.redhat.base_url }}"
+sentry_dsn: "{{ credentials.sentry.redhat.dsn }}"
