@@ -1,6 +1,8 @@
 ---
+release: 2025-01.4
+
 # container image with citool and modules
-citool_container_image: quay.io/testing-farm/worker-public:2025-01.3
+citool_container_image: "quay.io/testing-farm/worker-public:{{ release }}"
 
 # path to citool-config and jobs to deployment
 worker_deployment_data: "{{ root_dir }}/terragrunt/environments/production/worker-public"
@@ -87,3 +89,6 @@ worker_resource_tags:
   ServicePhase: Prod
 
 worker_group_name: testing_farm_public_workers
+
+sentry_base_url: "{{ credentials.sentry.public.base_url }}"
+sentry_dsn: "{{ credentials.sentry.public.dsn }}"
