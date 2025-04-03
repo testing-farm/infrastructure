@@ -529,7 +529,6 @@ deploy/production/workers:
   rules:
     - !reference [.rules, only_release_tag]
     - !reference [.rules, not_schedule]
-    - when: always
 
 update/composes/public:
   extends: .direnv
