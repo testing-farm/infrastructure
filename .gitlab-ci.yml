@@ -19,8 +19,6 @@ workflow:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     # for schedules
     - if: $CI_PIPELINE_SOURCE == "schedule"
-    # for release tags
-    - if: $CI_COMMIT_TAG =~ /^release\/\d{4}\-\d{2}\.\d+$/
 
 .rules:
   not_default_branch:
@@ -135,14 +133,6 @@ workflow:
         - tests/worker/public/tmt*
         - tests/worker/public/sti*
 
-  only_release_tag:
-    - if: $CI_COMMIT_TAG !~ /^release\/\d{4}\-\d{2}\.\d+$/
-      when: never
-
-  not_tag:
-    - if: $CI_COMMIT_TAG
-      when: never
-
 direnv:
   stage: test
   before_script:
@@ -198,7 +188,6 @@ ansible-vault:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, secrets]
-    - !reference [.rules, not_tag]
 
 pre-commit:
   extends: .direnv
@@ -246,7 +235,6 @@ test/dev:
     - !reference [.rules, not_schedule]
     - !reference [.rules, ansible]
     - !reference [.rules, terragrunt_dev]
-    - !reference [.rules, not_tag]
 
 test/staging/pipeline:
   extends: [.direnv, .archive_tests]
@@ -281,7 +269,6 @@ test/staging/pipeline:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging_ci]
     - !reference [.rules, public_pipeline_tests]
-    - !reference [.rules, not_tag]
 
 test/staging/pipeline/container:
   extends: [.direnv, .archive_tests]
@@ -300,7 +287,6 @@ test/staging/pipeline/container:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging_ci]
     - !reference [.rules, public_pipeline_tests]
-    - !reference [.rules, not_tag]
 
 test/staging/compose:
   extends: [.direnv, .archive_tests]
@@ -335,7 +321,6 @@ test/staging/compose:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging_ci]
     - !reference [.rules, public_compose_tests]
-    - !reference [.rules, not_tag]
 
 test/terraform/modules:
   extends: [.direnv]
@@ -348,7 +333,6 @@ test/terraform/modules:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_modules_infra]
     - !reference [.rules, terragrunt_modules_testing_farm]
-    - !reference [.rules, not_tag]
 
 test/github:
   extends: .direnv
@@ -365,7 +349,6 @@ test/github:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_github]
-    - !reference [.rules, not_tag]
 
 test/infra:
   extends: .direnv
@@ -382,7 +365,6 @@ test/infra:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_infra]
-    - !reference [.rules, not_tag]
 
 test/staging:
   extends: .direnv
@@ -397,7 +379,6 @@ test/staging:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging]
-    - !reference [.rules, not_tag]
 
 test/production:
   extends: .direnv
@@ -429,7 +410,6 @@ redeploy/staging:
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, only_schedule]
-    - !reference [.rules, not_tag]
     - if: '$SCHEDULED_JOB == "redeploy/staging"'
 
 cleanup/ci:
@@ -460,7 +440,6 @@ deploy/github:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_github]
-    - !reference [.rules, not_tag]
 
 deploy/infra:
   extends: .direnv
@@ -476,7 +455,6 @@ deploy/infra:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_infra]
-    - !reference [.rules, not_tag]
 
 deploy/staging:
   extends: .direnv
@@ -487,12 +465,10 @@ deploy/staging:
   variables:
     SCRIPT: >-
       make staging/apply
-      make staging/update/public/pipeline
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging]
-    - !reference [.rules, not_tag]
 
 deploy/production:
   extends: .direnv
@@ -509,27 +485,10 @@ deploy/production:
     SCRIPT: >-
       make production/apply
   rules:
-    - !reference [.rules, only_release_tag]
+    - !reference [.rules, only_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_production]
     - !reference [.rules, terragrunt_github]
-
-deploy/production/workers:
-  extends: .direnv
-  stage: deploy
-  needs:
-    - job: deploy/production
-      optional: false
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-    - make update/pipeline/image
-    - make update/pipeline/config
-    - make update/pipeline/jobs
-  rules:
-    - !reference [.rules, only_release_tag]
-    - !reference [.rules, not_schedule]
-    - when: always
 
 update/composes/public:
   extends: .direnv
