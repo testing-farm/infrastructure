@@ -417,7 +417,9 @@ test/production:
 backport-release:
   stage: deploy
   script:
-    - bash backport-mr.sh
+    - !reference [.direnv, script]
+    - git remote set-url origin https://oauth2:${GITLAB_PRIVATE_TOKEN}@gitlab.com/testing-farm/infrastructure.git
+    - gitlab backport-to-release --commit=${CI_COMMIT_SHA}
   rules:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, not_schedule]
