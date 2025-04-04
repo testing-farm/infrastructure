@@ -5,6 +5,7 @@
 #
 
 import os
+import re
 import sys
 from datetime import datetime
 
@@ -28,6 +29,8 @@ USER_EMAIL = 'tft@redhat.com'
 DEFAULT_MR_BRANCH = f"gitlab-ci-{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
 DEFAULT_MR_TARGET_BRANCH = os.getenv('MERGE_REQUEST_TARGET_BRANCH', 'main')
 DEFAULT_MR_TITLE = os.getenv('MERGE_REQUEST_TITLE', 'Merge request from gitlab-ci')
+
+RELEASE_BRANCH_PATTERN = re.compile("release/.*")
 
 
 app = typer.Typer(
@@ -76,6 +79,97 @@ def commit_and_push_changes(repo: Repo, branch_name: str, changes: Optional[list
     origin.push(branch_name)
 
 
+def create_merge_request(title: str, branch: str, target_branch: str) -> None:
+    url = f"{GITLAB_API_URL}/projects/{PROJECT_ID}/merge_requests"
+    headers = {"PRIVATE-TOKEN": GITLAB_TOKEN}
+
+    data = {
+        "source_branch": branch,
+        "target_branch": target_branch,
+        "title": title,
+    }
+
+    response = requests.post(url, headers=headers, data=data)
+    if response.status_code != 201:
+        print(f"Failed to create merge request. Status: {response.status_code}, Response: {response.text}")
+        raise typer.Exit(code=1)
+
+    print(f"Merge request {response.json()['references']['full']} created successfully.")
+
+
+@app.command("backport-to-release")
+def backport_to_release(
+    commit: str = typer.Option(
+        default="",
+        help="Commit to cherry-pick into the release branch"
+    )
+) -> None:
+    """
+    Cherry pick changes from the merged merge request associated with the commit.
+    """
+
+    repo = Repo('.')
+
+    # Find release branch
+    refs = sorted(list(filter(lambda r: RELEASE_BRANCH_PATTERN.match(r),
+                              [ref.name.removeprefix("origin/") for ref in repo.remotes.origin.refs])), reverse=True)
+
+    if not refs:
+        error('could not find a release branch')
+
+    release_branch = refs[0]
+    print(f"Using target branch {release_branch}")
+
+    response_mrs = requests.get(f"{GITLAB_API_URL}/projects/{PROJECT_ID}/repository/commits/{commit}/merge_requests",
+                                headers={"PRIVATE-TOKEN": GITLAB_TOKEN})
+    if response_mrs.status_code != 200:
+        print(f"Failed to fetch merge requests associated with commit {commit}")
+        return typer.Exit(code=1)
+
+    # Find merged MRs staged to be backported
+    merge_requests = [
+        mr for mr in response_mrs.json()
+        if mr["state"] == "merged" and "Reviewed" in mr["labels"] # "Backport to release" in mr["labels"]
+    ]
+
+    if not merge_requests:
+        print("No (merged) merge requests associated with the commit and marked for backport found.")
+        return typer.Exit()
+
+    mr_iid = merge_requests[0]['iid']
+    print(f"Using merge request !{str(mr_iid)}")
+
+    # Get commits from the MR
+    response_commits = requests.get(f"{GITLAB_API_URL}/projects/{PROJECT_ID}/merge_requests/{str(mr_iid)}/commits",
+                                headers={"PRIVATE-TOKEN": GITLAB_TOKEN})
+    if response_commits.status_code != 200:
+        print(f"Failed to fetch commits associated with the merge request !{str(mr_iid)}")
+        return typer.Exit(code=1)
+
+    commit_ids = [commit['id'] for commit in response_commits.json()]
+
+    if not commit_ids:
+        error("No commits for backport selected")
+
+    print(f"Cherry-picking commits {' '.join(commit_ids)}")
+
+    # Create MR branch and apply cherry-picks
+    repo.remotes.origin.fetch(release_branch)
+    mr_branch = f"backport-{str(mr_iid)}-{release_branch}"
+    repo.git.checkout(f"origin/{release_branch}", B=mr_branch)
+
+    try:
+        repo.git.cherry_pick(*commit_ids)
+    except git.GitCommandError as exc:
+        error('cherry-picks failed to apply')
+
+    repo.remotes.origin.push(mr_branch, "--force")
+
+    create_merge_request(f"[Backport] !{str(mr_iid)}", mr_branch, release_branch)
+
+    return typer.Exit()
+
+
 @app.command("create-merge-request")
 def create_merge_request(
     title: str = typer.Option(
@@ -108,23 +202,9 @@ def create_merge_request(
 
     print("Changes detected. Proceeding with commit and merge request creation...")
     commit_and_push_changes(repo, branch, changes)
+    create_merge_request(title, branch, target_branch)
 
-    url = f"{GITLAB_API_URL}/projects/{PROJECT_ID}/merge_requests"
-    headers = {"PRIVATE-TOKEN": GITLAB_TOKEN}
-
-    data = {
-        "source_branch": branch,
-        "target_branch": target_branch,
-        "title": title,
-    }
-
-    response = requests.post(url, headers=headers, data=data)
-    if response.status_code == 201:
-        print("Merge request created successfully.")
-        raise typer.Exit()
-
-    print(f"Failed to create merge request. Status: {response.status_code}, Response: {response.text}")
-    raise typer.Exit(code=1)
+    return typer.Exit()
 
 
 @app.callback()
