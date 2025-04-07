@@ -7,7 +7,7 @@ printf "\n[pipeline-start] $(date)\n\n"
 
 export REQUEST_ID=$1
 
-ARTIFACTS_URL="http://{{ artifacts_hostname }}"
+export ARTIFACTS_URL="http://{{ artifacts_hostname }}"
 API_URL="http://{{ api_hostname }}/v0.1"
 
 [ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
