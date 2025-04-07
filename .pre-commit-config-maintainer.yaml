@@ -71,7 +71,7 @@ repos:
       - id: terragrunt_validate
         files: ^terragrunt/environments/.*/terragrunt.hcl
         args:
-          - --hook-config=--parallelism-ci-cpu-cores=4
+          - --hook-config="--parallelism-limit=1"
         exclude: |
             (?x)^(
               .*/\.terragrunt_cache|
