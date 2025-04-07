@@ -34,6 +34,7 @@ echo
 export CITOOL_IMAGE
 export CITOOL_IMAGE_ID="$image_id"
 export CITOOL_IMAGE_CTIME="$ctime"
+export SENTRY_TAG_MAP="citool_image=${CITOOL_IMAGE},citool_image_id=${CITOOL_IMAGE_ID},hostname=$(hostname),ip=$(curl ipv4.icanhazip.com),request_id=${REQUEST_ID},artifacts_url=${ARTIFACTS_URL}"
 
 # --init is required to collect zombies processes
 # --rm is required to cleanup the container after it has been run
@@ -52,5 +53,6 @@ exec podman run --init \
                 -e SENTRY_BASE_URL={[ sentry_base_url ]} \
                 -e SENTRY_ENVIRONMENT={[ deployment ]} \
                 -e SENTRY_RELEASE={[ release ]} \
+                -e SENTRY_TAG_MAP=${SENTRY_TAG_MAP} \
                 ${CITOOL_EXTRA_PODMAN_ARGS} \
                 "$CITOOL_IMAGE" "$@"
