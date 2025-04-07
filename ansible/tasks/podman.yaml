@@ -1,11 +1,12 @@
 ---
 - block:
-    - name: "Install required packages podman, cronie and policycoreutils-python-utils"
+    - name: "Install required packages podman, cronie, policycoreutils-python-utils and prometheus-podman-exporter"
       package:
         name:
           - cronie
           - podman
           - policycoreutils-python-utils
+          - prometheus-podman-exporter
         state: present
 
     - name: "Create container storage path {{ container_storage_path }}"
@@ -59,5 +60,11 @@
         dest: /root/.docker/config.json
         mode: 0644
       when: podman_authfile is defined
+
+    - name: Ensure prometheus-podman-exporter service is enabled and started
+      systemd:
+        name: prometheus-podman-exporter
+        enabled: true
+        state: started
 
   become: true
