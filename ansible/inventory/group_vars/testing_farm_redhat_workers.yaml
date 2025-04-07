@@ -31,7 +31,7 @@ ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_worker.pub"
 
 # ansible ssh key
 ansible_dir: "{{ root_dir }}/ansible"
-ansible_ssh_private_key_file: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_worker.decrypted"
+ansible_ssh_private_key_file: "/home/thrix/.ssh/ci_id_rsa"
 
 # podman container storage
 container_storage_path: /data/containers
