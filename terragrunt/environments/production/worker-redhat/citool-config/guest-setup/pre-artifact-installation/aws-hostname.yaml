@@ -23,9 +23,9 @@
 #
 #    https://redhat-internal.slack.com/archives/C03BRN71JAF/p1685450197314049
 #
-- name: "Set hostname to {{ GUEST.artemis_id }}.testing-farm"
+- name: "Set hostname to {{ GUEST.artemis_id }}"
   hostname:
-    name: "{{ GUEST.artemis_id }}.testing-farm"
+    name: "{{ GUEST.artemis_id }}"
   when:
     - GUEST is defined
     - GUEST.artemis_id is defined
