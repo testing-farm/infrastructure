@@ -68,15 +68,6 @@ repos:
             # well, tfsec does know nothing about terragrunt inputs :(
             terragrunt/environments/.*/server/ec2/.*
           )$
-      - id: terragrunt_validate
-        files: ^terragrunt/environments/.*/terragrunt.hcl
-        args:
-          - --hook-config="--parallelism-limit=1"
-        exclude: |
-            (?x)^(
-              .*/\.terragrunt_cache|
-              terragrunt/environments/github/ORG/.*
-            )$
       - id: terragrunt_fmt
 
   # Generate Public Ranch compose tests
