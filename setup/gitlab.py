@@ -57,7 +57,12 @@ def check_for_changes(repo: Repo) -> bool:
     return repo.is_dirty(untracked_files=True)
 
 
-def commit_and_push_changes(repo: Repo, branch_name: str, changes: Optional[list[str]]) -> None:
+def commit_and_push_changes(
+    repo: Repo,
+    branch_name: str,
+    changes: Optional[list[str]],
+    title: str = "Automated commit by CI"
+) -> None:
     author = Actor(USER_NAME, USER_EMAIL)
 
     if changes:
@@ -68,7 +73,7 @@ def commit_and_push_changes(repo: Repo, branch_name: str, changes: Optional[list
     repo.git.checkout("HEAD", b=branch_name)
 
     try:
-        repo.index.commit("Automated commit by CI", author=author, committer=author)
+        repo.index.commit(title, author=author, committer=author)
     except git.exc.HookExecutionError as exc:
         error(str(exc))
 
@@ -107,7 +112,7 @@ def create_merge_request(
         raise typer.Exit()
 
     print("Changes detected. Proceeding with commit and merge request creation...")
-    commit_and_push_changes(repo, branch, changes)
+    commit_and_push_changes(repo, branch, changes, title)
 
     url = f"{GITLAB_API_URL}/projects/{PROJECT_ID}/merge_requests"
     headers = {"PRIVATE-TOKEN": GITLAB_TOKEN}
