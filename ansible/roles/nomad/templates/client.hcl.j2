@@ -9,11 +9,13 @@ client {
     ]
 
     # Garbage collection interval, by default 7 days
-    gc_interval = "{{ gc_interval|default("168h") }}"
+    gc_interval = "{{ nomad_gc_interval }}"
 
     # Garbage collection if disk usage is over threshold, by default 80%
-    gc_disk_usage_threshold = {{ gc_disk_usage_threshold|default(80) }}
-}
+    gc_disk_usage_threshold = {{ nomad_gc_disk_usage_threshold }}
+
+    # Specifies the maximum number of allocations which a client will track before triggering a garbage collection of terminal allocations.
+    gc_max_allocs = {{ nomad_gc_max_allocs }}}
 
 plugin "raw_exec" {
     config {
