@@ -24,3 +24,11 @@ nomad_group: root
 ### Nomad settings
 nomad_log_level: INFO
 nomad_syslog_enable: true
+# Client garbage collection settings
+nomad_gc_interval: 168h
+nomad_gc_disk_usage_threshold: 80
+nomad_gc_max_allocs: 20000
+# Server garbage collection settings
+nomad_node_gc_threshold: 24h
+nomad_eval_gc_threshold: 168h
+nomad_job_gc_threshold: 168h
