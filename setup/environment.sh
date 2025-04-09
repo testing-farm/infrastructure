@@ -163,7 +163,7 @@ Host $host
 EOF
     done
 
-    echo "/usr/bin/ssh -F $PROJECT_ROOT/.direnv/ssh_config \$@" > $TOOLS_PATH/ssh
+    printf "#!/bin/sh\n/usr/bin/ssh -F $PROJECT_ROOT/.direnv/ssh_config \$@" > $TOOLS_PATH/ssh
     chmod +x $TOOLS_PATH/ssh
 
     echo "/usr/bin/scp -F $PROJECT_ROOT/.direnv/ssh_config \$@" > $TOOLS_PATH/scp
