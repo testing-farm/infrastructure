@@ -91,6 +91,7 @@
     - ../secrets/credentials.yaml
     - ../vars/common.yaml
   pre_tasks:
+    - import_tasks: ../tasks/hostname.yaml
     - import_tasks: ../tasks/dns.yaml
     - import_tasks: ../tasks/ssh-key.yaml
     - import_tasks: ../tasks/artifacts.yaml

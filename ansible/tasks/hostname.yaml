@@ -1,0 +1,7 @@
+***REMOVED***
+- block:
+  - name: set hostname
+    hostname:
+      name: "{{ hostname }}"
+
+  become: true
