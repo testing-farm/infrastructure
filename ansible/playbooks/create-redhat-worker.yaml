@@ -2,13 +2,15 @@
 - hosts: localhost
   vars_files:
     - ../secrets/credentials.yaml
+  vars:
+    hostname: "testing-farm-worker-{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
   tasks:
     - name: Provision new EC2 instance
       amazon.aws.ec2_instance:
         profile: redhat_us_east_1_create_worker
         state: running
         tags:
-          Name: "testing_farm_worker_{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
+          Name: "{{ hostname }}"
           # Old tags used for reporting
           AppCode: TFT-001
           ServiceOwner: TFT
@@ -89,6 +91,7 @@
     - ../vars/common.yaml
   pre_tasks:
     - import_tasks: ../tasks/rh-certs.yaml
+    - import_tasks: ../tasks/hostname.yaml
     - import_tasks: ../tasks/dns.yaml
     - import_tasks: ../tasks/ssh-key.yaml
     - import_tasks: ../tasks/podman.yaml
