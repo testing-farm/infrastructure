@@ -26,10 +26,19 @@ STAGING_CI_EXCLUDE_DIR = $(PROJECT_ROOT)/terragrunt/environments/staging/ci/**/*
 
 # For scale-redhat-worker target, make all additional targets parameters
 # https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run
-ifneq (,$(filter $(firstword $(MAKECMDGOALS)),create/public/worker create/redhat/worker dev/create/public/worker staging/create/public/worker))
+ifneq (,$(filter $(firstword $(MAKECMDGOALS)),\
+	create/public/worker \
+	create/redhat/worker \
+	dev/create/public/worker \
+	staging/create/public/worker \
+        production/public/request/shell \
+        production/redhat/request/shell))
   # use the rest as arguments for "SCALE_TARGET"
   SCALE_TARGET := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   SCALE_TARGET := $(if $(SCALE_TARGET),$(SCALE_TARGET),1)
+  # sanitize, eval breaks if it is an URL for example
+  SCALE_TARGET := $(patsubst https://%,%,$(SCALE_TARGET))
+  SCALE_TARGET := $(patsubst http://%,%,$(SCALE_TARGET))
   # ...and turn them into do-nothing targets
   $(eval $(SCALE_TARGET):;@:)
 endif
@@ -357,8 +366,16 @@ production/kubeconfig: .FORCE  ## Update kubeconfig for production environment
 	aws eks --profile fedora_us_east_1 update-kubeconfig --name testing-farm-production
 
 production/public/proxy/nomad:  ## Setup ssh proxy for Public ranch nomad
-	@echo -e "🚀 \033[0;32mSetting up ssh proxy for public ranch nomad: http://localhost:4646\033[0m"
-	@ssh -fNL 4646:localhost:4646 testing_farm_public_server_01
+	@if ! curl -s http://localhost:4646/v1/health/client; then \
+		echo -e "🚀 \033[0;32mSetting up ssh proxy for public ranch nomad: http://localhost:4646\033[0m"; \
+		ssh -fNL 4646:localhost:4646 testing_farm_public_server_01; \
+	fi
+
+production/public/request/shell: production/public/proxy/nomad  ## Connect to shell of a running Public ranch request
+	@setup/request_shell.sh $(SCALE_TARGET)
+
+production/redhat/request/shell: ## Connect to shell of a running Public ranch request
+	@NOMAD_ADDR=http://testing-farm-server-01.osci.redhat.com:4646 bash setup/request_shell.sh "$(SCALE_TARGET)"
 
 .create/redhat/worker%:
 	ansible-playbook -e deployment=production ${SKIP_NOMAD_START} -v ansible/playbooks/create-redhat-worker.yaml
