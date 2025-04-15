@@ -10,6 +10,7 @@ variables:
 pipeline: |
   hide-secrets
   rules-engine
+  reportportal
   testing-farm-request --request-id {{ REQUEST_ID }}
   ansible
   artemis

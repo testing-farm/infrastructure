@@ -6,6 +6,7 @@ marks:
 pipeline: |
   hide-secrets
   rules-engine
+  reportportal
   testing-farm-request --request-id 9e6fa113-a25a-43e1-bb27-671780f152d0
   ansible
   static-guest --guest=localhost
