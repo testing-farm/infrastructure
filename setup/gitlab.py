@@ -7,6 +7,7 @@
 import os
 import sys
 from datetime import datetime
+from urllib.parse import quote
 
 import git.exc
 import requests
@@ -17,6 +18,7 @@ from typing import NoReturn, Optional
 from urllib3 import Retry
 
 GITLAB_DOMAIN = os.getenv('CI_SERVER_HOST', 'gitlab.com')
+GITLAB_GROUP = 'testing-farm'
 PROJECT_ID = os.getenv('CI_PROJECT_ID', '17754827')
 GITLAB_TOKEN = os.getenv('GITLAB_PRIVATE_TOKEN') or os.getenv('CI_JOB_TOKEN')
 
@@ -129,6 +131,37 @@ def create_merge_request(
         raise typer.Exit()
 
     print(f"Failed to create merge request. Status: {response.status_code}, Response: {response.text}")
+    raise typer.Exit(code=1)
+
+
+@app.command("create-milestone")
+def create_milestone(
+    name: str = typer.Option(
+        ...,
+        help="Name of the release milestone, i.e. 'TF 2025-01.6'."
+    ),
+    group: str = typer.Option(
+        GITLAB_GROUP,
+        help="Gitlab `group` or `group/subgroup` where to create the milestone."
+    )
+) -> None:
+    """
+    Create Testing Farm milestone with given name in GitLab.
+    """
+
+    url = f"{GITLAB_API_URL}/groups/{quote(group)}/milestones"
+    headers = {"PRIVATE-TOKEN": GITLAB_TOKEN}
+
+    data = {
+        "title": name,
+    }
+
+    response = requests.post(url, headers=headers, data=data)
+    if response.status_code == 201:
+        print(f"Milestone '{name}' created successfully.")
+        raise typer.Exit()
+
+    print(f"Failed to create milestone. Status: {response.status_code}, Response: {response.text}")
     raise typer.Exit(code=1)
 
 
