@@ -9,8 +9,9 @@ post-install-script = ${config_root}/post-install-scripts/cloud-init-root
 
 # Provisioning a guest in AWS should not take more then 30 minutes (artemis needs to become quicker).
 # Timeout increased to 1 hour to support AutoSD's use case (TFT-2281).
+# Timeout increased to 4 hours to deal with scarce bare-metal machines (systemd request via Fedora CI chat)
 ready-tick = 60
-ready-timeout = 3600
+ready-timeout = 14400
 
 activation-tick = 60
 activation-timeout = 300
