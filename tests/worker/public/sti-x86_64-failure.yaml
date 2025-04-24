@@ -108,6 +108,7 @@ checks:
         </logs>
         <properties>
          <property name="baseosci.result" value="failed"/>
+         <property name="id" value="work-failure.yaml{{ '.+' }}_git-main{{ '.+' }}-sti-failure-yaml"/>
         </properties>
         <testcase name="sanity" result="fail">
          <properties>
