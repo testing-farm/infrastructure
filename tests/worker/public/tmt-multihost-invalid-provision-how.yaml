@@ -37,6 +37,7 @@ checks:
         </logs>
         <properties>
          <property name="baseosci.result" value="error"/>
+         <property name="id" value="work-invalid-provision-how{{ '.+' }}_testing-farm-multihost-invalid-provision-how"/>
         </properties>
        </testsuite>
       </testsuites>
