@@ -2,15 +2,17 @@
 - hosts: localhost
   vars_files:
     - ../secrets/credentials.yaml
-  vars:
-    hostname: "testing-farm-worker-{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
   tasks:
-    - name: Provision new EC2 instance
+    - name: Generate worker name
+      set_fact:
+        worker_name: "testing-farm-worker-{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
+
+    - name: "Provision EC2 instance of worker {{ worker_name }}"
       amazon.aws.ec2_instance:
         profile: redhat_us_east_1_create_worker
         state: running
         tags:
-          Name: "{{ hostname }}"
+          Name: "{{ worker_name }}"
           # Old tags used for reporting
           AppCode: TFT-001
           ServiceOwner: TFT
@@ -46,14 +48,14 @@
       add_host:
         hostname: "{{ item.private_ip_address }}"
         groupname: testing_farm_redhat_workers
-        workername: "{{ hostname }}"
+        worker_name: "{{ worker_name }}"
       loop: "{{ ec2.instances }}"
 
     - name: Add new instance to host group
       add_host:
         hostname: "{{ item.private_ip_address }}"
         groupname: new_workers
-        workername: "{{ hostname }}"
+        worker_name: "{{ worker_name }}"
       loop: "{{ ec2.instances }}"
 
 #
@@ -95,7 +97,7 @@
     - import_tasks: ../tasks/rh-certs.yaml
     - import_tasks: ../tasks/hostname.yaml
       vars:
-        hostname: "{{ hostvars[inventory_hostname]['workername'] }}"
+        hostname: "{{ hostvars[inventory_hostname]['worker_name'] }}"
     - import_tasks: ../tasks/dns.yaml
     - import_tasks: ../tasks/ssh-key.yaml
     - import_tasks: ../tasks/podman.yaml
