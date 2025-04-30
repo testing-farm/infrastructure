@@ -217,6 +217,20 @@ if [ ! -e "${TOOLS_PATH}/butane" ]; then
 fi
 
 #
+# install nomad
+#
+if [ ! -e "${TOOLS_PATH}/nomad" ]; then
+    info "install nomad"
+    TEMPDIR=$(mktemp -d)
+    pushd $TEMPDIR &>> $LOG
+    curl -sLo nomad.zip https://releases.hashicorp.com/nomad/1.9.7/nomad_1.9.7_linux_amd64.zip
+    unzip nomad.zip &>> $LOG
+    mv nomad ${TOOLS_PATH}/nomad
+    popd &>> $LOG
+    rm -rf $TEMPDIR
+fi
+
+#
 # setup git goodies
 #
 if ! grep '\[include\]' .git/config &> /dev/null; then
