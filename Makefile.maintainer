@@ -338,6 +338,21 @@ staging/update/public/pipeline/jobs: .FORCE  ## Update pipeline jobs on Public r
 
 ##@ Infrastructure | Production
 
+# Check if the code being deployed is `main` and it is the latest one pushed to the repository
+define check_deployment_branch
+  @branch=$$(git symbolic-ref --short HEAD); \
+  if [ "$$branch" != "main" ]; then \
+		echo -e "⛔️ \033[0;31mProduction must be deployed from 'main' branch, detected '$$branch'.\033[0m"; \
+		exit 1; \
+  fi; \
+	git fetch origin; \
+	if ! git status -uno | grep -q "up to date"; then \
+		echo -e "⛔️ \033[0;31mThe branch '$$branch' is not up-to-date. Please run 'git pull --rebase --autostash'.\033[0m"; \
+		exit 1; \
+	fi
+	@echo -e "\033[0;32m✅ branch 'main' is up-to-date with 'origin'\033[0m"
+endef
+
 production/init: .FORCE  ## Initialize | production | all
 	$(call run_terragrunt,production,init)
 
@@ -381,6 +396,7 @@ production/redhat/request/shell: ## Connect to shell of a running Public ranch r
 	ansible-playbook -e deployment=production ${SKIP_NOMAD_START} -v ansible/playbooks/create-redhat-worker.yaml
 
 create/redhat/worker: .FORCE  ## Create a Red Hat ranch worker, use `make create/redhat/worker N` to create N workers
+	$(call check_deployment_branch)
 	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) redhat worker(s)\033[0m"
 	@$(MAKE) -j $(addprefix .create/redhat/worker, $(shell seq 1 $(SCALE_TARGET)))
 
@@ -388,6 +404,7 @@ create/redhat/worker: .FORCE  ## Create a Red Hat ranch worker, use `make create
 	ansible-playbook -e deployment=production -v ansible/playbooks/create-public-worker.yaml
 
 create/public/worker: .FORCE  ## Create a Public ranch worker, use `make create/public/worker N` to create N workers
+	$(call check_deployment_branch)
 	@echo -e "🚀 \033[0;32mcreating $(SCALE_TARGET) public worker(s)\033[0m"
 	@$(MAKE) -j $(addprefix .create/public/worker, $(shell seq 1 $(SCALE_TARGET)))
 
@@ -401,30 +418,39 @@ endef
 comma := ,
 
 update/pipeline/image: .FORCE  ## Update pipeline container image on all ranches
+	$(call check_deployment_branch)
 	$(call run_pipeline_update,💿️,updating pipeline image on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_image,production)
 
 update/public/pipeline/image: .FORCE  ## Update pipeline container image on Public ranch
+	$(call check_deployment_branch)
 	$(call run_pipeline_update,💿️,updating Public ranch pipeline image,testing_farm_public_workers,update_image,production)
 
 update/redhat/pipeline/image: .FORCE  ## Update pipeline container image on Red Hat ranch
+	$(call check_deployment_branch)
 	$(call run_pipeline_update,💿️,updating Red Hat ranch pipeline image,testing_farm_redhat_workers,update_image,production)
 
 update/pipeline/config: .FORCE  ## Update pipeline configuration on all ranches
+	$(call check_deployment_branch)
 	$(call run_pipeline_update,🛠,updating pipeline configuration on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_config,production)
 
 update/public/pipeline/config: .FORCE  ## Update pipeline configuration on Public ranch
+	$(call check_deployment_branch)
 	$(call run_pipeline_update,🛠,updating Public ranch pipeline configuration,testing_farm_public_workers,update_config,production)
 
 update/redhat/pipeline/config: .FORCE  ## Update pipeline configuration on Red Hat ranch
+	$(call check_deployment_branch)
 	$(call run_pipeline_update,🛠,updating Red Hat ranch pipeline configuration,testing_farm_redhat_workers,update_config,production)
 
 update/pipeline/jobs: .FORCE  ## Update pipeline jobs on all ranches
+	$(call check_deployment_branch)
 	$(call run_pipeline_update,⛴️,updating pipeline jobs on all ranches,testing_farm_public_workers$(comma)testing_farm_redhat_workers,update_jobs,production)
 
 update/public/pipeline/jobs: .FORCE  ## Update pipeline jobs on Public ranch
+	$(call check_deployment_branch)
 	$(call run_pipeline_update,⛴️,updating Public ranch pipeline jobs,testing_farm_public_workers,update_jobs,production)
 
 update/redhat/pipeline/jobs: .FORCE  ## Update pipeline jobs on Red Hat ranch
+	$(call check_deployment_branch)
 	$(call run_pipeline_update,⛴️,updating Red Hat ranch pipeline jobs,testing_farm_redhat_workers,update_jobs,production)
 
 
