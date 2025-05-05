@@ -12,10 +12,11 @@ cache_connection: .direnv/aws-cache
 
 boto_profile: redhat_us_east_1_ansible_inventory
 
-include_filters:
-  - tag:Name:
-      - "testing_farm_worker_*"
-      - "testing-farm-worker-*"
+filters:
+  tag:Name:
+    - "testing_farm_worker_*"
+    - "testing-farm-worker-*"
+  instance-state-name: "running"
 
 hostnames:
   - "tag:Name"
