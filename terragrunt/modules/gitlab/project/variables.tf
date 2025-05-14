@@ -19,3 +19,9 @@ variable "namespace_id" {
   type        = number
   default     = 5515434
 }
+
+variable "default_branch" {
+  description = "The name of the default branch"
+  type        = string
+  default     = "main"
+}
