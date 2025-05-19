@@ -61,7 +61,6 @@ set_citool_image
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
 citool-container.sh rules-engine \
                     hide-secrets \
-                    oom \
                     testing-farm-request --request-id $REQUEST_ID \
                     coldstore \
                     testing-farm-request-state-reporter \
