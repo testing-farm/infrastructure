@@ -49,3 +49,11 @@
     and TESTING_FARM_FAILED_IF_PROVISION_ERROR
   reason: >-
     Provisioning of test resources failed. This is considered as a test failure, because `settings.pipeline.provision-error-failed-result` was set.
+
+# TFE-1 - point to TFE-1 docs
+- rule: >
+    EXISTS('ERROR_MESSAGE')
+    and ERROR_MESSAGE
+    and "Worker out-of-memory" in ERROR_MESSAGE
+  reason: >-
+    Worker out-of-memory. See https://docs.testing-farm.io/Testing%20Farm/0.1/errors.html#TFE-1 for more information.

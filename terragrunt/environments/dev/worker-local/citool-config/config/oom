@@ -1,0 +1,5 @@
+[default]
+enabled = yes
+reservation = 1024
+limit = 2048
+verbose = yes
