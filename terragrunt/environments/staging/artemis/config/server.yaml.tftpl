@@ -165,6 +165,60 @@ pools:
                 min-size: "10 GiB"
                 max-size: "512 GiB"
 
+        - name: c6a.4xlarge-100
+          base: c6a.4xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.4xlarge-250
+          base: c6a.4xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.4xlarge-500
+          base: c6a.4xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.8xlarge-100
+          base: c6a.8xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.8xlarge-250
+          base: c6a.8xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6a.8xlarge-500
+          base: c6a.8xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
       # Provide flavor info we cannot extract from API.
       # Based on AWS documentation, https://aws.amazon.com/ec2/instance-types/
       patch-flavors:
@@ -317,6 +371,60 @@ pools:
 
         - name: c6g.2xlarge-500
           base: c6g.2xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.4xlarge-100
+          base: c6g.4xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.4xlarge-250
+          base: c6g.4xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.4xlarge-500
+          base: c6g.4xlarge
+          disk:
+            - size: "500 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.8xlarge-100
+          base: c6g.8xlarge
+          disk:
+            - size: "100 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.8xlarge-250
+          base: c6g.8xlarge
+          disk:
+            - size: "250 GiB"
+            - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+        - name: c6g.8xlarge-500
+          base: c6g.8xlarge
           disk:
             - size: "500 GiB"
             - additional-disks:
