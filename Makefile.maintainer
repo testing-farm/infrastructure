@@ -188,7 +188,8 @@ dev/kubeconfig: .FORCE  ## Update kubeconfig for development environemnt
 	aws eks --profile fedora_us_east_2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
 
 dev/server/connect: .FORCE  ## Connect to dev server
-	ssh -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted core@$$(env -C terragrunt/environments/dev/server/ec2 terragrunt output -json | jq -r .public_ip.value)
+	ssh -o IdentitiesOnly=yes -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted \
+		core@$$(env -C terragrunt/environments/dev/server/ec2 terragrunt output -json | jq -r .public_ip.value)
 
 .dev/create/public/worker%:
 	ansible-playbook -e deployment=dev ${SKIP_NOMAD_START} -v ansible/playbooks/create-public-worker.yaml
@@ -308,11 +309,13 @@ staging/kubeconfig: .FORCE  ## Update kubeconfig for staging environment
 	aws eks --profile fedora_us_east_1 update-kubeconfig --name testing-farm-staging
 
 staging/server/connect: .FORCE  ## Connect to staging server
-	ssh -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted core@$$(env -C terragrunt/environments/staging/server/ec2 terragrunt output -json | jq -r .public_ip.value)
+	ssh -o IdentitiesOnly=yes -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted \
+		core@$$(env -C terragrunt/environments/staging/server/ec2 terragrunt output -json | jq -r .public_ip.value)
 
 staging/server/connect/ci: .FORCE  ## Connect to staging server
 	$(call check_staging_ci_env)
-	ssh -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted core@$$(env -C terragrunt/environments/staging/ci/server/ec2 terragrunt output -json | jq -r .public_ip.value)
+	ssh -o IdentitiesOnly=yes -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted \
+		core@$$(env -C terragrunt/environments/staging/ci/server/ec2 terragrunt output -json | jq -r .public_ip.value)
 
 .staging/create/public/worker%:
 	ansible-playbook -e deployment=staging ${SKIP_NOMAD_START} -v ansible/playbooks/create-public-worker.yaml
@@ -384,6 +387,8 @@ production/public/proxy/nomad:  ## Setup ssh proxy for Public ranch nomad
 	@if ! curl -s http://localhost:4646/v1/health/client; then \
 		echo -e "🚀 \033[0;32mSetting up ssh proxy for public ranch nomad: http://localhost:4646\033[0m"; \
 		ssh -fNL 4646:localhost:4646 testing_farm_public_server_01; \
+	else \
+	        echo -e "🚀 \033[0;32mProxy for public ranch nomad already available: http://localhost:4646\033[0m"; \
 	fi
 
 production/public/request/shell: production/public/proxy/nomad  ## Connect to shell of a running Public ranch request
