@@ -46,8 +46,6 @@ checks:
           <property name="baseosci.status" value="Complete"/>
           <property name="baseosci.testcase.source.url" value=""/>
           <property name="baseosci.variant" value=""/>
-          <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
-          <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
          </properties>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
