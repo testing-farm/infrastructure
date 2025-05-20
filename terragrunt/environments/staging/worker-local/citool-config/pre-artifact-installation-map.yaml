@@ -1,7 +1,7 @@
 ---
 - rule: "True"
   playbooks:
-    - /CONFIG/guest-setup/pre-artifact-installation/entrypoint.yaml
+    - /root/.ansible/collections/ansible_collections/testing_farm_profiles/testing_farm_worker_public/playbooks/apply.yaml
   extra_vars:
     TESTING_FARM_REQUEST_ID: "{{ TESTING_FARM_REQUEST_ID }}"
 
