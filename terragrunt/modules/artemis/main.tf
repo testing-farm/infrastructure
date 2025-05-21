@@ -209,6 +209,8 @@ resource "helm_release" "artemis" {
 
         artemis_db_schema_revision = var.db_schema_revision
 
+        artemis_extra_env = var.extra_env
+
         artemis_worker_extra_env = var.worker_extra_env
         artemis_worker_replicas  = var.worker_replicas
         artemis_worker_processes = var.worker_processes
