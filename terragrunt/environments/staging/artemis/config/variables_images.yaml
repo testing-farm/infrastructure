@@ -13,9 +13,9 @@ composes:
     compose: Fedora-41
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20250519.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20250520.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-20250519.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-20250520.0
 
   fedora_42:
     compose: Fedora-42
@@ -36,9 +36,9 @@ composes:
     compose: Fedora-Rawhide
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20250518.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20250520.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20250518.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20250520.0
 
   fedora_40_image_mode:
     compose: Fedora-40-image-mode
@@ -68,7 +68,7 @@ composes:
     compose: CentOS-Stream-9
 
     x86_64:
-      image: CentOS Stream 9 x86_64 20250512
+      image: CentOS Stream 9 x86_64 20250520
     aarch64:
       image: CentOS Stream 9 aarch64 20250512
 
@@ -84,6 +84,6 @@ composes:
     compose: CentOS-Stream-10
 
     x86_64:
-      image: CentOS Stream 10 x86_64 20250512
+      image: CentOS Stream 10 x86_64 20250520
     aarch64:
-      image: CentOS Stream 10 aarch64 20250512
+      image: CentOS Stream 10 aarch64 20250520
