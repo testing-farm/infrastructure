@@ -1,6 +1,8 @@
 ## Artemis-specific options
 ##
 artemis:
+  extraEnv: ${jsonencode(artemis_extra_env)}
+
   image:
     tag: ${artemis_image_tag}
 

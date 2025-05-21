@@ -118,7 +118,7 @@ inputs = {
   api_processes = 4
   api_threads   = 2
 
-  worker_extra_env = [
+  extra_env     = [
     # Keep retrying releasing resources to mitigate security group leftovers when VM is not released in time.
     # 32 attempts with exponential backoff with max. 1h timeout for approx. 25h before giving up.
     {
@@ -128,7 +128,10 @@ inputs = {
     {
       name  = "ARTEMIS_ACTOR_RELEASE_POOL_RESOURCES_MAX_BACKOFF",
       value = "3600"
-    },
+    }
+  ]
+
+  worker_extra_env = [
     {
       name  = "ARTEMIS_AWS_ENVIRONMENT_TO_IMAGE_MAPPING_FILEPATH_fedora_aws_x86_64",
       value = "/configuration/artemis-image-map-aws.yaml"

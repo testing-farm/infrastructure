@@ -94,6 +94,8 @@ inputs = {
   api_processes = local.artemis.inputs.api_processes
   api_threads   = local.artemis.inputs.api_threads
 
+  extra_env        = local.artemis.inputs.extra_env
+
   worker_extra_env = local.artemis.inputs.worker_extra_env
 
   worker_replicas  = local.artemis.inputs.worker_replicas

@@ -91,6 +91,12 @@ variable "api_domain" {
   default     = ""
 }
 
+variable "extra_env" {
+  description = "Additional environment variables to be passed to artemis containers."
+  type        = list(map(string))
+  default     = []
+}
+
 variable "connection_close_after_dispatch" {
   description = "When enabled, broker connection will be forcefully closed after every message dispatch."
   type        = bool
