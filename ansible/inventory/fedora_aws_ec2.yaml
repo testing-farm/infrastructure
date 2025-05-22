@@ -10,7 +10,7 @@ cache: true
 cache_plugin: ansible.builtin.jsonfile
 cache_connection: .direnv/aws-cache
 
-boto_profile: fedora_us_east_2
+profile: fedora_us_east_2
 
 include_filters:
   - tag:ServiceOwner:
