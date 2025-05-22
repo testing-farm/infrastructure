@@ -1,20 +1,12 @@
 ---
 composes:
 
-  fedora_40:
-    compose: Fedora-40
-
-    x86_64: &fedora_latest_ref_x86_64
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-40-20240805.0
-    aarch64: &fedora_latest_ref_aarch64
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-40-20240805.0
-
   fedora_41:
     compose: Fedora-41
 
-    x86_64:
+    x86_64: &fedora_latest_ref_x86_64
       image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20250522.0
-    aarch64:
+    aarch64: &fedora_latest_ref_aarch64
       image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-20250522.0
 
   fedora_42:
