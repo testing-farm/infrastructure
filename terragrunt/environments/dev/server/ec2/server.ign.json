@@ -1,0 +1,231 @@
+{
+  "ignition": {
+    "version": "3.4.0"
+  },
+  "passwd": {
+    "users": [
+      {
+        "name": "core",
+        "sshAuthorizedKeys": [
+          "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDEoc4JjobKZyPy+nosa3Mttf1bBwAFckBkCbFqfYlDwH+tUzw7gT5NOHFCFKHdutcw9jsY47TcXr0GFE7IZZv4UOr4/xS8W5cRjw7e7ozo5ndhpoPZQsl0V1ruHtSG1elTl3+oVAyw3G/sdcLqkIa6C50xjxYPq2E9SM96KXh0q/ZHisz1pNNfGGh74Aq3fuMNeIw130Xq9wgBKu0A4rBMYsLXbzEeGXgeHYZEyF/WGUiCAGa7523ONcigVzNBjh/a0GaYON/6FKpS7Dkr9CIZWWcHvg7zWwOtd/bVjPDW8y1VLCIhRJt56XElLl0mO4EKwwj9Y4HJ6t5WyYdoxECp1vLcfuvX1zjfDICkrcHX2BIv7qDUFIUkC4HZ0i93vGLokrbkqTh4YzV2pMThr7fZTjH9WLx2Is9I0L73W9RJKCR/9I5xUY8WKgo1wQyhMwzn1LlJVYBKOSQzTNFXCjGKHkK9Xn4OssLB0HEH7pN+RW8lfg8L4phASeC2wAAvMk8="
+        ]
+      },
+      {
+        "name": "artifacts",
+        "sshAuthorizedKeys": [
+          "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDOUYw5tWs6W429VBtT7X0MQdZ7qoeN4uTsMj0Wv+DgeDN0TLDJf2GHr/1jn1Vxv4aXkzLYdjs+KhOwy/9yp5Jdry03Hi/A/HVJolVTDOwnE0W8A3rZ91A+AZjnjeohVNLYGMreId4yXzkC+hK82ERtUZpxuEx8X6k//40KBaIvvf6LHpI25i0PLynB1KJTfSwnxZsaG7EYd6zlGTSmmJ1I77O9OW/JdQsYRQ6Ve/FW9VXsdjyYDpVRW+F1/V5x+1PxexW8cJjTkWUbuzXjiKk1dUdZCTVFJ/iVvRZfIHvJzM+fadUPjyULfQtW7LQRLna2aUE0V4GqTscTGF8l39+hjeR2jWKpJhLz5Cbxm71IQGLgUq/Xxt2oTPUS8bWlg/3BBPoJxqVq1rJNyJw61zcJwdtDXJ2fPeZ5OWjg/4B0iug7PpfI4iA6oXwNYmgKThd3U4hzPMxQi7ouLNPCwokB1wz1CbHGwoPGGHYk0oBsj4MRhmfyKPJ77By5KfwsgLM="
+        ]
+      }
+    ]
+  },
+  "storage": {
+    "directories": [
+      {
+        "path": "/var/nomad"
+      },
+      {
+        "group": {
+          "name": "artifacts"
+        },
+        "path": "/var/artifacts",
+        "user": {
+          "name": "artifacts"
+        }
+      }
+    ],
+    "disks": [
+      {
+        "device": "/dev/nvme1n1",
+        "partitions": [
+          {
+            "label": "artifacts",
+            "sizeMiB": 0
+          }
+        ],
+        "wipeTable": false
+      }
+    ],
+    "files": [
+      {
+        "path": "/etc/zincati/config.d/90-disable-auto-updates.toml",
+        "contents": {
+          "compression": "",
+          "source": "data:,%5Bupdates%5D%0Aenabled%20%3D%20false%0A"
+        }
+      },
+      {
+        "path": "/etc/testing-farm/pods/server.yaml",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/+RYX3Paxhd951Ps8Hteo39IoN9MpzIoMQ2xqZCdtC/M1e4KtkgrZbXCyTT97h0FG0sFGcXJS9on/ujes2fvOTpowRj3IOd3TBY8Ey7a6b0tF9RFi4z2UqaAggK3h1ACEUuK6h1CkOcuKpjcMdlDSEDKDh+LnJGqiAuuJplQwAWTD234oZRkIubrL18hxFNYMxd9KOHTBc8GihWKizWOQaaDfaGbQPXtQ/0uS8qUvc1KoR5gj6HxvuhwFaG0ql+A2rhoADlv0JEgyAbnZZRw0oFUvfxrqNX7MOS8G8lWBMqLHBTZMPk80FNdr7Hre+CKRh32CzlvbhPkurG9BtK3y8MUOSLwjcM8gqy3H/mBSAaK/XM2NCNbJqvpkIxsZQZkQ6On9+7OMC+MC+uhiWRpCoLWJ1BsWuaHSe3DARAVHxKEMRcFI6VkCONSJijPCrWWrPiQuIOBzDL18xMDwzaGDsIM9SeB74U+mnqhd+ktfSRKkrCy6KPPn5GSJWs6obpVv48TGkg/sBMQYmJ3zDl8tfIWs9XiJghr8DtISuai/kjT9H5bz6MUq6ub5Ynmg4hn+1sW/6L9+dVvl35w3F35qGmJsmCyeIkjXuz7n2q0VKwwUIpVtmUCAU25QGY8dAwrjvDQoBq2nFGMwdQBjxxmjmJtyBjV0F7Gfcf/WwEp27Eky5lEY2OsQ2yNMNGdCFumQ3HkgIF1Zg1Bi8jY1JxH0Gokz2AeUhY5Ix2MIRBsEBuwpZMIw5ASbEVDPY7BsHXjAHqfye1zsPvryI5NaxQZDqY6BWzZmoXHVAdM7JHl6KY1BkM/Dfmf9DFpee6o0qHzz/zZsGsg5ZlsptyBwyKTykXVUGuEN1mhji78awPzl3fhaulPAv+U4kNrTAloMWY0jrEV6wYegaHhsUPJ0LSjcTSyWg3xehZe3V6uJvOZfx2uZtMT+KWAHfAEooR1hGml2gXqlT+9CbxnGdXH2RGnlZLzu55cj29K4d+lv5ofl74g9/IyXm6cybs3d+LT/Gb+x9Xy/d02ug+1+ebN+6vWFQN/euWFnZnjQsGai3VHvNYd2JTqkU1iPDLGDrYcx8Kg20PswDBmZgwapWb/6DbmQjEpIPk+Ty0NrJdFptHvngRGWxIYP3YSNFSqnTvOa/RU3JSqTYvpbLnwwsmVH6wWt5fz2WR1G8xPCLNRKncHg6fgd1t/3WqQs+vQD669+XnQR+u4dQe0wVYGeuP/duou7vDIcIx+ffPWm6686TRoJymyFOgFZTusNpJ/vKhP/YJnrmVbdv/rj69dD59Hnmk7jZa8g0tK3s0dt7NV6C/D2fXr1SsvePtoEW8xe1bN9jEdz77S8jaYI/Q/VL1kMQpYnLCP6BLIlgn69O9Iy3olx9G+9Pyy5yLF1DTtZKQ0LpxKIq0tibRKnr20J/+8acrO0lx9mnLpoj//6nVPmG5tbV5rdP8dAAD///AS5q/HEgAA"
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/containers/systemd/server.kube",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/zTKS2qEQBAG4H2doiBr7RO4CSEQsgmYEAZxUdqlNPRDqv8e8PYD81h+8E1/OWCmD62rhQOh5OFXK0Le+VMs8ah2VeOf4omm77boTBdJcXCK1eExu00suaP46uq996ekSDR95QqJcaY3HiEGXk72ukmL4JJ5KQX0Lxnq388htYjQtarWQ2xXvOqTdAsAAP//lsfEn6sAAAA="
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/testing-farm/pods/cockroach.yaml",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/3SRTW6EMAyF9zmFLxA6pX+jbLtuxWr2nsSCCBJHSeD8VSgDzB8r4/e+J8eWUgoM9kQxWfYKplfRW28UNGyEo4wGMyoBMOCZhlQqAAxBgWbdR0bdCQCPjvadFEgXq2af0XqKCyjvnDB/1mFLCgzrnmJl+WU1mPNWq6l+q+rqfYEwtkvsf3TKGLNM1rcDSc+GdpqU1ifSY7w0A8d8Ra+jNhyzguPheFhVgI5TfiDcYfVn/fH1kNsrEw+jox8e/fUMrnQazJ2C7dVbJcstduE3u5Rh0uIS/mzhi2leQbl5yuTzaUa+B7RuG0eX39+bc/0FAAD//3CcE/IvAgAA"
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/containers/systemd/cockroach.kube",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/zTLsQrCMBCA4f2e4sC5zRN0URHERVARKR2uybUGk1xJLkPf3kE7/vD9/SN5HeDIxWa/qJfU3bmoTzOeKEc8iP1kIfvGqziA/lJHHuBFMXSG1Rr94WaiHM0irhi7He1KMQD051SUQhhghzelrDiu6HiiGhQl4Sii8KSk7PZrF2tQ39TCuVXKM+tG/wnfAAAA//9VVTPksQAAAA=="
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/testing-farm/pods/nginx.yaml",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/3yQzXLCMAyE734KvUDI9Opee22HUw+9iUQJGmLJtRVa3r7jYBgoP76tsvtpI4z8SSmziof9i9ux9B7W2rtAhj0aegeAImporJKLBNiw9E3QWazReJxDS9a1MrL8tp3KsOr9lwOYcENTTWGMHhaHAxAMdFI5UlcsnYohC6UaaK5csDwOOJKH7xkPK9bWKBvL2AyYwnG7n7AMqx3TWGEVeIEquhkvRI8UVECH4bVO9zrNgd7Ln15jbnqVt1xkjba9c432Jo3JeMDO8gPCHlN76dlqtg+yH007D5Zmcqd+T85VQgvvvCTe73f+bodIHt44UWeaDu5Z5Yf0/93vo/8CAAD//0TATl19AgAA"
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/containers/systemd/nginx.kube",
+        "contents": {
+          "compression": "",
+          "source": "data:;base64,W1VuaXRdCkRlc2NyaXB0aW9uPW5naW54IFBvZAoKW0t1YmVdCllhbWw9L2V0Yy90ZXN0aW5nLWZhcm0vcG9kcy9uZ2lueC55YW1sCgpbSW5zdGFsbF0KIyBTdGFydCBieSBkZWZhdWx0IG9uIGJvb3QKV2FudGVkQnk9bXVsdGktdXNlci50YXJnZXQgZGVmYXVsdC50YXJnZXQK"
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/testing-farm/pods/nomad.yaml",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/3yRsY7bMAyGdz/FD3Stz+gqoFuXDi2ytEM3nsU4wtmkKtE+5O0LSW7qFJfzRpP89IE/xfCTUw4qDtun7iWIdzip7xY28mTkOoBE1MiCSi4l8BzE94uuYr3G9h8D2ziILuTdrw6Y6ZnnfZxidKitDhBa+G+VI49l5AN+ZMZFs0HYXjW94KypDX1EVrwyRhIw5TBf4dl4NJDfOFnI7CsiprCRMb6eEAR2YYwq5zCtqapDzw2IzGnj1KE++L2952Bp5Q5lxygIp929vxNG/cJCEzv8Xun6FHQwzhZk6s+Ulv0CM5Wf+zilaYc1IE0sdqj75vn53wWHpvhUGvvgpvO68Ldy8zvYwW7n3JpAjehEdjnGM9R83toveT/Y3igdwm0yb13o3qEcuAJu1PifzK1h18gOX0Li0TRdu3ftHnJvmg+5fwIAAP//+/Zdz/ECAAA="
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/containers/systemd/nomad.kube",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/zTKsQrCMBAG4P2eIuDc5gm6iIu4CCIipcO1uZZAcleSP0PfXhAdP/jGp0ZMdJG6lLgjmg5qmYO7WyAab22Wid6c0+AFi4dURN26lUv2u4Xqv7s/OCei8aoVnNJEJ/cAF7j5cEFWbgnO1M1moBcrJJyPIbeE2LUqpQeXTfCvP9InAAD//yFlcw+cAAAA"
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/nomad/server.conf",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/0yOXWqEQBCE3/sUxRzAn0RiEvA5+JYDCNI6LQi749DTKwsyd19cWNh6raqPz7Px6FfFKx1cubOWYbuyd0Tsd1Fbk+AgQON8Lo4Df2J9MNGFZ+n/MTgJ8fMnVYNDzr/NV9M6ApLoch7qj7aoiqqoz+bbUSZKorvokyqBp4t4vEmY3oSAadssmXIc5R5lNnSoKdMjAAD//9eDu4G2AAAA"
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/nginx/conf.d/dev-thrix.testing-farm.io.conf",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/yyNwaqDMBBF937FrB8kxvcWr+hK+gH9BAlmqoGYkZnBWor/Xtp4dxfOuVeQN2R4VQAApQzZLwgQcDM6c9ytomjMk7l7Xmyk7sv6EIYZfUCGfhxRxFwpK1MyfUr0MDeOU8zwU+hEo9dIGerz6pOVaX8OqxeBWXVt67r5/bfOOtu0f865oh5lIIpiPsWL66qjegcAAP//QhNR8LsAAAA="
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/nginx/conf.d/ui-backend.dev-thrix.testing-farm.io.conf",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/3yPsW7rMAxFd38FEWR6gGTlLQ3iKcjSrVNnQ5VYW6hDGiSTpijy70Uid+kQbhc4B5dXUc4o8N0AANTQUzwiwKm4t5g+kLLPeHY2Srl4Q7VCg3uPcvSFu7sWc+5HjBkF9imhqjswmfDk9tPEn+5FylAI/lV64hStMEG7tN5uFr589XNUhdFs3rXt5v+TDz74zW4bQuj+kIr2W/k6DxIzwvom9qeaHvAHJsJ0/2C1uKsH+DOrwXpktQpd64iihrQ429A11+YnAAD//87RWyNKAQAA"
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/testing-farm/pods/tmt-web.yaml",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/6SRy26zQAyF9zyFpX8NJPqlXmYXtZEaqZcoabqNHHCTUWCGGoc2b18NDHQi9aKqK+Dgc+zPxko/EdfaGgXNONprkyuY2zwqSTBHQRUBFLihonZvAFhVCqSU+JU2EYDBkj6+64oyV5ZZI6gNcWv6B6tGZ5ZNBBCDLnFLCl4OeEy0TYVq0WYbPyOXqc9RBTq568db3zmGwxDTNw6VyrIMpcMEc8ui4GI0GrV/AHa2Fi+OvUim6X1d7GJ6PVuuV4tb72mwOJACplzXKk2759n/88sT12Q+W988LB/vJ3fTU+NOpFKpw0tyamLZsX5LQvJE23ZRV1QQH/+6p6xP6dcUCAPr17Q/8X5L/HvmhUsPkXOb7YkddKE3jHz0AwS0XXv2zpPbf3L9YPLw/q38HgAA//9iiKfRAQMAAA=="
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/containers/systemd/tmt-web.kube",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/zTKPYrDMBAG0H5OMbC1rRO4WdKENAETTDAuRtbYCPRjpE8Jvn2apHzw5kfyWOiidS3+gM9pQARPannU8tLC9+yI5luzutBTYhiMYjXQCp/2bpMSzZFdNYjo3mr7U2Igmq+pQkJY6I9HSAHbk51u0gI4J7Y5gyZJUPd/DrEF+K5VLT2k7Ipf/ZI+AQAA//8zpyN5pwAAAA=="
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/nginx/conf.d/api.dev-thrix.testing-farm.io.conf",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/yyNQQqDMBBF955i1oXE2E1FV9ID9AgSzFQHYhImg7UU717a+Hcf3vs/I2/I8KkAAEoZg10RwCbSDjclC9OuBbNQmNXT8qop9n/eOjcuaB0yDNOEOat7DMLRq8H7+FIPppkCXArt42SFYoD6vPslcdzfY7I5wyKSurpurjdttNFN1xrTFPUoA5QFwym2pq+O6hsAAP//os43yr8AAAA="
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/nginx/conf.d/internal.api.dev-thrix.testing-farm.io.conf",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/yzNQWrEMAwF0H1OoXXBjmc2HSar0AP0CEHEaiJwZCOLNKXk7qXjaCf47/9KupPCbwcA0J5JcCMAFiMVTB4L+0i7s1X58EbVWBb3hbp5zsMLYozTShhJYZxnqtV9ZDHNyY0p5W/3qbywwFtLpzyjcRbor93/K5qPn6lgrbCalWff3+7vPvjgb89HCPdGz1bA1Ugu+AhDd3Z/AQAA//99o85GyAAAAA=="
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/nginx/conf.d/nomad.dev-thrix.testing-farm.io.conf",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/3yRv07DMBCH9z7FqWSNnUJVUDoisTIhsUUmviSWEl90dwlFVd4d5Q8MHerpzv7u80+2II/IcN0BAKxNEV2HAJE6543HMdWGw8UoioZYp5XjzgQ6LxMtlU4DRbCbYl4P0Kj2klvrccSWemTTOGlCSdybkjq7uK0OShxcK7Zz0dWYlu0giiyWcUQWTHumy086hH/1slH0TmS5I7f28PhsMpOZQ348HU/nG1JQiwadR4bP9I3427FHP1eQrITzvrgU1d/RXN1KGJ0vNHRIg8LTIZNb4GuoKuQQa6CquhPho6/ZeYRkzl4Ma3eHf6UYsVzed7/R+zv4O4c6RNgnVykb7HDKrU2uK9aQ6LQNT+vXBVGMm+slO++m3W8AAAD//2GiRPMNAgAA"
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/nginx/conf.d/artifacts.dev-thrix.testing-farm.io.conf",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/2yPwYriQBCGz5un+AkedgPp7N4WcpJhzvMCYijTlVjYdkt3GaPiPPugcXQG5ljF91f9X+I4cMQ5A4BpaDxtGaCo0lGryVgeSl1HGY1yUvF92VHcGgn1LUXWNmsmyxHztuWUypfgNQZXzp0Lh/ItSi8eRZ3d8BiCohooVo8P0x0riVaOm3TcOvGbhNB194wLLakEj3fkS1MsjI66MP1plt+bPw9TbNcycP1Y63HHCWdcYLmjvdPmukGuPGq1cyQe/Sl/8l90cBVhr+Wrb4MV3wP9SXZP9jpNNR8l+BBFGfnytyn+zHLM/mEVmTYTcvnBpzJF9enxi/YaxFseEfz3iCRlj/9/6+ySfQQAAP//ppb/eLYBAAA="
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/nginx/conf.d/server.conf",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/3zLvQrCMBQF4L1PcaBrF0VE6iROPoNISJtDE2xv4N7Ev6cXugru39fiFAIDQiVKRonJQNWsMFKQBOdLh2ekEiUSMVsRv9DglZizTNSmhUxJXj2uXKjTDWOuc4DkgqGmOcCoD6pbo4veYod3rrC4uiSj0ht/mRvqeGdxlj7ssd81fwU228Ox+QYAAP//Vh5j2NIAAAA="
+        },
+        "mode": 420
+      },
+      {
+        "path": "/etc/nginx/conf.d/tmt.dev-thrix.testing-farm.io.conf",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/yyNwaqDMBBF937FrB8kxrd5oit5H9BPkGCmGogZmRmspfjvpY13d+GcewV5R4ZXBQBQypj9igC6qg24G104HlZRNObZ3D2vNlL/5X0I44I+IMMwTShi/ikrUzJDSvQwN45zzPBT6EST10gZ6uvuk43peI6bF4FFdevquvn9s84623Rt41xRzzIQRTFfYuv66qzeAQAA//88q63pvwAAAA=="
+        },
+        "mode": 420
+      }
+    ],
+    "filesystems": [
+      {
+        "device": "/dev/disk/by-partlabel/artifacts",
+        "format": "xfs",
+        "path": "/var/artifacts"
+      }
+    ]
+  },
+  "systemd": {
+    "units": [
+      {
+        "contents": "# Generated by Butane\n[Unit]\nRequires=systemd-fsck@dev-disk-by\\x2dpartlabel-artifacts.service\nAfter=systemd-fsck@dev-disk-by\\x2dpartlabel-artifacts.service\n\n[Mount]\nWhere=/var/artifacts\nWhat=/dev/disk/by-partlabel/artifacts\nType=xfs\n\n[Install]\nRequiredBy=local-fs.target",
+        "enabled": true,
+        "name": "var-artifacts.mount"
+      },
+      {
+        "contents": "[Unit]\nDescription=Set SELinux context for /var/artifacts/\nAfter=local-fs.target\nBefore=nginx.service\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/chcon -t container_file_t -R /var/artifacts/\nRemainAfterExit=yes\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "selinux-context-artifacts.service"
+      }
+    ]
+  }
+}
