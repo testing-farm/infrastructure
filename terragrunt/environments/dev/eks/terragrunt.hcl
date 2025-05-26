@@ -13,7 +13,7 @@ terraform {
 
 inputs = {
   cluster_name = get_env("TF_VAR_cluster_name", "testing-farm-dev-${get_env("USER", "unknown")}")
-  eks_version  = 1.25
+  eks_version  = 1.27
 
   # aws_profile is set in the parent
   # route53_zone is set in the parent
