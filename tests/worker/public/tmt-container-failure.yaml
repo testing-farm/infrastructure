@@ -49,6 +49,7 @@ checks:
          </properties>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/failures.yaml" name="failures.yaml" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1" name="log_dir" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/output.txt" name="testout.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
          </logs>
