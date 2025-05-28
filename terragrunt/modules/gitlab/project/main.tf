@@ -27,6 +27,8 @@ resource "gitlab_project" "project" {
   only_allow_merge_if_all_discussions_are_resolved = true
   build_git_strategy                               = "fetch"
   initialize_with_readme                           = true
+  # Disable shared gitlab runners, we have our own group runners on EKS
+  shared_runners_enabled                           = false
 }
 
 resource "gitlab_branch_protection" "default_branch_protection" {
