@@ -1,5 +1,6 @@
 [default]
 enabled = yes
+count-once = /usr/bin/rpminspect
 reservation = 4096
 limit = 8192
 verbose_logging = yes

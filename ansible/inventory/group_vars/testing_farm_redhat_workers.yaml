@@ -1,5 +1,5 @@
 ---
-release: 2025-01.7
+release: 2025-01.8
 
 # container image with citool and modules
 citool_container_image: "quay.io/testing-farm/worker-redhat:{{ release }}"

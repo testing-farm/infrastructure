@@ -10,7 +10,7 @@ cache: true
 cache_plugin: ansible.builtin.jsonfile
 cache_connection: .direnv/aws-cache
 
-boto_profile: redhat_us_east_1_ansible_inventory
+profile: redhat_us_east_1_ansible_inventory
 
 include_filters:
   - tag:Name:
