@@ -5,9 +5,9 @@ composes:
     compose: Fedora-41
 
     x86_64: &fedora_latest_ref_x86_64
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20250528.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20250529.0
     aarch64: &fedora_latest_ref_aarch64
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-20250528.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-20250529.0
 
   fedora_42:
     compose: Fedora-42
@@ -76,6 +76,6 @@ composes:
     compose: CentOS-Stream-10
 
     x86_64:
-      image: CentOS Stream 10 x86_64 20250520
+      image: CentOS Stream 10 x86_64 20250529
     aarch64:
-      image: CentOS Stream 10 aarch64 20250520
+      image: CentOS Stream 10 aarch64 20250529
