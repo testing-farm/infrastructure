@@ -15,23 +15,13 @@ spec:
     - containerPort: 8000
       hostPort: 8100
     env:
-    - name: REDIS_URL
-      value: redis://redis:6379
+    - name: VALKEY_URL
+      value: valkey://valkey:6379
     - name: API_HOSTNAME
       value: http://tmt.dev-{{ ansible_env.USER }}.testing-farm.io
-  # Celery
-  - image: quay.io/testing-farm/tmt-web:latest
-    args:
-    - celery
-    name: celery
-    env:
-      - name: REDIS_URL
-        value: redis://redis:6379
-      - name: API_HOSTNAME
-        value: http://tmt.dev-{{ ansible_env.USER }}.testing-farm.io
-  # Redis
-  - image: docker.io/library/redis:latest
-    name: redis
+  # Valkey
+  - image: docker.io/valkey/valkey:alpine
+    name: valkey
     ports:
       - containerPort: 6379
         hostPort: 6379
