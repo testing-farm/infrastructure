@@ -33,6 +33,7 @@ terragrunt/environments/**/server/pods/server.yaml
 terragrunt/environments/**/server/pods/tmt-web.yaml
 terragrunt/environments/**/server/ec2/server.bu
 terragrunt/environments/**/server/ec2/server.ign
+terragrunt/environments/**/server/ec2/server.ign.json
 
 
 # secrets
