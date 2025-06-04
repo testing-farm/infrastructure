@@ -72,7 +72,13 @@ jobs:
 # artifacts
 artifacts_user: artifacts
 artifacts_hostname: artifacts.dev-{{ lookup('env', 'USER') }}.testing-farm.io
+
+# api
 api_hostname: api.dev-{{ lookup('env', 'USER') }}.testing-farm.io
+
+# oculus
+oculus_url: https://gitlab.com/testing-farm/oculus/-/raw/main/results.html
+oculus_next_url: https://gitlab.com/mhoyer/oculus/-/raw/fasthtml/next.html
 
 # worker instance details
 worker_instance_type: i3.large

@@ -50,5 +50,13 @@ jobs:
   - tf-tmt-multihost
   - tf-sti
 
+# artifacts
+artifacts_hostname: artifacts.osci.testing-farm.io
+artifacts_path: artifacts/testing-farm
+artifacts_root: /archive
+
+# api
+api_hostname: api.testing-farm.io
+
 sentry_base_url: "{{ credentials.sentry.redhat.base_url }}"
 sentry_dsn: "{{ credentials.sentry.redhat.dsn }}"

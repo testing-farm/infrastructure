@@ -7,8 +7,8 @@ printf "\n[pipeline-start] $(date)\n\n"
 
 export REQUEST_ID=$1
 
-export ARTIFACTS_URL="https://artifacts.dev.testing-farm.io"
-API_URL="https://api.dev.testing-farm.io/v0.1"
+export ARTIFACTS_URL="https://{{ artifacts_hostname }}"
+API_URL="https://{{ api_hostname }}/v0.1"
 
 [ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
 
@@ -50,8 +50,11 @@ rpm -qa > rpmlist-worker.txt
 # create in progress page
 create_results_xml in-progress skipped progress.xml
 
-# deploy oculus viewer
-curl -s --fail --retry 5 --show-error -o index.html https://gitlab.com/testing-farm/oculus/-/raw/main/results.html
+# deploy oculus viewer, set correct api url
+curl -s --fail --retry 5 --show-error -o index.html "{{ oculus_url }}"
+
+# deploy new ui preview (optionally)
+curl -s --fail --retry 5 --show-error -o next.html "{{ oculus_next_url }}" || true
 
 set_request_timeout
 set_citool_image
@@ -66,12 +69,13 @@ citool-container.sh rules-engine \
                     testing-farm-request-state-reporter \
                     archive \
                     ansible \
-                    artemis-multihost:artemis \
+                    static-guest --guest=localhost \
+                    guest-setup-no-playbooks:guest-setup \
                     git \
-                    test-schedule-tmt-multihost \
+                    test-schedule-tmt \
                     test-scheduler-testing-farm \
                     test-schedule-report \
-                    test-schedule-runner-multihost
+                    test-schedule-runner
 
 # create pipeline error if no results.xml available
 if [ ! -e "results.xml" ]; then
