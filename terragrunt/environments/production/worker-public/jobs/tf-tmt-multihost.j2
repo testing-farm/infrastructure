@@ -7,8 +7,8 @@ printf "\n[pipeline-start] $(date)\n\n"
 
 export REQUEST_ID=$1
 
-export ARTIFACTS_URL="https://artifacts.dev.testing-farm.io"
-API_URL="https://api.dev.testing-farm.io/v0.1"
+export ARTIFACTS_URL="https://{{ artifacts_hostname }}"
+API_URL="https://{{ api_hostname }}/v0.1"
 
 [ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
 
@@ -34,7 +34,7 @@ EOF
 
 set_request_timeout() {
     REQUEST_TIMEOUT="$(echo "$REQUEST" | jq -r '.settings.pipeline.timeout | select (.!=null)')"
-    [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT="1440"
+    [ -z "$REQUEST_TIMEOUT" ] && REQUEST_TIMEOUT="720"
     REQUEST_TIMEOUT="${REQUEST_TIMEOUT}m"
     echo "Request timeout: $REQUEST_TIMEOUT"
 }
@@ -66,13 +66,12 @@ citool-container.sh rules-engine \
                     testing-farm-request-state-reporter \
                     archive \
                     ansible \
-                    static-guest --guest=localhost \
-                    guest-setup-no-playbooks:guest-setup \
+                    artemis-multihost:artemis \
                     git \
-                    test-schedule-tmt \
+                    test-schedule-tmt-multihost \
                     test-scheduler-testing-farm \
                     test-schedule-report \
-                    test-schedule-runner
+                    test-schedule-runner-multihost
 
 # create pipeline error if no results.xml available
 if [ ! -e "results.xml" ]; then

@@ -15,6 +15,9 @@
 #
 
 execute:
+  - source: "next.html"
+    permissions: "777"
+
   - source: "index.html"
     permissions: "777"
 

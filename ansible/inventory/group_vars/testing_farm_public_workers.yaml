@@ -73,6 +73,14 @@ jobs:
 
 # artifacts
 artifacts_hostname: artifacts.dev.testing-farm.io
+artifacts_root: /archive
+
+# api
+api_hostname: api.testing-farm.io
+
+# oculus
+oculus_url: https://gitlab.com/testing-farm/oculus/-/raw/main/results.html
+oculus_next_url: https://gitlab.com/mhoyer/oculus/-/raw/fasthtml/next.html
 
 # worker instance details
 worker_instance_type: i3.2xlarge
