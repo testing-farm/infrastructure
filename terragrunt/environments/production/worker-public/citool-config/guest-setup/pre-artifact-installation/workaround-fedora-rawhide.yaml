@@ -16,4 +16,6 @@
       delay: "{{ pkg_retry_delay }}"
       until: update_packages is succeeded
 
-  when: check_rawhide.rc == 0
+  when:
+    - check_rawhide.rc == 0
+    - '"image-mode" not in IMAGE_NAME|lower'
