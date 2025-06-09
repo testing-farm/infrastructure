@@ -15,13 +15,9 @@ marks:
   - public
   - compose
 
-  - name: skip
-    reason: |
-      Image is broken currently.
-
 variables:
-  REQUEST_ID: 72148109-dccc-4d08-ab84-805049692f14
-  COMPOSE: Fedora-40-image-mode
+  REQUEST_ID: 224c3904-231b-407e-b0c2-1d612305e859
+  COMPOSE: Fedora-latest-image-mode
   ARCH: x86_64
   RESULT: PASSED
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
