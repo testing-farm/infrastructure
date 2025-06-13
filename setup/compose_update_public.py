@@ -82,6 +82,9 @@ def update_variables_images_file(variables_images_filepath: str, available_image
     for compose in composes['composes'].values():
         print('  🔎 Updating compose "{}"...'.format(compose['compose']))
         for arch in ARCHES:
+            if arch not in compose:
+                print('    ⏩Arch {} not supported for {}, skipping update...'.format(arch, compose['compose']))
+                continue
             if updated_image := update_image(compose[arch]['image'], available_images):
                 compose[arch]['image'] = updated_image
 
