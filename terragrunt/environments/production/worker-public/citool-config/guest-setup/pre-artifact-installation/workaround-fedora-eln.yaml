@@ -1,0 +1,21 @@
+---
+#
+# Various workarounds for Fedora ELN
+#
+- name: workaround-fedora-eln | Check for Fedora ELN
+  command: "rpm -q fedora-repos-eln"
+  ignore_errors: true
+  register: check_eln
+
+- block:
+    # ELN does not include required python3 packages for 'package' module to work
+    - name: workaround-fedora-eln | Install required python packages for dnf5
+      command: "dnf -y install python3-dnf dnf5-plugins"
+      register: update_packages
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: update_packages is succeeded
+
+  when:
+    - check_eln.rc == 0
+    - '"image-mode" not in IMAGE_NAME|lower'
