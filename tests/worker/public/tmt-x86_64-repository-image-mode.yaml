@@ -1,0 +1,25 @@
+---
+
+extends:
+  - base-tmt_pipeline
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+  - image-mode
+
+variables:
+  REQUEST_ID: 3737fcfb-5e45-4008-a3d4-4f030adcd5c2
+  COMPOSE: Fedora-42-image-mode
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/sanity
+
+checks:
+  literal-patterns:
+    - "[guest-setup-order] Running guest setup for repository artifact"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Install repository with TMT"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] artifact installed"

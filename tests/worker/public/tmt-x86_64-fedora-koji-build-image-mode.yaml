@@ -1,0 +1,26 @@
+---
+
+extends:
+  - base-tmt_pipeline
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+  - image-mode
+
+variables:
+  REQUEST_ID: 4637acd8-9e13-4d47-9489-2f767dd0b0ec
+  COMPOSE: Fedora-42-image-mode
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/sanity
+
+checks:
+  literal-patterns:
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download task id 72515264"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Get package list"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Install koji build with TMT"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] artifact installed"
