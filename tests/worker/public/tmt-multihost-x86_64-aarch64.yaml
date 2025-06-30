@@ -277,6 +277,7 @@ checks:
   literal-patterns[work-basic*/log.txt]:
     - |
       environment:
+          TMT_POLICY_ROOT: /etc/tmt/policies
           TMT_REPORT_ARTIFACTS_URL: {{ artifacts_url_pattern }}/{{ REQUEST_ID }}
           TMT_PLUGIN_REPORT_REPORTPORTAL_ARTIFACTS_URL: {{ artifacts_url_pattern }}/{{ REQUEST_ID }}
           PATH: /usr/bin:/usr/sbin
