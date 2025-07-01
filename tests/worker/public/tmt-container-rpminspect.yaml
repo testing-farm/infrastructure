@@ -34,8 +34,9 @@ checks:
         </logs>
         <properties>
          <property name="baseosci.result" value="passed"/>
+         <property name="id" value="work-rpminspect{{ '.+' }}_rpminspect"/>
         </properties>
-        <testcase name="/rpminspect/rpminspect" result="passed">
+        <testcase name="/rpminspect/rpminspect" result="passed" serial-number="1">
          <properties>
           <property name="baseosci.arch" value="{{ ARCH }}"/>
           <property name="baseosci.connectable_host" value="localhost"/>
@@ -43,6 +44,7 @@ checks:
           <property name="baseosci.status" value="Complete"/>
           <property name="baseosci.testcase.source.url" value=""/>
           <property name="baseosci.variant" value=""/>
+          <property name="id" value="work-rpminspect{{ '.+' }}_rpminspect_1_default-0"/>
          </properties>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
@@ -62,6 +64,7 @@ checks:
           <property name="compose" value="container"/>
           <property name="snapshots" value="False"/>
          </testing-environment>
+         <guest name="default-0"/>
         </testcase>
         <testing-environment name="requested">
          <property name="arch" value="{{ ARCH }}"/>
