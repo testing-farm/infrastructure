@@ -42,6 +42,7 @@ checks:
         </logs>
         <properties>
          <property name="baseosci.result" value="skipped"/>
+         <property name="id" value="work-empty{{ '.+' }}_testing-farm-empty"/>
         </properties>
         <testing-environment name="requested">
          <property name="arch" value="{{ ARCH }}"/>

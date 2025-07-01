@@ -37,8 +37,9 @@ checks:
         </logs>
         <properties>
          <property name="baseosci.result" value="passed"/>
+         <property name="id" value="work-sanity{{ '.+' }}_testing-farm-sanity"/>
         </properties>
-        <testcase name="/testing-farm/script" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}">
+        <testcase name="/testing-farm/script" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="1">
          <properties>
           <property name="baseosci.arch" value="{{ ARCH }}"/>
           <property name="baseosci.connectable_host" value="localhost"/>
@@ -48,6 +49,7 @@ checks:
           <property name="baseosci.variant" value=""/>
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-sanity{{ '.+' }}_testing-farm-sanity_1_default-0"/>
          </properties>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
@@ -64,6 +66,7 @@ checks:
           <property name="compose" value="container"/>
           <property name="snapshots" value="False"/>
          </testing-environment>
+         <guest name="default-0"/>
         </testcase>
         <testing-environment name="requested">
          <property name="arch" value="{{ ARCH }}"/>

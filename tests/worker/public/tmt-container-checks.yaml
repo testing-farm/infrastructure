@@ -34,8 +34,9 @@ checks:
         </logs>
         <properties>
          <property name="baseosci.result" value="passed"/>
+         <property name="id" value="work-sanity{{ '.+' }}_testing-farm-sanity"/>
         </properties>
-        <testcase name="/testing-farm/script" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}">
+        <testcase name="/testing-farm/script" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="1">
          <properties>
           <property name="baseosci.arch" value="{{ ARCH }}"/>
           <property name="baseosci.connectable_host" value="localhost"/>
@@ -43,6 +44,7 @@ checks:
           <property name="baseosci.status" value="Complete"/>
           <property name="baseosci.testcase.source.url" value=""/>
           <property name="baseosci.variant" value=""/>
+          <property name="id" value="work-sanity{{ '.+' }}_testing-farm-sanity_1_default-0"/>
          </properties>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
@@ -70,6 +72,7 @@ checks:
            <logs/>
           </check>
          </checks>
+         <guest name="default-0"/>
         </testcase>
         <testing-environment name="requested">
          <property name="arch" value="{{ ARCH }}"/>

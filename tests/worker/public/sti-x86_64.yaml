@@ -108,6 +108,7 @@ checks:
         </logs>
         <properties>
          <property name="baseosci.result" value="passed"/>
+         <property name="id" value="work-tests.yaml{{ '.+' }}_git-main{{ '.+' }}-sti-tests-yaml"/>
         </properties>
         <testcase name="sanity" result="pass">
          <properties>
