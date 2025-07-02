@@ -18,6 +18,7 @@ skipped_testsuite_pattern: |-
     </logs>
     <properties>
      <property name="baseosci.result" value="skipped"/>
+     <property name="id" value=".+"/>
     </properties>
     <testing-environment name="requested">
      <property name="arch" value="x86_64"/>
