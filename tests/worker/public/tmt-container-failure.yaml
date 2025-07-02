@@ -37,8 +37,9 @@ checks:
         </logs>
         <properties>
          <property name="baseosci.result" value="failed"/>
+         <property name="id" value="work-failure{{ '.+' }}_testing-farm-failure"/>
         </properties>
-        <testcase name="/testing-farm/failure" result="failed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}">
+        <testcase name="/testing-farm/failure" result="failed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="1">
          <properties>
           <property name="baseosci.arch" value="{{ ARCH }}"/>
           <property name="baseosci.connectable_host" value="localhost"/>
@@ -47,6 +48,7 @@ checks:
           <property name="baseosci.testcase.source.url" value=""/>
           <property name="baseosci.variant" value=""/>
           <property name="contact" value="Testing Farm Contact &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-failure{{ '.+' }}_testing-farm-failure_1_default-0"/>
          </properties>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
@@ -64,6 +66,7 @@ checks:
           <property name="compose" value="container"/>
           <property name="snapshots" value="False"/>
          </testing-environment>
+         <guest name="default-0"/>
         </testcase>
         <testing-environment name="requested">
          <property name="arch" value="{{ ARCH }}"/>

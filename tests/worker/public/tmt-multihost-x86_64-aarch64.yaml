@@ -28,26 +28,30 @@ checks:
        <properties>
         <property name="baseosci.overall-result" value="passed"/>
        </properties>
-       <testsuite name="{{ PLAN }}" result="passed" tests="5">
+       <testsuite name="{{ PLAN }}" result="passed" tests="5" stage="complete">
         <logs>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/data" name="data"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}/tmt-run.log" name="tmt-log"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}/log.txt" name="tmt-verbose-log"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}" name="workdir"/>
         </logs>
         <properties>
          <property name="baseosci.result" value="passed"/>
+         <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic"/>
         </properties>
-        <testcase name="/server-setup/testing-farm/tests/multihost/A" result="passed" serial-number="1">
+        <testcase name="/server-setup/testing-farm/tests/multihost/A" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="1">
          <properties>
           <property name="contact" value="Testing Farm Contact &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_1_{{ '(server|client)' }}"/>
          </properties>
          <logs>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/server-setup/testing-farm/tests/multihost/A-1/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/server-setup/testing-farm/tests/multihost/A-1" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/server-setup/testing-farm/tests/multihost/A-1/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1/failures.yaml" name="failures.yaml" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
          </logs>
-         <guest name="{{ 'server|client' }}">
+         <guest name="{{ '(server|client)' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="{{ ARCH }}"/>
            <property name="compose" value="Fedora-Rawhide"/>
@@ -59,13 +63,15 @@ checks:
          <properties>
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_2_{{ '(server|client)' }}"/>
          </properties>
          <logs>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/failures.yaml" name="failures.yaml" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
          </logs>
-         <guest name="{{ 'server|client' }}">
+         <guest name="{{ '(server|client)' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="{{ ARCH }}"/>
            <property name="compose" value="Fedora-Rawhide"/>
@@ -77,13 +83,15 @@ checks:
          <properties>
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_2_{{ '(server|client)' }}"/>
          </properties>
          <logs>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/failures.yaml" name="failures.yaml" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
          </logs>
-         <guest name="{{ 'server|client' }}">
+         <guest name="{{ '(server|client)' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="{{ ARCH }}"/>
            <property name="compose" value="Fedora-Rawhide"/>
@@ -95,13 +103,15 @@ checks:
          <properties>
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_3_{{ '(server|client)' }}"/>
          </properties>
          <logs>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/failures.yaml" name="failures.yaml" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
          </logs>
-         <guest name="{{ 'server|client' }}">
+         <guest name="{{ '(server|client)' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="{{ ARCH }}"/>
            <property name="compose" value="Fedora-Rawhide"/>
@@ -113,13 +123,15 @@ checks:
          <properties>
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_3_{{ '(server|client)' }}"/>
          </properties>
          <logs>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/failures.yaml" name="failures.yaml" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
          </logs>
-         <guest name="{{ 'server|client' }}">
+         <guest name="{{ '(server|client)' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="{{ ARCH }}"/>
            <property name="compose" value="Fedora-Rawhide"/>
@@ -142,19 +154,26 @@ checks:
          </testing-environment>
         </guest>
        </testsuite>
-       <testsuite name="{{ PLAN }}" result="passed" tests="5">
+       <testsuite name="{{ PLAN }}" result="passed" tests="5" stage="complete">
         <logs>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/data" name="data"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}/tmt-run.log" name="tmt-log"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}/log.txt" name="tmt-verbose-log"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}" name="workdir"/>
         </logs>
         <properties>
          <property name="baseosci.result" value="passed"/>
+         <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic"/>
         </properties>
         <testcase name="/server-setup/testing-farm/tests/multihost/A" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="1">
+         <properties>
+          <property name="contact" value="Testing Farm Contact &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_1_{{ '(server|client)' }}"/>
+         </properties>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1/failures.yaml" name="failures.yaml" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/server/server-setup/testing-farm/tests/multihost/A-1/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
          </logs>
@@ -167,12 +186,18 @@ checks:
          </guest>
         </testcase>
         <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="2">
+         <properties>
+          <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
+          <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_2_{{ '(server|client)' }}"/>
+         </properties>
          <logs>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/failures.yaml" name="failures.yaml" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
          </logs>
-         <guest name="{{ 'server|client' }}">
+         <guest name="{{ '(server|client)' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="aarch64"/>
            <property name="compose" value="Fedora-Rawhide"/>
@@ -181,12 +206,18 @@ checks:
          </guest>
         </testcase>
         <testcase name="/tests/testing-farm/tests/multihost/B" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="2">
+         <properties>
+          <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
+          <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_2_{{ '(server|client)' }}"/>
+         </properties>
          <logs>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/failures.yaml" name="failures.yaml" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/B-2/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
          </logs>
-         <guest name="{{ 'server|client' }}">
+         <guest name="{{ '(server|client)' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="aarch64"/>
            <property name="compose" value="Fedora-Rawhide"/>
@@ -195,12 +226,18 @@ checks:
          </guest>
         </testcase>
         <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="3">
+         <properties>
+          <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
+          <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_3_{{ '(server|client)' }}"/>
+         </properties>
          <logs>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/failures.yaml" name="failures.yaml" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
          </logs>
-         <guest name="{{ 'server|client' }}">
+         <guest name="{{ '(server|client)' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="aarch64"/>
            <property name="compose" value="Fedora-Rawhide"/>
@@ -209,12 +246,18 @@ checks:
          </guest>
         </testcase>
         <testcase name="/tests/testing-farm/tests/multihost/C" result="passed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="3">
+         <properties>
+          <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
+          <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_3_{{ '(server|client)' }}"/>
+         </properties>
          <logs>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
-          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ 'server|client' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/data" name="data" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/failures.yaml" name="failures.yaml" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3" name="log_dir" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-basic{{ '.+' }}{{ PLAN }}/execute/data/guest/{{ '(server|client)' }}/tests/testing-farm/tests/multihost/C-3/output.txt" name="testout.log" schedule-entry="{{ COMPOSE }}:aarch64:{{ PLAN }}" schedule-stage="running"/>
          </logs>
-         <guest name="{{ 'server|client' }}">
+         <guest name="{{ '(server|client)' }}">
           <testing-environment name="provisioned">
            <property name="arch" value="aarch64"/>
            <property name="compose" value="Fedora-Rawhide"/>
@@ -284,6 +327,7 @@ checks:
           HOME: /root
           PYTHONUNBUFFERED: 1
           PODMAN_IGNORE_CGROUPSV1_WARNING: 1
+          TMT_PLUGIN_REPORT_REPORTPORTAL_LINK_TEMPLATE: {{ artifacts_url_pattern }}/{{ REQUEST_ID }}/#work-basic{{ '[a-zA-Z0-9_-]+' }}_{{ '{{' }} PLAN_NAME {{ '}}' }}_{{ '{{' }} RESULT.serial_number {{ '}}' }}_{{ '{{' }} RESULT.guest.name {{ '}}' }}
           POLARION_PASSWORD: hidden
           POLARION_USERNAME: user
           LC_CTYPE: C.UTF-8
