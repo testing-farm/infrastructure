@@ -44,8 +44,8 @@
 
     - name: Transform build target to a tag repository name (RHEL-9-Nightly)
       set_fact:
-        tag_repository_name_mainline: "rhel-9.5.0-build"
-        tag_repository_name_z_stream: "rhel-9.5.0-z-build"
+        tag_repository_name_mainline: "rhel-9.7.0-build"
+        tag_repository_name_z_stream: "rhel-9.7.0-z-build"
       when: IMAGE_NAME == "RHEL-9-Nightly"
 
     - name: Transform build target to a tag repository name (RHEL-10-Beta-Nightly)
@@ -54,10 +54,9 @@
         tag_repository_name_z_stream: ""
       when: IMAGE_NAME == "RHEL-10-Beta-Nightly"
 
-    # NOTE: needs change once RHEL-10 non Beta image starts to exist, for now it maps to Beta
     - name: Transform build target to a tag repository name (RHEL-10-Nightly)
       set_fact:
-        tag_repository_name_mainline: "rhel-10.0-beta-build"
+        tag_repository_name_mainline: "rhel-10.1-build"
         tag_repository_name_z_stream: ""
       when: IMAGE_NAME == "RHEL-10-Nightly"
 
