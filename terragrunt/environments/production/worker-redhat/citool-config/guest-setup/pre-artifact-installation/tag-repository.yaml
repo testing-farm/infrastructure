@@ -48,12 +48,6 @@
         tag_repository_name_z_stream: "rhel-9.7.0-z-build"
       when: IMAGE_NAME == "RHEL-9-Nightly"
 
-    - name: Transform build target to a tag repository name (RHEL-10-Beta-Nightly)
-      set_fact:
-        tag_repository_name_mainline: "rhel-10.0-beta-build"
-        tag_repository_name_z_stream: ""
-      when: IMAGE_NAME == "RHEL-10-Beta-Nightly"
-
     - name: Transform build target to a tag repository name (RHEL-10-Nightly)
       set_fact:
         tag_repository_name_mainline: "rhel-10.1-build"
