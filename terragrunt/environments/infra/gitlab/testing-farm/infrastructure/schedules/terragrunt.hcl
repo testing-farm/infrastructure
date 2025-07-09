@@ -22,7 +22,7 @@ inputs = {
     {
       description   = "Run make cleanup/ci"
       git_ref       = "main"
-      cron_schedule = "0 */8 * * *"
+      cron_schedule = "0 5 * * *"
       variables = {
         "SCHEDULED_JOB" : "cleanup/ci"
       }
