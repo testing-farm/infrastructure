@@ -612,6 +612,8 @@ cleanup/ci: .FORCE staging/kubeconfig cleanup/public/security-groups  ## Cleanup
 	@bash $$PROJECT_ROOT/setup/terminate_eks_ci_namespaces.sh
 	@echo "$(ccgreen)Removing unused load balancers$(ccend)"
 	@bash $$PROJECT_ROOT/setup/terminate_unused_loadbalancers.sh
+	@echo "$(ccgreen)Cleaning up Route53 records$(ccend)"
+	@bash $$PROJECT_ROOT/setup/cleanup_route53_records.sh
 
 cleanup/public/security-groups: .FORCE  ## Cleanup security groups in public AWS
 	aws --profile fedora_us_east_2 ec2 describe-security-groups | \
