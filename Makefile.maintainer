@@ -618,4 +618,4 @@ cleanup/ci: .FORCE staging/kubeconfig cleanup/public/security-groups  ## Cleanup
 cleanup/public/security-groups: .FORCE  ## Cleanup security groups in public AWS
 	aws --profile fedora_us_east_2 ec2 describe-security-groups | \
 		jq -r ".SecurityGroups[] | select(.GroupName | contains(\"artemis-guest-$$(date -d "last month" +%Y-%m)-\")) | .GroupId" | \
-		parallel aws --profile fedora_us_east_2 ec2 delete-security-group --group-id
+		parallel aws --profile fedora_us_east_2 ec2 delete-security-group --group-id || true
