@@ -6,11 +6,22 @@ package:
   cloud-init:
     installed: true
 
-{{if eq .Env.OS "centos"}}
+  createrepo_c:
+    installed: true
+
+  dnf-plugins-core:
+    installed: true
+
+{{if contains .Env.TARGET_IMAGE "centos"}}
   epel-release:
     installed: true
 
   epel-next-release:
+    installed: true
+{{end}}
+
+{{if contains .Env.TARGET_IMAGE "fedora"}}
+  fedora-release:
     installed: true
 {{end}}
 
