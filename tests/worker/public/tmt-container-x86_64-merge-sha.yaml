@@ -51,6 +51,7 @@ checks:
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-sanity{{ '.+' }}_testing-farm-sanity_1_default-0"/>
          </properties>
+         <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/testing-farm/script"/>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-sanity{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/script-1/failures.yaml" name="failures.yaml" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
