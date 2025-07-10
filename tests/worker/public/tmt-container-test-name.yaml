@@ -76,6 +76,7 @@ checks:
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-test-filter{{ '.+' }}_testing-farm-test-filter_1_default-0"/>
          </properties>
+         <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/testing-farm/test-filter-script"/>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-test-filter{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/test-filter-script-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-test-filter{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/test-filter-script-1/failures.yaml" name="failures.yaml" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>

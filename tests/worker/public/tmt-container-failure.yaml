@@ -50,6 +50,7 @@ checks:
           <property name="contact" value="Testing Farm Contact &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-failure{{ '.+' }}_testing-farm-failure_1_default-0"/>
          </properties>
+         <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/testing-farm/failure"/>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/failures.yaml" name="failures.yaml" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
