@@ -1,6 +1,5 @@
 ---
 - hosts: all
   tasks:
-    - include_tasks: create_test_repository.yaml
     - include_tasks: workaround-openssh.yaml
     - include_tasks: install-doggo.yaml
