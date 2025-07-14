@@ -2,3 +2,5 @@
 interpreter-detection-order = /usr/bin/python3,
                               /usr/bin/python2,
                               /usr/libexec/platform-python
+
+extra-variables-template-file = ${config_root}/ansible-extra-vars.yaml.j2
