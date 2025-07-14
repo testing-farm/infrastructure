@@ -1,0 +1,53 @@
+---
+
+- name: Install dnf-utils (CentOS >= 8, RHEL >= 8, Fedora)
+  ansible.builtin.package:
+    name: "dnf-utils"
+    state: present
+  when: |
+    (ansible_distribution == "RedHat" and
+     ansible_distribution_major_version | int >= 8) or
+    (ansible_distribution == "CentOS" and
+     ansible_distribution_release == "Stream" and
+     ansible_distribution_major_version | int >= 8) or
+    ansible_distribution == "Fedora"
+
+- name: Install yum-utils (CentOS < 8, RHEL < 8)
+  ansible.builtin.package:
+    name: "yum-utils"
+    state: present
+  when: |
+    (ansible_distribution == "RedHat" and
+     ansible_distribution_major_version | int < 8) or
+    (ansible_distribution == "CentOS" and
+     ansible_distribution_release == "Stream" and
+     ansible_distribution_major_version | int < 8)
+
+- name: Update system packages with provided artifacts
+  ansible.builtin.package:
+    name: "*"
+    state: latest
+
+# Note: Does not work for RHEL 6 and earlier: missing --reboothint flag
+- name: Check if reboot is required
+  ansible.builtin.command: "needs-restarting --reboothint"
+  register: reboot_required
+  changed_when: "reboot_required.rc == 1"
+  failed_when: "reboot_required.rc not in (0, 1)"
+  when: |
+    ansible_distribution != "RedHat" or
+    ansible_distribution_major_version | int > 6
+
+# RHEL 6 workaround
+- name: Check if reboot is required (RHEL-6)
+  ansible.builtin.shell: "[ -z \"$(needs-restarting)\" ] && exit 0 || exit 1"
+  register: reboot_required
+  changed_when: "reboot_required.rc == 1"
+  failed_when: "reboot_required.rc not in (0, 1)"
+  when:
+    - "ansible_distribution != \"RedHat\""
+    - "ansible_distribution_major_version | int <= 6"
+
+- name: Reboot the machine if required
+  ansible.builtin.reboot:
+  when: "reboot_required.rc == 1"

@@ -1,9 +1,4 @@
 ---
 {% if GUEST is defined %}
 UPDATE_FROM_ARTIFACTS: {{ ((GUEST.environment.pipeline | default({})).settings | default({})).update_from_artifacts | default(False) | tojson }}
-
-GUEST:
-  {% if GUEST.artemis_id %}
-  artemis_id: "{{ GUEST.artemis_id }}"
-  {% endif %}
 {% endif %}
