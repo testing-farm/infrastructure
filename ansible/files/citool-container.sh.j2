@@ -34,7 +34,7 @@ echo
 export CITOOL_IMAGE
 export CITOOL_IMAGE_ID="$image_id"
 export CITOOL_IMAGE_CTIME="$ctime"
-export SENTRY_TAG_MAP="citool_image=${CITOOL_IMAGE},citool_image_id=${CITOOL_IMAGE_ID},hostname=$(hostname),ip=$(curl ipv4.icanhazip.com),request_id=${REQUEST_ID},artifacts_url=${ARTIFACTS_URL}"
+export SENTRY_TAG_MAP="citool_image=${CITOOL_IMAGE},citool_image_id=${CITOOL_IMAGE_ID},hostname=$(hostname),ip=$(curl ipv4.icanhazip.com),request_id=${REQUEST_ID},artifacts_url=${ARTIFACTS_URL}/${REQUEST_ID}"
 
 # --init is required to collect zombies processes
 # --rm is required to cleanup the container after it has been run
