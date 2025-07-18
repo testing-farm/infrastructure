@@ -52,6 +52,7 @@ checks:
        {{ skipped_testsuite_pattern }}
        {{ skipped_testsuite_pattern }}
        {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
        <testsuite name="{{ PLAN }}" result="passed" tests="1" stage="complete">
         <logs>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-test-filter{{ '.+' }}{{ PLAN }}/data" name="data"/>
@@ -118,6 +119,7 @@ checks:
        <testsuite name="/dgoss/build" tests="0" failures="0" errors="0" skipped="0"/>
        <testsuite name="/gating/sanity" tests="0" failures="0" errors="0" skipped="0"/>
        <testsuite name="/packit/installation" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/bootc-install" tests="0" failures="0" errors="0" skipped="0"/>
        <testsuite name="/testing-farm/empty" tests="0" failures="0" errors="0" skipped="0"/>
        <testsuite name="/testing-farm/environments/CentOS-7/aarch64" tests="0" failures="0" errors="0" skipped="0"/>
        <testsuite name="/testing-farm/environments/CentOS-7/x86_64" tests="0" failures="0" errors="0" skipped="0"/>
