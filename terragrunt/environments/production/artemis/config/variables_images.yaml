@@ -5,9 +5,9 @@ composes:
     compose: Fedora-41
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20250720.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20250721.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-20250720.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-20250721.0
 
   fedora_41_image_mode:
     compose: Fedora-41-image-mode
