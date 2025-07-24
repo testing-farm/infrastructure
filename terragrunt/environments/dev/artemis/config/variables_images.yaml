@@ -45,7 +45,7 @@ composes:
     compose: Fedora-Rawhide
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20250709.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20250724.0
     aarch64:
       image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20250709.0
 
