@@ -36,6 +36,7 @@
     - '"auto-osbuild" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'
+    - 'ansible_architecture != "ppc64"'
 
 - block:
     - name: Add RCM Repository for RHEL8+
