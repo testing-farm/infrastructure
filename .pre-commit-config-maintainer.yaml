@@ -29,6 +29,8 @@ repos:
     hooks:
       - id: ansible-lint
         args: ["--profile", "min"]
+        additional_dependencies:
+          - ansible-core<2.19
 
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.23.3
