@@ -16,4 +16,4 @@ variables:
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
   GIT_REF: main
   PLAN: /testing-farm/test-filter
-  SCHEDULE_ENTRIES: 31  # Skipped plans are included
+  SCHEDULE_ENTRIES: 32  # Skipped plans are included
