@@ -100,7 +100,7 @@ checks:
       CPE_NAME=&amp;quot;cpe:/o:fedoraproject:fedora:{{ '\d+' }}&amp;quot;
       DEFAULT_HOSTNAME=&amp;quot;fedora&amp;quot;
       HOME_URL=&amp;quot;https://fedoraproject.org/&amp;quot;
-      DOCUMENTATION_URL=&amp;quot;https://docs.fedoraproject.org/en-US/fedora/f{{ '\d+' }}/system-administrators-guide/&amp;quot;
+      DOCUMENTATION_URL=&amp;quot;https://docs.fedoraproject.org/en-US/fedora/f{{ '\d+' }}/&amp;quot;
       SUPPORT_URL=&amp;quot;https://ask.fedoraproject.org/&amp;quot;
       BUG_REPORT_URL=&amp;quot;https://bugzilla.redhat.com/&amp;quot;
       REDHAT_BUGZILLA_PRODUCT=&amp;quot;Fedora&amp;quot;

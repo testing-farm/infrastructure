@@ -53,6 +53,7 @@ checks:
        {{ skipped_testsuite_pattern }}
        {{ skipped_testsuite_pattern }}
        {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
        <testsuite name="{{ PLAN }}" result="passed" tests="1" stage="complete">
         <logs>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-test-filter{{ '.+' }}{{ PLAN }}/data" name="data"/>
@@ -135,6 +136,7 @@ checks:
        <testsuite name="/testing-farm/exclude" tests="0" failures="0" errors="0" skipped="0"/>
        <testsuite name="/testing-farm/failure" tests="0" failures="0" errors="0" skipped="0"/>
        <testsuite name="/testing-farm/filter" tests="0" failures="0" errors="0" skipped="0"/>
+       <testsuite name="/testing-farm/hard-reboot" tests="0" failures="0" errors="0" skipped="0"/>
        <testsuite name="/testing-farm/multihost/basic" tests="0" failures="0" errors="0" skipped="0"/>
        <testsuite name="/testing-farm/multihost/invalid-provision-how" tests="0" failures="0" errors="0" skipped="0"/>
        <testsuite name="/testing-farm/oom" tests="0" failures="0" errors="0" skipped="0"/>
@@ -156,7 +158,7 @@ checks:
       CPE_NAME=&amp;quot;cpe:/o:fedoraproject:fedora:{{ '\d+' }}&amp;quot;
       DEFAULT_HOSTNAME=&amp;quot;fedora&amp;quot;
       HOME_URL=&amp;quot;https://fedoraproject.org/&amp;quot;
-      DOCUMENTATION_URL=&amp;quot;https://docs.fedoraproject.org/en-US/fedora/f{{ '\d+' }}/system-administrators-guide/&amp;quot;
+      DOCUMENTATION_URL=&amp;quot;https://docs.fedoraproject.org/en-US/fedora/f{{ '\d+' }}/&amp;quot;
       SUPPORT_URL=&amp;quot;https://ask.fedoraproject.org/&amp;quot;
       BUG_REPORT_URL=&amp;quot;https://bugzilla.redhat.com/&amp;quot;
       REDHAT_BUGZILLA_PRODUCT=&amp;quot;Fedora&amp;quot;
