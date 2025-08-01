@@ -1,0 +1,22 @@
+---
+
+extends:
+  - base-tmt_pipeline
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  REQUEST_ID: fe14312e-5328-4933-930a-f4e67d1f434d
+  COMPOSE: Fedora-latest
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/reboot
+
+checks:
+  literal-patterns[citool-debug.txt]:
+    - "tmt --root . -c arch=x86_64 run --all --verbose --id /var/ARTIFACTS/{{ workdir_pattern }} -e @tmt-environment-testing-farm-reboot.yaml provision --feeling-safe --how connect --guest {{ hostname_ip_address_pattern }} --key /etc/citool.d/id_rsa_artemis.decrypted --port 22 --hard-reboot '/opt/artemis-cli/bin/artemis-cli guest reboot {{ artemis_guestname_pattern }}' plan --name '^/testing\\-farm/reboot$'"
