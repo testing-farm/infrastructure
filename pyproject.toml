@@ -43,6 +43,7 @@ markers = [
     "container",
     "compose",
     "hardware",
+    "image-mode",
     "pipeline",
     "public",
     "redhat",
