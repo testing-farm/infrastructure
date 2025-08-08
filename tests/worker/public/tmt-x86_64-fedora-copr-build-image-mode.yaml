@@ -1,0 +1,28 @@
+---
+
+extends:
+  - base-tmt_pipeline
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+  - image-mode
+
+variables:
+  REQUEST_ID: 026fde29-4921-47fa-9a16-767e89d5185f
+  COMPOSE: Fedora-42-image-mode
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/sanity
+
+checks:
+  literal-patterns:
+    - "[artemis] [{{ artemis_guestname_pattern }}] Create artifacts directory"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download copr repository"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download rpms from copr"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Install copr build with TMT"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Verify packages installed"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] artifact installed"
