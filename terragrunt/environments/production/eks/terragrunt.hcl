@@ -13,7 +13,7 @@ terraform {
 
 inputs = {
   # cluster_name is set by direnv
-  eks_version = 1.27
+  eks_version = 1.28
 
   # aws_profile is set in the parent
   # route53_zone is set in the parent
