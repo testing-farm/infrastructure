@@ -16,11 +16,11 @@ aws_elb() {
 }
 export -f aws_elb
 
-# Terminate node groups
+# Terminate load balancers
 for profile in $profiles; do
     aws_elb "$profile" describe-load-balancers | \
         jq -r ".LoadBalancerDescriptions[] | select((.Instances | length == 0) and .CreatedTime < \"$today\") | .LoadBalancerName" | \
         parallel -r aws_elb "$profile" describe-tags --load-balancer-names | \
         jq -r ".TagDescriptions[] | select(.Tags[].Key | contains(\"$tag_contains\")) | .LoadBalancerName" | \
-        parallel -r -I{} bash -c "echo 'Terminating LB {}; aws_elb $profile delete-load-balancer --load-balancer-name {}'"
+        parallel -r -I{} "bash -c \"echo 'Terminating LB {} from $profile'; aws_elb $profile delete-load-balancer --load-balancer-name {}\""
 done
