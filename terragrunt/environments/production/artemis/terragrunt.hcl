@@ -85,6 +85,9 @@ inputs = {
     dependency.github-runners.outputs.workers_ip_ranges
   )
 
+  # Enable nested security groups to avoid AWS security group limits
+  enable_nested_security_groups = true
+
   ansible_vault_password_file = get_env("TF_VAR_ansible_vault_password_file")
   ansible_vault_credentials   = get_env("TF_VAR_ansible_vault_credentials")
   ansible_vault_secrets_root  = get_env("TF_VAR_ansible_vault_secrets_root")
