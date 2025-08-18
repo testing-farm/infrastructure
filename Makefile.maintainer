@@ -459,7 +459,7 @@ update/redhat/pipeline/jobs: .FORCE  ## Update pipeline jobs on Red Hat ranch
 	$(call run_pipeline_update,⛴️,updating Red Hat ranch pipeline jobs,testing_farm_redhat_workers,update_jobs,production)
 
 
-##@ Infrastructure | GitHub
+##@ infrastructure | GitHub
 
 github/init: .FORCE  ## Initialize | github
 	$(call run_terragrunt,github,init)
@@ -469,6 +469,13 @@ github/plan: .FORCE  ## Validate | github
 
 github/apply: .FORCE  ## Validate | github
 	$(call run_terragrunt,github,apply)
+
+
+##@ infrastructure | Fedora CI
+
+osci/kubeconfig: .FORCE  ## Update kubeconfig for OSCI access to Fedora CI
+	aws eks --profile fedora_us_east_2_osci update-kubeconfig --name fedora-ci-osci
+
 
 ##@ Tests | maintainer
 
