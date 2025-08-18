@@ -205,3 +205,9 @@ variable "workers_ip_ranges" {
   description = "List of IP ranges of the Testing Farm workers."
   type        = list(string)
 }
+
+variable "enable_nested_security_groups" {
+  description = "Enable nested security groups to avoid AWS limits"
+  type        = bool
+  default     = false
+}
