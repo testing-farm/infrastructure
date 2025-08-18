@@ -11,10 +11,10 @@
     - include_tasks: workaround-centos-7.yaml
     - include_tasks: workaround-centos-stream-8.yaml
     - include_tasks: workaround-dns.yaml
-    - include_tasks: workaround-beakerlib.yaml
     - include_tasks: enable-crb.yaml
     - include_tasks: enable-powertools.yaml
     - include_tasks: install-epel.yaml
+    - include_tasks: workaround-beakerlib.yaml
     - include_tasks: install-koji-brew.yaml
     # For EOL distros this can fail, ignore the fact tag repo is not around
     # It is considered a nice to have, but should not fail the setup.
