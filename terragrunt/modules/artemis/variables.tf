@@ -206,8 +206,8 @@ variable "workers_ip_ranges" {
   type        = list(string)
 }
 
-variable "enable_nested_security_groups" {
-  description = "Enable nested security groups to avoid AWS limits"
+variable "enable_multiple_security_groups" {
+  description = "Enable multiple security groups to avoid AWS limits"
   type        = bool
   default     = false
 }
