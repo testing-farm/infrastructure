@@ -65,7 +65,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "v0.0.77.2"
+  image_tag    = "aws-multiple-security-groups"
 
   # Enable access from localhost
   additional_lb_source_ips = [dependency.localhost.outputs.localhost_public_ip]
@@ -74,7 +74,7 @@ inputs = {
   workers_ip_ranges = dependency.worker.outputs.workers_ip_ranges
 
   # Enable nested security groups to avoid AWS security group limits
-  enable_nested_security_groups = true
+  enable_multiple_security_groups = true
 
   ansible_vault_password_file = get_env("TF_VAR_ansible_vault_password_file")
   ansible_vault_credentials   = get_env("TF_VAR_ansible_vault_credentials")

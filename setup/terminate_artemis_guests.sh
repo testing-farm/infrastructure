@@ -36,20 +36,20 @@ profile=$(TERRAGRUNT_WORKING_DIR=$environment terragrunt output --raw guests_aws
 
 grep -q "No outputs found" <<< "$profile" && error "No Artemis guests AWS profile found, environment not deployed?"
 
-# Set the security group ID
-security_group_id=$(TERRAGRUNT_WORKING_DIR=$environment terragrunt output --raw guests_security_group_id)
+# Set the security group ID, note that they can be more of them, so cannot use `--raw` to get them
+security_group_ids=$(TERRAGRUNT_WORKING_DIR=$environment terragrunt output --json guests_security_group_id | jq -r 'join(",")')
 
 # Get the instance IDs associated with the specified security group
-instance_ids=$(aws --profile "$profile" ec2 describe-instances --filters Name=instance.group-id,Values="$security_group_id" --query 'Reservations[].Instances[].InstanceId' --output text)
+instance_ids=$(aws --profile "$profile" ec2 describe-instances --filters Name=instance.group-id,Values="$security_group_ids" --query 'Reservations[].Instances[].InstanceId' --output text)
 
 # Check if there are instances to terminate
 if [ -z "$instance_ids" ]; then
-  echo "No instances found with security group $security_group_id"
+  echo "No instances found with security group(s) $security_group_ids"
   exit 0
 fi
 
 # Terminate instances
-echo "Terminating instances with security group $security_group_id"
+echo "Terminating instances with security group(s) $security_group_id"
 for instance_id in $instance_ids; do
     echo "Terminating instance $instance_id"
     aws --profile "$profile" ec2 terminate-instances --instance-ids "$instance_id"
