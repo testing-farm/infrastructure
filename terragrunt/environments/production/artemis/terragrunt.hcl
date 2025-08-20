@@ -26,7 +26,7 @@ dependency "localhost" {
 
   # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
   mock_outputs = {
-    localhost_public_ip = "127.0.0.1"
+    localhost_public_ips = ["127.0.0.1"]
   }
 }
 
@@ -77,7 +77,7 @@ inputs = {
   image_tag    = "aws-multiple-security-groups"
 
   # Enable access from localhost
-  additional_lb_source_ips = [dependency.localhost.outputs.localhost_public_ip]
+  additional_lb_source_ips = dependency.localhost.outputs.localhost_public_ips
 
   # Enable access from workers and github runners
   workers_ip_ranges = concat(

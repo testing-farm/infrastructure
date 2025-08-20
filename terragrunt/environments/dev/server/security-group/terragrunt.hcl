@@ -38,7 +38,7 @@ dependency "localhost" {
 
   # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
   mock_outputs = {
-    localhost_public_ip = "127.0.0.1"
+    localhost_public_ips = ["127.0.0.1"]
   }
 }
 
@@ -57,7 +57,7 @@ inputs = {
   vpc_id      = "vpc-a4f084cd"
 
   ingress_cidr_blocks = concat(
-    ["${dependency.localhost.outputs.localhost_public_ip}/32"],
+    [for ip in dependency.localhost.outputs.localhost_public_ips : "${ip}/32"],
     dependency.worker.outputs.workers_ip_ranges
   )
 
