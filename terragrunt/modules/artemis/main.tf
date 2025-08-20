@@ -58,7 +58,7 @@ provider "ansiblevault" {
 }
 
 resource "aws_security_group" "allow_guest_traffic_workers" {
-  count = var.enable_nested_security_groups ? 1 : 0
+  count = var.enable_multiple_security_groups ? 1 : 0
 
   name        = "${var.cluster_name}-${var.namespace}-allow-guest-traffic-workers"
   description = "Allow traffic to Artemis guests from workers"
@@ -75,7 +75,7 @@ resource "aws_security_group" "allow_guest_traffic_workers" {
 }
 
 resource "aws_security_group" "allow_guest_traffic_additional" {
-  count = var.enable_nested_security_groups ? 1 : 0
+  count = var.enable_multiple_security_groups ? 1 : 0
 
   name        = "${var.cluster_name}-${var.namespace}-allow-guest-traffic-additional"
   description = "Allow traffic to Artemis guests from additional IPs"
@@ -92,7 +92,7 @@ resource "aws_security_group" "allow_guest_traffic_additional" {
 }
 
 resource "aws_security_group" "allow_guest_traffic" {
-  count = var.enable_nested_security_groups ? 0 : 1
+  count = var.enable_multiple_security_groups ? 0 : 1
 
   name        = "${var.cluster_name}-${var.namespace}-allow-guest-traffic"
   description = "Allow traffic to Artemis guests"
@@ -109,40 +109,6 @@ resource "aws_security_group" "allow_guest_traffic" {
       var.workers_ip_ranges
     )
     description = "Allow all inbound traffic"
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
-    ipv6_cidr_blocks = ["::/0"]      #tfsec:ignore:aws-ec2-no-public-egress-sgr
-    description      = "Allow all outbound traffic"
-  }
-}
-
-resource "aws_security_group" "allow_guest_traffic_nested" {
-  count = var.enable_nested_security_groups ? 1 : 0
-
-  name        = "${var.cluster_name}-${var.namespace}-allow-guest-traffic-nested"
-  description = "Allow traffic to Artemis guests (using nested security groups)"
-  vpc_id      = "vpc-a4f084cd"
-  provider    = aws.artemis_guests
-
-  ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.allow_guest_traffic_workers[0].id]
-    description     = "Allow all inbound traffic from workers security group"
-  }
-
-  ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.allow_guest_traffic_additional[0].id]
-    description     = "Allow all inbound traffic from additional IPs security group"
   }
 
   egress {
@@ -240,7 +206,7 @@ resource "helm_release" "artemis" {
                 yamldecode(sensitive(data.ansiblevault_path.vault_ssh_key[i].value))
               )
             ]
-            aws_security_group_id = var.enable_nested_security_groups ? aws_security_group.allow_guest_traffic_nested[0].id : aws_security_group.allow_guest_traffic[0].id
+            aws_security_group_id = var.enable_multiple_security_groups ? [aws_security_group.allow_guest_traffic_workers[0].id, aws_security_group.allow_guest_traffic_additional[0].id] : [aws_security_group.allow_guest_traffic[0].id]
           }
         )
 

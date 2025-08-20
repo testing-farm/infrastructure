@@ -38,7 +38,12 @@ pools:
       subnet-id: subnet-4f971734
 
       # security group for test environment
-      security-group: "${aws_security_group_id}"
+      security-group:
+        %{ if length(aws_security_group_id) == 1 }
+        "${aws_security_group_id[0]}"
+        %{ else }
+        ${indent(8, yamlencode(aws_security_group_id))}
+        %{ endif }
 
       # wait timeout/tick for fulfilling spot request
       # spot-request-timeout: 60
@@ -251,7 +256,12 @@ pools:
       subnet-id: subnet-4f971734
 
       # security group for test environment
-      security-group: "${aws_security_group_id}"
+      security-group:
+        %{ if length(aws_security_group_id) == 1 }
+        "${aws_security_group_id[0]}"
+        %{ else }
+        ${indent(8, yamlencode(aws_security_group_id))}
+        %{ endif }
 
       # wait timeout/tick for fulfilling spot request
       # spot-request-timeout: 60
@@ -466,7 +476,12 @@ pools:
       subnet-id: subnet-4f971734
 
       # security group for test environment
-      security-group: "${aws_security_group_id}"
+      security-group:
+        %{ if length(aws_security_group_id) == 1 }
+        "${aws_security_group_id[0]}"
+        %{ else }
+        ${indent(8, yamlencode(aws_security_group_id))}
+        %{ endif }
 
       # spot request details
       # NOTE: not working yet https://pagure.io/fedora-infrastructure/issue/11848
@@ -591,7 +606,12 @@ pools:
       subnet-id: subnet-4f971734
 
       # security group for test environment
-      security-group: "${aws_security_group_id}"
+      security-group:
+        %{ if length(aws_security_group_id) == 1 }
+        "${aws_security_group_id[0]}"
+        %{ else }
+        ${indent(8, yamlencode(aws_security_group_id))}
+        %{ endif }
 
       # spot request details
       # NOTE: not working yet https://pagure.io/fedora-infrastructure/issue/11848
@@ -700,7 +720,12 @@ pools:
       subnet-id: subnet-76e8921f
 
       # security group for test environment
-      security-group: "${aws_security_group_id}"
+      security-group:
+        %{ if length(aws_security_group_id) == 1 }
+        "${aws_security_group_id[0]}"
+        %{ else }
+        ${indent(8, yamlencode(aws_security_group_id))}
+        %{ endif }
 
       # spot request details
       # NOTE: not working yet https://pagure.io/fedora-infrastructure/issue/11848
@@ -953,7 +978,12 @@ pools:
       subnet-id: subnet-4f971734
 
       # security group for test environment
-      security-group: "${aws_security_group_id}"
+      security-group:
+        %{ if length(aws_security_group_id) == 1 }
+        "${aws_security_group_id[0]}"
+        %{ else }
+        ${indent(8, yamlencode(aws_security_group_id))}
+        %{ endif }
 
       # spot request details
       # NOTE: not working yet https://pagure.io/fedora-infrastructure/issue/11848
@@ -1206,7 +1236,12 @@ pools:
       subnet-id: subnet-9fb86ed2
 
       # security group for test environment
-      security-group: "${aws_security_group_id}"
+      security-group:
+        %{ if length(aws_security_group_id) == 1 }
+        "${aws_security_group_id[0]}"
+        %{ else }
+        ${indent(8, yamlencode(aws_security_group_id))}
+        %{ endif }
 
       # spot request details
       # NOTE: not working yet https://pagure.io/fedora-infrastructure/issue/11848
