@@ -19,13 +19,12 @@ jinja2 = "^3.0.0"
 cryptography = "^2.9.2"
 yq = "^2.10.0"
 boto3 = "1.24.21"
-"ruamel.yaml" = "^0.16.12"
 tft-cli = "*"
 markupsafe = "*"
 pytest-gluetool = {git = "https://gitlab.com/testing-farm/pytest-gluetool.git", rev = "main"}
 # TODO: gluetool *should* be deduced as a dependecy automatically from pytest-gluetool, but that does not happen.
 # Locking without implicitily stating gluetool here doesn't actually propagate the module to the lockfile.
-gluetool = "^2.3"
+gluetool = "^2.18"
 yamllint = "^1.29.0"
 gitpython = "^3.1.44"
 
