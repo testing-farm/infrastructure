@@ -51,7 +51,7 @@
     - name: Transform build target to a tag repository name (RHEL-10-Nightly)
       set_fact:
         tag_repository_name_mainline: "rhel-10.1-build"
-        tag_repository_name_z_stream: ""
+        tag_repository_name_z_stream: "rhel-10.1-z-build"
       when: IMAGE_NAME == "RHEL-10-Nightly"
 
     - name: Create tag repository base url (RHEL)
@@ -65,30 +65,6 @@
     - name: Set tag repository priority
       set_fact:
         tag_repository_priority: 999
-
-    #
-    # Check if tag repository exists.
-    #
-    # Note: We ignore the fact the repository does not exist and try to continue anyway. Note that not all builds
-    #       we encounter might have tag repository available.
-    #
-    - block:
-        - name: "Check if tag repository {{ tag_repository_url_z_stream }} exists"
-          # NOTE: order is important, we prefer Z-Stream tag repository if exists
-          command: >
-            bash -c 'for URL in {{ tag_repository_url_z_stream }} {{ tag_repository_url_mainline }}; do
-              curl --head -L $URL 2>/dev/null | grep -q "200" && echo $URL && break;
-            done; true'
-          retries: "{{ pkg_retry_count }}"
-          delay: "{{ pkg_retry_delay }}"
-          until: output is succeeded
-          register: output
-
-        - name: Set tag_repository_url fact
-          set_fact:
-            tag_repository_url: "{{ output.stdout }}"
-          when: output is defined and output.stdout != ""
-
 
     #
     # Add repository only if the repository is reachable
@@ -116,9 +92,13 @@
         - name: Add tag repository
           template:
             src: "../templates/tag.repo.j2"
-            dest: /etc/yum.repos.d/tag-repository.repo
-
-      when: tag_repository_url is defined
+            dest: "/etc/yum.repos.d/tag-repository-{{ tag_repository_type }}.repo"
+          loop:
+            - { type: "mainline", url: "{{ tag_repository_url_mainline }}" }
+            - { type: "z-stream", url: "{{ tag_repository_url_z_stream }}" }
+          vars:
+            tag_repository_url: "{{ item.url }}"
+            tag_repository_type: "{{ item.type }}"
 
     #
     # block: end
