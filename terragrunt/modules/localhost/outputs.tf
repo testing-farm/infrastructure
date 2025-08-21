@@ -1,3 +1,3 @@
-output "localhost_public_ip" {
-  value = data.external.localhost_public_ip.result.output
+output "localhost_public_ips" {
+  value = split("\n", trimspace(data.external.localhost_public_ips.result.output))
 }
