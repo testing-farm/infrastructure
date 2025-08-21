@@ -56,10 +56,13 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "v0.0.77.2"
+  image_tag    = "aws-multiple-security-groups"
 
   # Enable access from workers
   workers_ip_ranges = dependency.worker.outputs.workers_ip_ranges
+
+  # Enable nested security groups to avoid AWS security group limits
+  enable_multiple_security_groups = true
 
   ansible_vault_password_file = get_env("TF_VAR_ansible_vault_password_file")
   ansible_vault_credentials   = get_env("TF_VAR_ansible_vault_credentials")
@@ -71,9 +74,9 @@ inputs = {
     "ARTEMIS_HOOK_AZURE_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_BEAKER_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_GCP_ENVIRONMENT_TO_IMAGE.py",
-    "ARTEMIS_HOOK_OPENSTACK_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_IBMCLOUD_POWER_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_IBMCLOUD_VPC_ENVIRONMENT_TO_IMAGE.py",
+    "ARTEMIS_HOOK_OPENSTACK_ENVIRONMENT_TO_IMAGE.py",
     "ARTEMIS_HOOK_ROUTE.py",
     "variables_images.yaml"
   ]
