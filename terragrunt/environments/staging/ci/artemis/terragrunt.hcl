@@ -73,6 +73,9 @@ inputs = {
   # Enable access from workers
   workers_ip_ranges = dependency.worker.outputs.workers_ip_ranges
 
+  # Enable multiple security groups to avoid AWS security group limits
+  enable_multiple_security_groups = local.artemis.inputs.enable_multiple_security_groups
+
   ansible_vault_password_file = local.artemis.inputs.ansible_vault_password_file
   ansible_vault_credentials   = local.artemis.inputs.ansible_vault_credentials
   ansible_vault_secrets_root  = local.artemis.inputs.ansible_vault_secrets_root
