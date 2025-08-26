@@ -72,9 +72,13 @@ artemis:
     dbSlowQueries: true
 
 postgresql:
+  image:
+    repository: bitnamilegacy/postgresql
   resources: ${jsonencode(postgresql_resources)}
   metrics:
     enabled: true
+    image:
+      repository: bitnamilegacy/postgres-exporter
     resources: ${jsonencode(postgresql_exporter_resources)}
 
 adminer:
@@ -82,6 +86,8 @@ adminer:
 
 rabbitmq:
   install: true
+  image:
+    repository: bitnamilegacy/rabbitmq
   auth:
     username: "artemis"
   resources: ${jsonencode(rabbitmq_resources)}
@@ -90,7 +96,11 @@ rabbitmq:
 
 redis:
   install: true
+  image:
+    repository: bitnamilegacy/redis
   resources: ${jsonencode(redis_resources)}
   metrics:
     enabled: true
+    image:
+      repository: bitnamilegacy/redis-exporter
     resources: ${jsonencode(redis_exporter_resources)}
