@@ -1,0 +1,22 @@
+---
+
+extends:
+  - base-tmt_pipeline
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  REQUEST_ID: 326c81be-b4f9-4504-962d-3d6dfd0a3706
+  COMPOSE: Fedora-latest
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/bootc-install
+
+checks:
+  literal-strings[work-bootc-install*/log.txt]:
+    - "Booted image: containers-storage:localhost/bootc:tmt"
