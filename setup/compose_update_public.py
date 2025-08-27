@@ -37,8 +37,8 @@ def check_sanity(image: str, available_images: list[str]) -> bool:
 def update_image(image_name: str, available_images: list[str]) -> Optional[str]:
     # Construct a regex from the current image to match possible candidates with newer date, e.g.
     # 'Fedora-Cloud-Base-37-20230803.0.x86_64-hvm-us-east-2-gp3-0' ->
-    # 'Fedora-Cloud-Base-37-(\d{8}).0.x86_64-hvm-us-east-2-gp3-0'
-    image_regex = re.sub(r'\d{8}(?:.n)?', r'(\\d{8}(?:.n)?)', image_name)
+    # 'Fedora-Cloud-Base-37-(\d{8})\.\d+.x86_64-hvm-us-east-2-gp3-0'
+    image_regex = re.sub(r'\d{8}(?:.n)?\.\d+', r'(\\d{8}(?:.n)?\\.\\d+)', image_name)
 
     if image_name == image_regex:
         print('    ⬅️  No "YYYYMMDD" pattern found in image {}, skipping update...'.format(image_name))
