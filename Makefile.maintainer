@@ -612,7 +612,7 @@ terminate/artemis/guests/staging/ci: .FORCE  ## Terminate all EC2 instances crea
 terminate/artemis/guests/production: .FORCE  ## Terminate all EC2 instances created by Artemis | staging
 	@bash $$PROJECT_ROOT/setup/terminate_artemis_guests.sh production || true
 
-cleanup/ci: .FORCE staging/kubeconfig cleanup/public/security-groups  ## Cleanup CI leftovers
+cleanup/ci: .FORCE staging/kubeconfig  ## Cleanup CI leftovers
 	@echo "$(ccgreen)Deleting leftover EKS CI clusters$(ccend)"
 	@bash $$PROJECT_ROOT/setup/terminate_eks_ci_clusters.sh
 	@echo "$(ccgreen)Terminating leftover namespaces from staging EKS$(ccend)"
@@ -621,8 +621,5 @@ cleanup/ci: .FORCE staging/kubeconfig cleanup/public/security-groups  ## Cleanup
 	@bash $$PROJECT_ROOT/setup/terminate_unused_loadbalancers.sh
 	@echo "$(ccgreen)Cleaning up Route53 records$(ccend)"
 	@bash $$PROJECT_ROOT/setup/cleanup_route53_records.sh
-
-cleanup/public/security-groups: .FORCE  ## Cleanup security groups in public AWS
-	aws --profile fedora_us_east_2 ec2 describe-security-groups | \
-		jq -r ".SecurityGroups[] | select(.GroupName | contains(\"artemis-guest-$$(date -d "last month" +%Y-%m)-\")) | .GroupId" | \
-		parallel aws --profile fedora_us_east_2 ec2 delete-security-group --group-id || true
+	@echo "$(ccgreen)Removing leftover security groups$(ccend)"
+	@bash $$PROJECT_ROOT/setup/terminate_security_groups.sh
