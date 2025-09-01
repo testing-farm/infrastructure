@@ -19,11 +19,15 @@
         file: "../inventory/group_vars/testing_farm_public_workers.yaml"
       when: deployment is regex('production')
 
+    - name: Generate worker name
+      set_fact:
+        worker_name: "testing-farm-worker-{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
+
     - name: Provision new EC2 instance
       amazon.aws.ec2_instance:
         state: running
         profile: fedora_us_east_2
-        tags: "{{ worker_resource_tags }}"
+        tags: "{{ worker_resource_tags | combine({'Name': worker_name })  }}"
         key_name: testing-farm
         instance_type: "{{ worker_instance_type }}"
         image_id: "{{ worker_image_id }}"
@@ -41,6 +45,7 @@
         hostname: "{{ item.public_ip_address }}"
         groupname: "{{ worker_group_name }}"
         ansible_ssh_extra_args: "-o IdentitiesOnly=yes"
+        worker_name: "{{ worker_name }}"
       loop: "{{ ec2.instances }}"
 
     - name: Add new instance to host group
@@ -48,6 +53,7 @@
         hostname: "{{ item.public_ip_address }}"
         groupname: new_workers
         ansible_ssh_extra_args: "-o IdentitiesOnly=yes"
+        worker_name: "{{ worker_name }}"
       loop: "{{ ec2.instances }}"
 
 #
@@ -92,6 +98,8 @@
     - ../vars/common.yaml
   pre_tasks:
     - import_tasks: ../tasks/hostname.yaml
+      vars:
+        hostname: "{{ hostvars[inventory_hostname]['worker_name'] }}"
     - import_tasks: ../tasks/dns.yaml
     - import_tasks: ../tasks/ssh-key.yaml
     - import_tasks: ../tasks/artifacts.yaml
