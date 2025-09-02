@@ -67,15 +67,15 @@
         tag_repository_priority: 999
 
     #
-    # Add repository only if the repository is reachable
-    #
-    # For < RHEL8 we need to install yum-plugin-priorities
+    # Handle RHEL7
     #
     - block:
+        # On RHUI systems enable optional repositories
         - name: Enable optional repo on RHUI systems
           command: yum-config-manager --enable rhel-7-server-rhui-optional-rpms
           when: "'rhui' in IMAGE_NAME|lower"
 
+        # Install yum-plugin-priorities to support repository priorities
         - name: Make sure yum-plugin-priorities is installed on < RHEL8
           package:
             name: yum-plugin-priorities
@@ -85,20 +85,20 @@
           until: result_package is succeeded
           register: result_package
 
-          when:
-            - ansible_distribution == "RedHat"
-            - ansible_distribution_major_version|int < 8
+      when:
+        - ansible_distribution == "RedHat"
+        - ansible_distribution_major_version|int < 8
 
-        - name: Add tag repository
-          template:
-            src: "../templates/tag.repo.j2"
-            dest: "/etc/yum.repos.d/tag-repository-{{ tag_repository_type }}.repo"
-          loop:
-            - { type: "mainline", url: "{{ tag_repository_url_mainline }}" }
-            - { type: "z-stream", url: "{{ tag_repository_url_z_stream }}" }
-          vars:
-            tag_repository_url: "{{ item.url }}"
-            tag_repository_type: "{{ item.type }}"
+    - name: Add tag repository
+      template:
+        src: "../templates/tag.repo.j2"
+        dest: "/etc/yum.repos.d/tag-repository-{{ tag_repository_type }}.repo"
+      loop:
+        - { type: "mainline", url: "{{ tag_repository_url_mainline }}" }
+        - { type: "z-stream", url: "{{ tag_repository_url_z_stream }}" }
+      vars:
+        tag_repository_url: "{{ item.url }}"
+        tag_repository_type: "{{ item.type }}"
 
     #
     # block: end
