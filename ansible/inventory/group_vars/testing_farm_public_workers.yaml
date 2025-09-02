@@ -80,11 +80,7 @@ worker_image_id: ami-02942164e2807a6a8  # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us
 worker_subnet: subnet-4f971734
 worker_security_group: sg-0040a2477d37dd6d0
 
-# hostname
-hostname: "testing-farm-worker-{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
-
 worker_resource_tags:
-  Name: "{{ hostname }}"
   FedoraGroup: ci
   ServiceOwner: TFT
   ServiceName: TestingFarm
