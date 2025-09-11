@@ -6,6 +6,7 @@ marks:
 pipeline: |
   hide-secrets
   rules-engine
+  reportportal
   testing-farm-request --request-id 3d6572cb-d09b-4210-be68-4a77421eb131
   ansible
   artemis
