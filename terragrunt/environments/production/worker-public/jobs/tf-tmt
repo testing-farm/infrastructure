@@ -61,6 +61,7 @@ timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
 citool-container.sh rules-engine \
                     hide-secrets \
                     oom \
+                    reportportal \
                     testing-farm-request --request-id $REQUEST_ID \
                     coldstore \
                     testing-farm-request-state-reporter \
