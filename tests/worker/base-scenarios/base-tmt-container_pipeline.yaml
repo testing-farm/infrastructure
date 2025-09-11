@@ -11,6 +11,7 @@ variables:
 pipeline: |
   rules-engine
   hide-secrets
+  reportportal
   testing-farm-request --request-id {{ REQUEST_ID }}
   coldstore
   testing-farm-request-state-reporter
