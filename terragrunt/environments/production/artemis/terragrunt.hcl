@@ -74,7 +74,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "aws-multiple-security-groups"
+  image_tag    = "v0.0.80"
 
   # Enable access from localhost
   additional_lb_source_ips = dependency.localhost.outputs.localhost_public_ips
