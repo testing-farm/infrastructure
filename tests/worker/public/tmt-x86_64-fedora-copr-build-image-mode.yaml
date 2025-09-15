@@ -10,7 +10,7 @@ marks:
   - image-mode
 
 variables:
-  REQUEST_ID: 026fde29-4921-47fa-9a16-767e89d5185f
+  REQUEST_ID: ad8c07f6-190a-4633-97be-ea1e1fabbcdb
   COMPOSE: Fedora-42-image-mode
   ARCH: x86_64
   RESULT: PASSED
