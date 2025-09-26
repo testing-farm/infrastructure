@@ -10,8 +10,8 @@ marks:
   - image-mode
 
 variables:
-  REQUEST_ID: ad8c07f6-190a-4633-97be-ea1e1fabbcdb
-  COMPOSE: Fedora-42-image-mode
+  REQUEST_ID: f13ad2dc-6fc7-4f0f-ae6d-3519a8cd1c19
+  COMPOSE: Fedora-43-image-mode
   ARCH: x86_64
   RESULT: PASSED
   GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
