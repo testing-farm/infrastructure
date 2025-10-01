@@ -51,10 +51,12 @@ exec podman run --init \
                 -v ${CITOOL_CONFIG_DIR}:/CONFIG:O \
                 -v ${CITOOL_RUN_DIR}:/var/ARTIFACTS:Z \
                 -v /root/.ssh:/root/.ssh:Z \
+                -v {[ profiles_dir ]}:{[ profiles_dir ]}:ro,Z \
                 -e SENTRY_DSN={[ sentry_dsn ]} \
                 -e SENTRY_BASE_URL={[ sentry_base_url ]} \
                 -e SENTRY_ENVIRONMENT={[ deployment ]} \
                 -e SENTRY_RELEASE={[ release ]} \
                 -e SENTRY_TAG_MAP=${SENTRY_TAG_MAP} \
+                -e ANSIBLE_COLLECTIONS_PATH={[ profiles_dir ]}:/root/.ansible/collections:/usr/share/ansible/collections \
                 ${CITOOL_EXTRA_PODMAN_ARGS} \
                 "$CITOOL_IMAGE" "$@"

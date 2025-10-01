@@ -1,0 +1,35 @@
+---
+- block:
+    - name: Install required packages
+      package:
+        name:
+          - git
+          - make
+          - ansible
+        state: present
+      become: true
+
+    - name: Create temporary directory
+      tempfile:
+        state: directory
+        suffix: repo
+      register: temp_dir
+
+    - name: Clone profiles git repository
+      git:
+        repo: https://gitlab.com/testing-farm/profiles/
+        dest: "{{ temp_dir.path }}"
+        depth: 1
+
+    - name: Install profiles
+      command: make install/local
+      args:
+        chdir: "{{ temp_dir.path }}"
+      environment:
+        ANSIBLE_COLLECTIONS_PATH: "{{ profiles_dir }}"
+      become: true
+
+    - name: Remove temporary directory
+      file:
+        path: "{{ temp_dir.path }}"
+        state: absent
