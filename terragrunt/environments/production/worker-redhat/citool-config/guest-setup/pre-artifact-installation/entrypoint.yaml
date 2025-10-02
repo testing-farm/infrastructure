@@ -3,6 +3,8 @@
     pkg_retry_count: 5
     pkg_retry_delay: 30
   tasks:
+  # Beaker client repository related workarounds
+  - include_tasks: workaround-beaker-client-repo.yaml
   # DNF5 needs an early workaround
   - include_tasks: workaround-dnf5.yaml
   - include_tasks: workaround-almalinux-88.yaml
@@ -21,7 +23,6 @@
       - '"hardened" not in IMAGE_NAME|lower'
       - '"image-mode" not in IMAGE_NAME|lower'
   # Workarounds
-  - include_tasks: workaround-beaker-client-repo-unavailable.yaml
   - include_tasks: workaround-disable-qa-tools.yaml
   - include_tasks: workaround-beaker-repos.yaml
   # IT BREAKS PYTHON TEST SUITE, for example, but for RHEL we accept it as it speeds up a lot installability in PSI Openstack
