@@ -1,10 +1,6 @@
 ---
 #
-# This workaround is here for the case when beaker-client repository
-# is unavailable. Some images require this repository to be available,
-# make sure we make it optional everywhere.
-#
-# Added during October 2021 outage, see TFT-765 for more information.
+# Various workarounds related to beaker-client repository
 #
 - name: Set required variables
   set_fact:
@@ -16,12 +12,31 @@
   register: beaker_client_repo_file_status
 
 - block:
+    #
+    # This workaround is here for the case when beaker-client repository
+    # is unavailable. Some images require this repository to be available,
+    # make sure we make it optional everywhere.
+    #
+    # Added during October 2021 outage, see TFT-765 for more information.
+    #
     - name: Set beaker-client repository as optional (skip_if_unavailable=1)
       ini_file:
         path: "{{ beaker_client_repo_file }}"
         section: beaker-client
         option: skip_if_unavailable
         value: "1"
+
+    #
+    # Some of the images are using decomissioned download.eng.bos.redhat.com.
+    # Use download.devel.redhat.com instead.
+    #
+    # Added during October 2025 outage, see TFT-3926 for more information.
+    #
+    - name: Fix beaker-client repository if using decomissioned download.eng.bos.redhat.com
+      replace:
+        path: "{{ beaker_client_repo_file }}"
+        regexp: '(.*)download\.eng\.bos\.redhat\.com(.*)'
+        replace: '\1download.devel.redhat.com\2'
 
   #
   # Run block only if file exists
