@@ -21,6 +21,8 @@
       tags: update_config
     - import_tasks: ../tasks/image.yaml
       tags: update_image
+    - import_tasks: ../tasks/profiles.yaml
+      tags: update_config
   roles:
     - name: geerlingguy.swap
       vars:
