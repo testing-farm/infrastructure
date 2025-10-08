@@ -104,6 +104,7 @@
     - import_tasks: ../tasks/jobs.yaml
     - import_tasks: ../tasks/config.yaml
     - import_tasks: ../tasks/image.yaml
+    - import_tasks: ../tasks/profiles.yaml
   roles:
     - name: geerlingguy.swap
       vars:
