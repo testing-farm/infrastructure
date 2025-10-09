@@ -944,6 +944,33 @@ files = [
 ]
 
 [[package]]
+name = "pint"
+version = "0.23"
+description = "Physical quantities module"
+category = "main"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "Pint-0.23-py3-none-any.whl", hash = "sha256:df79b6b5f1beb7ed0cd55d91a0766fc55f972f757a9364e844958c05e8eb66f9"},
+    {file = "Pint-0.23.tar.gz", hash = "sha256:e1509b91606dbc52527c600a4ef74ffac12fff70688aff20e9072409346ec9b4"},
+]
+
+[package.dependencies]
+typing-extensions = "*"
+
+[package.extras]
+babel = ["babel (<=2.8)"]
+bench = ["pytest", "pytest-codspeed"]
+dask = ["dask"]
+mip = ["mip (>=1.13)"]
+numpy = ["numpy (>=1.19.5)"]
+pandas = ["pint-pandas (>=0.3)"]
+test = ["pytest", "pytest-benchmark", "pytest-cov", "pytest-mpl", "pytest-subtests"]
+testbase = ["pytest", "pytest-benchmark", "pytest-cov", "pytest-subtests"]
+uncertainties = ["uncertainties (>=3.1.6)"]
+xarray = ["xarray"]
+
+[[package]]
 name = "pluggy"
 version = "1.0.0"
 description = "plugin and hook calling mechanisms for python"
@@ -1065,6 +1092,7 @@ develop = false
 ansi2html = "^1.8.0"
 click = "^8.0.0"
 gluetool = "^2.2"
+pint = "^0.23"
 pytest = "^6.0.1"
 pytest-forked = "^1.1.3"
 pytest-html = "^2.0.1"
@@ -1080,8 +1108,8 @@ development = ["gluetool-modules-framework @ git+https://gitlab.com/testing-farm
 [package.source]
 type = "git"
 url = "https://gitlab.com/testing-farm/pytest-gluetool.git"
-reference = "main"
-resolved_reference = "5b17ef88e6eff15f41105b322524215d9201d8de"
+reference = "add-support-for-profiles"
+resolved_reference = "7cb8164675863236541929e83d1955fb4f22bcaf"
 
 [[package]]
 name = "pytest-html"
@@ -1821,4 +1849,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.9"
-content-hash = "556673309ae30de5e95bb7ed63f5bb769e80f0526d0a36c4f4a55d9256595cb4"
+content-hash = "2b360d9a0509929bf30c972686c01635f1f3c76caa94f247f5fb8e5b4a4119c6"
