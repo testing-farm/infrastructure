@@ -3,8 +3,33 @@
     pkg_retry_count: 5
     pkg_retry_delay: 30
   tasks:
-    # DO NOT ENABLE BY DEFAULT, IT BREAKS PYTHON TEST SUITE (and can others)
-    # - include_tasks: nosync.yaml
+  - name: Run guest-setup via profiles (non-image-mode)
+    when: '"image-mode" not in IMAGE_NAME|lower'
+    block:
+    - name: Apply testing_farm_profiles.library.facts role
+      ansible.builtin.include_role:
+        name: testing_farm_profiles.library.facts
+
+    - name: Apply testing_farm_profiles.library.time role
+      when: ansible_virtualization_type not in ["container", "podman"]
+      ansible.builtin.include_role:
+        name: testing_farm_profiles.library.time
+
+    - name: Apply testing_farm_profiles.library.epel role
+      ansible.builtin.include_role:
+        name: testing_farm_profiles.library.epel
+
+    - name: Apply testing_farm_profiles.library.koji role
+      ansible.builtin.include_role:
+        name: testing_farm_profiles.library.koji
+
+    - name: Apply testing_farm_profiles.library.tag_repository role
+      ansible.builtin.include_role:
+        name: testing_farm_profiles.library.tag_repository
+
+  - name: Run original guest-setup (image-mode)
+    when: '"image-mode" in IMAGE_NAME|lower'
+    block:
     - include_tasks: update-and-restart.yaml
     - include_tasks: workaround-fedora-eln.yaml
     - include_tasks: workaround-fedora-rawhide.yaml
