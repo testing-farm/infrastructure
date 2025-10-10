@@ -14,45 +14,26 @@
 #
 # Note that *-build tags inherit from *-candidate tags
 #
-# The play gracefully skips adding a tag repository which is not reachable.
-#
 # Testing Farm needs to deduce the tag repository according to the tested image name.
-# For now we try first adding the Z-Stream tag repository and fallback to non Z-Stream.
-#
-# Issues:
-# * TFT-1256 (Z-stream support)
+# We're adding both Z-Stream and non Z-Stream tag repositories with skip_if_unavailable=True option.
 #
 
 - block:
-
-    #
-    # The tag repository name can be transformed from IMAGE_NAME variable.
-    #
-    - name: Transform build target to a tag repository name (RHEL-X.Y or RHEL-X.Y.Z)
+    - name: Transform build target to a tag repository name (RHEL 7 and older, RHEL 10 and newer)
       set_fact:
-        tag_repository_name_mainline: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+\\.\\d+(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-build') | lower }}"
-        tag_repository_name_z_stream: "{{ IMAGE_NAME | regex_replace('(?i)^.*rhel-(\\d+\\.\\d+(?:\\.\\d+)?(?:-alpha|-beta)?).*$', 'rhel-\\1-z-build') | lower }}"
+        tag_repository_name_mainline: "rhel-{{ ansible_distribution_version }}-build"
+        tag_repository_name_z_stream: "rhel-{{ ansible_distribution_version }}-z-build"
+      when:
+        - ansible_distribution == "RedHat"
+        - ansible_distribution_major_version|int <= 7 or ansible_distribution_major_version|int >= 10
 
-    # TFT-2798: find a better solution then hardcoding the mappings here
-    # Note that on purpose we do not add mappings for RHEL-8-Updated and RHEL-8-Released,
-    # would be weird to include there the latest built packages wouldn't it?
-    - name: Transform build target to a tag repository name (RHEL-8-Nightly)
+    - name: Transform build target to a tag repository name (RHEL 8, RHEL 9)
       set_fact:
-        tag_repository_name_mainline: "rhel-8.10.0-build"
-        tag_repository_name_z_stream: "rhel-8.10.0-z-build"
-      when: IMAGE_NAME == "RHEL-8-Nightly" or IMAGE_NAME == "RHEL-8-Devel"
-
-    - name: Transform build target to a tag repository name (RHEL-9-Nightly)
-      set_fact:
-        tag_repository_name_mainline: "rhel-9.7.0-build"
-        tag_repository_name_z_stream: "rhel-9.7.0-z-build"
-      when: IMAGE_NAME == "RHEL-9-Nightly"
-
-    - name: Transform build target to a tag repository name (RHEL-10-Nightly)
-      set_fact:
-        tag_repository_name_mainline: "rhel-10.1-build"
-        tag_repository_name_z_stream: "rhel-10.1-z-build"
-      when: IMAGE_NAME == "RHEL-10-Nightly"
+        tag_repository_name_mainline: "rhel-{{ ansible_distribution_version }}.0-build"
+        tag_repository_name_z_stream: "rhel-{{ ansible_distribution_version }}.0-z-build"
+      when:
+        - ansible_distribution == "RedHat"
+        - ansible_distribution_major_version|int == 8 or ansible_distribution_major_version|int == 9
 
     - name: Create tag repository base url (RHEL)
       set_fact:
@@ -89,6 +70,10 @@
         - ansible_distribution == "RedHat"
         - ansible_distribution_major_version|int < 8
 
+    #
+    # block: end
+    #
+
     - name: Add tag repository
       template:
         src: "../templates/tag.repo.j2"
@@ -99,22 +84,6 @@
       vars:
         tag_repository_url: "{{ item.url }}"
         tag_repository_type: "{{ item.type }}"
-
-    #
-    # block: end
-    #
-
-    #
-    # Be verbose about the fact the repository is unreachable
-    #
-    - debug:
-        msg: "Skipping adding tag repository, because no available tag repository was found"
-      when: tag_repository_url is not defined
-
-  #
-  # Run block if BUILD_TARGET and PRIMARY_TASK variables are available.
-  # Also, we do not support tag repository for all known task namespaces.
-  #
 
   when:
     - IMAGE_NAME is defined
