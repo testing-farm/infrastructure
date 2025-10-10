@@ -25,6 +25,11 @@
   ignore_errors: true
   register: check_rawhide
 
+- name: Check for rawhide
+  command: "rpm -q fedora-repos-eln"
+  ignore_errors: true
+  register: check_eln
+
 - block:
     #
     # The tag repository name can be determined from the Fedora version. Detect rawhide
@@ -36,10 +41,17 @@
             tag_repository_name: "rawhide"
           when: check_rawhide.rc == 0
 
+        - name: Transform build target to a tag repository name (ELN)
+          set_fact:
+            tag_repository_name: "eln-build"
+          when: check_eln.rc == 0
+
         - name: Transform build target to a tag repository name (Fedora non-Rawhide)
           set_fact:
             tag_repository_name: "f{{ ansible_distribution_version }}-build"
-          when: check_rawhide.rc != 0
+          when:
+            - check_rawhide.rc != 0
+            - check_eln.rc != 0
 
         - name: Create tag repository base url (Fedora)
           set_fact:
