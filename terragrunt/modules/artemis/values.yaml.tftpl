@@ -20,6 +20,7 @@ artemis:
     processes: ${artemis_api_processes}
     threads: ${artemis_api_threads}
     resources: ${jsonencode(artemis_api_resources)}
+    replicaCount: ${artemis_api_replicas}
     service:
       annotations:
         external-dns.alpha.kubernetes.io/hostname: ${artemis_api_domain}
@@ -49,6 +50,7 @@ artemis:
 
   dispatcher:
     resources: ${jsonencode(artemis_dispatcher_resources)}
+    replicaCount: ${artemis_dispatcher_replicas}
 
   scheduler:
     resources: ${jsonencode(artemis_scheduler_resources)}

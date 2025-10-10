@@ -239,6 +239,9 @@ resource "helm_release" "artemis" {
         artemis_api_processes = var.api_processes
         artemis_api_threads   = var.api_threads
         artemis_api_domain    = var.api_domain
+        artemis_api_replicas  = var.api_replicas
+
+        artemis_dispatcher_replicas = var.dispatcher_replicas
 
         artemis_connection_close_after_dispatch = var.connection_close_after_dispatch
 
