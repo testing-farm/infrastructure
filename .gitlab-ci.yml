@@ -168,6 +168,11 @@ direnv:
 
 # Archive pytest-gluetool artifacts
 .archive_tests:
+  variables:
+    CI_ARTIFACT_URL_PREFIX_FILE:
+      "https://$CI_PAGES_HOSTNAME/-/$CI_PROJECT_NAME/-/jobs/$CI_JOB_ID/artifacts"
+    CI_ARTIFACT_URL_PREFIX_DIR:
+      "$CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts/browse"
   artifacts:
     expose_as: report
     paths:
