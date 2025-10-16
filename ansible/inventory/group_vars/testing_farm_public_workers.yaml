@@ -1,5 +1,5 @@
 ---
-release: 2025-08.1
+release: 2025-09.1
 
 # container image with citool and modules
 citool_container_image: "quay.io/testing-farm/worker-public:{{ release }}"
