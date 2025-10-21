@@ -5,9 +5,9 @@ composes:
     compose: Fedora-41
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20251012.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-41-20251020.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-20251012.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-41-20251020.0
 
   fedora_41_image_mode:
     compose: Fedora-41-image-mode
@@ -19,9 +19,9 @@ composes:
     compose: Fedora-42
 
     x86_64: &fedora_latest_ref_x86_64
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-42-20251012.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-42-20251020.0
     aarch64: &fedora_latest_ref_aarch64
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-42-20251012.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-42-20251020.0
 
   fedora_42_image_mode:
     compose: Fedora-42-image-mode
@@ -33,9 +33,9 @@ composes:
     compose: Fedora-43
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-43-Prerelease-20251012.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-43-Prerelease-20251020.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-43-Prerelease-20251012.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-43-Prerelease-20251020.0
 
   fedora_43_image_mode:
     compose: Fedora-43-image-mode
@@ -59,9 +59,9 @@ composes:
     compose: Fedora-Rawhide
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20251012.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20251020.1
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20251012.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20251020.1
 
   fedora_rawhide_image_mode:
     compose: Fedora-Rawhide-image-mode
@@ -73,9 +73,9 @@ composes:
     compose: Fedora-eln
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-ELN-20251013.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-ELN-20251021.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-ELN-20251013.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-ELN-20251021.0
 
   centos_7:
     compose: CentOS-7
