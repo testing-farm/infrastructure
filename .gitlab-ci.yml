@@ -256,8 +256,10 @@ test/staging/pipeline:
     - !reference [.script_with_cleanup, script]
   variables:
     SCRIPT: >-
+      git clone https://gitlab.com/testing-farm/profiles &&
+      ANSIBLE_COLLECTIONS_PATH=/etc/testing-farm/profiles make -C profiles install/local &&
       make staging/apply/ci &&
-      make test/staging/pipeline/ci
+      PYTEST_OPTIONS="--profiles /etc/testing-farm/profiles" make test/staging/pipeline/ci
     ERROR_SCRIPT: >-
       make staging/kubeconfig &&
       NAMESPACE="$(env -C terragrunt/environments/staging/ci/artemis terragrunt output --raw namespace)" &&
@@ -291,7 +293,9 @@ test/staging/pipeline/container:
   variables:
     PYTEST_PARALLEL_RUNS: 1
     SCRIPT: >-
-      make test/staging/pipeline/container/ci
+      git clone https://gitlab.com/testing-farm/profiles &&
+      ANSIBLE_COLLECTIONS_PATH=/etc/testing-farm/profiles make -C profiles install/local &&
+      PYTEST_OPTIONS="--profiles /etc/testing-farm/profiles" make test/staging/pipeline/container/ci
     AFTER_SCRIPT: >-
       make test/pytest/oculus
   rules:
@@ -308,8 +312,10 @@ test/staging/compose:
     - !reference [.script_with_cleanup, script]
   variables:
     SCRIPT: >-
+      git clone https://gitlab.com/testing-farm/profiles &&
+      ANSIBLE_COLLECTIONS_PATH=/etc/testing-farm/profiles make -C profiles install/local &&
       make staging/apply/ci &&
-      make test/staging/compose/ci
+      PYTEST_OPTIONS="--profiles /etc/testing-farm/profiles" make test/staging/compose/ci
     ERROR_SCRIPT: >-
       make staging/kubeconfig &&
       NAMESPACE="$(env -C terragrunt/environments/staging/ci/artemis terragrunt output --raw namespace)" &&
