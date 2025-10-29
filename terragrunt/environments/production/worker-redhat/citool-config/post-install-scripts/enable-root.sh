@@ -14,5 +14,5 @@
 #
 
 if [ -e /root/.ssh/authorized_keys ]; then
-    sed -i 's/.*ssh-rsa/ssh-rsa/' /root/.ssh/authorized_keys
+    sed -i 's/.*ssh-rsa/ssh-rsa/' /root/.ssh/authorized_keys;
 fi
