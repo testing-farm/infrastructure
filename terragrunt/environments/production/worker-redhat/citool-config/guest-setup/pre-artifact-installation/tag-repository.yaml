@@ -89,6 +89,7 @@
     - IMAGE_NAME is defined
     - ansible_distribution == "RedHat"
     - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"pfmt" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'
 

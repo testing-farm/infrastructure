@@ -4,6 +4,7 @@
     - 'ansible_distribution == "RedHat"'
     - 'ansible_distribution_major_version | int >= 8'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"pfmt" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'
   ignore_errors: true

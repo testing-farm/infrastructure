@@ -10,6 +10,7 @@
        ansible_distribution == "OracleLinux"'
 ***REMOVED*** we do not want to install Koji on Automotive images
     - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"pfmt" not in IMAGE_NAME|lower'
 ***REMOVED*** On CentOS Stream 10 we need a worakround
     - 'not (
         ansible_distribution == "CentOS"
