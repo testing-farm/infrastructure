@@ -8,6 +8,7 @@
     - "not IMAGE_NAME|lower|regex_search('centos.stream.9')"
     - "not IMAGE_NAME|lower|regex_search('centos.stream.10')"
     - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"pfmt" not in IMAGE_NAME|lower'
   retries: "{{ pkg_retry_count }}"
   delay: "{{ pkg_retry_delay }}"
   until: result_package is succeeded
