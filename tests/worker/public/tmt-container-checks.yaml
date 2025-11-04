@@ -99,7 +99,6 @@ checks:
       ID=fedora
       VERSION_ID={{ '\d+' }}
       VERSION_CODENAME=&amp;quot;&amp;quot;
-      PLATFORM_ID=&amp;quot;platform:f{{ '\d+' }}&amp;quot;
       PRETTY_NAME=&amp;quot;Fedora Linux {{ '\d+' }} (Container Image)&amp;quot;
       ANSI_COLOR=&amp;quot;0;38;2;60;110;180&amp;quot;
       LOGO=fedora-logo-icon
