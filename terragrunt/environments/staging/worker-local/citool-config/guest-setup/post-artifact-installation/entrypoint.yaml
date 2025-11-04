@@ -6,5 +6,6 @@
       when:
         - UPDATE_FROM_ARTIFACTS
         - '"auto-osbuild" not in IMAGE_NAME|lower'
+        - '"pfmt" not in IMAGE_NAME|lower'
         - '"ostree" not in IMAGE_NAME|lower'
         - '"image-mode" not in IMAGE_NAME|lower'

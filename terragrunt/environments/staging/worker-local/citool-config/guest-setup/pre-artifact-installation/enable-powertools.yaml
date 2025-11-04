@@ -10,3 +10,4 @@
     - 'ansible_distribution == "CentOS"'
     - "ansible_distribution_major_version | int == 8"
     - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"pfmt" not in IMAGE_NAME|lower'
