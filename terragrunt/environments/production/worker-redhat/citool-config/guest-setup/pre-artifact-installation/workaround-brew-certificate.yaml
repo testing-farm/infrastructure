@@ -1,0 +1,25 @@
+---
+#
+# Remove RH-IT-Root-CA server CA reference from brew koji config
+# This is a workaround of a recent brew outage until we have a new brewkoji version.
+#
+- block:
+    - name: Check if brew koji config exists
+      stat:
+        path: /etc/koji.conf.d/brewkoji.conf
+      register: brewkoji_conf_status
+
+    - name: Remove serverca string from brew koji config
+      lineinfile:
+        path: /etc/koji.conf.d/brewkoji.conf
+        regexp: '^serverca\s=.*$'
+        state: absent
+      when:
+        - brewkoji_conf_status.stat.exists
+
+    - debug:
+        msg: "Skipping workaround, brew koji config not found"
+      when:
+        - not brewkoji_conf_status.stat.exists
+  when:
+    - ansible_distribution == "RedHat"
