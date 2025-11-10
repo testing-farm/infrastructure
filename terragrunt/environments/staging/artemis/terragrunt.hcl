@@ -94,8 +94,11 @@ inputs = {
     key   = ""
   }]
 
+  api_replicas  = 1
   api_processes = 2
   api_threads   = 1
+
+  dispatcher_replicas = 1
 
   worker_extra_env = [
     # Keep retrying releasing resources to mitigate security group leftovers when VM is not released in time.
