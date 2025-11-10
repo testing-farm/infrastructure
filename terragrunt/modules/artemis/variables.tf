@@ -109,6 +109,18 @@ variable "worker_replicas" {
   default     = 5
 }
 
+variable "api_replicas" {
+  description = "Number of api replicas"
+  type        = number
+  default     = 2
+}
+
+variable "dispatcher_replicas" {
+  description = "Number of dispatcher replicas"
+  type        = number
+  default     = 2
+}
+
 variable "worker_processes" {
   description = "Number of worker processes"
   type        = number
