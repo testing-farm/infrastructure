@@ -65,7 +65,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "v0.0.80"
+  image_tag    = "v0.0.82"
 
   # Enable access from localhost
   additional_lb_source_ips = dependency.localhost.outputs.localhost_public_ips
