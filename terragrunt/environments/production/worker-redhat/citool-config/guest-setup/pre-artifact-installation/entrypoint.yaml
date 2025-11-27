@@ -1,4 +1,10 @@
 - hosts: all
+  gather_facts: false
+  tasks:
+  # Fetch custom Python runtime and override the interpreter used by Ansible
+  - include_tasks: install-python.yaml
+
+- hosts: all
   vars:
     pkg_retry_count: 5
     pkg_retry_delay: 30
