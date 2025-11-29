@@ -7,3 +7,19 @@ GUEST:
   artemis_id: "{{ GUEST.artemis_id }}"
   {% endif %}
 {% endif %}
+
+#
+# Role variables for Testing Farm profiles
+#
+
+#
+# AWS Red Hat ranch requires the hostname to be set according to IT AWS setup.
+#
+# TFT-1803 - AWS hostnames were reimplemented by IT.
+# TFT-1987 - Set explicitly as it happens after the machine boots.
+#
+# The search domain is by default `<REGION>.aws.redhat.com`, e.g. `us-east-1.aws.redhat.com`.
+# We cannot set it to FQDN, because hostname can only be 64 chars max:
+# https://redhat-internal.slack.com/archives/C03BRN71JAF/p1685450197314049
+#
+hostname_hostname: "{{ GUEST.artemis_id }}"
