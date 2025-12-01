@@ -1,0 +1,13 @@
+include "root" {
+  path = find_in_parent_folders()
+}
+
+terraform {
+  source = "../../../../..//modules/gitlab/project"
+}
+
+inputs = {
+  gitlab_token = get_env("TF_VAR_gitlab_testing_farm_bot")
+  project_name = "ai-helpers"
+  description  = "Testing Farm Team productivity tools for Claude Code."
+}
