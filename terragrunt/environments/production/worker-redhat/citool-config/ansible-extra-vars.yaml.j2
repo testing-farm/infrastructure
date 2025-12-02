@@ -22,4 +22,6 @@ GUEST:
 # We cannot set it to FQDN, because hostname can only be 64 chars max:
 # https://redhat-internal.slack.com/archives/C03BRN71JAF/p1685450197314049
 #
+{% if GUEST is defined and GUEST.artemis_id %}
 hostname_hostname: "{{ GUEST.artemis_id }}"
+{% endif %}
