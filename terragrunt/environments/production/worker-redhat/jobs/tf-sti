@@ -7,7 +7,7 @@ printf "\n[pipeline-start] $(date)\n\n"
 
 export REQUEST_ID=$1
 
-export ARTIFACTS_URL="https://artifacts.dev.testing-farm.io"
+export ARTIFACTS_URL="https://artifacts.osci.redhat.com/testing-farm"
 API_URL="https://api.dev.testing-farm.io/v0.1"
 
 [ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
