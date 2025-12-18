@@ -27,9 +27,8 @@
           service-component: Worker
           service-phase: prod
           service-name: TestingFarm
-          # Thanks to running JDK QE workloads, we have 20% discount in AWS
-          # https://source.redhat.com/groups/public/red_hat_public_cloud_services/public_cloud_services_wiki/aws_map_20_program
-          map-migrated: migN5JR4801JY
+          # Testing Farm AWS migration tag
+          map-migrated: migZZ8SDMVO5T
         key_name: tft-artemis-master-key
         instance_type: i3.2xlarge
         # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-1-gp3-0
