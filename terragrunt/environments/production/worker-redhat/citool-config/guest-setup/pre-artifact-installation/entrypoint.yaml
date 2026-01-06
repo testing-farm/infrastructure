@@ -3,10 +3,6 @@
   tasks:
   # Fetch custom Python runtime and override the interpreter used by Ansible
   - include_tasks: install-python.yaml
-    when:
-      - '"auto-osbuild" not in IMAGE_NAME|lower'
-      - '"pfmt" not in IMAGE_NAME|lower'
-      - '"image-mode" not in IMAGE_NAME|lower'
 
 - hosts: all
   vars:
