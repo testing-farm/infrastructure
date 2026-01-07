@@ -1,0 +1,33 @@
+---
+
+- name: Determine target architecture
+  ansible.builtin.raw: uname -m
+  register: _uname_arch
+  changed_when: false
+
+- name: Configure custom Python runtime
+  when:
+    # Try to use system interpreter if no source defined for arch or disabled
+    - _uname_arch.stdout.strip() in python_bin_url
+  block:
+    - name: Install dependencies to unpack the runtime
+      vars:
+        packages: "tar gzip"
+      ansible.builtin.raw: "dnf install -y {{ packages }} || yum install -y {{ packages }}"
+      ignore_errors: true
+
+    - name: Fetch the custom Python runtime
+      ansible.builtin.raw: >-
+        bash -c "set -x
+            mkdir -p {{ python_install_path }};
+            curl '{{ python_bin_url[_uname_arch.stdout.strip()] }}' \
+            | tar -C {{ python_install_path }} -xzf -"
+      retries: 5
+      delay: 30
+      register: _python_download
+      until: _python_download is succeeded
+      changed_when: false
+
+    - name: Override Python runtime for the Ansible target
+      ansible.builtin.set_fact:
+        ansible_python_interpreter: "{{ python_install_path }}/bin/python3"
