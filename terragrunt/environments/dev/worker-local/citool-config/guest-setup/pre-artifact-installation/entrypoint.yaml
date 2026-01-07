@@ -3,6 +3,11 @@
     pkg_retry_count: 5
     pkg_retry_delay: 30
   tasks:
+    - include_tasks: install-python.yaml
+      when:
+        - '"auto-osbuild" not in IMAGE_NAME|lower'
+        - '"pfmt" not in IMAGE_NAME|lower'
+        - '"image-mode" not in IMAGE_NAME|lower'
     # DO NOT ENABLE BY DEFAULT, IT BREAKS PYTHON TEST SUITE (and can others)
     # - include_tasks: nosync.yaml
     - include_tasks: update-and-restart.yaml
