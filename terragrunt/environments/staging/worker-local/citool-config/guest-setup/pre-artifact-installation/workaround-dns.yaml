@@ -21,4 +21,9 @@
         content: |
           nameserver 8.8.8.8
           nameserver 8.8.4.4
+
+    # explicit restorecon needed - see TFT-4192
+    - name: Restore SELinux context on a file
+      command: restorecon -vF /etc/resolv.conf
+
   when: 'ansible_distribution == "Fedora"'
