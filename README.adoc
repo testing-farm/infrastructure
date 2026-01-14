@@ -200,3 +200,12 @@ To update composes on Public Ranch:
 * run `make compose-update-public`
 * submit a MR with the changes
 * the changes will be deployed once the MR is merged
+
+== Updating podman configuration
+
+To update podman configuration on Red Hat workers (e.g. after container registry authentication update):
+
+[source,shell]
+....
+ansible-playbook -e environment=production -t update_podman -l testing_farm_redhat_workers ansible/playbooks/testing-farm.yaml
+....
