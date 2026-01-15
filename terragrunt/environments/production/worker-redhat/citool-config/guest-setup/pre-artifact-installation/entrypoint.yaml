@@ -13,6 +13,8 @@
     pkg_retry_count: 5
     pkg_retry_delay: 30
   tasks:
+  # Workaround download.eng.bos.redhat.com deprecation
+  - include_tasks: workaround-eng-bos.yaml
   # Beaker client repository related workarounds
   - include_tasks: workaround-beaker-client-repo.yaml
   # DNF5 needs an early workaround
