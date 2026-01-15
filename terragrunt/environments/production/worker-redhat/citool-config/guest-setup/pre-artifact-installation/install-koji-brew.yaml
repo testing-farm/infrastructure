@@ -19,8 +19,8 @@
         baseurl: "http://download.devel.redhat.com/rel-eng/RCMTOOLS/latest-RCMTOOLS-2-RHEL-{{ ansible_distribution_major_version }}/compose/Server/{{ ansible_architecture }}/os/"
 
     - name: Install Brewkoji
-      package:
-        name: brewkoji
+      # package module not yet supported on RHEL6, use command instead
+      command: yum -y install brewkoji
       retries: "{{ pkg_retry_count }}"
       delay: "{{ pkg_retry_delay }}"
       until: result_package is succeeded
