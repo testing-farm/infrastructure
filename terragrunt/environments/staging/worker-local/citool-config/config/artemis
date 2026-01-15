@@ -36,3 +36,7 @@ guest-logs-enable = yes
 # Artemis log configuration
 guest-logs-config = ${config_root}/artemis-log-config.yaml
 guest-logs-without-history = yes
+
+# Error handling
+error-events = created, error, pool-resources-requested, acquisition-attempt
+error-template-file = ${config_root}/artemis/error-template.j2
