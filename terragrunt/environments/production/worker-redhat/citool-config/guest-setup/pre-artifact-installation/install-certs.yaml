@@ -15,6 +15,8 @@
   delay: "{{ pkg_retry_delay }}"
   until: result_install_ca is succeeded
   register: result_install_ca
+  # on RHEL6 package modules does not work yet, and these packages are in default install anyway
+  when: not (ansible_distribution == "RedHat" and ansible_distribution_major_version|int == 6)
 
 # https://source.redhat.com/groups/public/identity-access-management/identity__access_management_blog/action_required_removal_of_ca_certs_from_passwordcorpredhatcom
 - name: Download certificates to '/etc/pki/ca-trust/source/anchors/'

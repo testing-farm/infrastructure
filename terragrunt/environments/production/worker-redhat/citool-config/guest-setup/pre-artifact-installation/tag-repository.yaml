@@ -58,9 +58,8 @@
 
         # Install yum-plugin-priorities to support repository priorities
         - name: Make sure yum-plugin-priorities is installed on < RHEL8
-          package:
-            name: yum-plugin-priorities
-            state: present
+          # package module not yet support on RHEL6
+          command: "yum -y install yum-plugin-priorities"
           retries: "{{ pkg_retry_count }}"
           delay: "{{ pkg_retry_delay }}"
           until: result_package is succeeded
