@@ -4,13 +4,9 @@ UPDATE_FROM_ARTIFACTS: {{ ((GUEST.environment.pipeline | default({})).settings |
 {% endif %}
 
 python_bin_url:
-  aarch64: "https://gitlab.com/api/v4/projects/75476709/jobs/artifacts/main/raw/\
-            dist/build-aarch64.tar.gz?job=build_cpython%3A%20%5Baarch64%5D"
-  ppc64le: "https://gitlab.com/api/v4/projects/75476709/jobs/artifacts/main/raw/\
-            dist/build-ppc64le.tar.gz?job=build_cpython%3A%20%5Bppc64le%5D"
-  s390x: "https://gitlab.com/api/v4/projects/75476709/jobs/artifacts/main/raw/\
-          dist/build-s390x.tar.gz?job=build_cpython%3A%20%5Bs390x%5D"
-  x86_64: "https://gitlab.com/api/v4/projects/75476709/jobs/artifacts/main/raw/\
-           dist/build-x86_64.tar.gz?job=build_cpython%3A%20%5Bx86_64%5D"
+  aarch64: "https://gitlab.com/api/v4/projects/75476709/jobs/artifacts/main/raw/dist/build-aarch64.tar.gz?job=build_cpython%3A%20%5Baarch64%5D"
+  ppc64le: "https://gitlab.com/api/v4/projects/75476709/jobs/artifacts/main/raw/dist/build-ppc64le.tar.gz?job=build_cpython%3A%20%5Bppc64le%5D"
+  s390x: "https://gitlab.com/api/v4/projects/75476709/jobs/artifacts/main/raw/dist/build-s390x.tar.gz?job=build_cpython%3A%20%5Bs390x%5D"
+  x86_64: "https://gitlab.com/api/v4/projects/75476709/jobs/artifacts/main/raw/dist/build-x86_64.tar.gz?job=build_cpython%3A%20%5Bx86_64%5D"
 
 python_install_path: "/var/opt/standalone-python"
