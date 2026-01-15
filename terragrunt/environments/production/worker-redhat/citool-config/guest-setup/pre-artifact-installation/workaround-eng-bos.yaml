@@ -1,0 +1,14 @@
+#
+# The download.eng.bos.redhat.com was deprecated.
+# Needed for old releases and images still using it.
+#
+- name: Workaround download.eng.bos.redhat.com deprecation
+  command: >-
+    sed -i 's/download\.eng\.bos/download.devel/g' /etc/yum.repos.d/*.repo
+  ignore_errors: true
+
+  when:
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"pfmt" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
