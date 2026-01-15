@@ -18,7 +18,7 @@
 
     - name: Fetch the custom Python runtime
       ansible.builtin.raw: >-
-        bash -c "set -x
+        bash -c "set -x;
             mkdir -p {{ python_install_path }};
             curl '{{ python_bin_url[_uname_arch.stdout.strip()] }}' \
             | tar -C {{ python_install_path }} -xzf -"
