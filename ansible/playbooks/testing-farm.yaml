@@ -15,6 +15,7 @@
     - import_tasks: ../tasks/ssh-key.yaml
     - import_tasks: ../tasks/artifacts.yaml
     - import_tasks: ../tasks/podman.yaml
+      tags: update_podman
     - import_tasks: ../tasks/jobs.yaml
       tags: update_jobs
     - import_tasks: ../tasks/config.yaml

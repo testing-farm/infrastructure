@@ -38,6 +38,8 @@
 
     - name: "Relabel all files"
       command: "restorecon -RvvF {{ container_storage_path }}"
+      # not needed if updating podman config, important during first deployment
+      when: "'update_podman' not in ansible_run_tags"
 
     - name: "Add crontab for cleaning up podman"
       cron:
