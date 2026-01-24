@@ -65,7 +65,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "v0.0.82"
+  image_tag    = "v0.0.82.debug"
 
   # Enable access from localhost
   additional_lb_source_ips = dependency.localhost.outputs.localhost_public_ips
@@ -113,6 +113,12 @@ inputs = {
   dispatcher_replicas = 1
 
   worker_extra_env = [
+    # Do not use separate thread for task, keep it in main dramatiq worker thread.
+    # This should prevent race conditions observed in some deployments.
+    {
+      name  = "ARTEMIS_OFFLOAD_TASKS",
+      value = "false"
+    },
     # Keep retrying releasing resources to mitigate security group leftovers when VM is not released in time.
     # 32 attempts with exponential backoff with max. 1h timeout for approx. 25h before giving up.
     {
