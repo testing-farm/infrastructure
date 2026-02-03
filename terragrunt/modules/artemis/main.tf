@@ -121,6 +121,40 @@ resource "aws_security_group" "allow_guest_traffic" {
   }
 }
 
+# Security group for the Artemis API load balancer
+# This is managed by Terraform instead of Kubernetes to avoid issues with
+# Kubernetes creating ICMP rules and not clearing rules properly.
+# See: https://issues.redhat.com/browse/TFT-3668
+resource "aws_security_group" "artemis_api_lb" {
+  name        = "${var.cluster_name}-${var.namespace}-artemis-api-lb"
+  description = "Allow traffic to Artemis API load balancer"
+  vpc_id      = var.cluster_vpc_id
+
+  ingress {
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    cidr_blocks = concat(
+      local.artemis_lb_source_ranges,
+      var.workers_ip_ranges
+    )
+    description = "Allow HTTP traffic from workers and additional IPs"
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
+    ipv6_cidr_blocks = ["::/0"]      #tfsec:ignore:aws-ec2-no-public-egress-sgr
+    description      = "Allow all outbound traffic"
+  }
+
+  tags = {
+    Name = "${var.cluster_name}-${var.namespace}-artemis-api-lb"
+  }
+}
+
 provider "helm" {
   kubernetes {
     host                   = var.cluster_endpoint
@@ -231,11 +265,6 @@ resource "helm_release" "artemis" {
           }
         )
 
-        artemis_lb_source_ranges = concat(
-          local.artemis_lb_source_ranges,
-          var.workers_ip_ranges,
-        )
-
         artemis_api_processes = var.api_processes
         artemis_api_threads   = var.api_threads
         artemis_api_domain    = var.api_domain
@@ -253,6 +282,8 @@ resource "helm_release" "artemis" {
         artemis_worker_threads   = var.worker_threads
 
         artemis_image_tag = var.image_tag
+
+        artemis_api_lb_security_group_id = aws_security_group.artemis_api_lb.id
 
         artemis_api_resources             = try(var.resources.artemis_api, {})
         artemis_dispatcher_resources      = try(var.resources.artemis_dispatcher, {})
