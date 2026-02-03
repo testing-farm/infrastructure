@@ -223,3 +223,8 @@ variable "enable_multiple_security_groups" {
   type        = bool
   default     = false
 }
+
+variable "cluster_vpc_id" {
+  description = "VPC ID of the EKS cluster for load balancer security group"
+  type        = string
+}
