@@ -24,9 +24,11 @@ artemis:
     service:
       annotations:
         external-dns.alpha.kubernetes.io/hostname: ${artemis_api_domain}
+        # Use a separately managed security group instead of loadBalancerSourceRanges
+        # https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/service/annotations/#security-groups
+        service.beta.kubernetes.io/aws-load-balancer-security-groups: ${artemis_api_lb_security_group_id}
       type: LoadBalancer
       port: 80
-      loadBalancerSourceRanges: ${jsonencode(artemis_lb_source_ranges)}
     livenessProbe:
       failureThreshold: 5
       httpGet:
