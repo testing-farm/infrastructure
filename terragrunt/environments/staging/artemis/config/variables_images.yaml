@@ -18,30 +18,38 @@ composes:
   fedora_42:
     compose: Fedora-42
 
-    x86_64: &fedora_latest_ref_x86_64
+    x86_64:
       image: Fedora-Cloud-Base-AmazonEC2.x86_64-42-20260208.0
-    aarch64: &fedora_latest_ref_aarch64
+    aarch64:
       image: Fedora-Cloud-Base-AmazonEC2.aarch64-42-20260208.0
 
   fedora_42_image_mode:
     compose: Fedora-42-image-mode
 
-    x86_64: &fedora_latest_image_mode_ref_x86_64
+    x86_64:
       image: Fedora-42-image-mode-x86_64
 
   fedora_43:
     compose: Fedora-43
 
-    x86_64:
+    x86_64: &fedora_latest_ref_x86_64
       image: Fedora-Cloud-Base-AmazonEC2.x86_64-43-Prerelease-20251024.0
-    aarch64:
+    aarch64: &fedora_latest_ref_aarch64
       image: Fedora-Cloud-Base-AmazonEC2.aarch64-43-Prerelease-20251024.0
 
   fedora_43_image_mode:
     compose: Fedora-43-image-mode
 
-    x86_64:
+    x86_64: &fedora_latest_image_mode_ref_x86_64
       image: Fedora-43-image-mode-x86_64
+
+  fedora_44:
+    compose: Fedora-44
+
+    x86_64:
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-44-Prerelease-20260209.0
+    aarch64:
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-44-Prerelease-20260209.0
 
   # TFT-1221
   fedora_latest:
