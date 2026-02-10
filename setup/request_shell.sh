@@ -16,7 +16,7 @@ REQUEST_ID=$(sed -nE 's/.*([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3
 [ -z "$REQUEST_ID" ] && error "Valid request ID is parameter is required."
 [ -z "$TESTING_FARM_API_URL" ] && error "TESTING_FARM_API_URL not set in the environment."
 
-JOB=$(curl -s "${TESTING_FARM_API_URL}/requests/${REQUEST_ID}" | jq -r .notes[0].message)
+JOB=$(curl -s "${TESTING_FARM_API_URL}/requests/${REQUEST_ID}" | jq -r .notes[0].message | sed 's/.*\///;s/%2F/\//')
 [ "$JOB" == "null" ] && error "Could not find Nomad job in the given request."
 
 ALLOCATION=$(nomad job allocs -json "$JOB" | jq -r 'sort_by(.CreateIndex) | last(.[])')
