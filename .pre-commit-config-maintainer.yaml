@@ -37,8 +37,8 @@ repos:
     hooks:
       - id: gitleaks
 
-  - repo: https://gitlab.com/devopshq/gitlab-ci-linter
-    rev: v1.0.6
+  - repo: https://gitlab.com/testing-farm/gitlab-ci-linter
+    rev: c3e3ef34b513caf9bf484e4046074e1cd3020379
     hooks:
       - id: gitlab-ci-linter
         args:
