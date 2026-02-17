@@ -69,7 +69,7 @@ composes:
     x86_64:
       image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20260216.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20260216.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20260217.0
 
   fedora_rawhide_image_mode:
     compose: Fedora-Rawhide-image-mode
@@ -81,9 +81,9 @@ composes:
     compose: Fedora-eln
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-ELN-20260216.1
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-ELN-20260217.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-ELN-20260216.1
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-ELN-20260217.0
 
   centos_7:
     compose: CentOS-7
