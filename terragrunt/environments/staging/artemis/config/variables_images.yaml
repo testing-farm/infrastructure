@@ -51,6 +51,12 @@ composes:
     aarch64:
       image: Fedora-Cloud-Base-AmazonEC2.aarch64-44-Prerelease-20260216.0
 
+  fedora_44_image_mode:
+    compose: Fedora-44-image-mode
+
+    x86_64:
+      image: Fedora-44-image-mode-x86_64
+
   # TFT-1221
   fedora_latest:
     compose: Fedora-latest
