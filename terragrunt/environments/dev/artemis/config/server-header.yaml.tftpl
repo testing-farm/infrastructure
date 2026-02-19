@@ -1,0 +1,22 @@
+---
+
+users:
+  - name: admin
+    role: admin
+
+  - name: artemis
+    role: user
+
+ssh-keys:
+  ${indent(2, yamlencode(ssh_keys))}
+
+priority-groups:
+  - name: default-priority
+
+guest_tags:
+  FedoraGroup: "ci"
+  ServiceName: "Artemis"
+  ServiceOwner: "TFT"
+  ServicePhase: "Dev"
+
+pools:

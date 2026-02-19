@@ -1,0 +1,4 @@
+# GPU pool in us-east-2a
+
+availability-zone: us-east-2a
+subnet-id: subnet-76e8921f

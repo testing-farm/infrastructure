@@ -1,0 +1,9 @@
+# Common pool settings for production environment
+
+capabilities:
+    supports-snapshots: false
+
+use-public-ip: true
+create-security-group-per-guest: true
+use-default-flavor-when-no-suitable: false
+default-root-disk-size: 100

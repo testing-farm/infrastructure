@@ -1,0 +1,186 @@
+# GPU pool common settings
+
+default-flavor: p3.2xlarge
+flavor-regex: ^p[2345].+$
+
+custom-flavors:
+    # P2
+    - name: p2.xlarge-100
+      base: p2.xlarge
+      disk:
+          - size: "100 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p2.xlarge-250
+      base: p2.xlarge
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p2.xlarge-500
+      base: p2.xlarge
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p2.8xlarge-100
+      base: p2.8xlarge
+      disk:
+          - size: "100 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p2.8xlarge-250
+      base: p2.8xlarge
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p2.8xlarge-500
+      base: p2.8xlarge
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p2.16xlarge-100
+      base: p2.16xlarge
+      disk:
+          - size: "100 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p2.16xlarge-250
+      base: p2.16xlarge
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p2.16xlarge-500
+      base: p2.16xlarge
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    # P3
+    - name: p3.2xlarge-100
+      base: p3.2xlarge
+      disk:
+          - size: "100 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p3.2xlarge-250
+      base: p3.2xlarge
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p3.2xlarge-500
+      base: p3.2xlarge
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p3.8xlarge-100
+      base: p3.8xlarge
+      disk:
+          - size: "100 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p3.8xlarge-250
+      base: p3.8xlarge
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p3.8xlarge-500
+      base: p3.8xlarge
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p3.16xlarge-100
+      base: p3.16xlarge
+      disk:
+          - size: "100 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p3.16xlarge-250
+      base: p3.16xlarge
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: p3.16xlarge-500
+      base: p3.16xlarge
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+patch-flavors:
+    - name-regex: 'p2.+'
+      virtualization:
+          is-supported: false
+          is-virtualized: true
+      gpu:
+          device-name: GK210 (Tesla K80)
+          vendor-name: NVIDIA
+
+    - name-regex: 'p3.+'
+      virtualization:
+          is-supported: false
+          is-virtualized: true
+      gpu:
+          device-name: GV100 (Tesla V100)
+          vendor-name: NVIDIA

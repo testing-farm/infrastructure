@@ -1,0 +1,3 @@
+# GPU pool in us-east-2b
+
+# Uses default AZ and subnet from aws/main.fmf (us-east-2b, subnet-4f971734)
