@@ -1,0 +1,4 @@
+# GPU pool in us-east-2c
+
+availability-zone: us-east-2c
+subnet-id: subnet-9fb86ed2

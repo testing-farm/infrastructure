@@ -32,6 +32,15 @@ install/pre-commit:  ## Install pre-commit hooks
 		pre-commit install; \
 	fi
 
+##@ Pools
+
+ENVIRONMENTS := dev staging production
+
+generate-pools: $(addprefix generate-pools-,$(ENVIRONMENTS)) .FORCE  ## Generate Artemis pool configs for all environments
+
+generate-pools-%: .FORCE  ## Generate Artemis pool config for a specific environment
+	generate-artemis-pools generate $(ROOT_DIR)/terragrunt/environments/$*/artemis
+
 ##@ Cleanup
 
 clean: .FORCE  ## Cleanup

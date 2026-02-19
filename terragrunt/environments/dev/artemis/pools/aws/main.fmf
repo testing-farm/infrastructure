@@ -1,0 +1,32 @@
+# AWS driver defaults
+
+driver: aws
+
+access-key-id: "${aws_access_key_id}"
+secret-access-key: "${aws_secret_access_key}"
+
+default-region: us-east-2
+command: aws
+master-key-name: testing-farm-worker
+
+# Default AZ and subnet (can be overridden per pool)
+availability-zone: us-east-2b
+subnet-id: subnet-4f971734
+
+# Security group for test environment
+security-group: |
+    %{ if length(aws_security_group_id) == 1 }
+    "${aws_security_group_id[0]}"
+    %{ else }
+    ${indent(8, yamlencode(aws_security_group_id))}
+    %{ endif }
+
+# Image filters
+image-filters:
+    - owner: self
+    # Automotive images
+    - owner: "587138297281"
+    # Debezium images
+    - owner: "133133877115"
+    # Packit Image Builder images
+    - owner: "463606842039"

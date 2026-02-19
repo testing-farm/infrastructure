@@ -1,0 +1,5 @@
+# aarch64 architecture settings
+
+capabilities+:
+    supported-architectures:
+        - aarch64
