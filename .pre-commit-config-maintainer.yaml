@@ -72,6 +72,16 @@ repos:
           )$
       - id: terragrunt_fmt
 
+  # Generate Artemis pool configs from FMF definitions
+  - repo: local
+    hooks:
+      - id: generate-artemis-pools
+        name: generate-artemis-pools
+        entry: generate-artemis-pools generate --all
+        language: system
+        pass_filenames: false
+        files: (pools/.*\.fmf|server-header\.yaml\.tftpl)$
+
   # Generate Public Ranch compose tests
   - repo: local
     hooks:

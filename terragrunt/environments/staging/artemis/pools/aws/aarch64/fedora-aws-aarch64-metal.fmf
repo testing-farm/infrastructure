@@ -1,0 +1,80 @@
+# AWS aarch64 m7g metal instances pool
+
+default-flavor: m7g.metal
+flavor-regex: ^m7g\..+$
+
+custom-flavors:
+    - name: m7g.metal-100
+      base: m7g.metal
+      disk:
+          - size: "100 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: m7g.metal-250
+      base: m7g.metal
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: m7g.metal-500
+      base: m7g.metal
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+patch-flavors:
+    - name-regex: 'm7g\..+'
+      cpu:
+          model: 1
+          model-name: AWS Graviton3
+          flag:
+              - fp
+              - asimd
+              - evtstrm
+              - aes
+              - pmull
+              - sha1
+              - sha2
+              - crc32
+              - atomics
+              - fphp
+              - asimdhp
+              - cpuid
+              - asimdrdm
+              - jscvt
+              - fcma
+              - lrcpc
+              - dcpop
+              - sha3
+              - sm3
+              - sm4
+              - asimddp
+              - sha512
+              - sve
+              - asimdfhm
+              - dit
+              - uscat
+              - ilrcpc
+              - flagm
+              - ssbs
+              - paca
+              - pacg
+              - dcpodp
+              - svei8mm
+              - svebf16
+              - i8mm
+              - bf16
+              - dgh
+              - rng
+      virtualization:
+          is-supported: true
+          is-virtualized: false
