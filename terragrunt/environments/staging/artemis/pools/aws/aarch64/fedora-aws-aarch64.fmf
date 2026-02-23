@@ -1,0 +1,159 @@
+# AWS aarch64 c6g instances pool
+
+default-flavor: c6g.large
+flavor-regex: ^c6g\..+$
+
+custom-flavors:
+    - name: c6g.large-100
+      base: c6g.large
+      disk:
+          - size: "100 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.large-250
+      base: c6g.large
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.large-500
+      base: c6g.large
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.xlarge-250
+      base: c6g.xlarge
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.xlarge-500
+      base: c6g.xlarge
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.2xlarge-100
+      base: c6g.2xlarge
+      disk:
+          - size: "100 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.2xlarge-250
+      base: c6g.2xlarge
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.2xlarge-500
+      base: c6g.2xlarge
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.4xlarge-100
+      base: c6g.4xlarge
+      disk:
+          - size: "100 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.4xlarge-250
+      base: c6g.4xlarge
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.4xlarge-500
+      base: c6g.4xlarge
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.8xlarge-100
+      base: c6g.8xlarge
+      disk:
+          - size: "100 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.8xlarge-250
+      base: c6g.8xlarge
+      disk:
+          - size: "250 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+    - name: c6g.8xlarge-500
+      base: c6g.8xlarge
+      disk:
+          - size: "500 GiB"
+          - additional-disks:
+                max-count: 5
+                min-size: "10 GiB"
+                max-size: "512 GiB"
+
+patch-flavors:
+    - name-regex: 'c6g\..+'
+      cpu:
+          model: 1
+          model-name: AWS Graviton2
+          flag:
+              - fp
+              - asimd
+              - evtstrm
+              - aes
+              - pmull
+              - sha1
+              - sha2
+              - crc32
+              - atomics
+              - fphp
+              - asimdhp
+              - cpuid
+              - asimdrdm
+              - lrcpc
+              - dcpop
+              - asimddp
+              - ssbs
+      virtualization:
+          hypervisor: nitro
+          is-supported: false
+          is-virtualized: true
