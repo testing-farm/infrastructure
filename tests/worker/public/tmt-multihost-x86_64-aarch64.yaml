@@ -294,28 +294,28 @@ checks:
 
   literal-patterns:
     - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}]         summary: 3 tests selected"
-    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}]                 out: hello multihost"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}]                 stdout: hello multihost"
     - '[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}]                 cmd: echo "hello multihost A"'
     - '[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [client]                 cmd: echo "hello multihost B"'
     - '[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [server]                 cmd: echo "hello multihost B"'
-    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [client]                 out: hello multihost"
-    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [server]                 out: hello multihost"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [client]                 stdout: hello multihost"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [server]                 stdout: hello multihost"
     - '[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [client]                 cmd: echo "hello multihost C"'
     - '[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [server]                 cmd: echo "hello multihost C"'
-    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [client]                 out: hello multihost"
-    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [server]                 out: hello multihost"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [client]                 stdout: hello multihost"
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] [server]                 stdout: hello multihost"
     - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] total: 5 tests passed"
     - "[{{ COMPOSE }}:aarch64:{{ PLAN }}]         summary: 3 tests selected"
-    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}]                 out: hello multihost"
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}]                 stdout: hello multihost"
     - '[{{ COMPOSE }}:aarch64:{{ PLAN }}]                 cmd: echo "hello multihost A"'
     - '[{{ COMPOSE }}:aarch64:{{ PLAN }}] [client]                 cmd: echo "hello multihost B"'
     - '[{{ COMPOSE }}:aarch64:{{ PLAN }}] [server]                 cmd: echo "hello multihost B"'
-    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [client]                 out: hello multihost"
-    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [server]                 out: hello multihost"
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [client]                 stdout: hello multihost"
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [server]                 stdout: hello multihost"
     - '[{{ COMPOSE }}:aarch64:{{ PLAN }}] [client]                 cmd: echo "hello multihost C"'
     - '[{{ COMPOSE }}:aarch64:{{ PLAN }}] [server]                 cmd: echo "hello multihost C"'
-    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [client]                 out: hello multihost"
-    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [server]                 out: hello multihost"
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [client]                 stdout: hello multihost"
+    - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] [server]                 stdout: hello multihost"
     - "[{{ COMPOSE }}:aarch64:{{ PLAN }}] total: 5 tests passed"
     - table:
         -
