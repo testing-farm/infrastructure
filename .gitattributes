@@ -1,1 +1,4 @@
 ansible/secrets/credentials.yaml diff=ansible-vault merge=ansible-vault
+
+# Collapse generated files
+terragrunt/environments/*/artemis/config/server.yaml.tftpl gitlab-generated
