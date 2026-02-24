@@ -45,7 +45,7 @@ session = requests.Session()
 session.mount(
     "https://",
     HTTPAdapter(
-        max_retries=Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504]),
+        max_retries=Retry(total=5, backoff_factor=1, status_forcelist=[429, 502, 503, 504]),
     ),
 )
 
@@ -125,7 +125,7 @@ def create_merge_request(
         "title": title,
     }
 
-    response = requests.post(url, headers=headers, data=data)
+    response = session.post(url, headers=headers, data=data)
     if response.status_code == 201:
         print("Merge request created successfully.")
         raise typer.Exit()
@@ -156,7 +156,7 @@ def create_milestone(
         "title": name,
     }
 
-    response = requests.post(url, headers=headers, data=data)
+    response = session.post(url, headers=headers, data=data)
     if response.status_code == 201:
         print(f"Milestone '{name}' created successfully.")
         raise typer.Exit()
