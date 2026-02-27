@@ -177,7 +177,7 @@ resource "helm_release" "artemis" {
   name       = var.release_name
   repository = "https://testing-farm.gitlab.io/artemis-helm/dev"
   chart      = "artemis-core"
-  version    = "0.0.4"
+  version    = "0.0.5"
   namespace  = var.namespace
 
   create_namespace = true
