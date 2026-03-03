@@ -8,6 +8,7 @@ artemis:
     mountPath: /configuration
     server: ${jsonencode(yamldecode(artemis_server_config))}
     extraFiles: ${jsonencode(artemis_extra_files)}
+    separateExtraFiles: true
 
   initdb:
     resources: ${jsonencode(artemis_initdb_resources)}
