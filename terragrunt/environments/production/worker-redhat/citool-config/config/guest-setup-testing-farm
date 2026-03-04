@@ -1,2 +1,2 @@
 [default]
-playbooks = pre-artifact-installation:${config_root}/guest-setup/pre-artifact-installation/entrypoint.yaml
+playbooks-map = pre-artifact-installation:${config_root}/pre-artifact-installation-map.yaml
