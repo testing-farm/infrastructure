@@ -10,7 +10,7 @@ but you probably won't need to touch :py:func:`hook_ROUTE` - it's pretty generic
 :py:data:`POLICIES`. Change that list rather than the code, since the decisions should happen in policies.
 """
 
-from typing import List
+from typing import Any, List
 from gluetool.result import Ok
 
 import gluetool.log
@@ -36,7 +36,6 @@ from tft.artemis.routing_policies import (
     policy_prefer_spot_instances,
     policy_supports_architecture,
     policy_supports_guest_logs,
-    policy_supports_snapshots,
     policy_use_spot_instances,
     policy_timeout_reached,
     policy_use_only_when_addressed,
@@ -55,6 +54,9 @@ policy_prefer_clouds = create_preferrence_filter_by_driver_class(
     'prefer-clouds',
     tft.artemis.drivers.aws.AWSDriver,
     tft.artemis.drivers.azure.AzureDriver,
+    tft.artemis.drivers.gcp.GCPDriver,
+    tft.artemis.drivers.ibmcloud.power.IBMCloudPowerDriver,
+    tft.artemis.drivers.ibmcloud.vpc.IBMCloudVPCDriver,
     tft.artemis.drivers.openstack.OpenStackDriver,
 )
 
@@ -120,7 +122,6 @@ POLICIES = [
     policy_match_pool_name,
     policy_can_acquire,
     policy_supports_architecture,
-    policy_supports_snapshots,
     policy_use_spot_instances,
     policy_supports_guest_logs,
     policy_one_attempt_forgiving,
@@ -134,11 +135,11 @@ POLICIES = [
 ]
 
 
-def hook_ROUTE(
+def hook_ROUTE(  # noqa: N802
     *,
     logger: gluetool.log.ContextAdapter,
     session: sqlalchemy.orm.session.Session,
     guest_request: GuestRequest,
-    pools: List[PoolDriver]
+    pools: list[PoolDriver[Any]],
 ) -> PolicyReturnType:
     return run_routing_policies(logger, session, guest_request, pools, POLICIES)
