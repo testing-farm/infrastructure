@@ -5,9 +5,6 @@
   extra_vars:
     TESTING_FARM_REQUEST_ID: "{{ TESTING_FARM_REQUEST_ID }}"
 
-- rule: MATCH(GUEST.environment.compose, '^fedora-coreos.*')
-  playbooks: []
-
 - rule: >
     GUEST.environment.settings is not None
     and "pipeline" in GUEST.environment.settings
