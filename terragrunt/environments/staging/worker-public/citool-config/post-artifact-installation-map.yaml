@@ -7,10 +7,3 @@
 
 - rule: MATCH(GUEST.environment.compose, '^fedora-coreos.*')
   playbooks: []
-
-- rule: >
-    GUEST.environment.settings is not None
-    and "pipeline" in GUEST.environment.settings
-    and "skip_guest_setup" in GUEST.environment.settings["pipeline"]
-    and GUEST.environment.settings["pipeline"]["skip_guest_setup"] == True
-  playbooks: []
