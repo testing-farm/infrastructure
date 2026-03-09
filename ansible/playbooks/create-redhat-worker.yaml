@@ -29,7 +29,7 @@
           service-name: TestingFarm
           # Testing Farm AWS migration tag
           map-migrated: migZZ8SDMVO5T
-        key_name: tft-artemis-master-key
+        key_name: tft-redhat-worker-key
         instance_type: i3.2xlarge
         # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-1-gp3-0
         image_id: ami-0746fc234df9c1ee0
