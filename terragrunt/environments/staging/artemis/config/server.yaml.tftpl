@@ -204,6 +204,222 @@ pools:
       command: aws
       create-security-group-per-guest: true
       custom-flavors:
+        - base: c6g.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c6g.metal-100
+        - base: c6g.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c6g.metal-250
+        - base: c6g.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c6g.metal-500
+        - base: c6gd.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c6gd.metal-100
+        - base: c6gd.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c6gd.metal-250
+        - base: c6gd.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c6gd.metal-500
+        - base: c7g.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c7g.metal-100
+        - base: c7g.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c7g.metal-250
+        - base: c7g.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c7g.metal-500
+        - base: c7gd.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c7gd.metal-100
+        - base: c7gd.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c7gd.metal-250
+        - base: c7gd.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c7gd.metal-500
+        - base: c7gn.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c7gn.metal-100
+        - base: c7gn.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c7gn.metal-250
+        - base: c7gn.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c7gn.metal-500
+        - base: c8g.metal-24xl
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c8g.metal-24xl-100
+        - base: c8g.metal-24xl
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c8g.metal-24xl-250
+        - base: c8g.metal-24xl
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c8g.metal-24xl-500
+        - base: c8gd.metal-24xl
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c8gd.metal-24xl-100
+        - base: c8gd.metal-24xl
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c8gd.metal-24xl-250
+        - base: c8gd.metal-24xl
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c8gd.metal-24xl-500
+        - base: m6g.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m6g.metal-100
+        - base: m6g.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m6g.metal-250
+        - base: m6g.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m6g.metal-500
+        - base: m6gd.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m6gd.metal-100
+        - base: m6gd.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m6gd.metal-250
+        - base: m6gd.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m6gd.metal-500
         - base: m7g.metal
           disk:
             - size: 100 GiB
@@ -228,10 +444,154 @@ pools:
                 max-size: 512 GiB
                 min-size: 10 GiB
           name: m7g.metal-500
+        - base: m7gd.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m7gd.metal-100
+        - base: m7gd.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m7gd.metal-250
+        - base: m7gd.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m7gd.metal-500
+        - base: m8g.metal-24xl
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m8g.metal-24xl-100
+        - base: m8g.metal-24xl
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m8g.metal-24xl-250
+        - base: m8g.metal-24xl
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m8g.metal-24xl-500
+        - base: r6g.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r6g.metal-100
+        - base: r6g.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r6g.metal-250
+        - base: r6g.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r6g.metal-500
+        - base: r6gd.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r6gd.metal-100
+        - base: r6gd.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r6gd.metal-250
+        - base: r6gd.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r6gd.metal-500
+        - base: r7g.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r7g.metal-100
+        - base: r7g.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r7g.metal-250
+        - base: r7g.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r7g.metal-500
+        - base: r7gd.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r7gd.metal-100
+        - base: r7gd.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r7gd.metal-250
+        - base: r7gd.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: r7gd.metal-500
       default-flavor: m7g.metal
       default-region: us-east-2
       default-root-disk-size: 100
-      flavor-regex: ^m7g\..+$
+      flavor-regex: ^(c6g|c6gd|c7g|c7gd|c7gn|m6g|m6gd|m7g|m7gd|r6g|r6gd|r7g|r7gd|c8g|c8gd|m8g)\.metal.*$
       image-filters:
         - owner: self
         - owner: '587138297281'
@@ -240,6 +600,35 @@ pools:
       master-key-name: testing-farm-worker
       patch-flavors:
         - cpu:
+            family: 8
+            family-name: Graviton2
+            flag:
+              - fp
+              - asimd
+              - evtstrm
+              - aes
+              - pmull
+              - sha1
+              - sha2
+              - crc32
+              - atomics
+              - fphp
+              - asimdhp
+              - cpuid
+              - asimdrdm
+              - lrcpc
+              - dcpop
+              - asimddp
+              - ssbs
+            model: 3340
+            model-name: Neoverse-N1
+          name-regex: (c6gd?|m6gd?|r6gd?)\..+
+          virtualization:
+            is-supported: true
+            is-virtualized: false
+        - cpu:
+            family: 8
+            family-name: Graviton3
             flag:
               - fp
               - asimd
@@ -279,9 +668,64 @@ pools:
               - bf16
               - dgh
               - rng
-            model: 1
-            model-name: AWS Graviton3
-          name-regex: m7g\..+
+            model: 3392
+            model-name: Neoverse-V1
+          name-regex: (c7gd?|c7gn|m7gd?|r7gd?)\..+
+          virtualization:
+            is-supported: true
+            is-virtualized: false
+        - cpu:
+            family: 8
+            family-name: Graviton4
+            flag:
+              - fp
+              - asimd
+              - evtstrm
+              - aes
+              - pmull
+              - sha1
+              - sha2
+              - crc32
+              - atomics
+              - fphp
+              - asimdhp
+              - cpuid
+              - asimdrdm
+              - jscvt
+              - fcma
+              - lrcpc
+              - dcpop
+              - sha3
+              - asimddp
+              - sha512
+              - sve
+              - asimdfhm
+              - dit
+              - uscat
+              - ilrcpc
+              - flagm
+              - ssbs
+              - sb
+              - paca
+              - pacg
+              - dcpodp
+              - sve2
+              - sveaes
+              - svepmull
+              - svebitperm
+              - svesha3
+              - flagm2
+              - frint
+              - svei8mm
+              - svebf16
+              - i8mm
+              - bf16
+              - dgh
+              - rng
+              - bti
+            model: 3407
+            model-name: Neoverse-V2
+          name-regex: (c8gd?|m8g)\..+
           virtualization:
             is-supported: true
             is-virtualized: false
@@ -464,6 +908,78 @@ pools:
       command: aws
       create-security-group-per-guest: true
       custom-flavors:
+        - base: c5.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c5.metal-100
+        - base: c5.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c5.metal-250
+        - base: c5.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c5.metal-500
+        - base: c5d.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c5d.metal-100
+        - base: c5d.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c5d.metal-250
+        - base: c5d.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c5d.metal-500
+        - base: c5n.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c5n.metal-100
+        - base: c5n.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c5n.metal-250
+        - base: c5n.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: c5n.metal-500
         - base: c7i.metal-24xl
           disk:
             - size: 100 GiB
@@ -488,10 +1004,106 @@ pools:
                 max-size: 512 GiB
                 min-size: 10 GiB
           name: c7i.metal-24xl-500
+        - base: m5.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m5.metal-100
+        - base: m5.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m5.metal-250
+        - base: m5.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m5.metal-500
+        - base: m5zn.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m5zn.metal-100
+        - base: m5zn.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m5zn.metal-250
+        - base: m5zn.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m5zn.metal-500
+        - base: m7i.metal-24xl
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m7i.metal-24xl-100
+        - base: m7i.metal-24xl
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m7i.metal-24xl-250
+        - base: m7i.metal-24xl
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: m7i.metal-24xl-500
+        - base: z1d.metal
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: z1d.metal-100
+        - base: z1d.metal
+          disk:
+            - size: 250 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: z1d.metal-250
+        - base: z1d.metal
+          disk:
+            - size: 500 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: z1d.metal-500
       default-flavor: c7i.metal-24xl
       default-region: us-east-2
       default-root-disk-size: 100
-      flavor-regex: ^c7i\..+$
+      flavor-regex: ^(c5|c5d|c5n|c7i|m5|m5zn|m7i|z1d)\.metal.*$
       image-filters:
         - owner: self
         - owner: '587138297281'
@@ -499,6 +1111,301 @@ pools:
         - owner: '463606842039'
       master-key-name: testing-farm-worker
       patch-flavors:
+        - cpu:
+            family: 6
+            family-name: Skylake
+            flag:
+              - fpu
+              - vme
+              - de
+              - pse
+              - tsc
+              - msr
+              - pae
+              - mce
+              - cx8
+              - apic
+              - sep
+              - mtrr
+              - pge
+              - mca
+              - cmov
+              - pat
+              - pse36
+              - clflush
+              - dts
+              - acpi
+              - mmx
+              - fxsr
+              - sse
+              - sse2
+              - ss
+              - ht
+              - tm
+              - pbe
+              - syscall
+              - nx
+              - pdpe1gb
+              - rdtscp
+              - lm
+              - constant_tsc
+              - art
+              - arch_perfmon
+              - pebs
+              - bts
+              - rep_good
+              - nopl
+              - xtopology
+              - nonstop_tsc
+              - cpuid
+              - aperfmperf
+              - pni
+              - pclmulqdq
+              - dtes64
+              - monitor
+              - ds_cpl
+              - vmx
+              - smx
+              - est
+              - tm2
+              - ssse3
+              - sdbg
+              - fma
+              - cx16
+              - xtpr
+              - pdcm
+              - pcid
+              - dca
+              - sse4_1
+              - sse4_2
+              - x2apic
+              - movbe
+              - popcnt
+              - tsc_deadline_timer
+              - aes
+              - xsave
+              - avx
+              - f16c
+              - rdrand
+              - lahf_lm
+              - abm
+              - 3dnowprefetch
+              - cpuid_fault
+              - epb
+              - cat_l3
+              - cdp_l3
+              - pti
+              - intel_ppin
+              - ssbd
+              - mba
+              - ibrs
+              - ibpb
+              - stibp
+              - tpr_shadow
+              - flexpriority
+              - ept
+              - vpid
+              - ept_ad
+              - fsgsbase
+              - tsc_adjust
+              - bmi1
+              - hle
+              - avx2
+              - smep
+              - bmi2
+              - erms
+              - invpcid
+              - rtm
+              - cqm
+              - mpx
+              - rdt_a
+              - avx512f
+              - avx512dq
+              - rdseed
+              - adx
+              - smap
+              - clflushopt
+              - clwb
+              - intel_pt
+              - avx512cd
+              - avx512bw
+              - avx512vl
+              - xsaveopt
+              - xsavec
+              - xgetbv1
+              - xsaves
+              - cqm_llc
+              - cqm_occup_llc
+              - cqm_mbm_total
+              - cqm_mbm_local
+              - dtherm
+              - ida
+              - arat
+              - pln
+              - pts
+              - hwp
+              - hwp_act_window
+              - hwp_epp
+              - hwp_pkg_req
+              - vnmi
+              - pku
+              - ospke
+              - md_clear
+              - flush_l1d
+              - arch_capabilities
+            model: 85
+            model-name: Intel(R) Xeon(R) Platinum 8124M CPU @ 3.00GHz
+          name-regex: (c5n|z1d)\..+
+          virtualization:
+            is-supported: true
+            is-virtualized: false
+        - cpu:
+            family: 6
+            family-name: Cascade Lake
+            flag:
+              - fpu
+              - vme
+              - de
+              - pse
+              - tsc
+              - msr
+              - pae
+              - mce
+              - cx8
+              - apic
+              - sep
+              - mtrr
+              - pge
+              - mca
+              - cmov
+              - pat
+              - pse36
+              - clflush
+              - dts
+              - acpi
+              - mmx
+              - fxsr
+              - sse
+              - sse2
+              - ss
+              - ht
+              - tm
+              - pbe
+              - syscall
+              - nx
+              - pdpe1gb
+              - rdtscp
+              - lm
+              - constant_tsc
+              - art
+              - arch_perfmon
+              - pebs
+              - bts
+              - rep_good
+              - nopl
+              - xtopology
+              - nonstop_tsc
+              - cpuid
+              - aperfmperf
+              - pni
+              - pclmulqdq
+              - dtes64
+              - monitor
+              - ds_cpl
+              - vmx
+              - smx
+              - est
+              - tm2
+              - ssse3
+              - sdbg
+              - fma
+              - cx16
+              - xtpr
+              - pdcm
+              - pcid
+              - dca
+              - sse4_1
+              - sse4_2
+              - x2apic
+              - movbe
+              - popcnt
+              - tsc_deadline_timer
+              - aes
+              - xsave
+              - avx
+              - f16c
+              - rdrand
+              - lahf_lm
+              - abm
+              - 3dnowprefetch
+              - cpuid_fault
+              - epb
+              - cat_l3
+              - cdp_l3
+              - intel_ppin
+              - ssbd
+              - mba
+              - ibrs
+              - ibpb
+              - stibp
+              - ibrs_enhanced
+              - tpr_shadow
+              - flexpriority
+              - ept
+              - vpid
+              - ept_ad
+              - fsgsbase
+              - tsc_adjust
+              - bmi1
+              - avx2
+              - smep
+              - bmi2
+              - erms
+              - invpcid
+              - cqm
+              - mpx
+              - rdt_a
+              - avx512f
+              - avx512dq
+              - rdseed
+              - adx
+              - smap
+              - clflushopt
+              - clwb
+              - intel_pt
+              - avx512cd
+              - avx512bw
+              - avx512vl
+              - xsaveopt
+              - xsavec
+              - xgetbv1
+              - xsaves
+              - cqm_llc
+              - cqm_occup_llc
+              - cqm_mbm_total
+              - cqm_mbm_local
+              - dtherm
+              - ida
+              - arat
+              - pln
+              - pts
+              - hwp
+              - hwp_act_window
+              - hwp_epp
+              - hwp_pkg_req
+              - vnmi
+              - pku
+              - ospke
+              - avx512_vnni
+              - md_clear
+              - flush_l1d
+              - arch_capabilities
+            model: 85
+            model-name: Intel(R) Xeon(R) Platinum 8275CL CPU @ 3.00GHz
+          name-regex: (c5d?|m5(zn)?)\..+
+          virtualization:
+            is-supported: true
+            is-virtualized: false
         - cpu:
             family: 6
             family-name: Sapphire Rapids
@@ -679,7 +1586,7 @@ pools:
               - arch_capabilities
             model: 143
             model-name: Intel(R) Xeon(R) Platinum 8488C
-          name-regex: c7i\..+
+          name-regex: (c7i|m7i)\..+
           virtualization:
             is-supported: true
             is-virtualized: false
