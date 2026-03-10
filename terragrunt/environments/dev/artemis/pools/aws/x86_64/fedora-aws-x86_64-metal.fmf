@@ -1,6 +1,5 @@
 # AWS x86_64 metal instances pool
 
-default-flavor: c7i.metal-24xl
 flavor-regex: ^(c5|c5d|c5n|c7i|m5|m5zn|m7i|z1d)\.metal.*$
 
 custom-flavors:
