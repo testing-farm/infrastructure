@@ -1,6 +1,5 @@
 # AWS aarch64 metal instances pool
 
-default-flavor: m7g.metal
 flavor-regex: ^(c6g|c6gd|c7g|c7gd|c7gn|m6g|m6gd|m7g|m7gd|r6g|r6gd|r7g|r7gd|c8g|c8gd|m8g)\.metal.*$
 
 custom-flavors:
