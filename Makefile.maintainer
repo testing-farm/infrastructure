@@ -287,12 +287,13 @@ staging/destroy: .FORCE terminate/artemis/guests/staging  ## Destroy | staging
 	TERRAGRUNT_EXCLUDE_DIR=$(STAGING_CI_EXCLUDE_DIR) \
 		$(call run_terragrunt,staging,destroy)
 
-staging/destroy/ci: .FORCE terminate/artemis/guests/staging/ci  ## Destroy | staging | artemis | CI
+staging/destroy/ci: .FORCE terminate/artemis/guests/staging/ci  ## Destroy | staging | CI
 	$(call check_staging_ci_env)
 	# NOTE: do not use run-all here, as it would also destroy the EKS cluster
 	$(call run_terragrunt_single,staging/ci/artemis,destroy)
 	$(call run_terragrunt_single,staging/ci/localhost,destroy)
 	$(call run_terragrunt_single,staging/ci/worker,destroy)
+	$(call run_terragrunt,staging/ci/server,destroy)
 
 staging/destroy/workers: .FORCE  ## Destroy | staging | all
 	$(call run_terragrunt,staging/worker-public,apply)
