@@ -1,3 +1,2 @@
 ---
 ansible_user: fedora
-profiles_dir: /etc/testing-farm/profiles
