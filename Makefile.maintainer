@@ -156,10 +156,17 @@ dev/destroy/force: .FORCE  ## Force destroy od dev environment, set USER env var
 	find terragrunt/environments/dev/ -iname terragrunt.hcl | grep -v \\.terragrunt-cache | sed 's/terragrunt.hcl//' | \
 		parallel -I{} env -C {} terragrunt destroy -auto-approve || true
 
-	# Remove security groups
-	aws --profile fedora_us_east_2 ec2 describe-security-groups | \
-		jq -r ".SecurityGroups[] | select(.GroupName | contains(\"dev-$$USER\")) | .GroupId" | \
-		parallel echo aws --profile fedora_us_east_2 ec2 delete-security-groups --security-groups-id
+	# Remove security groups (revoke cross-references first, then delete)
+	sg_ids=$$(aws --profile fedora_us_east_2 ec2 describe-security-groups | \
+		jq -r ".SecurityGroups[] | select(.GroupName | contains(\"dev-$$USER\")) | .GroupId"); \
+	for sg_id in $$sg_ids; do \
+		aws --profile fedora_us_east_2 ec2 revoke-security-group-ingress \
+			--group-id $$sg_id --ip-permissions "$$(aws --profile fedora_us_east_2 ec2 describe-security-groups \
+			--group-ids $$sg_id --query 'SecurityGroups[0].IpPermissions' --output json)" 2>/dev/null || true; \
+	done; \
+	for sg_id in $$sg_ids; do \
+		aws --profile fedora_us_east_2 ec2 delete-security-group --group-id $$sg_id || true; \
+	done
 
 	# Remove leftover DNS records
 	aws --profile fedora_us_east_2 \
@@ -172,6 +179,22 @@ dev/destroy/force: .FORCE  ## Force destroy od dev environment, set USER env var
 
 	# Remove terraform cloud workspaces
 	terraform-cloud list-workspaces | grep dev-$$USER | parallel -n1 terraform-cloud delete-workspace --confirm || true
+
+dev/destroy/force/all: .FORCE  ## Force destroy all dev environments for all users
+	@echo "$(ccgreen)Finding all dev server users...$(ccend)"
+	@users=$$(aws --profile fedora_us_east_2 ec2 describe-instances \
+		--filters "Name=tag:ServicePhase,Values=Dev" "Name=tag:ServiceComponent,Values=Server" "Name=instance-state-name,Values=running" \
+		--query 'Reservations[].Instances[].Tags[?Key==`Name`].Value[]' --output text | \
+		sed 's/testing_farm_dev_server_//g' | tr '\t' '\n' | sort -u); \
+	if [ -z "$$users" ]; then \
+		echo "No dev environments found."; \
+	else \
+		echo "Found dev environments for users: $$users"; \
+		for user in $$users; do \
+			echo "$(ccgreen)Destroying dev environment for user: $$user$(ccend)"; \
+			USER=$$user make dev/destroy/force || true; \
+		done; \
+	fi
 
 dev/destroy/workers: .FORCE  ## Destroy | dev | all
 	$(call run_terragrunt,dev/worker-public,apply)
