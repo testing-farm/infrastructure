@@ -41,6 +41,8 @@ spec:
         - name: ranch-public-api-volume
           mountPath: /etc/testing-farm/ranch-public/api
       env:
+        - name: ENV_FOR_DYNACONF
+          value: staging
         - name: TF_API_PORT
           value: "8001"
         - name: TF_API_DATABASE_HOST
@@ -62,6 +64,8 @@ spec:
           tft-add-token {{ users[user].name }} {{ users[user].token }} {{ users[user].ranch }} {{ users[user].role }};
 {% endfor %}
       env:
+        - name: ENV_FOR_DYNACONF
+          value: staging
         - name: TF_API_PORT
           value: "8001"
         - name: TF_API_DATABASE_HOST
@@ -118,6 +122,8 @@ spec:
     - name: dispatcher
       image: quay.io/testing-farm/dispatcher:{{ lookup('ansible.builtin.env', 'STAGING_CI_DISPATCHER_TAG', default="latest") }}
       env:
+        - name: ENV_FOR_DYNACONF
+          value: staging
         - name: TF_DISPATCHER_PUBLIC_URL
           value: "http://api-public:8001"
         - name: TF_DISPATCHER_INTERNAL_URL
@@ -133,6 +139,8 @@ spec:
     - name: ui
       image: quay.io/testing-farm/ui:{{ lookup('ansible.builtin.env', 'STAGING_CI_UI_TAG', default="latest") }}
       env:
+        - name: ENV_FOR_DYNACONF
+          value: staging
         - name: TF_UI_TESTING_FARM_PUBLIC_API
           value: "http://api.staging{{ staging_ci_suffix | default("") }}.testing-farm.io"
         - name: API_URL  # URL of Reflex Backend server
