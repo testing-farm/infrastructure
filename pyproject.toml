@@ -9,26 +9,26 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "~3.9"
-awscli = "1.25.21"
+python = "~3.12"
+awscli = "*"
 ansible = "*"
-ansible-core = "^2.15.10"
-ansible-lint = "^4.0.0"
-ansible-vault = "^1.2.0"
-jinja2 = "^3.0.0"
-cryptography = "^2.9.2"
-yq = "^2.10.0"
-boto3 = "1.24.21"
-"ruamel.yaml" = "^0.16.12"
+ansible-core = "*"
+ansible-lint = "*"
+ansible-vault = "*"
+jinja2 = "*"
+cryptography = "*"
+yq = "*"
+boto3 = "*"
+"ruamel.yaml" = "*"
 tft-cli = "*"
 markupsafe = "*"
-pytest-gluetool = {git = "https://gitlab.com/testing-farm/pytest-gluetool.git", rev = "main"}
+pytest-gluetool = {git = "https://gitlab.com/testing-farm/pytest-gluetool.git", rev = "upgrade-python-3.12"}
 # TODO: gluetool *should* be deduced as a dependecy automatically from pytest-gluetool, but that does not happen.
 # Locking without implicitily stating gluetool here doesn't actually propagate the module to the lockfile.
-gluetool = "^2.3"
-yamllint = "^1.29.0"
-gitpython = "^3.1.44"
-fmf = "^1.7.0"
+gluetool = "*"
+yamllint = "*"
+gitpython = "*"
+fmf = "*"
 typer = "*"
 
 [tool.poetry.scripts]
@@ -38,7 +38,7 @@ gitlab = "setup.gitlab:main"
 generate-artemis-pools = "setup.generate_pools:main"
 
 [tool.poetry.dev-dependencies]
-yamllint = "^1.28.0"
+yamllint = "*"
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
