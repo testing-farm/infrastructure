@@ -12,7 +12,7 @@ DEV_CLUSTER_NAME ?= $(or $(TF_VAR_cluster_name),testing-farm-dev-$$USER)
 
 # run pytest tests in parallel
 PYTEST_PARALLEL_RUNS ?= 16
-PYTEST_PARALLEL_OPTIONS ?= -d --tx $(PYTEST_PARALLEL_RUNS)*popen//python=python3.9
+PYTEST_PARALLEL_OPTIONS ?= -d --tx $(PYTEST_PARALLEL_RUNS)*popen//python=python3.12
 
 # default Terraform lock timeout
 DEFAULT_LOCK_TIMEOUT ?= 10m
