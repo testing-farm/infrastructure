@@ -6,8 +6,7 @@ include "root" {
 # Read parent configuration
 locals {
   common = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
-  # Generate a suffix for the deployment
-  name = "staging-${local.common.inputs.staging_ci_suffix}"
+  suffix = local.common.inputs.staging_ci_suffix
 }
 
 terraform {
@@ -28,7 +27,7 @@ inputs = {
   zone_name = local.common.inputs.route53_zone
   records_jsonencoded = jsonencode([
     {
-      name = local.name
+      name = "staging-${local.suffix}.staging-ci"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -36,7 +35,7 @@ inputs = {
       ]
     },
     {
-      name = "ui-backend.${local.name}"
+      name = "ui-backend-${local.suffix}.staging-ci"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -44,7 +43,7 @@ inputs = {
       ]
     },
     {
-      name = "api.${local.name}"
+      name = "api-${local.suffix}.staging-ci"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -52,7 +51,7 @@ inputs = {
       ]
     },
     {
-      name = "internal.api.${local.name}"
+      name = "internal-api-${local.suffix}.staging-ci"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -60,7 +59,7 @@ inputs = {
       ]
     },
     {
-      name = "artifacts.${local.name}"
+      name = "artifacts-${local.suffix}.staging-ci"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -68,7 +67,7 @@ inputs = {
       ]
     },
     {
-      name = "nomad.${local.name}"
+      name = "nomad-${local.suffix}.staging-ci"
       type = "CNAME"
       ttl  = 60
       records = [
@@ -76,7 +75,7 @@ inputs = {
       ]
     },
     {
-      name = "tmt.${local.name}"
+      name = "tmt-${local.suffix}.staging-ci"
       type = "CNAME"
       ttl  = 60
       records = [

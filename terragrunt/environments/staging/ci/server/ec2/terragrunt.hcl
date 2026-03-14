@@ -37,7 +37,7 @@ inputs = {
   associate_public_ip_address = local.server.inputs.associate_public_ip_address
   enable_volume_tags          = local.server.inputs.enable_volume_tags
 
-  user_data = local.user_data
+  user_data_base64 = local.user_data
 
   vpc_security_group_ids = [dependency.security-group.outputs.security_group_id]
 

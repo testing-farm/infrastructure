@@ -1,5 +1,16 @@
 server {
+    listen 80;
     server_name  ui-backend.staging{{ staging_ci_suffix | default("") }}.testing-farm.io;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name  ui-backend.staging{{ staging_ci_suffix | default("") }}.testing-farm.io;
+
+    ssl_certificate /etc/ssl/nginx/fullchain.pem;
+    ssl_certificate_key /etc/ssl/nginx/privkey.pem;
+
     add_header Access-Control-Allow-Origin *;
     location / {
         proxy_pass http://127.0.0.1:8000;
@@ -7,5 +18,4 @@ server {
         proxy_set_header Connection "Upgrade";
         proxy_set_header Host $host;
     }
-    listen       80;
 }

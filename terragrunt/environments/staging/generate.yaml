@@ -26,31 +26,37 @@
       ansible.builtin.template:
         src: "{{ server_pods_dir }}/nginx/staging.testing-farm.io.conf.j2"
         dest: "{{ server_pods_dir }}/nginx/staging.testing-farm.io.conf"
+      when: staging_ci_suffix is not defined
 
     - name: Render UI backend reverse proxy config
       ansible.builtin.template:
         src: "{{ server_pods_dir }}/nginx/ui-backend.staging.testing-farm.io.conf.j2"
         dest: "{{ server_pods_dir }}/nginx/ui-backend.staging.testing-farm.io.conf"
+      when: staging_ci_suffix is not defined
 
     - name: Render API reverse proxy config
       ansible.builtin.template:
         src: "{{ server_pods_dir }}/nginx/api.staging.testing-farm.io.conf.j2"
         dest: "{{ server_pods_dir }}/nginx/api.staging.testing-farm.io.conf"
+      when: staging_ci_suffix is not defined
 
     - name: Render Internal API reverse proxy config
       ansible.builtin.template:
-        src: "{{ server_pods_dir }}/nginx/internal.api.staging.testing-farm.io.conf.j2"
-        dest: "{{ server_pods_dir }}/nginx/internal.api.staging.testing-farm.io.conf"
+        src: "{{ server_pods_dir }}/nginx/internal-api.staging.testing-farm.io.conf.j2"
+        dest: "{{ server_pods_dir }}/nginx/internal-api.staging.testing-farm.io.conf"
+      when: staging_ci_suffix is not defined
 
     - name: Render Nomad reverse proxy config
       ansible.builtin.template:
         src: "{{ server_pods_dir }}/nginx/nomad.staging.testing-farm.io.conf.j2"
         dest: "{{ server_pods_dir }}/nginx/nomad.staging.testing-farm.io.conf"
+      when: staging_ci_suffix is not defined
 
     - name: Render artifacts config
       ansible.builtin.template:
         src: "{{ server_pods_dir }}/nginx/artifacts.staging.testing-farm.io.conf.j2"
         dest: "{{ server_pods_dir }}/nginx/artifacts.staging.testing-farm.io.conf"
+      when: staging_ci_suffix is not defined
 
     - name: Render server kube yaml
       ansible.builtin.template:
@@ -63,3 +69,35 @@
       ansible.builtin.template:
         src: "{{ server_pods_dir }}/nginx/tmt.staging.testing-farm.io.conf.j2"
         dest: "{{ server_pods_dir }}/nginx/tmt.staging.testing-farm.io.conf"
+      when: staging_ci_suffix is not defined
+
+    - name: Render nginx kube yaml
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx.yaml.j2"
+        dest: "{{ server_pods_dir }}/nginx.yaml"
+
+    - name: Set SSL certificate domain
+      ansible.builtin.set_fact:
+        ssl_cert_domain: "{{ 'staging-ci.testing-farm.io' if staging_ci_suffix is defined else 'staging.testing-farm.io' }}"
+
+    - name: Create directory for SSL certificates
+      ansible.builtin.file:
+        path: "{{ server_pods_dir }}/nginx/ssl"
+        state: directory
+        mode: "0755"
+
+    - name: Decrypt SSL certificate
+      ansible.builtin.command:
+        cmd: >-
+          ansible-vault decrypt
+          --vault-password-file {{ ansible_env.PROJECT_ROOT }}/.vault_pass
+          --output {{ server_pods_dir }}/nginx/ssl/cert.pem
+          {{ ansible_env.PROJECT_ROOT }}/ansible/secrets/certs/{{ ssl_cert_domain }}/cert.pem.vault
+
+    - name: Decrypt SSL private key
+      ansible.builtin.command:
+        cmd: >-
+          ansible-vault decrypt
+          --vault-password-file {{ ansible_env.PROJECT_ROOT }}/.vault_pass
+          --output {{ server_pods_dir }}/nginx/ssl/privkey.pem
+          {{ ansible_env.PROJECT_ROOT }}/ansible/secrets/certs/{{ ssl_cert_domain }}/privkey.pem.vault

@@ -50,7 +50,7 @@ inputs = {
       ]
     },
     {
-      name = "internal.api.staging"
+      name = "internal-api.staging"
       type = "CNAME"
       ttl  = 60
       records = [
