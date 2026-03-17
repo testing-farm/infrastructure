@@ -31,3 +31,12 @@
     - name: Override Python runtime for the Ansible target
       ansible.builtin.set_fact:
         ansible_python_interpreter: "{{ python_install_path }}/bin/python3"
+
+    #
+    # Using a custom Python distribution means losing access to C bindings of package managers. Use our own wrapper for
+    # YUM and DNF with Ansible's builtin package module.
+    #
+    - name: Override package manager module
+      when: "ansible_pkg_mgr in ['unknown', 'dnf']"
+      ansible.builtin.set_fact:
+        ansible_package_use: "testing_farm_profiles.library.dnf_yum_cli"  # noqa: var-naming
