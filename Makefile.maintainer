@@ -95,11 +95,20 @@ infra/init: .FORCE  ## Initialize | infra
 infra/plan: .FORCE  ## Plan deployment | infra
 	$(call run_terragrunt,infra,plan)
 
+infra/plan/eks: .FORCE  ## Plan deployment | infra | eks
+	$(call run_terragrunt,infra/eks,plan)
+
 infra/apply: .FORCE  ## Deploy | infra
 	$(call run_terragrunt,infra,apply)
 
+infra/apply/eks: .FORCE  ## Deploy | infra | eks
+	$(call run_terragrunt,infra/eks,apply)
+
 infra/destroy: .FORCE  ## Destroy | infra
 	$(call run_terragrunt,infra,destroy)
+
+infra/kubeconfig: .FORCE  ## Update kubeconfig for infra environment
+	aws eks --profile fedora_us_east_2 update-kubeconfig --name testing-farm-infra
 
 
 ##@ Infrastructure | Dev
