@@ -98,11 +98,17 @@ infra/plan: .FORCE  ## Plan deployment | infra
 infra/plan/eks: .FORCE  ## Plan deployment | infra | eks
 	$(call run_terragrunt,infra/eks,plan)
 
+infra/plan/gitlab-runner: .FORCE  ## Plan deployment | infra | gitlab-runner
+	$(call run_terragrunt,infra/gitlab-runner,plan)
+
 infra/apply: .FORCE  ## Deploy | infra
 	$(call run_terragrunt,infra,apply)
 
 infra/apply/eks: .FORCE  ## Deploy | infra | eks
 	$(call run_terragrunt,infra/eks,apply)
+
+infra/apply/gitlab-runner: .FORCE  ## Deploy | infra | gitlab-runner
+	$(call run_terragrunt,infra/gitlab-runner,apply)
 
 infra/destroy: .FORCE  ## Destroy | infra
 	$(call run_terragrunt,infra,destroy)
