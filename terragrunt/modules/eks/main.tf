@@ -6,14 +6,14 @@ terraform {
       version = ">=2.2.0"
     }
     aws = {
-      version = ">=4.0.0"
+      version = ">=4.0.0, <6.0.0"
     }
     helm = {
-      version = ">=2.9.0"
+      version = ">=2.9.0, <3.0.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">=2.18.1"
+      version = ">=2.18.1, <3.0.0"
     }
   }
 }
