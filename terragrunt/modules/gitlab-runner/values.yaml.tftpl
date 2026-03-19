@@ -1,0 +1,18 @@
+## Number of concurrent jobs
+concurrent: ${concurrent}
+
+## How often to check for new jobs (seconds)
+checkInterval: ${check_interval}
+
+## Runner configuration
+runners:
+  config: |
+    [[runners]]
+      [runners.kubernetes]
+        namespace = "{{.Release.Namespace}}"
+        image = "alpine:3"
+        privileged = false
+      [runners.kubernetes.pod_labels]
+        "app" = "gitlab-runner-job"
+      [runners.kubernetes.pod_annotations]
+        "cluster-autoscaler.kubernetes.io/safe-to-evict" = "false"
