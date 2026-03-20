@@ -45,7 +45,7 @@ inputs = {
   runner_description = "testing-farm-infra EKS runner"
   chart_version      = "0.71.0"
 
-  concurrent     = 20
+  concurrent     = 50
   check_interval = 3
   runner_tags    = ["testing-farm"]
   run_untagged   = true
