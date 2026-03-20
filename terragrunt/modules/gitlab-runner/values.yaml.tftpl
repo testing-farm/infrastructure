@@ -11,8 +11,12 @@ runners:
       [runners.kubernetes]
         namespace = "{{.Release.Namespace}}"
         image = "alpine:3"
-        privileged = false
+        privileged = true
       [runners.kubernetes.pod_labels]
         "app" = "gitlab-runner-job"
       [runners.kubernetes.pod_annotations]
         "cluster-autoscaler.kubernetes.io/safe-to-evict" = "false"
+      [[runners.kubernetes.volumes.host_path]]
+        name = "dev-fuse"
+        mount_path = "/dev/fuse"
+        host_path = "/dev/fuse"
