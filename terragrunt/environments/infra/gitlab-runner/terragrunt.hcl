@@ -48,5 +48,5 @@ inputs = {
   concurrent     = 20
   check_interval = 3
   runner_tags    = ["testing-farm"]
-  run_untagged   = false
+  run_untagged   = true
 }
