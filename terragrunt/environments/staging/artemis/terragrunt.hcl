@@ -30,6 +30,14 @@ dependency "worker" {
   }
 }
 
+dependency "infra_eks_nodes" {
+  config_path = "../infra-eks-nodes"
+
+  mock_outputs = {
+    workers_ip_ranges = []
+  }
+}
+
 dependency "eks" {
   config_path = "../eks"
 
@@ -60,6 +68,9 @@ inputs = {
 
   # Enable access from workers
   workers_ip_ranges = dependency.worker.outputs.workers_ip_ranges
+
+  # Enable access from infra EKS nodes (GitLab Runner CI jobs)
+  additional_lb_source_ips = dependency.infra_eks_nodes.outputs.workers_ip_ranges
 
   # Enable nested security groups to avoid AWS security group limits
   enable_multiple_security_groups = true
