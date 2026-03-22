@@ -65,11 +65,22 @@ echo "Image is $image_id, created on $ctime"
 
 echo
 
-# export image details into environmnet, so it gets to Sentry
+# export image details into environment, so it gets to Sentry
 export CITOOL_IMAGE
 export CITOOL_IMAGE_ID="$image_id"
 export CITOOL_IMAGE_CTIME="$ctime"
-export SENTRY_TAG_MAP="citool_image=${CITOOL_IMAGE},citool_image_id=${CITOOL_IMAGE_ID},hostname=$(hostname),ip=$(curl ipv4.icanhazip.com),request_id=${REQUEST_ID},artifacts_url=${ARTIFACTS_URL}/${REQUEST_ID}"
+WORKER_HOSTNAME="$(hostname)"
+WORKER_IP="$(curl -s ipv4.icanhazip.com)"
+
+# Construct a clickable Nomad job URL from Nomad runtime env vars.
+# NOMAD_ADDR and NOMAD_JOB_ID are set by the Nomad agent for raw_exec tasks.
+# The '/' in the dispatched job ID (e.g., tf-tmt/dispatch-xxx) must be URL-encoded.
+NOMAD_JOB_URL="${NOMAD_ADDR}/ui/jobs/${NOMAD_JOB_ID//\//%2F}"
+
+# SENTRY_TAG_MAP maps Sentry tag names to environment variable names.
+# The values are resolved inside the container by gluetool's Sentry integration.
+# Note: request_id and artifacts_url are set from code (testing-farm-request and coldstore modules).
+SENTRY_TAG_MAP="citool_image=CITOOL_IMAGE,citool_image_id=CITOOL_IMAGE_ID,citool_image_ctime=CITOOL_IMAGE_CTIME,hostname=WORKER_HOSTNAME,ip=WORKER_IP,nomad_node=NOMAD_NODE_NAME,nomad_job_url=NOMAD_JOB_URL"
 
 # --init is required to collect zombies processes
 # --rm is required to cleanup the container after it has been run
@@ -90,7 +101,14 @@ exec podman run --init \
                 -e SENTRY_BASE_URL={[ sentry_base_url ]} \
                 -e SENTRY_ENVIRONMENT={[ deployment ]} \
                 -e SENTRY_RELEASE={[ release ]} \
-                -e SENTRY_TAG_MAP=${SENTRY_TAG_MAP} \
+                -e SENTRY_TAG_MAP="${SENTRY_TAG_MAP}" \
+                -e CITOOL_IMAGE="${CITOOL_IMAGE}" \
+                -e CITOOL_IMAGE_ID="${CITOOL_IMAGE_ID}" \
+                -e CITOOL_IMAGE_CTIME="${CITOOL_IMAGE_CTIME}" \
+                -e WORKER_HOSTNAME="${WORKER_HOSTNAME}" \
+                -e WORKER_IP="${WORKER_IP}" \
+                -e NOMAD_NODE_NAME="${NOMAD_NODE_NAME}" \
+                -e NOMAD_JOB_URL="${NOMAD_JOB_URL}" \
                 ${CITOOL_EXTRA_PODMAN_ARGS} \
                 ${DOCKER_CONFIG_MOUNT} \
                 "$CITOOL_IMAGE" "${CITOOL_OPTIONS[@]}" "${CITOOL_PIPELINE[@]}"
