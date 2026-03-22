@@ -197,7 +197,7 @@ resource "helm_release" "external-dns" {
   name       = "external-dns"
   repository = "https://kubernetes-sigs.github.io/external-dns/"
   chart      = "external-dns"
-  version    = "1.11.0"
+  version    = "1.20.0"
 
   namespace = local.kube_addons_namespace
 
@@ -226,6 +226,10 @@ resource "helm_release" "external-dns" {
 env:
   - name: AWS_SHARED_CREDENTIALS_FILE
     value: /.aws/credentials
+  # Required since external-dns v0.15.1 migrated to aws-sdk-go-v2 which
+  # needs an explicit region. Route 53 is global so any region works.
+  - name: AWS_DEFAULT_REGION
+    value: us-east-1
 extraVolumes:
   - name: aws-credentials
     secret:
