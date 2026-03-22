@@ -20,11 +20,11 @@ inputs = {
 
   vpc_id                    = "vpc-0896aedab4753e76f"
   subnets                   = ["subnet-029d836119c84a77e", "subnet-0f1ff10d17ff540d7"]
-  node_group_instance_types = ["c6a.2xlarge"]
+  node_group_instance_types = ["r6a.2xlarge"]
   node_group_disk_size      = 500
   node_group_scaling = {
-    desired_size = 2
-    max_size     = 3
-    min_size     = 2
+    desired_size = 3
+    max_size     = 6
+    min_size     = 3
   }
 }
