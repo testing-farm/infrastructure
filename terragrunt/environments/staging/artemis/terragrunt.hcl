@@ -94,11 +94,11 @@ inputs = {
     key   = ""
   }]
 
-  api_replicas  = 1
+  api_replicas  = 2
   api_processes = 2
   api_threads   = 1
 
-  dispatcher_replicas = 1
+  dispatcher_replicas = 2
 
   worker_extra_env = [
     # Do not use separate thread for task, keep it in main dramatiq worker thread.
@@ -175,9 +175,13 @@ inputs = {
     }
   ]
 
-  worker_replicas  = 2
+  worker_replicas  = 4
   worker_processes = 2
   worker_threads   = 2
+
+  periodic_worker_replicas  = 2
+  periodic_worker_processes = 2
+  periodic_worker_threads   = 1
 
   resources = {
     artemis_api = {
@@ -237,6 +241,16 @@ inputs = {
       requests = {
         cpu    = "150m"
         memory = "512Mi"
+      }
+    }
+
+    artemis_periodic_worker = {
+      limits = {
+        memory = "2Gi"
+      }
+      requests = {
+        cpu    = "100m"
+        memory = "256Mi"
       }
     }
 

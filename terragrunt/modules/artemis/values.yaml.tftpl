@@ -63,6 +63,14 @@ artemis:
         processes: ${artemis_worker_processes}
         threads: ${artemis_worker_threads}
         resources: ${jsonencode(artemis_worker_resources)}
+      - name: periodic
+        replicaCount: ${artemis_periodic_worker_replicas}
+        processes: ${artemis_periodic_worker_processes}
+        threads: ${artemis_periodic_worker_threads}
+        queues:
+          - periodic
+          - pool-data-refresh
+        resources: ${jsonencode(artemis_periodic_worker_resources)}
 
   initContainers:
     resources: ${jsonencode(artemis_init_containers_resources)}

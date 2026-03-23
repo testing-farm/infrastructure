@@ -139,6 +139,24 @@ variable "worker_extra_env" {
   default     = []
 }
 
+variable "periodic_worker_replicas" {
+  description = "Number of periodic worker replicas"
+  type        = number
+  default     = 1
+}
+
+variable "periodic_worker_processes" {
+  description = "Number of periodic worker processes"
+  type        = number
+  default     = 2
+}
+
+variable "periodic_worker_threads" {
+  description = "Number of periodic worker threads"
+  type        = number
+  default     = 1
+}
+
 variable "resources" {
   description = "Configure resources for pods"
   type        = map(map(map(string)))
@@ -154,6 +172,7 @@ variable "resources" {
         "artemis_init_containers",
         "artemis_scheduler",
         "artemis_worker",
+        "artemis_periodic_worker",
         "rabbitmq",
         "postgresql",
         "postgresql_exporter",

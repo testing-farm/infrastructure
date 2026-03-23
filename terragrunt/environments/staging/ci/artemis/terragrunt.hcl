@@ -94,14 +94,21 @@ inputs = {
 
   ssh_keys = local.artemis.inputs.ssh_keys
 
+  api_replicas  = local.artemis.inputs.api_replicas
   api_processes = local.artemis.inputs.api_processes
   api_threads   = local.artemis.inputs.api_threads
+
+  dispatcher_replicas = local.artemis.inputs.dispatcher_replicas
 
   worker_extra_env = local.artemis.inputs.worker_extra_env
 
   worker_replicas  = local.artemis.inputs.worker_replicas
   worker_processes = local.artemis.inputs.worker_processes
   worker_threads   = local.artemis.inputs.worker_threads
+
+  periodic_worker_replicas  = local.artemis.inputs.periodic_worker_replicas
+  periodic_worker_processes = local.artemis.inputs.periodic_worker_processes
+  periodic_worker_threads   = local.artemis.inputs.periodic_worker_threads
 
   resources = local.artemis.inputs.resources
 }
