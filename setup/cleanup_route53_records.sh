@@ -39,7 +39,7 @@ process_record() {
     echo "$records" | jq -c ".ResourceRecordSets[] | select(.Name == \"$record_name\")" | while read -r record_details; do
         record_type=$(echo "$record_details" | jq -r ".Type")
 
-        if [ "$record_type" != "A" ] && [ "$record_type" != "CNAME" ] && [ "$record_type" != "TXT" ]; then
+        if [ "$record_type" != "A" ] && [ "$record_type" != "AAAA" ] && [ "$record_type" != "CNAME" ] && [ "$record_type" != "TXT" ]; then
             echo "    [!] Skipping $record_name (unsupported record type: $record_type)"
             continue
         fi
