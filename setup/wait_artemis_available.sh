@@ -30,7 +30,7 @@ fi
 echo "Waiting for Artemis API to be available via '$hostname'"
 
 for seconds in $(seq 1 $timeout); do
-    if curl --connect-timeout 1 -Lso /dev/null $hostname/v0.0.55/about; then
+    if curl --connect-timeout 1 -Lso /dev/null $hostname/current/about; then
         echo "Artemis api domain '$hostname' was resolvable in ~$seconds seconds"
         exit 0
     fi
