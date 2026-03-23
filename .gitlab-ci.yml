@@ -225,6 +225,7 @@ test/dev:
     SCRIPT: >-
       make dev/init &&
       make dev/apply &&
+      make wait/artemis/dev &&
       make dev/create/public/worker &&
       testing-farm-dev-public-developer request --git-url https://gitlab.com/testing-farm/tests --plan /testing-farm/sanity
     ERROR_SCRIPT: >-
