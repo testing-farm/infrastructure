@@ -252,6 +252,10 @@ resource "helm_release" "artemis" {
         artemis_worker_processes = var.worker_processes
         artemis_worker_threads   = var.worker_threads
 
+        artemis_periodic_worker_replicas  = var.periodic_worker_replicas
+        artemis_periodic_worker_processes = var.periodic_worker_processes
+        artemis_periodic_worker_threads   = var.periodic_worker_threads
+
         artemis_image_tag = var.image_tag
 
         artemis_api_resources             = try(var.resources.artemis_api, {})
@@ -260,6 +264,7 @@ resource "helm_release" "artemis" {
         artemis_init_containers_resources = try(var.resources.artemis_init_containers, {})
         artemis_scheduler_resources       = try(var.resources.artemis_scheduler, {})
         artemis_worker_resources          = try(var.resources.artemis_worker, {})
+        artemis_periodic_worker_resources = try(var.resources.artemis_periodic_worker, {})
         rabbitmq_resources                = try(var.resources.rabbitmq, {})
         postgresql_resources              = try(var.resources.postgresql, {})
         postgresql_exporter_resources     = try(var.resources.postgresql_exporter, {})
