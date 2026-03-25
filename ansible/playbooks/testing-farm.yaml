@@ -20,6 +20,8 @@
       tags: update_jobs
     - import_tasks: ../tasks/config.yaml
       tags: update_config
+    - import_tasks: ../tasks/secrets.yaml
+      tags: update_config
     - import_tasks: ../tasks/image.yaml
       tags: update_image
   roles:
