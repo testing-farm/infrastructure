@@ -235,7 +235,7 @@ test/dev:
       echo "==   Kubernetes Container Logs" &&
       echo "==============================================" &&
       echo &&
-      kubectl stern --no-follow -A . &&
+      kubectl stern --no-follow --tail 100 -A . &&
       echo &&
       echo "==============================================" &&
       echo "==   Kubernetes Event Logs" &&
@@ -269,7 +269,7 @@ test/staging/pipeline:
       echo "==   Kubernetes Container Logs" &&
       echo "==============================================" &&
       echo &&
-      kubectl stern --no-follow -n "$NAMESPACE" .
+      kubectl stern --no-follow --tail 100 -n "$NAMESPACE" .
       echo &&
       echo "==============================================" &&
       echo "==   Kubernetes Event Logs" &&
@@ -325,7 +325,7 @@ test/staging/compose:
       echo "==   Kubernetes Container Logs" &&
       echo "==============================================" &&
       echo &&
-      kubectl stern --no-follow -n "$NAMESPACE" .
+      kubectl stern --no-follow --tail 100 -n "$NAMESPACE" .
       echo &&
       echo "==============================================" &&
       echo "==   Kubernetes Event Logs" &&
