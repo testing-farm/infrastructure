@@ -157,6 +157,10 @@ direnv:
     - printf "nameserver 1.1.1.1\nnameserver 8.8.8.8\nnameserver 8.8.4.4\n" > /etc/resolv.conf
   script:
     - eval "$(direnv export bash)"
+  artifacts:
+    paths:
+      - .direnv/envrc.log
+    when: always
 
 # Workaround for after_script timing-out
 .script_with_cleanup:
@@ -179,6 +183,7 @@ direnv:
       - report.html
       - assets/style.css
       - .pytest/
+      - .direnv/envrc.log
     when: always
 
 ansible-vault:
