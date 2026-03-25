@@ -44,6 +44,11 @@ set_citool_image() {
     [ -n "$CITOOL_IMAGE" ] && export CITOOL_IMAGE
 }
 
+set_citool_config_image() {
+    CITOOL_CONFIG_IMAGE="$(echo "$REQUEST" | jq -r '.settings.worker."config-image" | select (.!=null)')"
+    [ -n "$CITOOL_CONFIG_IMAGE" ] && export CITOOL_CONFIG_IMAGE
+}
+
 # rpmlist on worker
 rpm -qa > rpmlist-worker.txt
 
@@ -56,6 +61,7 @@ sed -i 's/https:\/\/api\.testing-farm\.io/http:\/\/{{ api_hostname }}/' index.ht
 
 set_request_timeout
 set_citool_image
+set_citool_config_image
 
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \

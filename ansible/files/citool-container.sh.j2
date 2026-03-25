@@ -19,11 +19,44 @@ fi
 CITOOL_IMAGE="${CITOOL_IMAGE:-citool:latest}"
 CITOOL_CONFIG_DIR="${CITOOL_CONFIG_DIR:-/etc/citool.d}"
 CITOOL_RUN_DIR="${CITOOL_RUN_DIR:-$PWD}"
+CITOOL_OPTIONS=()
+CITOOL_PIPELINE=("$@")
 
 # Mount docker config for registry authentication if available
 DOCKER_CONFIG_MOUNT=""
 if [ -f /root/.docker/config.json ]; then
   DOCKER_CONFIG_MOUNT="-v /root/.docker/config.json:/root/.docker/config.json:ro,Z"
+fi
+
+# If a config image is specified, create a volume from the citool-config container
+# and mount it at /CONFIG instead of the host directory.
+CONFIG_MOUNT="-v ${CITOOL_CONFIG_DIR}:/CONFIG:O"
+if [ -n "$CITOOL_CONFIG_IMAGE" ]; then
+  CONFIG_VOLUME="citool-config-${REQUEST_ID:-$$}"
+  podman volume create "$CONFIG_VOLUME"
+  if ! podman run --rm --pull=newer -v "$CONFIG_VOLUME":/worker "$CITOOL_CONFIG_IMAGE"; then
+      echo "ERROR: Failed to pull/run config image: $CITOOL_CONFIG_IMAGE"
+      podman volume rm "$CONFIG_VOLUME" 2>/dev/null || true
+      exit 1
+  fi
+
+  CONFIG_MOUNT="-v ${CONFIG_VOLUME}:/CONFIG:O \
+                -v ${CITOOL_CONFIG_DIR}/environment.yaml:/CONFIG-ENVIRONMENT/environment.yaml:ro,z
+                {%- for s in citool_config_podman_secrets | default([]) %}
+                --secret {[ s.name ]},target={[ s.target ]}{%- if s.mode is defined %},mode={[ s.mode ]}{%- endif %}
+                {%- endfor %}"
+  CITOOL_OPTIONS=(--debug-file citool-debug.txt --verbose-file citool-debug.verbose.txt
+                  --module-config-path "/CONFIG/{[ deployment ]}/citool-config/config,/CONFIG/common/citool-config/config,/CONFIG-SECRETS/config")
+
+  # Inject --variables variables.yaml,environment.yaml after rules-engine as separate arguments to preserve proper quoting.
+  # TODO: variables.yaml should not be hardcoded here, but we need to include both yaml files at once
+  CITOOL_PIPELINE=()
+  for arg in "$@"; do
+    CITOOL_PIPELINE+=("$arg")
+    if [ "$arg" = "rules-engine" ]; then
+      CITOOL_PIPELINE+=(--variables "/CONFIG/common/citool-config/variables.yaml,/CONFIG-ENVIRONMENT/environment.yaml")
+    fi
+  done
 fi
 
 echo "Known images:"
@@ -54,7 +87,7 @@ exec podman run --init \
                 --privileged \
                 --network=host \
                 --name ${REQUEST_ID:-no-request-$RANDOM} \
-                -v ${CITOOL_CONFIG_DIR}:/CONFIG:O \
+                ${CONFIG_MOUNT} \
                 -v ${CITOOL_RUN_DIR}:/var/ARTIFACTS:Z \
                 -v /root/.ssh:/root/.ssh:Z \
                 -e SENTRY_DSN={[ sentry_dsn ]} \
@@ -64,4 +97,4 @@ exec podman run --init \
                 -e SENTRY_TAG_MAP=${SENTRY_TAG_MAP} \
                 ${CITOOL_EXTRA_PODMAN_ARGS} \
                 ${DOCKER_CONFIG_MOUNT} \
-                "$CITOOL_IMAGE" "$@"
+                "$CITOOL_IMAGE" "${CITOOL_OPTIONS[@]}" "${CITOOL_PIPELINE[@]}"

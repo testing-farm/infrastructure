@@ -102,6 +102,7 @@
     - import_tasks: ../tasks/podman.yaml
     - import_tasks: ../tasks/jobs.yaml
     - import_tasks: ../tasks/config.yaml
+    - import_tasks: ../tasks/secrets.yaml
     - import_tasks: ../tasks/image.yaml
   roles:
     - name: geerlingguy.swap
