@@ -2,6 +2,15 @@
 # https://terragrunt.gruntwork.io/docs/reference/config-blocks-and-attributes/#skip
 skip = true
 
+# Retry on transient network errors
+retry_max_attempts       = 3
+retry_sleep_interval_sec = 5
+retryable_errors = [
+  "(?s).*connection reset by peer.*",
+  "(?s).*TLS handshake timeout.*",
+  "(?s).*connection refused.*",
+]
+
 locals {
   # production EKS is hosted in this region
   aws_profile_us_east_1 = "fedora_us_east_1"
