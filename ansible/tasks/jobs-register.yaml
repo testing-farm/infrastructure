@@ -16,6 +16,10 @@
     - name: Register nomad jobs
       command: "nomad run nomad/{{ item }}.nomad"
       with_items: "{{ jobs }}"
+      register: result
+      until: result.rc == 0
+      retries: 10
+      delay: 10
 
   # noamd jobs need to be registered only once
   run_once: true
