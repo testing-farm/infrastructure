@@ -2,6 +2,15 @@
 # https://terragrunt.gruntwork.io/docs/reference/config-blocks-and-attributes/#skip
 skip = true
 
+# Retry on transient network errors
+retry_max_attempts       = 3
+retry_sleep_interval_sec = 5
+retryable_errors = [
+  "(?s).*connection reset by peer.*",
+  "(?s).*TLS handshake timeout.*",
+  "(?s).*connection refused.*",
+]
+
 # Create terraform cloud workspace
 terraform {
   before_hook "terraform_cloud_project" {
