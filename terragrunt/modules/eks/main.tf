@@ -97,6 +97,24 @@ module "eks" {
         }
       })
     }
+    # Convert self-managed components to managed addons for automatic
+    # version compatibility on EKS upgrades
+    coredns = {
+      most_recent = true
+    }
+    kube-proxy = {
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent = true
+    }
+    # Enable kubectl top and HPA support
+    eks-pod-identity-agent = {
+      most_recent = true
+    }
+    metrics-server = {
+      most_recent = true
+    }
   }
 
   # We do not have the permission to create KMS keys
