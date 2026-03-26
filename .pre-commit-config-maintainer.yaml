@@ -82,6 +82,16 @@ repos:
         pass_filenames: false
         files: (pools/.*\.fmf|server-header\.yaml\.tftpl)$
 
+  # Validate ansible-vault encrypted JSON secrets
+  - repo: local
+    hooks:
+      - id: check-json-secrets
+        name: check-json-secrets
+        entry: setup/check_json_secrets.sh
+        language: script
+        pass_filenames: false
+        files: ^ansible/secrets/.*\.json$
+
   # Generate Public Ranch compose tests
   - repo: local
     hooks:
