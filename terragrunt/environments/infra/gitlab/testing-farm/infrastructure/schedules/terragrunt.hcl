@@ -34,6 +34,14 @@ inputs = {
       variables = {
         "SCHEDULED_JOB" : "compose/update/public"
       }
+    },
+    {
+      description   = "Cleanup dev environments"
+      git_ref       = "main"
+      cron_schedule = "0 6 * * sat"
+      variables = {
+        "SCHEDULED_JOB" : "cleanup/dev"
+      }
     }
   ]
 }
