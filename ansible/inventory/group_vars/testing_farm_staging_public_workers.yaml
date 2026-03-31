@@ -91,5 +91,24 @@ worker_resource_tags:
 
 worker_group_name: testing_farm_public_staging_workers
 
+# podman secrets for citool-config container workflow
+citool_config_podman_secrets:
+  - name: testing-farm-request
+    content: |
+      [default]
+      api-key = {{ credentials.testing_farm.staging.public.users.worker.token }}
+    target: /CONFIG-SECRETS/config/testing-farm-request
+
+  - name: artemis
+    content: |
+      [default]
+      ssh-key = ${config_root}/id_rsa_artemis
+    target: /CONFIG-SECRETS/config/artemis
+
+  - name: id_rsa_artemis
+    file: /etc/citool.d/id_rsa_artemis
+    target: /CONFIG-SECRETS/id_rsa_artemis
+    mode: "600"
+
 sentry_base_url: "{{ credentials.sentry.public.base_url }}"
 sentry_dsn: "{{ credentials.sentry.public.dsn }}"
