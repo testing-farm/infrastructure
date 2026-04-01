@@ -12,6 +12,10 @@ cache_connection: .direnv/aws-cache
 
 profile: redhat_us_east_1_ansible_inventory
 
+# IMPORTANT: MUST be explicitely set or the inventory plugin queries all regions!
+regions:
+  - us-east-1
+
 filters:
   tag:Name:
     - "testing_farm_worker_*"
