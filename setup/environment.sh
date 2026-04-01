@@ -138,10 +138,13 @@ if [ ! -e "$SSH_CONFIG" ]; then
     #
     # create ssh config
     #
-    PUBLIC_WORKERS=$(ansible-inventory --list | jq -r '.testing_farm_public_workers.hosts | join(" ")')
-    PUBLIC_SERVERS=$(ansible-inventory --list | jq -r '.testing_farm_public_servers.hosts | join(" ")')
-    REDHAT_WORKERS=$(ansible-inventory --list | jq -r '.testing_farm_redhat_workers.hosts | join(" ")')
-    REDHAT_SERVERS=$(ansible-inventory --list | jq -r '.testing_farm_redhat_servers.hosts | join(" ")')
+    # Fetch inventory once and extract all host vars in a single pass
+    INVENTORY_JSON=$(ansible-inventory --list)
+
+    PUBLIC_WORKERS=$(jq -r '.testing_farm_public_workers.hosts // [] | join(" ")' <<< "$INVENTORY_JSON")
+    PUBLIC_SERVERS=$(jq -r '.testing_farm_public_servers.hosts // [] | join(" ")' <<< "$INVENTORY_JSON")
+    REDHAT_WORKERS=$(jq -r '.testing_farm_redhat_workers.hosts // [] | join(" ")' <<< "$INVENTORY_JSON")
+    REDHAT_SERVERS=$(jq -r '.testing_farm_redhat_servers.hosts // [] | join(" ")' <<< "$INVENTORY_JSON")
 
     # decrypt all ssh keys
     for key in $(find ansible/secrets/ssh/* -maxdepth 1 ! -name '*.pub' ! -name '*.decrypted'); do
@@ -149,10 +152,9 @@ if [ ! -e "$SSH_CONFIG" ]; then
     done
 
     for host in $PUBLIC_WORKERS $PUBLIC_SERVERS $REDHAT_WORKERS $REDHAT_SERVERS; do
-        host_vars=$(ansible-inventory --host $host)
-        ansible_host=$(jq -r '.ansible_host' <<< "$host_vars")
-        ansible_user=$(jq -r '.ansible_user' <<< "$host_vars")
-        ssh_private_key=$(jq -r '.ssh_private_key' <<< "$host_vars" | sed "s|{{ ansible_dir }}|$PROJECT_ROOT/ansible|")
+        ansible_host=$(jq -r "._meta.hostvars[\"$host\"].ansible_host" <<< "$INVENTORY_JSON")
+        ansible_user=$(jq -r "._meta.hostvars[\"$host\"].ansible_user" <<< "$INVENTORY_JSON")
+        ssh_private_key=$(jq -r "._meta.hostvars[\"$host\"].ssh_private_key" <<< "$INVENTORY_JSON" | sed "s|{{ ansible_dir }}|$PROJECT_ROOT/ansible|")
 
         cat >> $DIRENV_PATH/ssh_config <<EOF
 Host $host

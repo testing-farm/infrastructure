@@ -1,8 +1,10 @@
 ---
 collections:
-  - amazon.aws
+  - name: amazon.aws
+    version: 9.5.0
   - ansible.posix
-  - community.general
+  - name: community.general
+    version: 10.7.8
 roles:
   - src: geerlingguy.swap
   - src: geerlingguy.node_exporter

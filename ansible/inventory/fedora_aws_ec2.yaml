@@ -12,6 +12,10 @@ cache_connection: .direnv/aws-cache
 
 profile: fedora_us_east_2
 
+# IMPORTANT: MUST be explicitely set or the inventory plugin queries all regions!
+regions:
+  - us-east-2
+
 include_filters:
   - tag:ServiceOwner:
       - "TFT"
