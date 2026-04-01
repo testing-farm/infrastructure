@@ -430,6 +430,7 @@ redeploy/staging:
       make staging/init &&
       make staging/destroy &&
       make staging/apply &&
+      make wait/artemis/staging &&
       make staging/create/public/worker
   rules:
     - !reference [.rules, only_default_branch]
