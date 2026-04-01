@@ -48,8 +48,8 @@ dependency "security-group" {
 }
 
 inputs = {
-  # fedora-coreos-39.20240407.2.0-x86_64
-  ami = "ami-0c16645ea75d9e9b8"
+  # fedora-coreos-44.20260331.1.1-x86_64
+  ami = "ami-005923ee305c50f2f"
 
   instance_type               = "m7a.medium"
   key_name                    = "testing-farm"
