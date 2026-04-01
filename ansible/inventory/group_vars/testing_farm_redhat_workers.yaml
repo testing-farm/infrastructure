@@ -18,12 +18,7 @@ nomad_enabled_schedulers: batch
 nomad_node_role: client
 nomad_group_name: testing-farm-dev-nomad-clients
 nomad_data_dir: /data/nomad
-nomad_servers: >
-  [
-    {% for host in groups["testing_farm_redhat_servers"] %}
-      "{{ hostvars[host].ansible_host }}"{{ "," if not loop.last else "" }}
-    {% endfor %}
-  ]
+nomad_servers: "{{ groups['testing_farm_redhat_servers'] | map('extract', hostvars, 'ansible_host') | list }}"
 
 # ssh key for worker deployment
 ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_worker"
