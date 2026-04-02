@@ -30,6 +30,61 @@ dependency "eks" {
   }
 }
 
+# Generate provider configurations — EKS-specific auth belongs here, not in the
+# generic gitlab-runner module.
+generate "providers" {
+  path      = "providers.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
+variable "gitlab_token" {
+  type      = string
+  sensitive = true
+}
+
+variable "cluster_endpoint" {
+  type = string
+}
+
+variable "cluster_certificate_authority_data" {
+  type = string
+}
+
+variable "cluster_name" {
+  type = string
+}
+
+variable "aws_profile" {
+  type = string
+}
+
+provider "gitlab" {
+  token = var.gitlab_token
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = var.cluster_endpoint
+    cluster_ca_certificate = base64decode(var.cluster_certificate_authority_data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args        = ["--profile", var.aws_profile, "eks", "get-token", "--cluster-name", var.cluster_name]
+      command     = "aws"
+    }
+  }
+}
+
+provider "kubernetes" {
+  host                   = var.cluster_endpoint
+  cluster_ca_certificate = base64decode(var.cluster_certificate_authority_data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args        = ["--profile", var.aws_profile, "eks", "get-token", "--cluster-name", var.cluster_name]
+    command     = "aws"
+  }
+}
+EOF
+}
+
 inputs = {
   cluster_name                       = dependency.eks.outputs.cluster.cluster_name
   cluster_endpoint                   = dependency.eks.outputs.cluster.cluster_endpoint
