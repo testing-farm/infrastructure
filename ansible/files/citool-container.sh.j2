@@ -40,23 +40,19 @@ if [ -n "$CITOOL_CONFIG_IMAGE" ]; then
       exit 1
   fi
 
-  CONFIG_MOUNT="-v ${CONFIG_VOLUME}:/CONFIG:O \
-                -v ${CITOOL_CONFIG_DIR}/environment.yaml:/CONFIG-ENVIRONMENT/environment.yaml:ro,z
+  # Copy environment.yaml into the volume if it exists on the host, replacing the placeholder from the config image.
+  if [ -f "${CITOOL_CONFIG_DIR}/environment.yaml" ]; then
+    mount_path=$(podman volume mount "$CONFIG_VOLUME") || { echo "ERROR: Failed to mount volume $CONFIG_VOLUME"; exit 1; }
+    cp "${CITOOL_CONFIG_DIR}/environment.yaml" "${mount_path}/{[ deployment ]}/citool-config/environment.yaml"
+    podman volume unmount "$CONFIG_VOLUME"
+  fi
+
+  CONFIG_MOUNT="-v ${CONFIG_VOLUME}:/CONFIG:O
                 {%- for s in citool_config_podman_secrets | default([]) %}
                 --secret {[ s.name ]},target={[ s.target ]}{%- if s.mode is defined %},mode={[ s.mode ]}{%- endif %}
                 {%- endfor %}"
   CITOOL_OPTIONS=(--debug-file citool-debug.txt --verbose-file citool-debug.verbose.txt
                   --module-config-path "/CONFIG/{[ deployment ]}/citool-config/config,/CONFIG/common/citool-config/config,/CONFIG-SECRETS/config")
-
-  # Inject --variables variables.yaml,environment.yaml after rules-engine as separate arguments to preserve proper quoting.
-  # TODO: variables.yaml should not be hardcoded here, but we need to include both yaml files at once
-  CITOOL_PIPELINE=()
-  for arg in "$@"; do
-    CITOOL_PIPELINE+=("$arg")
-    if [ "$arg" = "rules-engine" ]; then
-      CITOOL_PIPELINE+=(--variables "/CONFIG/common/citool-config/variables.yaml,/CONFIG-ENVIRONMENT/environment.yaml")
-    fi
-  done
 fi
 
 echo "Known images:"
