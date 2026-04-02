@@ -4,6 +4,10 @@ concurrent: ${concurrent}
 ## How often to check for new jobs (seconds)
 checkInterval: ${check_interval}
 
+## Prometheus metrics exporter
+metrics:
+  enabled: true
+
 ## Runner configuration
 runners:
   config: |
@@ -12,6 +16,10 @@ runners:
         namespace = "{{.Release.Namespace}}"
         image = "alpine:3"
         privileged = false
+        cpu_request = "100m"
+        cpu_limit = "1"
+        memory_request = "128Mi"
+        memory_limit = "512Mi"
       [runners.kubernetes.pod_labels]
         "app" = "gitlab-runner-job"
       [runners.kubernetes.pod_annotations]

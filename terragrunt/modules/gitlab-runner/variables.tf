@@ -1,29 +1,3 @@
-variable "cluster_name" {
-  description = "EKS cluster name."
-  type        = string
-}
-
-variable "cluster_endpoint" {
-  description = "EKS cluster API endpoint."
-  type        = string
-}
-
-variable "cluster_certificate_authority_data" {
-  description = "Base64 encoded certificate authority data for the EKS cluster."
-  type        = string
-}
-
-variable "aws_profile" {
-  description = "Name of AWS profile for EKS authentication."
-  type        = string
-}
-
-variable "gitlab_token" {
-  description = "GitLab access token with create_runner scope."
-  type        = string
-  sensitive   = true
-}
-
 variable "gitlab_url" {
   description = "URL of the GitLab instance."
   type        = string
