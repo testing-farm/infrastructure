@@ -8,7 +8,7 @@ locals {
   common = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
   # get_working_dir is empty during plan, make sure we read the generated ignition file only during apply
   butane_file = "${get_terragrunt_dir()}/server.ign"
-  user_data   = fileexists(local.butane_file) ? base64encode(file(local.butane_file)) : base64encode("error: butane file not generated")
+  user_data   = fileexists(local.butane_file) ? file(local.butane_file) : "error: butane file not generated"
 }
 
 terraform {
@@ -27,8 +27,8 @@ dependency "security-group" {
 }
 
 inputs = {
-  # fedora-coreos-39.20240407.2.0-x86_64
-  ami = "ami-0c16645ea75d9e9b8"
+  # fedora-coreos-44.20260331.1.1-x86_64
+  ami = "ami-005923ee305c50f2f"
 
   instance_type               = "m7a.medium"
   key_name                    = "testing-farm"

@@ -150,6 +150,7 @@ direnv:
   before_script:
     - dnf -y install direnv libffi libffi-devel podman rsync awk
     - echo -n "$VAULT_PASSWORD" > .vault_pass
+    - poetry env use python3.12
     - direnv allow
     - eval "$(direnv export bash)"
     # WORKAROUND: gitlab runner is hosted on the same network as staging/production

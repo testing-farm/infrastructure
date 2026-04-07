@@ -139,7 +139,10 @@ if [ ! -e "$SSH_CONFIG" ]; then
     # create ssh config
     #
     # Fetch inventory once and extract all host vars in a single pass
-    INVENTORY_JSON=$(ansible-inventory --list)
+    # Workaround for ansible-core bug where `ansible-inventory --list` wraps
+    # values in `{"__ansible_unsafe": "..."}` objects in JSON output.
+    # https://github.com/ansible/ansible/issues/82999
+    INVENTORY_JSON=$(ansible-inventory --list | jq 'walk(if type == "object" and has("__ansible_unsafe") then .__ansible_unsafe else . end)')
 
     PUBLIC_WORKERS=$(jq -r '.testing_farm_public_workers.hosts // [] | join(" ")' <<< "$INVENTORY_JSON")
     PUBLIC_SERVERS=$(jq -r '.testing_farm_public_servers.hosts // [] | join(" ")' <<< "$INVENTORY_JSON")
