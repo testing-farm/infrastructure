@@ -106,8 +106,8 @@ infra/destroy: .FORCE  ## Destroy | infra
 
 dev/generate: .FORCE  ## Generate deployment files | dev
 	ansible-playbook terragrunt/environments/dev/generate.yaml
-	env -C terragrunt/environments/dev/server/ec2 butane -psd $(PROJECT_ROOT) -o server.ign.json server.bu
-	jq -c < $$PROJECT_ROOT/terragrunt/environments/dev/server/ec2/server.ign.json > $$PROJECT_ROOT/terragrunt/environments/dev/server/ec2/server.ign
+	env -C terragrunt/environments/dev/server-public/ec2 butane -psd $(PROJECT_ROOT) -o server.ign.json server.bu
+	jq -c < $$PROJECT_ROOT/terragrunt/environments/dev/server-public/ec2/server.ign.json > $$PROJECT_ROOT/terragrunt/environments/dev/server-public/ec2/server.ign
 
 dev/init: .FORCE  ## Initialize | dev | all
 	$(call run_terragrunt,dev,init)
@@ -121,12 +121,12 @@ dev/plan/eks: .FORCE  ## Plan deployment | dev | eks
 dev/plan/artemis: .FORCE  ## Plan deployment | dev | artemis
 	$(call run_terragrunt,dev/artemis,plan)
 
-dev/plan/server: dev/generate .FORCE  ## Plan deployment | dev | server
-	$(call run_terragrunt,dev/server,plan)
+dev/plan/server-public: dev/generate .FORCE  ## Plan deployment | dev | server-public
+	$(call run_terragrunt,dev/server-public,plan)
 
 dev/apply: dev/generate .FORCE  ## Deploy | dev | all
 	# workaround for terragrunt bug having issues with dependencies
-	$(call run_terragrunt,dev/server/security-group,apply)
+	$(call run_terragrunt,dev/server-public/security-group,apply)
 	$(call run_terragrunt,dev,apply)
 
 dev/apply/eks: .FORCE  ## Deploy | dev | eks
@@ -135,8 +135,8 @@ dev/apply/eks: .FORCE  ## Deploy | dev | eks
 dev/apply/artemis: .FORCE  ## Deploy | dev | artemis
 	$(call run_terragrunt,dev/artemis,apply)
 
-dev/apply/server: dev/generate .FORCE  ## Deploy | dev | server
-	$(call run_terragrunt,dev/server,apply)
+dev/apply/server-public: dev/generate .FORCE  ## Deploy | dev | server-public
+	$(call run_terragrunt,dev/server-public,apply)
 
 dev/destroy: .FORCE terminate/artemis/guests/dev dev/destroy/workers  ## Destroy | dev | all
 	$(call run_terragrunt,dev,destroy)
@@ -210,9 +210,9 @@ dev/destroy/workers: .FORCE  ## Destroy | dev | all
 dev/kubeconfig: .FORCE  ## Update kubeconfig for development environemnt
 	aws eks --profile fedora_us_east_2 update-kubeconfig --name $(DEV_CLUSTER_NAME)
 
-dev/server/connect: .FORCE  ## Connect to dev server
+dev/server-public/connect: .FORCE  ## Connect to dev server
 	ssh -o IdentitiesOnly=yes -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted \
-		core@$$(env -C terragrunt/environments/dev/server/ec2 terragrunt output -json | jq -r .public_ip.value)
+		core@$$(env -C terragrunt/environments/dev/server-public/ec2 terragrunt output -json | jq -r .public_ip.value)
 
 .dev/create/public/worker%:
 	ansible-playbook -e deployment=dev ${SKIP_NOMAD_START} -v ansible/playbooks/create-public-worker.yaml
@@ -247,10 +247,10 @@ endef
 
 staging/generate: .FORCE  ## Generate deployment files | staging
 	ansible-playbook terragrunt/environments/staging/generate.yaml
-	env -C $$PROJECT_ROOT/terragrunt/environments/staging/server/ec2 butane -psd $(PROJECT_ROOT) -o server.ign.json server.bu
+	env -C $$PROJECT_ROOT/terragrunt/environments/staging/server-public/ec2 butane -psd $(PROJECT_ROOT) -o server.ign.json server.bu
 	# Compact the json, because AWS user data is limited to 16k characters
-	jq -c < $$PROJECT_ROOT/terragrunt/environments/staging/server/ec2/server.ign.json > $$PROJECT_ROOT/terragrunt/environments/staging/server/ec2/server.ign
-	rm -f $$PROJECT_ROOT/terragrunt/environments/staging/server/ec2/server.ign.json
+	jq -c < $$PROJECT_ROOT/terragrunt/environments/staging/server-public/ec2/server.ign.json > $$PROJECT_ROOT/terragrunt/environments/staging/server-public/ec2/server.ign
+	rm -f $$PROJECT_ROOT/terragrunt/environments/staging/server-public/ec2/server.ign.json
 
 staging/generate/ci: .FORCE  ## Generate deployment files | staging
 	$(call check_staging_ci_env)
@@ -281,8 +281,8 @@ staging/plan/eks: .FORCE  ## Plan deployment | staging | eks
 staging/plan/artemis: .FORCE  ## Plan deployment | staging | artemis
 	$(call run_terragrunt,staging/artemis,plan)
 
-staging/plan/server: staging/generate .FORCE  ## Plan deployment | staging | server
-	$(call run_terragrunt,staging/server,plan)
+staging/plan/server-public: staging/generate .FORCE  ## Plan deployment | staging | server-public
+	$(call run_terragrunt,staging/server-public,plan)
 
 staging/plan/ci: staging/generate/ci .FORCE  ## Plan deployment | staging | artemis | CI
 	$(call check_staging_ci_env)
@@ -302,8 +302,8 @@ staging/apply/ci: staging/generate/ci .FORCE  ## Deploy | staging | artemis | CI
 	$(call check_staging_ci_env)
 	$(call run_terragrunt,staging/ci,apply)
 
-staging/apply/server: staging/generate .FORCE  ## Deploy | staging | server
-	$(call run_terragrunt,staging/server,apply)
+staging/apply/server-public: staging/generate .FORCE  ## Deploy | staging | server-public
+	$(call run_terragrunt,staging/server-public,apply)
 
 staging/destroy: .FORCE terminate/artemis/guests/staging  ## Destroy | staging
 	make staging/destroy/workers || true
@@ -332,11 +332,11 @@ staging/destroy/workers: .FORCE  ## Destroy | staging | all
 staging/kubeconfig: .FORCE  ## Update kubeconfig for staging environment
 	aws eks --profile fedora_us_east_1 update-kubeconfig --name testing-farm-staging
 
-staging/server/connect: .FORCE  ## Connect to staging server
+staging/server-public/connect: .FORCE  ## Connect to staging server
 	ssh -o IdentitiesOnly=yes -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted \
-		core@$$(env -C terragrunt/environments/staging/server/ec2 terragrunt output -json | jq -r .public_ip.value)
+		core@$$(env -C terragrunt/environments/staging/server-public/ec2 terragrunt output -json | jq -r .public_ip.value)
 
-staging/server/connect/ci: .FORCE  ## Connect to staging server
+staging/server-public/connect/ci: .FORCE  ## Connect to staging server
 	$(call check_staging_ci_env)
 	ssh -o IdentitiesOnly=yes -i $$PROJECT_ROOT/ansible/secrets/ssh/id_rsa_public_server.decrypted \
 		core@$$(env -C terragrunt/environments/staging/ci/server/ec2 terragrunt output -json | jq -r .public_ip.value)

@@ -6,7 +6,7 @@ include "root" {
 # Read parent configuration
 locals {
   common = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
-  sg     = read_terragrunt_config("../../../server/security-group/terragrunt.hcl")
+  sg     = read_terragrunt_config("../../../server-public/security-group/terragrunt.hcl")
 }
 
 terraform {

@@ -68,7 +68,7 @@ repos:
         exclude: |
           (?x)^(
             # well, tfsec does know nothing about terragrunt inputs :(
-            terragrunt/environments/.*/server/ec2/.*
+            terragrunt/environments/.*/server(-public)?/ec2/.*
           )$
       - id: terragrunt_fmt
 

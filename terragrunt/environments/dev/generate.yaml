@@ -2,8 +2,8 @@
 - name: Generate deployment files
   hosts: localhost
   vars:
-    server_ec2_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/ec2"
-    server_pods_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server/pods"
+    server_ec2_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server-public/ec2"
+    server_pods_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/dev/server-public/pods"
   vars_files:
     - "{{ ansible_env.PROJECT_ROOT }}/ansible/secrets/credentials.yaml"
   tasks:

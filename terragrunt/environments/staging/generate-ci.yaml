@@ -3,6 +3,7 @@
   ansible.builtin.import_playbook: generate.yaml
   vars:
     staging_environment: "staging/ci"
+    server_dir_name: "server"
     server_ec2_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/staging/ci/server/ec2"
     server_pods_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/staging/ci/server/pods"
     # this is the suffix added to the subdomains

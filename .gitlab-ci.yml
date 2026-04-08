@@ -104,7 +104,7 @@ workflow:
         # NOTE: we do not want this run on config changes, validation is done against staging
         - terragrunt/environments/dev/*/terragrunt.hcl
         - terragrunt/environments/dev/artemis/**/*
-        - terragrunt/environments/dev/server/**/*
+        - terragrunt/environments/dev/server-public/**/*
         - terragrunt/environments/dev/worker-public/jobs/**/*
 
   terragrunt_staging:
