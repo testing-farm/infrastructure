@@ -3,8 +3,9 @@
   hosts: localhost
   vars:
     staging_environment: "staging"
-    server_ec2_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/staging/server/ec2"
-    server_pods_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/staging/server/pods"
+    server_dir_name: "server-public"
+    server_ec2_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/staging/server-public/ec2"
+    server_pods_dir: "{{ ansible_env.PROJECT_ROOT }}/terragrunt/environments/staging/server-public/pods"
   vars_files:
     - "{{ ansible_env.PROJECT_ROOT }}/ansible/secrets/credentials.yaml"
   tasks:

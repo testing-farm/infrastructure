@@ -163,6 +163,38 @@ def cmd_list_workspaces(json: bool = False) -> None:
         print("\n".join(workspace["attributes"]["name"] for workspace in workspaces))
 
 
+@app.command("rename-workspace")
+def cmd_rename_workspace(old_name: str, new_name: str) -> None:
+    """
+    Rename workspace from OLD_NAME to NEW_NAME.
+    """
+
+    response = request(
+        f"workspaces/{old_name}",
+        method="patch",
+        error_response=True,
+        json={
+            "data": {
+                "type": "workspaces",
+                "attributes": {
+                    "name": new_name,
+                },
+            },
+        },
+    )
+
+    if response.status_code == 404:
+        error(f"Workspace '{old_name}' not found!")
+
+    if response.status_code == 422:
+        error(f"Workspace '{new_name}' already exists!")
+
+    if not response:
+        error(f"Failed to rename workspace '{old_name}' to '{new_name}' ({response.status_code}), ", response.json())
+
+    print(f"Workspace '{old_name}' renamed to '{new_name}'.")
+
+
 @app.command("delete-workspace")
 def cmd_delete_workspace(name: str, confirm: bool = False, production_confirm: bool = False) -> None:
     """
