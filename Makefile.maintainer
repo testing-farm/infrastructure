@@ -653,3 +653,5 @@ cleanup/ci: .FORCE staging/kubeconfig  ## Cleanup CI leftovers
 	@bash $$PROJECT_ROOT/setup/cleanup_route53_records.sh
 	@echo "$(ccgreen)Removing leftover security groups$(ccend)"
 	@bash $$PROJECT_ROOT/setup/terminate_security_groups.sh
+	@echo "$(ccgreen)Removing orphaned EBS volumes$(ccend)"
+	@bash $$PROJECT_ROOT/setup/terminate_ebs_volumes.sh
