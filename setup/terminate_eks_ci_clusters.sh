@@ -47,6 +47,19 @@ for cluster in $clusters; do
 
   (
       echo "[+] Processing cluster '$cluster', age $age_seconds seconds"
+
+      # Delete PVCs before destroying the cluster to allow the EBS CSI driver
+      # to clean up the backing EBS volumes. Without this step, deleting the
+      # cluster orphans the EBS volumes since the CSI controller can no longer
+      # process the delete finalizer.
+      if kubectl --context "arn:aws:eks:${region//_/-}:$(aws --profile "fedora_$region" sts get-caller-identity --query Account --output text):cluster/$cluster" \
+          delete pvc --all --all-namespaces --wait=false 2>/dev/null; then
+          echo "[+] Waiting for PVC deletion to be processed"
+          sleep 30
+      else
+          echo "[!] Could not delete PVCs (cluster may not be reachable), continuing"
+      fi
+
       for nodegroup in $($aws_eks list-nodegroups --cluster-name $cluster | jq -r .nodegroups[]); do
           echo "[+] Deleting nodegroup '$nodegroup'"
           $aws_eks delete-nodegroup --cluster-name $cluster --nodegroup-name $nodegroup
