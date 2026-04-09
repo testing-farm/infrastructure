@@ -513,10 +513,13 @@ deploy/production:
   extends: .direnv
   stage: deploy
   needs:
+    # NOTE: prevent artifacts to be copied from dependant jobs, we want a fresh direnv setup here
     - job: deploy/staging
       optional: true
+      artifacts: false
     - job: deploy/github
       optional: true
+      artifacts: false
   script:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
