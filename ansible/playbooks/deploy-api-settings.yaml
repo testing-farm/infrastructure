@@ -1,0 +1,39 @@
+---
+- name: Deploy API settings to production
+  hosts: testing_farm_public_servers
+  become: true
+  tasks:
+    - name: Clone config repository
+      ansible.builtin.git:
+        repo: "{{ config_repo }}"
+        dest: /tmp/testing-farm-config
+        version: "{{ config_branch }}"
+        depth: 1
+        force: true
+
+    - name: Deploy settings.yaml
+      ansible.builtin.copy:
+        src: /tmp/testing-farm-config/api/settings.yaml
+        dest: /opt/nucleus-production/api/settings.yaml
+        owner: testing-farm
+        group: testing-farm
+        mode: '0644'
+        remote_src: true
+      register: settings_deployed
+
+    - name: Reload public API (graceful - zero downtime)
+      ansible.builtin.systemd:
+        name: tft-api-public-production
+        state: reloaded
+      when: settings_deployed.changed
+
+    - name: Reload internal API (graceful - zero downtime)
+      ansible.builtin.systemd:
+        name: tft-api-internal-production
+        state: reloaded
+      when: settings_deployed.changed
+
+    - name: Clean up config clone
+      ansible.builtin.file:
+        path: /tmp/testing-farm-config
+        state: absent
