@@ -20,6 +20,7 @@ inputs = {
 
   vpc_id                    = "vpc-0f6baa3d6bae8d912"
   subnets                   = ["subnet-010f90da92f36876e", "subnet-0a704a759f7671044"]
+  addons_before_compute     = true
   node_group_instance_types = ["c5.2xlarge"]
   node_group_disk_size      = 500
   node_group_scaling = {
