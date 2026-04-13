@@ -132,7 +132,7 @@ module "eks" {
   vpc_id = var.vpc_id
 
   eks_managed_node_group_defaults = {
-    ami_type       = "AL2_x86_64"
+    ami_type       = "AL2023_x86_64_STANDARD"
     disk_size      = var.node_group_disk_size
     instance_types = var.node_group_instance_types
     desired_size   = var.node_group_scaling.desired_size
@@ -147,8 +147,11 @@ module "eks" {
 
       tags = var.resource_tags
 
-      # NOTE: this will make sure we use the Amazon provided lunch templates
-      use_custom_launch_template = false
+      # NOTE: IPv6 is disabled at the gitlab-runner level via `pre_build_script`
+      # rather than here because the EKS module v19.x doesn't support custom
+      # userdata with AL2023 (which uses `nodeadm` instead of `bootstrap.sh`).
+      # Upgrading to EKS module v20.x would allow node-level IPv6 disable via
+      # `cloudinit_pre_nodeadm` with `node.eks.aws` sysctl configuration.
     }
   }
 }
