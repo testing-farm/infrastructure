@@ -88,3 +88,9 @@ variable "subnets" {
   description = "List of subnet IDs. Must be in at least two different availability zones."
   type        = list(string)
 }
+
+variable "node_group_ami_type" {
+  description = "AMI type for EKS managed node group. Use AL2023_x86_64_STANDARD for cgroupsv2 support."
+  type        = string
+  default     = "AL2_x86_64"
+}

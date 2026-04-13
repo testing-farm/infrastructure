@@ -132,7 +132,8 @@ module "eks" {
   vpc_id = var.vpc_id
 
   eks_managed_node_group_defaults = {
-    ami_type       = "AL2023_x86_64_STANDARD"
+    ami_type       = var.node_group_ami_type
+    disk_size      = var.node_group_ami_type == "AL2_x86_64" ? var.node_group_disk_size : null
     instance_types = var.node_group_instance_types
     desired_size   = var.node_group_scaling.desired_size
     max_size       = var.node_group_scaling.max_size
@@ -146,10 +147,11 @@ module "eks" {
 
       tags = var.resource_tags
 
-      # disk_size in eks_managed_node_group_defaults is ignored when using
-      # a custom launch template (required for AL2023), so we must specify
-      # the root volume size via block_device_mappings instead.
-      block_device_mappings = {
+      # AL2 uses the Amazon-managed launch template where `disk_size` works.
+      # AL2023 requires a custom launch template where `disk_size` is ignored,
+      # so we specify the root volume via `block_device_mappings` instead.
+      use_custom_launch_template = var.node_group_ami_type != "AL2_x86_64"
+      block_device_mappings = var.node_group_ami_type != "AL2_x86_64" ? {
         xvda = {
           device_name = "/dev/xvda"
           ebs = {
@@ -157,7 +159,7 @@ module "eks" {
             volume_type = "gp3"
           }
         }
-      }
+      } : {}
 
       # NOTE: IPv6 is disabled at the gitlab-runner level via `pre_build_script`
       # rather than here because the EKS module v19.x doesn't support custom
