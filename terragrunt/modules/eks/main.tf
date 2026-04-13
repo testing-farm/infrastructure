@@ -103,10 +103,12 @@ module "eks" {
       most_recent = true
     }
     kube-proxy = {
-      most_recent = true
+      most_recent    = true
+      before_compute = var.addons_before_compute
     }
     vpc-cni = {
-      most_recent = true
+      most_recent    = true
+      before_compute = var.addons_before_compute
     }
     # Enable kubectl top and HPA support
     eks-pod-identity-agent = {
