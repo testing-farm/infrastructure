@@ -1,8 +1,15 @@
 ---
+
+root_dir: "{{ ansible_config_file | dirname }}"
+ansible_dir: "{{ root_dir }}/ansible"
+
 # ssh key
 ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_server"
 ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_server.pub"
+
+# Connection details
 ansible_user: core
+ansible_ssh_private_key_file: "{{ ansible_dir }}/secrets/ssh/id_rsa_public_server.decrypted"
 
 # Config repository for API settings deployment
 config_repo: https://gitlab.com/testing-farm/config.git
