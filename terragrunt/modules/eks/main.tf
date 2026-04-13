@@ -133,7 +133,6 @@ module "eks" {
 
   eks_managed_node_group_defaults = {
     ami_type       = "AL2023_x86_64_STANDARD"
-    disk_size      = var.node_group_disk_size
     instance_types = var.node_group_instance_types
     desired_size   = var.node_group_scaling.desired_size
     max_size       = var.node_group_scaling.max_size
@@ -146,6 +145,19 @@ module "eks" {
       iam_role_arn    = var.node_group_role_arn
 
       tags = var.resource_tags
+
+      # disk_size in eks_managed_node_group_defaults is ignored when using
+      # a custom launch template (required for AL2023), so we must specify
+      # the root volume size via block_device_mappings instead.
+      block_device_mappings = {
+        xvda = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size = var.node_group_disk_size
+            volume_type = "gp3"
+          }
+        }
+      }
 
       # NOTE: IPv6 is disabled at the gitlab-runner level via `pre_build_script`
       # rather than here because the EKS module v19.x doesn't support custom
