@@ -1829,8 +1829,8 @@ development = ["gluetool-modules-framework @ git+https://gitlab.com/testing-farm
 [package.source]
 type = "git"
 url = "https://gitlab.com/testing-farm/pytest-gluetool.git"
-reference = "main"
-resolved_reference = "8afa1b43ac4c3a86ec56850af464176a72975fdf"
+reference = "93f6b356e8b1ce2c2665a54273ba7965f10f9598"
+resolved_reference = "93f6b356e8b1ce2c2665a54273ba7965f10f9598"
 
 [[package]]
 name = "pytest-html"
@@ -2976,4 +2976,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "8809124d6ae00dfaf28b6e39069a34e1241f0cb183027df7cf203f3e033baf74"
+content-hash = "b3fef25a0f2e3db90d0514149d0e08f9f722eb0aff933489a4dc124789679f4e"

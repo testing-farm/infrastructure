@@ -3,6 +3,9 @@
 # direnv cache directory
 .direnv
 
+# generated environment files (secrets, rendered templates)
+.generated
+
 # editor temporary files
 .vscode
 *~
