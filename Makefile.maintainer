@@ -401,7 +401,7 @@ production/apply/eks: .FORCE  ## Deploy | production | eks
 production/apply/artemis: .FORCE  ## Deploy | production | artemis
 	$(call run_terragrunt,production/artemis,apply)
 
-production/deploy/api: .FORCE  ## Deploy API settings to production (graceful reload)
+update/api/settings: .FORCE  ## Deploy API settings to production (graceful reload)
 	$(call check_deployment_branch)
 	@echo -e "⚙️  \033[0;32mdeploying API settings to production\033[0m"
 	ansible-playbook -v ansible/playbooks/deploy-api-settings.yaml
