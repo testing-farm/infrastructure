@@ -1,3 +1,0 @@
-[default]
-xunit-testing-farm-file = results.xml
-xunit-file = results-junit.xml

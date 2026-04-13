@@ -28,6 +28,7 @@ terragrunt-debug.tfvars.json
 
 # generated / rendered files
 terragrunt/environments/**/worker*/citool-config/environment.yaml
+terragrunt/environments/**/worker-local/citool-config/config
 terragrunt/environments/**/server/pods/nginx/*.conf
 terragrunt/environments/**/server/pods/server.yaml
 terragrunt/environments/**/server/pods/tmt-web.yaml

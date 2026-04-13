@@ -107,13 +107,34 @@ def main() -> None:
     with open(worker_artemis_ssh_key, 'r') as f:
         ssh_key_encrypted = f.read()
 
-    print(f'Writing "{worker_artemis_ssh_key}"')
+    print(f'Writing "{worker_artemis_ssh_key_decrypted}"')
 
     with open(worker_artemis_ssh_key_decrypted, 'wb') as f:
         f.write(vault.decrypt(ssh_key_encrypted))
 
     print(f'Setting permissions of "{worker_artemis_ssh_key_decrypted}" to 600')
     os.chmod(worker_artemis_ssh_key_decrypted, stat.S_IRUSR | stat.S_IWUSR)
+
+    # Generate secret config files for CONFIG-SECRETS mount
+    secrets_config_dir = os.path.join(template_dirpath, 'config')
+    os.makedirs(secrets_config_dir, exist_ok=True)
+
+    # Resolve the API key from credentials
+    # NOTE: dev local environment uses staging TF API
+    environment_credentials = environment
+    if environment == 'dev' and WORKER == 'worker-local':
+        environment_credentials = 'staging'
+    api_key = credentials_decrypted['credentials']['testing_farm'][environment_credentials]['public']['users']['worker']['token']
+
+    testing_farm_request_path = os.path.join(secrets_config_dir, 'testing-farm-request')
+    print(f'Generating "{testing_farm_request_path}"')
+    with open(testing_farm_request_path, 'w') as f:
+        f.write(f'[default]\napi-key = {api_key}\n')
+
+    artemis_config_path = os.path.join(secrets_config_dir, 'artemis')
+    print(f'Generating "{artemis_config_path}"')
+    with open(artemis_config_path, 'w') as f:
+        f.write('[default]\nssh-key = ${config_root}/id_rsa_artemis.decrypted\n')
 
 if __name__ == '__main__':
     main()

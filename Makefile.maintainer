@@ -4,6 +4,9 @@ CITOOL_EXTRA_PODMAN_ARGS ?= --pull newer
 # default worker image
 WORKER_IMAGE ?= quay.io/testing-farm/worker-public:latest
 
+# default ranch-public config image
+RANCH_PUBLIC_IMAGE ?= quay.io/testing-farm/ranch-public:jhavlin
+
 # skip nomadstart if asked
 SKIP_NOMAD_START := $(if $(SKIP_NOMAD_START),-e skip_nomad_start=true,)
 
@@ -520,10 +523,11 @@ osci/kubeconfig: .FORCE  ## Update kubeconfig for OSCI access to Fedora CI
 define run_pytest_gluetool
 	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) $3 -vvv --basetemp $$PROJECT_ROOT/.pytest \
 	--color=yes \
-	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
-	--citool-config terragrunt/environments/$1/$2/citool-config --citool-image $(WORKER_IMAGE) \
+	--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS) -v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config:/CONFIG-SECRETS:ro" \
+	--citool-config "/CONFIG/$1/citool-config/config,/CONFIG/common/citool-config/config,/CONFIG/local/citool-config/config,/CONFIG-SECRETS/config" \
+	--citool-config-image $(RANCH_PUBLIC_IMAGE) \
+	--citool-image $(WORKER_IMAGE) \
 	--test-assets tests/worker \
-	--variables terragrunt/environments/$1/$2/citool-config/variables.yaml \
 	--variables terragrunt/environments/$1/$2/citool-config/environment.yaml \
 	--variables tests/common.yaml \
 	--html report.html tests/worker/test_pipeline.py
