@@ -56,7 +56,7 @@ rpm -qa > rpmlist-worker.txt
 create_results_xml in-progress skipped progress.xml
 
 # deploy oculus viewer
-curl -s --fail --retry 5 --show-error -o index.html https://gitlab.com/testing-farm/oculus/-/raw/main/results.html
+curl -s --fail --retry 5 --show-error -o index.html https://gitlab.com/api/v4/projects/testing-farm%2Foculus/repository/files/results.html/raw?ref=main
 
 set_request_timeout
 set_citool_image
