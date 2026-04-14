@@ -12,20 +12,21 @@ terraform {
 }
 
 inputs = {
-  cluster_name = get_env("TF_VAR_cluster_name", "testing-farm-dev-${get_env("USER", "unknown")}")
-  eks_version  = "1.30"
+  # cluster_name is set in the parent
+  eks_version = 1.32
 
   # aws_profile is set in the parent
   # route53_zone is set in the parent
 
   vpc_id                    = "vpc-0f6baa3d6bae8d912"
   subnets                   = ["subnet-010f90da92f36876e", "subnet-0a704a759f7671044"]
+  node_group_ami_type       = "AL2023_x86_64_STANDARD"
   addons_before_compute     = true
-  node_group_instance_types = ["c5.2xlarge"]
+  node_group_instance_types = ["r6a.2xlarge"]
   node_group_disk_size      = 500
   node_group_scaling = {
-    desired_size = 1
-    max_size     = 2
-    min_size     = 1
+    desired_size = 2
+    max_size     = 6
+    min_size     = 2
   }
 }
