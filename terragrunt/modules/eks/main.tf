@@ -103,10 +103,12 @@ module "eks" {
       most_recent = true
     }
     kube-proxy = {
-      most_recent = true
+      most_recent    = true
+      before_compute = var.addons_before_compute
     }
     vpc-cni = {
-      most_recent = true
+      most_recent    = true
+      before_compute = var.addons_before_compute
     }
     # Enable kubectl top and HPA support
     eks-pod-identity-agent = {
@@ -132,8 +134,8 @@ module "eks" {
   vpc_id = var.vpc_id
 
   eks_managed_node_group_defaults = {
-    ami_type       = "AL2_x86_64"
-    disk_size      = var.node_group_disk_size
+    ami_type       = var.node_group_ami_type
+    disk_size      = var.node_group_ami_type == "AL2_x86_64" ? var.node_group_disk_size : null
     instance_types = var.node_group_instance_types
     desired_size   = var.node_group_scaling.desired_size
     max_size       = var.node_group_scaling.max_size
@@ -147,8 +149,25 @@ module "eks" {
 
       tags = var.resource_tags
 
-      # NOTE: this will make sure we use the Amazon provided lunch templates
-      use_custom_launch_template = false
+      # AL2 uses the Amazon-managed launch template where `disk_size` works.
+      # AL2023 requires a custom launch template where `disk_size` is ignored,
+      # so we specify the root volume via `block_device_mappings` instead.
+      use_custom_launch_template = var.node_group_ami_type != "AL2_x86_64"
+      block_device_mappings = var.node_group_ami_type != "AL2_x86_64" ? {
+        xvda = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size = var.node_group_disk_size
+            volume_type = "gp3"
+          }
+        }
+      } : {}
+
+      # NOTE: IPv6 is disabled at the gitlab-runner level via `pre_build_script`
+      # rather than here because the EKS module v19.x doesn't support custom
+      # userdata with AL2023 (which uses `nodeadm` instead of `bootstrap.sh`).
+      # Upgrading to EKS module v20.x would allow node-level IPv6 disable via
+      # `cloudinit_pre_nodeadm` with `node.eks.aws` sysctl configuration.
     }
   }
 }

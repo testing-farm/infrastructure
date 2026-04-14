@@ -88,3 +88,18 @@ variable "subnets" {
   description = "List of subnet IDs. Must be in at least two different availability zones."
   type        = list(string)
 }
+
+variable "node_group_ami_type" {
+  description = "AMI type for EKS managed node group. Use AL2023_x86_64_STANDARD for cgroupsv2 support."
+  type        = string
+  default     = "AL2_x86_64"
+}
+
+variable "addons_before_compute" {
+  # TODO: enable by default once staging/production addon state is migrated
+  # via `terraform state mv 'module.eks.aws_eks_addon.this["vpc-cni"]' 'module.eks.aws_eks_addon.before_compute["vpc-cni"]'`
+  # and same for kube-proxy.
+  description = "Install vpc-cni and kube-proxy before node groups. Enable for new clusters to prevent CNI race conditions. Disable for existing clusters to avoid addon state migration."
+  type        = bool
+  default     = false
+}
