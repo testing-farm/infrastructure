@@ -79,7 +79,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "e6bd2068.debug"
+  image_tag    = "v0.0.88.debug"
 
   # Enable access from localhost and infra EKS gitlab-runner (NAT gateway)
   additional_lb_source_ips = concat(
