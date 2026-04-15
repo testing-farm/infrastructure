@@ -70,7 +70,7 @@ inputs = {
 
   release_name = "artemis"
   namespace    = local.namespace
-  image_tag    = "v0.0.87.debug"
+  image_tag    = "v0.0.88.debug"
 
   # Enable access from infra EKS gitlab-runner (NAT gateway)
   additional_lb_source_ips = local.infra_eks_nat_gateway_eip != "None" ? [local.infra_eks_nat_gateway_eip] : []
