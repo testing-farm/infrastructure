@@ -172,6 +172,18 @@ module "eks" {
   }
 }
 
+data "aws_nat_gateway" "cluster" {
+  count = var.nat_gateway ? 1 : 0
+
+  vpc_id = var.vpc_id
+  state  = "available"
+
+  filter {
+    name   = "tag:Name"
+    values = ["${var.cluster_name}-eks"]
+  }
+}
+
 data "aws_route53_zone" "testing_farm_zone" {
   name = var.route53_zone
 }
