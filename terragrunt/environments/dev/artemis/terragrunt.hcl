@@ -11,6 +11,18 @@ locals {
   domain_suffix = local.namespace == "default" ? "" : "-${local.namespace}"
 
   mocked_cluster_certificate_authority_data = "bW9jay1jbHVzdGVyLWNlcnRpZmljYXRlCg==" # pragma: allowlist secret
+
+  # Fetch infra EKS NAT gateway EIP directly via AWS CLI to avoid cross-environment
+  # terragrunt dependency which would cause `run-all destroy` to also destroy infra/eks
+  infra_eks_nat_gateway_eip = run_cmd(
+    "--terragrunt-quiet",
+    "aws", "ec2", "describe-nat-gateways",
+    "--profile", local.common.inputs.aws_profile,
+    "--region", "us-east-2",
+    "--filter", "Name=tag:Name,Values=testing-farm-infra-eks", "Name=state,Values=available",
+    "--query", "NatGateways[0].NatGatewayAddresses[0].PublicIp",
+    "--output", "text"
+  )
 }
 
 # Use eks module from this repository
@@ -67,8 +79,11 @@ inputs = {
   namespace    = local.namespace
   image_tag    = "e6bd2068.debug"
 
-  # Enable access from localhost
-  additional_lb_source_ips = dependency.localhost.outputs.localhost_public_ips
+  # Enable access from localhost and infra EKS gitlab-runner (NAT gateway)
+  additional_lb_source_ips = concat(
+    dependency.localhost.outputs.localhost_public_ips,
+    local.infra_eks_nat_gateway_eip != "None" ? [local.infra_eks_nat_gateway_eip] : []
+  )
 
   # Enable access from workers
   workers_ip_ranges = dependency.worker.outputs.workers_ip_ranges

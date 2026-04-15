@@ -95,6 +95,12 @@ variable "node_group_ami_type" {
   default     = "AL2_x86_64"
 }
 
+variable "nat_gateway" {
+  description = "Whether the cluster uses a NAT gateway for stable egress. When true, looks up the NAT gateway EIP via the Name tag."
+  type        = bool
+  default     = false
+}
+
 variable "addons_before_compute" {
   # TODO: enable by default once staging/production addon state is migrated
   # via `terraform state mv 'module.eks.aws_eks_addon.this["vpc-cni"]' 'module.eks.aws_eks_addon.before_compute["vpc-cni"]'`

@@ -18,8 +18,10 @@ inputs = {
   # aws_profile is set in the parent
   # route53_zone is set in the parent
 
-  vpc_id                    = "vpc-0f6baa3d6bae8d912"
-  subnets                   = ["subnet-010f90da92f36876e", "subnet-0a704a759f7671044"]
+  vpc_id = "vpc-0f6baa3d6bae8d912"
+  # Private subnets routed through NAT gateway for stable egress IP
+  subnets                   = ["subnet-03c46e32396b50643", "subnet-0c31de6da86b6770f"]
+  nat_gateway               = true
   node_group_ami_type       = "AL2023_x86_64_STANDARD"
   addons_before_compute     = true
   node_group_instance_types = ["r6a.2xlarge"]
