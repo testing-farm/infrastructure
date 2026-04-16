@@ -109,6 +109,7 @@ exec podman run --init \
                 -e WORKER_IP="${WORKER_IP}" \
                 -e NOMAD_NODE_NAME="${NOMAD_NODE_NAME}" \
                 -e NOMAD_JOB_URL="${NOMAD_JOB_URL}" \
+                ${CITOOL_CONFIG_IMAGE:+-e CITOOL_CONFIG_IMAGE="${CITOOL_CONFIG_IMAGE}"} \
                 ${CITOOL_EXTRA_PODMAN_ARGS} \
                 ${DOCKER_CONFIG_MOUNT} \
                 "$CITOOL_IMAGE" "${CITOOL_OPTIONS[@]}" "${CITOOL_PIPELINE[@]}"
