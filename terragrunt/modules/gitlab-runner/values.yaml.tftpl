@@ -17,9 +17,9 @@ runners:
         image = "alpine:3"
         privileged = false
         cpu_request = "100m"
-        cpu_limit = "1"
-        memory_request = "128Mi"
-        memory_limit = "512Mi"
+        cpu_limit = "2"
+        memory_request = "512Mi"
+        memory_limit = "6Gi"
       [runners.kubernetes.pod_labels]
         "app" = "gitlab-runner-job"
       [runners.kubernetes.pod_annotations]
