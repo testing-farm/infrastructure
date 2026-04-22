@@ -444,7 +444,7 @@ create/redhat/worker: .FORCE  ## Create a Red Hat ranch worker, use `make create
 	@$(MAKE) -j $(addprefix .create/redhat/worker, $(shell seq 1 $(SCALE_TARGET)))
 
 .create/public/worker%:
-	ansible-playbook -e deployment=production -v ansible/playbooks/create-public-worker.yaml
+	ansible-playbook -e deployment=production ${SKIP_NOMAD_START} -v ansible/playbooks/create-public-worker.yaml
 
 create/public/worker: .FORCE  ## Create a Public ranch worker, use `make create/public/worker N` to create N workers
 	$(call check_deployment_branch)
