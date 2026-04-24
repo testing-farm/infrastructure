@@ -26,7 +26,7 @@
   register: check_rawhide
 
 - name: Check for eln
-  command: "rpm -q fedora-repos-eln"
+  shell: "rpm -q fedora-eln-repos || rpm -q fedora-repos-eln"
   ignore_errors: true
   register: check_eln
 
