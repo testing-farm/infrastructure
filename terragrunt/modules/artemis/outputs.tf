@@ -13,3 +13,8 @@ output "guests_security_group_id" {
 output "namespace" {
   value = var.namespace
 }
+
+output "api_lb_security_group_id" {
+  description = "Security group ID for the Artemis API load balancer"
+  value       = aws_security_group.artemis_api_lb.id
+}

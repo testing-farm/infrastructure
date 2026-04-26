@@ -49,6 +49,7 @@ dependency "eks" {
       cluster_endpoint                   = "mock-cluster-endpoint"
       cluster_certificate_authority_data = local.mocked_cluster_certificate_authority_data
     }
+    vpc_id = "vpc-mock"
   }
 }
 
@@ -57,6 +58,7 @@ inputs = {
   cluster_endpoint                   = dependency.eks.outputs.cluster.cluster_endpoint
   cluster_certificate_authority_data = dependency.eks.outputs.cluster.cluster_certificate_authority_data != null ? dependency.eks.outputs.cluster.cluster_certificate_authority_data : local.mocked_cluster_certificate_authority_data
   cluster_aws_profile                = local.common.inputs.aws_profile
+  cluster_vpc_id                     = dependency.eks.outputs.vpc_id
   guests_aws_profile                 = local.common.inputs.aws_profile_guests
 
   # Strip `testing-farm-` from the cluster name as use that to construct the artemis API domain name.
