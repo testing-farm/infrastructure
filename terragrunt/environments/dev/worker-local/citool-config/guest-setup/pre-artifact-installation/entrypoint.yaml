@@ -29,4 +29,9 @@
     # It is considered a nice to have, but should not fail the setup.
     - include_tasks: tag-repository.yaml
       ignore_errors: true
-    - include_tasks: set-timezone.yaml
+    - name: testing_farm_profiles.library.time
+      when:
+        - '"auto-osbuild" not in IMAGE_NAME|lower'
+        - '"pfmt" not in IMAGE_NAME|lower'
+      ansible.builtin.include_role:
+        name: testing_farm_profiles.library.time
