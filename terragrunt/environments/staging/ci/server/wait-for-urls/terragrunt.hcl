@@ -25,8 +25,8 @@ dependency "dns" {
 inputs = {
   # URLs to wait for after deployment of the server
   urls = [
-    "api.staging-${local.common.inputs.staging_ci_suffix}.testing-farm.io/v0.1/about",
-    "internal.api.staging-${local.common.inputs.staging_ci_suffix}.testing-farm.io/v0.1/about",
-    "tmt.staging-${local.common.inputs.staging_ci_suffix}.testing-farm.io"
+    "api-${local.common.inputs.staging_ci_suffix}.staging-ci.testing-farm.io/v0.1/about",
+    "internal-api-${local.common.inputs.staging_ci_suffix}.staging-ci.testing-farm.io/v0.1/about",
+    "tmt-${local.common.inputs.staging_ci_suffix}.staging-ci.testing-farm.io"
   ]
 }
