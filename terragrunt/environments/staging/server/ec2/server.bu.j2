@@ -74,10 +74,10 @@ storage:
       mode: 0644
       contents:
         local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/api.staging.testing-farm.io.conf
-    - path: /etc/nginx/conf.d/internal.api.staging.testing-farm.io.conf
+    - path: /etc/nginx/conf.d/internal-api.staging.testing-farm.io.conf
       mode: 0644
       contents:
-        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/internal.api.staging.testing-farm.io.conf
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/internal-api.staging.testing-farm.io.conf
     - path: /etc/nginx/conf.d/nomad.staging.testing-farm.io.conf
       mode: 0644
       contents:
@@ -94,7 +94,16 @@ storage:
       mode: 0644
       contents:
         local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/tmt.staging.testing-farm.io.conf
+    - path: /etc/ssl/nginx/cert.pem
+      mode: 0644
+      contents:
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/ssl/cert.pem
+    - path: /etc/ssl/nginx/privkey.pem
+      mode: 0600
+      contents:
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/ssl/privkey.pem
   directories:
+    - path: /etc/ssl/nginx
     - path: /var/data/artifacts
       user:
         name: artifacts
@@ -115,17 +124,38 @@ storage:
       with_mount_unit: true
 systemd:
   units:
+    - name: ssl-build-fullchain.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Build SSL fullchain.pem by downloading intermediate certificate
+        After=network-online.target
+        Wants=network-online.target
+        Before=nginx.service
+
+        [Service]
+        Type=oneshot
+        ExecStart=/bin/bash -c '\
+          ISSUER_URL=$(openssl x509 -in /etc/ssl/nginx/cert.pem -noout -text | grep "CA Issuers" | sed "s/.*URI://") && \
+          curl -sL "$ISSUER_URL" | openssl x509 -inform DER -outform PEM > /etc/ssl/nginx/intermediate.pem && \
+          cat /etc/ssl/nginx/cert.pem /etc/ssl/nginx/intermediate.pem > /etc/ssl/nginx/fullchain.pem'
+        RemainAfterExit=yes
+
+        [Install]
+        WantedBy=multi-user.target
     - name: selinux-context-artifacts.service
       enabled: true
       contents: |
         [Unit]
-        Description=Set SELinux context for /var/data
+        Description=Set SELinux context for container bind mounts
         After=local-fs.target
         Before=nginx.service
 
         [Service]
         Type=oneshot
         ExecStart=/usr/bin/chcon -t container_file_t -R /var/data
+        ExecStart=/usr/bin/chcon -t container_file_t -R /etc/nginx/conf.d
+        ExecStart=/usr/bin/chcon -t container_file_t -R /etc/ssl/nginx
         RemainAfterExit=yes
 
         [Install]

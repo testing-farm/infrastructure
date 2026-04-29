@@ -1830,7 +1830,7 @@ development = ["gluetool-modules-framework @ git+https://gitlab.com/testing-farm
 type = "git"
 url = "https://gitlab.com/testing-farm/pytest-gluetool.git"
 reference = "main"
-resolved_reference = "8afa1b43ac4c3a86ec56850af464176a72975fdf"
+resolved_reference = "f9f71016698fda54b54018e57ba7a28bf7e3ceba"
 
 [[package]]
 name = "pytest-html"
