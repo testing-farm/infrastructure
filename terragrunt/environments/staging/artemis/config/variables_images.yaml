@@ -19,9 +19,9 @@ composes:
     compose: Fedora-42
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-42-20260428.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-42-20260429.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-42-20260428.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-42-20260429.0
 
   fedora_42_image_mode:
     compose: Fedora-42-image-mode
@@ -87,9 +87,9 @@ composes:
     compose: Fedora-eln
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-ELN-20260428.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-ELN-20260429.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-ELN-20260428.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-ELN-20260429.0
 
   centos_7:
     compose: CentOS-7
