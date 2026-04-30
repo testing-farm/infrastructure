@@ -26,7 +26,7 @@ inputs = {
   # URLs to wait for after deployment of the server
   urls = [
     "api.staging.testing-farm.io/v0.1/about",
-    "internal.api.staging.testing-farm.io/v0.1/about",
+    "internal-api.staging.testing-farm.io/v0.1/about",
     "tmt.staging.testing-farm.io"
   ]
 }
