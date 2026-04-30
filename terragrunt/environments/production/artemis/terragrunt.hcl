@@ -42,15 +42,6 @@ dependency "localhost" {
   }
 }
 
-dependency "github-runners" {
-  config_path = "../github-runners"
-
-  # https://terragrunt.gruntwork.io/docs/features/execute-terraform-commands-on-multiple-modules-at-once/#unapplied-dependency-and-mock-outputs
-  mock_outputs = {
-    workers_ip_ranges = []
-  }
-}
-
 dependency "worker-public" {
   config_path = "../worker-public"
 
@@ -97,11 +88,8 @@ inputs = {
     local.infra_eks_nat_gateway_eip != "None" ? [local.infra_eks_nat_gateway_eip] : []
   )
 
-  # Enable access from workers and github runners
-  workers_ip_ranges = concat(
-    dependency.worker-public.outputs.workers_ip_ranges,
-    dependency.github-runners.outputs.workers_ip_ranges
-  )
+  # Enable access from workers
+  workers_ip_ranges = dependency.worker-public.outputs.workers_ip_ranges
 
   # Enable nested security groups to avoid AWS security group limits
   enable_multiple_security_groups = true
