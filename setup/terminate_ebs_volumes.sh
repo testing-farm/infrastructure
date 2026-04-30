@@ -79,7 +79,7 @@ for REGION in $REGIONS; do
     continue
   fi
 
-  # Delete volumes with limited parallelism to avoid API rate limiting
+  # Delete volumes one by one to avoid hitting API rate limiting
   echo "[+] Deleting $count volumes in $REGION"
   deleted=0
   failed=0
