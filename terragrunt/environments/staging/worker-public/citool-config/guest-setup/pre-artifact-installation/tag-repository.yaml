@@ -53,15 +53,26 @@
             - check_rawhide.rc != 0
             - check_eln.rc != 0
 
-        - name: Create tag repository base url (Fedora)
+        - name: Create tag repository base url (Fedora), set priority to 9 (high)
           set_fact:
             tag_repository_url: "https://kojipkgs.fedoraproject.org/repos/{{ tag_repository_name }}/latest/{{ ansible_architecture }}/"
+            tag_repository_priority: 9
 
       #
       # Run block only on Fedora
       #
 
       when: ansible_distribution == "Fedora"
+
+    #
+    # Set tag repository priority for CentOS Stream
+    #
+    - name: Set tag repository priority to 99 (CentOS Stream)
+      set_fact:
+        tag_repository_priority: 99
+      when:
+        - 'ansible_distribution == "CentOS"'
+        - 'ansible_distribution_release == "Stream"'
 
     #
     # Add tag repository for CentOS Stream 8
