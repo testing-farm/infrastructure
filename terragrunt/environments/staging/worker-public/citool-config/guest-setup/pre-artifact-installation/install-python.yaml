@@ -32,6 +32,24 @@
       ansible.builtin.set_fact:
         ansible_python_interpreter: "{{ python_install_path }}/bin/python3"
 
+    - name: Detected package manager
+      ansible.builtin.debug:
+        msg: "ansible_pkg_mgr={{ ansible_pkg_mgr }}"
+
+    #
+    # Ansible 2.16 incorrectly detects `ansible_pkg_mgr` as `yum` on Fedora ELN, even though
+    # `/usr/bin/yum` and `/usr/bin/dnf` are symlinks to `/usr/bin/dnf5`. Ansible 2.18+ correctly
+    # detects `dnf5`. No supported Fedora release uses yum, so this override is always safe.
+    # Since `set_fact` cannot override gathered facts in `ansible_facts` dict, we use
+    # `module_defaults` with `_pkg_module` variable in `entrypoint.yaml` instead.
+    #
+    - name: Fix incorrect yum package manager detection on Fedora (Ansible 2.16 workaround)
+      when:
+        - ansible_distribution == "Fedora"
+        - ansible_pkg_mgr == "yum"
+      ansible.builtin.set_fact:
+        _pkg_module: dnf5
+
     #
     # Using a custom Python distribution means losing access to C bindings of package managers. Use our own wrapper for
     # YUM and DNF with Ansible's builtin package module.
@@ -40,3 +58,7 @@
       when: "ansible_pkg_mgr in ['unknown', 'dnf']"
       ansible.builtin.set_fact:
         ansible_package_use: "testing_farm_profiles.library.dnf_yum_cli"  # noqa: var-naming
+
+    - name: Detected package manager (after override)
+      ansible.builtin.debug:
+        msg: "ansible_pkg_mgr={{ ansible_pkg_mgr }}, _pkg_module={{ _pkg_module | default('undefined') }}"

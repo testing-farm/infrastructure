@@ -2,6 +2,9 @@
   vars:
     pkg_retry_count: 5
     pkg_retry_delay: 30
+  module_defaults:
+    ansible.builtin.package:
+      use: "{{ _pkg_module | default('auto') }}"
   tasks:
     - include_tasks: install-python.yaml
       when:
