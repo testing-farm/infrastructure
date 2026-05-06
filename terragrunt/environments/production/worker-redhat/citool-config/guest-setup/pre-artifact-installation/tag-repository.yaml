@@ -19,13 +19,21 @@
 #
 
 - block:
-    - name: Transform build target to a tag repository name (RHEL 7 and older, RHEL 10 and newer)
+    - name: Transform build target to a tag repository name (RHEL 6)
+      set_fact:
+        tag_repository_name_mainline: "RHEL-{{ ansible_distribution_version }}-build"
+        tag_repository_name_z_stream: "RHEL-{{ ansible_distribution_version }}-z-build"
+      when:
+        - ansible_distribution == "RedHat"
+        - ansible_distribution_major_version|int == 6
+
+    - name: Transform build target to a tag repository name (RHEL 7, RHEL 10 and newer)
       set_fact:
         tag_repository_name_mainline: "rhel-{{ ansible_distribution_version }}-build"
         tag_repository_name_z_stream: "rhel-{{ ansible_distribution_version }}-z-build"
       when:
         - ansible_distribution == "RedHat"
-        - ansible_distribution_major_version|int <= 7 or ansible_distribution_major_version|int >= 10
+        - ansible_distribution_major_version|int == 7 or ansible_distribution_major_version|int >= 10
 
     - name: Transform build target to a tag repository name (RHEL 8, RHEL 9)
       set_fact:
