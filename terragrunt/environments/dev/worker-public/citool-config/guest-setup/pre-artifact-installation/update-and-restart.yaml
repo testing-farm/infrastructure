@@ -4,6 +4,11 @@
   ignore_errors: true
   register: check_rawhide
 
+- name: workaround-fedora-eln | Check for Fedora ELN
+  shell: "rpm -q fedora-eln-repos || rpm -q fedora-repos-eln"
+  ignore_errors: true
+  register: check_eln
+
 - block:
     - name: Update to latest packages
       command: "dnf -y update *"
@@ -25,6 +30,7 @@
 
   # 2022-05-24: Added CentOS Stream 8 update, due to podman broken with old libseccomp
   # 2022-12-01: Added CentOS Stream 9 update, due to podman broken with libselinux
+  # 2026-05-06: Workaround broken Fedora ELN kernel - https://bugzilla.redhat.com/show_bug.cgi?id=2464626
   when: >
     (
       check_rawhide.rc == 0
@@ -34,6 +40,7 @@
       )
     )
     and 'image-mode' not in IMAGE_NAME|lower
+    and check_eln.rc != 0
 
   # This task is best effort
   ignore_errors: true
