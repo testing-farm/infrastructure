@@ -12,7 +12,7 @@ API_URL="https://api.dev.testing-farm.io/v0.1"
 
 [ -z "$REQUEST_ID" ] && { echo "No request ID given"; exit 1; }
 
-REQUEST="$(curl -s --retry 5 $API_URL/requests/$REQUEST_ID)"
+REQUEST="$(curl -s --retry 10 --retry-max-time 300 $API_URL/requests/$REQUEST_ID)"
 
 create_results_xml() {
     STATE=$1
@@ -56,7 +56,7 @@ rpm -qa > rpmlist-worker.txt
 create_results_xml in-progress skipped progress.xml
 
 # deploy oculus viewer
-curl -s --fail --retry 5 --show-error -o index.html https://gitlab.com/api/v4/projects/testing-farm%2Foculus/repository/files/results.html/raw?ref=main
+curl -s --fail --retry 10 --retry-max-time 300 --show-error -o index.html https://gitlab.com/api/v4/projects/testing-farm%2Foculus/repository/files/results.html/raw?ref=main
 
 set_request_timeout
 set_citool_image
