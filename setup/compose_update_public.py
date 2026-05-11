@@ -10,12 +10,21 @@ import rich
 
 from typing import Optional
 
+import ruamel.yaml.comments
+
 VARIABLES_IMAGES_FILEPATHS = glob.glob('terragrunt/environments/*/artemis/config/variables_images.yaml')
 ARCHES = ['x86_64', 'aarch64']
 ARTEMIS_URL = 'http://artemis.production.testing-farm.io/current/'
 
 Y = ruamel.yaml.YAML()
 Y.indent(sequence=2, mapping=2, offset=2)
+
+
+def has_skip_comment(mapping: ruamel.yaml.comments.CommentedMap, key: str) -> bool:
+    comment_items = mapping.ca.items.get(key)
+    if comment_items and comment_items[2]:
+        return comment_items[2].value.strip().lower().startswith('# skip')
+    return False
 
 
 def get_available_images() -> list[str]:
@@ -84,6 +93,9 @@ def update_variables_images_file(variables_images_filepath: str, available_image
         for arch in ARCHES:
             if arch not in compose:
                 print('    ⏩Arch {} not supported for {}, skipping update...'.format(arch, compose['compose']))
+                continue
+            if has_skip_comment(compose[arch], 'image'):
+                print('    ⏭️  Skipping {} for {} (# skip comment)...'.format(arch, compose['compose']))
                 continue
             if updated_image := update_image(compose[arch]['image'], available_images):
                 compose[arch]['image'] = updated_image
