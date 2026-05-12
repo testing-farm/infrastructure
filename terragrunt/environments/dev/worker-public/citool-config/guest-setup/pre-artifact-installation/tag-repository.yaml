@@ -116,11 +116,14 @@
     #       we encounter might have tag repository available.
     #
     - name: "Check if tag repository {{ tag_repository_url }} exists"
-      command: "bash -c 'curl --head -L {{ tag_repository_url }} | grep -o -E \"(200|403|404)\"'"
+      ansible.builtin.uri:
+        url: "{{ tag_repository_url }}"
       retries: "{{ pkg_retry_count }}"
       delay: "{{ pkg_retry_delay }}"
-      until: http_status_code is succeeded
-      register: http_status_code
+      until: tag_repository_exist_check.status == 200
+      register: tag_repository_exist_check
+      failed_when: false
+      changed_when: false
 
     #
     # Add repository only if the repository is reachable
@@ -131,14 +134,14 @@
             src: "templates/tag.repo.j2"
             dest: /etc/yum.repos.d/tag-repository.repo
 
-      when: http_status_code.stdout == "200"
+      when: tag_repository_exist_check.status == 200
 
     #
     # Be verbose about the fact the repository is unreachable
     #
     - debug:
         msg: "Skipping adding tag repository, because location {{ tag_repository_url }} was not found or is not working"
-      when: http_status_code.stdout != "200"
+      when: tag_repository_exist_check.status != 200
 
   #
   # block: end
