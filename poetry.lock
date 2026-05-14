@@ -1830,7 +1830,7 @@ development = ["gluetool-modules-framework @ git+https://gitlab.com/testing-farm
 type = "git"
 url = "https://gitlab.com/testing-farm/pytest-gluetool.git"
 reference = "main"
-resolved_reference = "f9f71016698fda54b54018e57ba7a28bf7e3ceba"
+resolved_reference = "8afa1b43ac4c3a86ec56850af464176a72975fdf"
 
 [[package]]
 name = "pytest-html"
@@ -2127,25 +2127,25 @@ typing-extensions = {version = ">=4.4.0", markers = "python_version < \"3.13\""}
 
 [[package]]
 name = "requests"
-version = "2.32.5"
+version = "2.34.1"
 description = "Python HTTP for Humans."
 category = "main"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 files = [
-    {file = "requests-2.32.5-py3-none-any.whl", hash = "sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6"},
-    {file = "requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf"},
+    {file = "requests-2.34.1-py3-none-any.whl", hash = "sha256:bf38a3ff993960d3dd819c08862c40b3c703306eb7c744fcd9f4ddbb95b548f0"},
+    {file = "requests-2.34.1.tar.gz", hash = "sha256:0fc5669f2b69704449fe1552360bd2a73a54512dfd03e65529157f1513322beb"},
 ]
 
 [package.dependencies]
-certifi = ">=2017.4.17"
+certifi = ">=2023.5.7"
 charset_normalizer = ">=2,<4"
 idna = ">=2.5,<4"
-urllib3 = ">=1.21.1,<3"
+urllib3 = ">=1.26,<3"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
-use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<8)"]
 
 [[package]]
 name = "requests-toolbelt"
@@ -2526,27 +2526,6 @@ tornado = ["tornado (>=6)"]
 unleash = ["UnleashClient (>=6.0.1)"]
 
 [[package]]
-name = "setuptools"
-version = "82.0.1"
-description = "Most extensible Python build backend with support for C/C++ extension modules"
-category = "main"
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "setuptools-82.0.1-py3-none-any.whl", hash = "sha256:a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb"},
-    {file = "setuptools-82.0.1.tar.gz", hash = "sha256:7d872682c5d01cfde07da7bccc7b65469d3dca203318515ada1de5eda35efbf9"},
-]
-
-[package.extras]
-check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)", "ruff (>=0.13.0)"]
-core = ["importlib_metadata (>=6)", "jaraco.functools (>=4)", "jaraco.text (>=3.7)", "more_itertools", "more_itertools (>=8.8)", "packaging (>=24.2)", "tomli (>=2.0.1)", "wheel (>=0.43.0)"]
-cover = ["pytest-cov"]
-doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier", "towncrier (<24.7)"]
-enabler = ["pytest-enabler (>=2.2)"]
-test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.7.2)", "jaraco.test (>=5.5)", "packaging (>=24.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-home (>=0.5)", "pytest-perf", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
-type = ["importlib_metadata (>=7.0.2)", "jaraco.develop (>=7.21)", "mypy (>=1.18.0,<1.19.0)", "pytest-mypy"]
-
-[[package]]
 name = "shellingham"
 version = "1.5.4"
 description = "Tool to Detect Surrounding Shell"
@@ -2774,14 +2753,14 @@ widechars = ["wcwidth"]
 
 [[package]]
 name = "tft-cli"
-version = "0.0.32"
+version = "0.0.36"
 description = "Testing Farm CLI tool"
 category = "main"
 optional = false
-python-versions = "<4.0,>=3.9.2"
+python-versions = "<4.0,>=3.12"
 files = [
-    {file = "tft_cli-0.0.32-py3-none-any.whl", hash = "sha256:544c3b7b58c77d68725e8a61af63d2a9dbadee6a22517ebbeca46b55c1c014b1"},
-    {file = "tft_cli-0.0.32.tar.gz", hash = "sha256:86632c8039460e76f661250210744bca7b3a68ed6946a89613bc6d11d932251e"},
+    {file = "tft_cli-0.0.36-py3-none-any.whl", hash = "sha256:02a730bcad535acea191394c4c47dcff2f7d8b284692f6622dc790a10ec3b2bb"},
+    {file = "tft_cli-0.0.36.tar.gz", hash = "sha256:ad84293a2fca4e8693cafeb58c99ddc6488a1a5d0f28b8800be5b3770ffc2f02"},
 ]
 
 [package.dependencies]
@@ -2792,10 +2771,9 @@ dynaconf = ">=3.1.2,<4.0.0"
 keyring = ">=25.7.0,<26.0.0"
 pendulum = ">=3.0.0,<4.0.0"
 python-dotenv = ">=1.2.1,<2.0.0"
-requests = ">=2.27.1,<3.0.0"
+requests = ">=2.33.0,<3.0.0"
 rich = ">=12"
-ruamel-yaml = ">=0.18.5,<0.19.0"
-setuptools = "*"
+ruamel-yaml = "<0.20.0"
 shellingham = ">=1.3.0,<2.0.0"
 typer = ">=0.11"
 
