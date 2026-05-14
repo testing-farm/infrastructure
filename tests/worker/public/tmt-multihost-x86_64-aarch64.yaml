@@ -337,6 +337,8 @@ checks:
           HOME: /root
           PYTHONUNBUFFERED: 1
           PODMAN_IGNORE_CGROUPSV1_WARNING: 1
+          TMT_GIT_CLONE_INTERVAL: 30
+          TMT_GIT_CLONE_ATTEMPTS: 20
           TMT_PLUGIN_REPORT_REPORTPORTAL_LINK_TEMPLATE: {{ artifacts_url_pattern }}/{{ REQUEST_ID }}/#work-basic{{ '[a-zA-Z0-9_-]+' }}_{{ '{{' }} PLAN_NAME {{ '}}' }}_{{ '{{' }} RESULT.serial_number {{ '}}' }}_{{ '{{' }} RESULT.guest.name {{ '}}' }}
           POLARION_PASSWORD: hidden
           POLARION_USERNAME: user
