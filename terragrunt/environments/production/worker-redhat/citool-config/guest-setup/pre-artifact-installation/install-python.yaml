@@ -5,10 +5,14 @@
   register: _uname_arch
   changed_when: false
 
+# ensure that i386 compatibile architectures will refer to i386 standalone-python
+- name: Normalize target architecture
+  ansible.builtin.set_fact:
+    _target_arch: "{{ 'i386' if _uname_arch.stdout.strip() in ['i386', 'i486', 'i586', 'i686'] else _uname_arch.stdout.strip() }}"
+
 - name: Configure custom Python runtime
   when:
-    # Try to use system interpreter if no source defined for arch or disabled
-    - _uname_arch.stdout.strip() in python_bin_url
+    - _target_arch in python_bin_url
   block:
     - name: Install dependencies to unpack the runtime
       vars:
@@ -20,7 +24,7 @@
       ansible.builtin.raw: >-
         bash -c "set -x;
             mkdir -p {{ python_install_path }};
-            curl '{{ python_bin_url[_uname_arch.stdout.strip()] }}' \
+            curl '{{ python_bin_url[_target_arch] }}' \
             | tar -C {{ python_install_path }} -xzf -"
       retries: 5
       delay: 30
