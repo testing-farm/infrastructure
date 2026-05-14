@@ -1,3 +1,34 @@
-- name: Set UTC timezone
+- name: Set UTC timezone (Standard approach)
   timezone:
     name: "Etc/UTC"
+  when: >
+    not (ansible_distribution == "RedHat" and
+         ansible_distribution_major_version | int == 6 and
+         ansible_architecture == "s390x")
+
+- name: Set UTC timezone manually for RHEL 6 on s390x (No hwclock)
+  block:
+    - name: Ensure ZONE is set to Etc/UTC in /etc/sysconfig/clock
+      lineinfile:
+        path: /etc/sysconfig/clock
+        regexp: '^ZONE='
+        line: 'ZONE="Etc/UTC"'
+        create: yes
+
+    - name: Ensure UTC=true is set in /etc/sysconfig/clock
+      lineinfile:
+        path: /etc/sysconfig/clock
+        regexp: '^UTC='
+        line: 'UTC=true'
+        create: yes
+
+    - name: Force symlink for /etc/localtime to Etc/UTC
+      file:
+        src: /usr/share/zoneinfo/Etc/UTC
+        dest: /etc/localtime
+        state: link
+        force: yes
+  when:
+    - ansible_distribution == "RedHat"
+    - ansible_distribution_major_version | int == 6
+    - ansible_architecture == "s390x"
