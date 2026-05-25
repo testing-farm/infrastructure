@@ -66,6 +66,7 @@ $(ccbold)Environment Variables$(ccend)
   ⚙️  $(ccgreen)create/*/worker$(ccend) targets
 
      SKIP_NOMAD_START             ... Skip registering the worker to Nomad
+     SKIP_MAIN_CHECK              ... Skip the main branch check for production targets (dangerous)
 
   ⚙️  $(ccgreen)staging/*/ci$(ccend) targets
 
@@ -376,6 +377,7 @@ staging/update/public/pipeline/jobs: .FORCE  ## Update pipeline jobs on Public r
 
 # Check if the code being deployed is `main` and it is the latest one pushed to the repository
 define check_deployment_branch
+  $(if $(SKIP_MAIN_CHECK),@echo -e "\033[0;33m⚠️  Skipping main branch check (SKIP_MAIN_CHECK is set)\033[0m",\
   @branch=$$(git symbolic-ref --short HEAD); \
   if [ "$$branch" != "main" ]; then \
 		echo -e "⛔️ \033[0;31mProduction must be deployed from 'main' branch, detected '$$branch'.\033[0m"; \
@@ -385,7 +387,7 @@ define check_deployment_branch
 	if ! git status -uno | grep -q "up to date"; then \
 		echo -e "⛔️ \033[0;31mThe branch '$$branch' is not up-to-date. Please run 'git pull --rebase --autostash'.\033[0m"; \
 		exit 1; \
-	fi
+	fi)
 	@echo -e "\033[0;32m✅ branch 'main' is up-to-date with 'origin'\033[0m"
 endef
 
