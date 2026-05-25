@@ -28,4 +28,8 @@ STATUS=$(echo "$ALLOCATION" | jq -r .ClientStatus)
 TASK=$(echo "$ALLOCATION" | jq -r .TaskGroup)
 ALLOC_ID=$(echo "$ALLOCATION" | jq -r .ID)
 
-nomad alloc exec -i -t -task "$TASK" "$ALLOC_ID" podman exec -it "$REQUEST_ID" bash
+if [ -n "${NOMAD_SSH:-}" ]; then
+    $NOMAD_SSH -tt nomad alloc exec -i -t -task "$TASK" "$ALLOC_ID" podman exec -it "$REQUEST_ID" bash
+else
+    nomad alloc exec -i -t -task "$TASK" "$ALLOC_ID" podman exec -it "$REQUEST_ID" bash
+fi
