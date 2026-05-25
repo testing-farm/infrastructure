@@ -434,8 +434,10 @@ production/public/proxy/nomad:  ## Setup ssh proxy for Public ranch nomad
 production/public/request/shell: production/public/proxy/nomad  ## Connect to shell of a running Public ranch request
 	@setup/request_shell.sh $(SCALE_TARGET)
 
-production/redhat/request/shell: ## Connect to shell of a running Public ranch request
-	@NOMAD_ADDR=http://testing-farm-server-01.osci.redhat.com:4646 bash setup/request_shell.sh "$(SCALE_TARGET)"
+production/redhat/request/shell:  ## Connect to shell of a running Red Hat ranch request
+	@NOMAD_SSH="ssh fedora@testing-farm-server-01.osci.redhat.com" \
+		NOMAD_ADDR=http://testing-farm-server-01.osci.redhat.com:4646 \
+		bash setup/request_shell.sh "$(SCALE_TARGET)"
 
 .create/redhat/worker%:
 	ansible-playbook -e deployment=production ${SKIP_NOMAD_START} -v ansible/playbooks/create-redhat-worker.yaml
