@@ -74,7 +74,7 @@ api_hostname: api.staging.testing-farm.io
 
 # worker instance details
 worker_instance_type: i3.large
-worker_image_id: ami-02942164e2807a6a8  # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-2-gp3-0
+worker_image_id: ami-0a1710175956a1176  # Fedora-Cloud-Base-AmazonEC2.x86_64-44-20260524.0
 worker_subnet: subnet-4f971734
 worker_security_group: sg-0040a2477d37dd6d0
 
