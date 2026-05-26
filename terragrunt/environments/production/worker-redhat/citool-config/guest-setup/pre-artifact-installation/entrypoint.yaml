@@ -12,6 +12,9 @@
   vars:
     pkg_retry_count: 5
     pkg_retry_delay: 30
+  module_defaults:
+    ansible.builtin.package:
+      use: "{{ _pkg_module | default('auto') }}"
   tasks:
   # NOTE: This task MUST run with facts, part of install-python
   #
@@ -22,10 +25,25 @@
     when: "ansible_pkg_mgr in ['unknown', 'dnf']"
     ansible.builtin.set_fact:
       ansible_package_use: "testing_farm_profiles.library.dnf_yum_cli"  # noqa: var-naming
+  #
+  # Ansible 2.16 incorrectly detects `ansible_pkg_mgr` as `yum` on Fedora ELN, even though
+  # `/usr/bin/yum` and `/usr/bin/dnf` are symlinks to `/usr/bin/dnf5`. Ansible 2.18+ correctly
+  # detects `dnf5`. No supported Fedora release uses yum, so this override is always safe.
+  # Since `set_fact` cannot override gathered facts in `ansible_facts` dict, we use
+  # `module_defaults` with `_pkg_module` variable instead.
+  #
+  - name: Fix incorrect yum package manager detection on Fedora (Ansible 2.16 workaround)
+    when:
+      - ansible_distribution == "Fedora"
+      - ansible_pkg_mgr == "yum"
+    ansible.builtin.set_fact:
+      _pkg_module: dnf5
   # Workaround download.eng.bos.redhat.com deprecation
   - include_tasks: workaround-eng-bos.yaml
   # Beaker client repository related workarounds
   - include_tasks: workaround-beaker-client-repo.yaml
+  # Fedora ELN workarounds
+  - include_tasks: workaround-fedora-eln.yaml
   # DNF5 needs an early workaround
   - include_tasks: workaround-dnf5.yaml
   # centos-7, centos-8 and cetos-stream-8 workarounds need to be run before installing RH certs,
