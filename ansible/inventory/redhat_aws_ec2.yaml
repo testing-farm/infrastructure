@@ -16,11 +16,9 @@ profile: redhat_us_east_1_ansible_inventory
 regions:
   - us-east-1
 
-filters:
-  tag:Name:
-    - "testing_farm_worker_*"
-    - "testing-farm-worker-*"
-  instance-state-name: "running"
+include_filters:
+  - tag:ServiceOwner:
+      - "TFT"
 
 hostnames:
   - "tag:Name"
@@ -29,4 +27,11 @@ compose:
   ansible_host: private_ip_address
 
 groups:
-  testing_farm_redhat_workers: true
+  testing_farm_redhat_workers:
+    tags.ServiceOwner == "TFT"
+    and tags.ServiceComponent == "Worker"
+    and tags.ServicePhase == "Prod"
+  testing_farm_redhat_servers:
+    tags.ServiceOwner == "TFT"
+    and tags.ServiceComponent == "Server"
+    and tags.ServicePhase == "Prod"
