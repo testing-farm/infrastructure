@@ -1,0 +1,7 @@
+---
+
+- rule: >
+    EXISTS('TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN')
+  environment:
+    TMT_PLUGIN_REPORT_REPORTPORTAL_ARTIFACTS_URL: "{{ COLDSTORE_URL }}"
+    TMT_PLUGIN_REPORT_REPORTPORTAL_LINK_TEMPLATE: "{{ COLDSTORE_URL }}/#{{ schedule_entry.work_dirpath }}_{% raw %}{{ PLAN_NAME }}_{{ RESULT.serial_number }}_{{ RESULT.guest.name }}{% endraw %}"
