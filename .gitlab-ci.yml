@@ -67,11 +67,6 @@ workflow:
         - ansible/tasks/**/*
         - ansible/vars/**/*
 
-  terragrunt_github:
-    - !reference [.rules, infrastructure]
-    - changes:
-        - terragrunt/environments/github/**/*
-
   terragrunt_modules_infra:
     - changes:
         - terragrunt/modules/gitlab/**/*
@@ -356,22 +351,6 @@ test/terraform/modules:
     - !reference [.rules, terragrunt_modules_infra]
     - !reference [.rules, terragrunt_modules_testing_farm]
 
-test/github:
-  extends: .direnv
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    TERRAGRUNT_PARALLELISM: 3
-    SCRIPT: >-
-      make github/init &&
-      make github/plan
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, not_schedule]
-    - !reference [.rules, terragrunt_github]
-
 test/infra:
   extends: .direnv
   stage: test
@@ -461,22 +440,6 @@ cleanup/dev:
     - !reference [.rules, only_schedule]
     - if: '$SCHEDULED_JOB == "cleanup/dev"'
 
-deploy/github:
-  extends: .direnv
-  stage: deploy
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    TERRAGRUNT_PARALLELISM: 3
-    SCRIPT: >-
-      make github/init &&
-      make github/apply
-  rules:
-    - !reference [.rules, only_default_branch]
-    - !reference [.rules, not_schedule]
-    - !reference [.rules, terragrunt_github]
-
 deploy/infra:
   extends: .direnv
   stage: deploy
@@ -514,9 +477,6 @@ deploy/production:
     - job: deploy/staging
       optional: true
       artifacts: false
-    - job: deploy/github
-      optional: true
-      artifacts: false
   script:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
@@ -527,7 +487,6 @@ deploy/production:
     - !reference [.rules, only_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_production]
-    - !reference [.rules, terragrunt_github]
 
 update/composes/public:
   extends: .direnv

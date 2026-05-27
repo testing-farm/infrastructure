@@ -34,7 +34,6 @@ typer = "*"
 
 [tool.poetry.scripts]
 terraform-cloud = "setup.terraform_cloud:main"
-github = "setup.github:main"
 gitlab = "setup.gitlab:main"
 generate-artemis-pools = "setup.generate_pools:main"
 
