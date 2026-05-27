@@ -3,7 +3,7 @@ how = connect
 reproducer-comment = # tmt reproducer | https://docs.testing-farm.io/Testing%20Farm/0.1/test-results.html#_reproducer
 
 # TFT-2545 - set  TMT_REPORT_ARTIFACTS_URL
-environment-variables = TMT_POLICY_ROOT=/etc/tmt/policies, TMT_REPORT_ARTIFACTS_URL={{ COLDSTORE_URL }}, TMT_PLUGIN_REPORT_REPORTPORTAL_ARTIFACTS_URL={{ COLDSTORE_URL }}, PATH=/usr/bin:/usr/sbin, HOME=/root, PYTHONUNBUFFERED=1, PODMAN_IGNORE_CGROUPSV1_WARNING=1, TMT_GIT_CLONE_INTERVAL=30, TMT_GIT_CLONE_ATTEMPTS=20
+environment-variables = TMT_POLICY_ROOT=/etc/tmt/policies, TMT_REPORT_ARTIFACTS_URL={{ COLDSTORE_URL }}, PATH=/usr/bin:/usr/sbin, HOME=/root, PYTHONUNBUFFERED=1, PODMAN_IGNORE_CGROUPSV1_WARNING=1, TMT_GIT_CLONE_INTERVAL=30, TMT_GIT_CLONE_ATTEMPTS=20
 
 #
 # polarion report plugin - pylero env vars https://github.com/RedHatQE/pylero#configuration
@@ -58,3 +58,5 @@ accepted-environment-variables =
 # NOTE: gluetool treats '#' as a string value (not a comment), therefore the last comma after the last variable is
 # required to split the string into two values 'TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN' and '# pragma: allowlist secret'
 accepted-environment-secrets = POLARION_PASSWORD, POLARION_TOKEN, TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN,  # pragma: allowlist secret
+
+tmt-environment-variables-map = ${config_root}/tmt-environment-variables-map.yaml
