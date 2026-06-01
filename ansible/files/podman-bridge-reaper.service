@@ -1,0 +1,9 @@
+[Unit]
+Description=Reap leaked/orphaned podman bridge interfaces
+Documentation=https://gitlab.com/testing-farm/infrastructure
+After=podman.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/podman-bridge-reaper.sh

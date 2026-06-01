@@ -1,0 +1,13 @@
+[Unit]
+Description=Periodically reap leaked/orphaned podman bridge interfaces
+
+[Timer]
+# First run shortly after boot, then hourly. The orphan leak rate is low
+# (~0.5/day observed), so hourly keeps the count near zero with minimal churn.
+OnBootSec=15min
+OnUnitActiveSec=1h
+# Spread the run a little to avoid all workers reaping at the exact same instant.
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target
