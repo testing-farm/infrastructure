@@ -15,6 +15,10 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = ">=2.18.1, <3.0.0"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = ">=3.2.3"
+    }
   }
 }
 
@@ -214,7 +218,44 @@ resource "aws_ec2_tag" "subnet_tag" {
   value       = "shared"
 }
 
+# Wait for the freshly created EKS API endpoint to become reachable before
+# creating any Kubernetes/Helm resources. A newly created cluster can report
+# `ACTIVE` before its public endpoint DNS has propagated to the runner's
+# resolver, which then negative-caches the `NXDOMAIN`. That previously caused
+# intermittent `dial tcp: lookup <endpoint>: no such host` failures on the
+# `kubernetes_*` resources below, breaking the dev CI pipeline at random.
+resource "null_resource" "wait_for_cluster_endpoint" {
+  triggers = {
+    cluster_endpoint = module.eks.cluster_endpoint
+  }
+
+  provisioner "local-exec" {
+    command     = <<EOT
+host="${trimprefix(module.eks.cluster_endpoint, "https://")}"
+timeout=600
+start_time=$(date +%s)
+echo "Waiting for EKS API endpoint '$host' to become reachable..."
+# A non-error HTTP response (e.g. 401) is success: it means DNS resolved and
+# the control plane answered. We only gate on reachability, not on `--fail`.
+until curl -ksS --max-time 5 "https://$host/livez" > /dev/null 2>&1; do
+  echo "EKS API endpoint '$host' not reachable yet..."
+  sleep 5
+  current_time=$(date +%s)
+  elapsed_time=$((current_time - start_time))
+  if [ "$elapsed_time" -ge "$timeout" ]; then
+    echo "Timeout reached while waiting for EKS API endpoint '$host'."
+    exit 1
+  fi
+done
+echo "EKS API endpoint '$host' is reachable."
+EOT
+    interpreter = ["/bin/bash", "-c"]
+  }
+}
+
 resource "kubernetes_storage_class" "gp3" {
+  depends_on = [null_resource.wait_for_cluster_endpoint]
+
   metadata {
     name = "gp3"
     annotations = {
@@ -234,6 +275,8 @@ resource "kubernetes_storage_class" "gp3" {
 }
 
 resource "kubernetes_namespace" "kube-addons-ns" {
+  depends_on = [null_resource.wait_for_cluster_endpoint]
+
   metadata {
     name = local.kube_addons_namespace
   }
