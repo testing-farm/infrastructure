@@ -21,7 +21,10 @@ from urllib3 import Retry
 from urllib.parse import urlparse, parse_qs
 
 TFCLOUD_VARIABLE_NAME = "TF_TOKEN_app_terraform_io"
-TFCLOUD_API_URL = f"{os.getenv('TF_VAR_terraform_api_url')}/organizations/testing-farm"
+# Maximum page size allowed by the Terraform Cloud API (default is 20).
+TFCLOUD_PAGE_SIZE = 100
+TFCLOUD_BASE_API_URL = os.getenv("TF_VAR_terraform_api_url")
+TFCLOUD_API_URL = f"{TFCLOUD_BASE_API_URL}/organizations/testing-farm"
 HEADERS = {
     "Authorization": f"Bearer {os.getenv(TFCLOUD_VARIABLE_NAME)}",
     "Content-Type": "application/vnd.api+json",
@@ -78,14 +81,18 @@ def request(
     status_codes: Optional[List[int]] = None,
     method: str = "get",
     error_response: bool = False,
+    base_url: str = TFCLOUD_API_URL,
     **kwargs: Any,
 ) -> Any:
     """
     Requests method wrapper.
+
+    By default requests are scoped to the organization (`base_url=TFCLOUD_API_URL`). Endpoints which are
+    not organization-scoped, e.g. workspace lock/unlock actions, can pass `base_url=TFCLOUD_BASE_API_URL`.
     """
     status_codes = status_codes or [200, 201]
 
-    response = getattr(session, method)(f"{TFCLOUD_API_URL}/{endpoint}", headers=HEADERS, params=params, **kwargs)
+    response = getattr(session, method)(f"{base_url}/{endpoint}", headers=HEADERS, params=params, **kwargs)
 
     if response.status_code >= 400 and response.status_code < 500:
         if error_response:
@@ -101,13 +108,29 @@ def request(
 
 def list_workspaces() -> List[Any]:
     endpoint = "workspaces"
-    responses = [request(endpoint).json()]
+    # Request the maximum page size to minimize the number of serial paginated requests;
+    # the `next` link carries `page[size]` forward, so only the first call needs it.
+    responses = [request(endpoint, params={"page[size]": TFCLOUD_PAGE_SIZE}).json()]
 
     while responses[-1]["links"]["next"]:
         params = parse_qs(urlparse(responses[-1]["links"]["next"]).query)
         responses.append(request(endpoint, params=params).json())
 
     return list(itertools.chain([workspace for response in responses for workspace in response["data"]]))
+
+
+def find_workspace(name: str) -> Dict[str, Any]:
+    """
+    Find a workspace by NAME and return its data, including its `id` and attributes.
+    """
+    response = request(f"workspaces/{name}", error_response=True)
+
+    if not response:
+        if response.status_code == 404:
+            error(f"Workspace '{name}' not found")
+        error(get_error_detail(response))
+
+    return response.json()["data"]
 
 
 @app.command("create-workspace")
@@ -147,15 +170,25 @@ def cmd_create_workspace(name: str, ignore_existing: bool = False) -> None:
 
 
 @app.command("list-workspaces")
-def cmd_list_workspaces(json: bool = False) -> None:
+def cmd_list_workspaces(json: bool = False, locked: bool = False) -> None:
     """
-    List available workspaces.
+    List available workspaces. Use `--locked` to list only locked workspaces.
     """
     workspaces = list_workspaces()
 
+    # An empty workspace list means the organization or token is misconfigured.
     if not workspaces:
         error("No workspaces found")
         return
+
+    if locked:
+        workspaces = [workspace for workspace in workspaces if workspace["attributes"]["locked"]]
+
+        # No locked workspaces is an expected state (e.g. for the scheduled unlock job), not an
+        # error - warn and exit successfully with no output so it composes cleanly in pipelines.
+        if not workspaces:
+            warn("No locked workspaces found")
+            return
 
     if json:
         print(json_module.dumps(workspaces, indent=2))
@@ -179,6 +212,40 @@ def cmd_delete_workspace(name: str, confirm: bool = False, production_confirm: b
         return
 
     warn(f"Would remove workspace '{name}'. Run with '--confirm' to really remove the item.")
+
+
+@app.command("unlock-workspace")
+def cmd_unlock_workspace(name: str, force: bool = False) -> None:
+    """
+    Unlock a workspace by NAME.
+
+    A workspace locked by a run cannot be unlocked with a plain unlock; use `--force` to force-unlock it.
+    """
+
+    workspace = find_workspace(name)
+
+    if not workspace["attributes"]["locked"]:
+        print(f"Workspace '{name}' is not locked, nothing to do.")
+        return
+
+    # Lock/unlock actions are workspace-id scoped and not organization-scoped.
+    # https://developer.hashicorp.com/terraform/cloud-docs/api-docs/workspaces#unlock-a-workspace
+    action = "force-unlock" if force else "unlock"
+    response = request(
+        f"workspaces/{workspace['id']}/actions/{action}",
+        method="post",
+        error_response=True,
+        base_url=TFCLOUD_BASE_API_URL,
+    )
+
+    if not response:
+        hint = "" if force else " It may be locked by a run, try again with '--force'."
+        error(
+            f"Failed to unlock workspace '{name}' ({response.status_code}).{hint}",
+            get_error_detail(response),
+        )
+
+    print(f"Unlocked workspace '{name}'")
 
 
 @app.callback()
