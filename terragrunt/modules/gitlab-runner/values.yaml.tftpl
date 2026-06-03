@@ -12,15 +12,20 @@ metrics:
 runners:
   config: |
     [[runners]]
+      # Disable IPv6 in the build pod; the EKS module (v19.x) cannot inject
+      # node-level userdata for AL2023, so it is done per-job here.
+      pre_build_script = "echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6 || true"
       [runners.kubernetes]
         namespace = "{{.Release.Namespace}}"
         image = "alpine:3"
-        privileged = false
-        cpu_request = "100m"
-        cpu_limit = "2"
-        memory_request = "512Mi"
-        memory_limit = "6Gi"
+        # buildah/podman container builds run privileged.
+        privileged = true
       [runners.kubernetes.pod_labels]
         "app" = "gitlab-runner-job"
       [runners.kubernetes.pod_annotations]
         "cluster-autoscaler.kubernetes.io/safe-to-evict" = "false"
+      # /dev/fuse for fuse-overlayfs based container builds.
+      [[runners.kubernetes.volumes.host_path]]
+        name = "dev-fuse"
+        mount_path = "/dev/fuse"
+        host_path = "/dev/fuse"
