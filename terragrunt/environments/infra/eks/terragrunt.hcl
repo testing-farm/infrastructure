@@ -8,7 +8,7 @@ include "root" {
 # NOTE: we might want to later put these in a separete repository
 # NOTE: double slash, i.e. '//' is expected, see the above docs
 terraform {
-  source = "../../../modules//eks/v19"
+  source = "../../../modules//eks/v20"
 }
 
 inputs = {
@@ -24,7 +24,9 @@ inputs = {
   nat_gateway               = true
   node_group_ami_type       = "AL2023_x86_64_STANDARD"
   addons_before_compute     = true
-  node_group_instance_types = ["c7a.4xlarge"]
+  # c6id.4xlarge: 16 vCPU, 32 GiB, 1x 950 GB local NVMe (instance store).
+  # The NVMe backs containerd/kubelet via the v20 module's cloudinit NodeConfig.
+  node_group_instance_types = ["c6id.4xlarge"]
   node_group_disk_size      = 500
   node_group_scaling = {
     desired_size = 4
