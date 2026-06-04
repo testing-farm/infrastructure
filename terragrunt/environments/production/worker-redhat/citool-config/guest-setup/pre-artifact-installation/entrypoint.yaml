@@ -84,3 +84,6 @@
   # TFT-1987 - Hostname on AWS needs to be explicitely set
   - include_tasks: aws-hostname.yaml
   - include_tasks: set-timezone.yaml
+  # Refresh the metadata cache as the very last step, once all repositories are configured,
+  # to work around stale repository metadata (e.g. from Beaker repos) causing bogus dependency errors
+  - include_tasks: refresh-metadata.yaml

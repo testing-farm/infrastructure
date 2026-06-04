@@ -1,0 +1,43 @@
+---
+#
+# Refresh the package manager metadata cache.
+#
+# Stale repository metadata - for example metadata shipped by Beaker repositories - can cause
+# bogus dependency resolution errors such as:
+#
+#   Problem: cannot install both vim-common-2:8.2.2637-26.el9_8.5.x86_64 from rhel-AppStream
+#   and vim-common-2:8.2.2637-26.el9_8.5.x86_64 from @System
+#
+# Cleaning all metadata and rebuilding the cache resolves these. Skipped on image-mode guests.
+#
+# The custom standalone Python interpreter used to run Ansible lacks the package manager bindings
+# Ansible needs to identify the manager, so `ansible_pkg_mgr` is reported as "unknown" on
+# RHEL/CentOS 6 and 7. The package manager there is always yum, so fix up the misdetected fact first.
+- name: Work around undetected package manager on RHEL/CentOS 6 and 7
+  set_fact:
+    ansible_pkg_mgr: yum
+  when:
+    - ansible_pkg_mgr == "unknown"
+    - 'ansible_distribution in ["RedHat", "CentOS"]'
+    - "ansible_distribution_major_version | int in [6, 7]"
+
+- name: Clean all package manager metadata
+  command: "{{ ansible_pkg_mgr }} clean all"
+  when:
+    - '"image-mode" not in IMAGE_NAME|lower'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"pfmt" not in IMAGE_NAME|lower'
+    - '"image-mode" not in IMAGE_NAME|lower'
+
+
+- name: Rebuild package manager metadata cache
+  command: "{{ ansible_pkg_mgr }} makecache"
+  register: refresh_metadata_makecache
+  retries: "{{ pkg_retry_count }}"
+  delay: "{{ pkg_retry_delay }}"
+  until: refresh_metadata_makecache is succeeded
+  when:
+    - '"image-mode" not in IMAGE_NAME|lower'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"pfmt" not in IMAGE_NAME|lower'
+    - '"image-mode" not in IMAGE_NAME|lower'
