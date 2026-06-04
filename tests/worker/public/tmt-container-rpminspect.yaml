@@ -45,6 +45,7 @@ checks:
           <property name="baseosci.testcase.source.url" value=""/>
           <property name="baseosci.variant" value=""/>
           <property name="id" value="work-rpminspect{{ '.+' }}_rpminspect_1_default-0"/>
+          <property name="web-link" value=""/>
          </properties>
          <logs>
           <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
