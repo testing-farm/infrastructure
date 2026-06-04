@@ -209,7 +209,7 @@ data "ansiblevault_path" "vault_ssh_key" {
 
 resource "helm_release" "artemis" {
   name       = var.release_name
-  repository = "https://testing-farm.gitlab.io/artemis-helm/dev"
+  repository = "https://gitlab.com/api/v4/projects/30361172/packages/helm/stable"
   chart      = "artemis-core"
   version    = "0.0.5"
   namespace  = var.namespace
