@@ -35,3 +35,6 @@
         - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.library.time
+      vars:
+        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configure-ec2-ntp.html
+        time_ntp_server: 169.254.169.123
