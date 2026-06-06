@@ -45,6 +45,7 @@ checks:
           <property name="baseosci.testcase.source.url" value=""/>
           <property name="baseosci.variant" value=""/>
           <property name="id" value="work-sanity{{ '.+' }}_testing-farm-sanity_1_default-0"/>
+          <property name="web-link" value=""/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/testing-farm/script"/>
          <logs>
