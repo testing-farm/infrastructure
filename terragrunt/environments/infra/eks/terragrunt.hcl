@@ -24,11 +24,11 @@ inputs = {
   nat_gateway               = true
   node_group_ami_type       = "AL2023_x86_64_STANDARD"
   addons_before_compute     = true
-  node_group_instance_types = ["r6a.2xlarge"]
+  node_group_instance_types = ["c7a.4xlarge"]
   node_group_disk_size      = 500
   node_group_scaling = {
-    desired_size = 2
-    max_size     = 6
-    min_size     = 2
+    desired_size = 4
+    max_size     = 8
+    min_size     = 4
   }
 }
