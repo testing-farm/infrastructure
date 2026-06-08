@@ -20,10 +20,10 @@ inputs = {
 
   vpc_id = "vpc-0f6baa3d6bae8d912"
   # Private subnets routed through NAT gateway for stable egress IP
-  subnets                   = ["subnet-03c46e32396b50643", "subnet-0c31de6da86b6770f"]
-  nat_gateway               = true
-  node_group_ami_type       = "AL2023_x86_64_STANDARD"
-  addons_before_compute     = true
+  subnets               = ["subnet-03c46e32396b50643", "subnet-0c31de6da86b6770f"]
+  nat_gateway           = true
+  node_group_ami_type   = "AL2023_x86_64_STANDARD"
+  addons_before_compute = true
   # c6id.4xlarge: 16 vCPU, 32 GiB, 1x 950 GB local NVMe (instance store).
   # The NVMe backs containerd/kubelet via the v20 module's cloudinit NodeConfig.
   node_group_instance_types = ["c6id.4xlarge"]
