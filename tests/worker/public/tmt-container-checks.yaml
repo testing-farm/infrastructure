@@ -45,7 +45,7 @@ checks:
           <property name="baseosci.testcase.source.url" value=""/>
           <property name="baseosci.variant" value=""/>
           <property name="id" value="work-sanity{{ '.+' }}_testing-farm-sanity_1_default-0"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/janhavlin/tests/tree/gluetool/tmt-checks/testing-farm/script/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/testing-farm/script"/>
          <logs>

@@ -44,7 +44,7 @@ checks:
          <properties>
           <property name="contact" value="Testing Farm Contact &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_1_{{ '(server|client)' }}"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/tests/multihost/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/server-setup/testing-farm/tests/multihost/A"/>
          <logs>
@@ -66,7 +66,7 @@ checks:
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_2_{{ '(server|client)' }}"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/tests/multihost/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/tests/testing-farm/tests/multihost/B"/>
          <logs>
@@ -88,7 +88,7 @@ checks:
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_2_{{ '(server|client)' }}"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/tests/multihost/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/tests/testing-farm/tests/multihost/B"/>
          <logs>
@@ -110,7 +110,7 @@ checks:
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_3_{{ '(server|client)' }}"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/tests/multihost/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/tests/testing-farm/tests/multihost/C"/>
          <logs>
@@ -132,7 +132,7 @@ checks:
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_3_{{ '(server|client)' }}"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/tests/multihost/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/tests/testing-farm/tests/multihost/C"/>
          <logs>
@@ -180,7 +180,7 @@ checks:
          <properties>
           <property name="contact" value="Testing Farm Contact &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_1_{{ '(server|client)' }}"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/tests/multihost/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/server-setup/testing-farm/tests/multihost/A"/>
          <logs>
@@ -202,7 +202,7 @@ checks:
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_2_{{ '(server|client)' }}"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/tests/multihost/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/tests/testing-farm/tests/multihost/B"/>
          <logs>
@@ -224,7 +224,7 @@ checks:
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_2_{{ '(server|client)' }}"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/tests/multihost/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/tests/testing-farm/tests/multihost/B"/>
          <logs>
@@ -246,7 +246,7 @@ checks:
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_3_{{ '(server|client)' }}"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/tests/multihost/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/tests/testing-farm/tests/multihost/C"/>
          <logs>
@@ -268,7 +268,7 @@ checks:
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-basic{{ '.+' }}_testing-farm-multihost-basic_3_{{ '(server|client)' }}"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/tests/multihost/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/tests/testing-farm/tests/multihost/C"/>
          <logs>
@@ -347,5 +347,4 @@ checks:
           TMT_VERSION: {{ '\d+' }}.{{ '\d+' }}.{{ '\d+' }}
           TMT_TREE: /var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/tree
           TMT_PLAN_DATA: /var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/data
-          TMT_PLAN_ENVIRONMENT_FILE: /var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/data/variables.env
           TMT_PLAN_SOURCE_SCRIPT: /var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/data/plan-source-script.sh

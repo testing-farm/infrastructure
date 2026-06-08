@@ -49,7 +49,7 @@ checks:
           <property name="baseosci.variant" value=""/>
           <property name="contact" value="Testing Farm Contact &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-failure{{ '.+' }}_testing-farm-failure_1_default-0"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/failure/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/testing-farm/failure"/>
          <logs>

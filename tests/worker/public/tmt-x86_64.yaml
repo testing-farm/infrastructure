@@ -28,5 +28,4 @@ checks:
           TMT_VERSION: {{ '\d+' }}.{{ '\d+' }}.{{ '\d+' }}
           TMT_TREE: /var/ARTIFACTS/work-sanity{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/tree
           TMT_PLAN_DATA: /var/ARTIFACTS/work-sanity{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/data
-          TMT_PLAN_ENVIRONMENT_FILE: /var/ARTIFACTS/work-sanity{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/data/variables.env
           TMT_PLAN_SOURCE_SCRIPT: /var/ARTIFACTS/work-sanity{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/data/plan-source-script.sh
