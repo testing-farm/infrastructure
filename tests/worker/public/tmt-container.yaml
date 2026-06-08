@@ -48,7 +48,7 @@ checks:
           <property name="contact" value="Testing Farm Contact1 &lt;tft@redhat.com&gt;"/>
           <property name="contact" value="Testing Farm Contact2 &lt;tft@redhat.com&gt;"/>
           <property name="id" value="work-sanity{{ '.+' }}_testing-farm-sanity_1_default-0"/>
-          <property name="web-link" value=""/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/script/main.fmf"/>
          </properties>
          <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/testing-farm/script"/>
          <logs>
