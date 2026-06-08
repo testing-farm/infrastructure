@@ -28,9 +28,14 @@ network_names=$(podman network ls --quiet)
 
 # The default `podman0` is always protected, even before any container attaches.
 declare -A owned=([podman0]=1)
-while read -r iface; do
-    [[ -n $iface ]] && owned[$iface]=1
-done < <(podman network inspect --format '{{.NetworkInterface}}' $network_names 2>/dev/null || true)
+if [[ -n $network_names ]]; then
+    # Capture via command substitution (not process substitution) so a failing
+    # inspect aborts via `set -e` before any deletion -- fail closed.
+    network_interfaces=$(podman network inspect --format '{{.NetworkInterface}}' $network_names)
+    while read -r iface; do
+        [[ -n $iface ]] && owned[$iface]=1
+    done <<< "$network_interfaces"
+fi
 
 reaped=0
 for path in /sys/class/net/podman[0-9]*; do
