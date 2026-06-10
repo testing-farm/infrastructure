@@ -29,8 +29,12 @@
         - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.workarounds.dns
-    - include_tasks: enable-crb.yaml
-    - include_tasks: enable-powertools.yaml
+    - name: testing_farm_profiles.repository.crb
+      when:
+        - '"auto-osbuild" not in IMAGE_NAME|lower'
+        - '"pfmt" not in IMAGE_NAME|lower'
+      ansible.builtin.include_role:
+        name: testing_farm_profiles.repository.crb
     - include_tasks: install-epel.yaml
     - include_tasks: workaround-beakerlib.yaml
     - include_tasks: install-koji-brew.yaml
