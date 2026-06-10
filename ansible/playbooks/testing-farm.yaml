@@ -24,6 +24,8 @@
       tags: update_config
     - import_tasks: ../tasks/image.yaml
       tags: update_image
+    - import_tasks: ../tasks/terragrunt.yaml
+      when: "'testing_farm_public_workers' in group_names"
   roles:
     - name: geerlingguy.swap
       vars:
