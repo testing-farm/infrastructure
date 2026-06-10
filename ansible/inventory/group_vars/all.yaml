@@ -1,2 +1,8 @@
 ---
 ansible_user: fedora
+
+# Pin node_exporter version to avoid the unauthenticated GitHub API call the
+# geerlingguy.node_exporter role makes when the version is "latest" (60 req/hour
+# per IP, which gets rate-limited during worker creation). Bump manually as needed:
+# https://github.com/prometheus/node_exporter/releases/
+node_exporter_version: '1.11.1'
