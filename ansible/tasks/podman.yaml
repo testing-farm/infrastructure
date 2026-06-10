@@ -49,6 +49,32 @@
           podman system prune --force --volumes
         special_time: daily
 
+    - name: "Install podman bridge reaper script"
+      copy:
+        src: "{{ ansible_dir }}/files/podman-bridge-reaper.sh"
+        dest: /usr/local/bin/podman-bridge-reaper.sh
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: "Install podman bridge reaper systemd units"
+      copy:
+        src: "{{ ansible_dir }}/files/{{ item }}"
+        dest: "/etc/systemd/system/{{ item }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - podman-bridge-reaper.service
+        - podman-bridge-reaper.timer
+
+    - name: "Enable and start podman bridge reaper timer"
+      systemd:
+        name: podman-bridge-reaper.timer
+        enabled: true
+        state: started
+        daemon_reload: true
+
     - name: "Create /root/.docker directory"
       file:
         path: /root/.docker
