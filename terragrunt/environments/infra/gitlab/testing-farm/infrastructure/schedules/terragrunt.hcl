@@ -42,6 +42,14 @@ inputs = {
       variables = {
         "SCHEDULED_JOB" : "cleanup/dev"
       }
+    },
+    {
+      description   = "Renew staging Let's Encrypt certificates"
+      git_ref       = "main"
+      cron_schedule = "0 4 1 * *"
+      variables = {
+        "SCHEDULED_JOB" : "renew/certs"
+      }
     }
   ]
 }
