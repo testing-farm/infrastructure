@@ -503,3 +503,16 @@ update/composes/public:
   rules:
     - !reference [.rules, only_schedule]
     - if: '$SCHEDULED_JOB == "compose/update/public"'
+
+renew/certs:
+  extends: .direnv
+  stage: deploy
+  script:
+    - !reference [.direnv, script]
+    # Renews the staging and staging-ci Let's Encrypt wildcard certs via DNS-01
+    # (Route53) and opens an MR with the re-encrypted vault files. Merge then
+    # redeploy staging to bake the new certs into the server ignition.
+    - setup/renew_certs.sh
+  rules:
+    - !reference [.rules, only_schedule]
+    - if: '$SCHEDULED_JOB == "renew/certs"'
