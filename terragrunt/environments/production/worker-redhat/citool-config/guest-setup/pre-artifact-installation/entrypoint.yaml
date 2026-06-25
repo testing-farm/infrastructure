@@ -85,7 +85,12 @@
   - include_tasks: enable-buildroot.yaml
   # TFT-1987 - Hostname on AWS needs to be explicitely set
   - include_tasks: aws-hostname.yaml
-  - include_tasks: set-timezone.yaml
+  - name: testing_farm_profiles.library.time
+    when:
+      - '"auto-osbuild" not in IMAGE_NAME|lower'
+      - '"pfmt" not in IMAGE_NAME|lower'
+    ansible.builtin.include_role:
+      name: testing_farm_profiles.library.time
   # Refresh the metadata cache as the very last step, once all repositories are configured,
   # to work around stale repository metadata (e.g. from Beaker repos) causing bogus dependency errors
   - include_tasks: refresh-metadata.yaml
