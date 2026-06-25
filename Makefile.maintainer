@@ -627,6 +627,21 @@ wait/artemis/staging/ci: .FORCE  ## Wait until Artemis is available | staging | 
 	@ARTEMIS_DEPLOYMENT=ci/artemis bash setup/wait_artemis_available.sh staging
 
 
+##@ Containers
+
+RANCH_REDHAT_IMAGE_NAME ?= quay.io/testing-farm/ranch-redhat
+RANCH_REDHAT_IMAGE_TAG ?= ${USER}
+
+container/build/ranch-redhat: .FORCE  ## Build ranch-redhat citool-config container
+	buildah bud \
+		-t $(RANCH_REDHAT_IMAGE_NAME):$(RANCH_REDHAT_IMAGE_TAG) \
+		-f container/ranch-redhat/Containerfile \
+		terragrunt/environments/production/worker-redhat
+
+container/push/ranch-redhat: .FORCE  ## Push ranch-redhat container
+	buildah push $(RANCH_REDHAT_IMAGE_NAME):$(RANCH_REDHAT_IMAGE_TAG)
+
+
 ##@ Cleanup | maintainer
 
 terminate/artemis/guests/dev: .FORCE  ## Terminate all EC2 instances created by Artemis | dev
