@@ -132,6 +132,11 @@ workflow:
         - tests/worker/public/tmt*
         - tests/worker/public/sti*
 
+  redhat_pipeline_tests:
+    - changes:
+        - tests/testing-farm/base-scenarios/**/*
+        - tests/testing-farm/redhat/**/*
+
 direnv:
   stage: test
   before_script:
@@ -399,6 +404,23 @@ test/production:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_production]
+
+test/testing-farm/ranch-redhat:
+  stage: test
+  image: quay.io/testing-farm/cli:latest
+  script:
+    - >
+      TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT_ADMIN testing-farm request \
+        --git-ref $CI_MERGE_REQUEST_REF_PATH \
+        --git-url $CI_MERGE_REQUEST_PROJECT_URL \
+        --plan /tests/testing-farm/pytest-gluetool-redhat \
+        --secret TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT_ADMIN \
+        --environment "EXTRA_TESTING_FARM_ARGS='--worker-config-image quay.io/testing-farm/ranch-redhat:latest'" \
+        --skip-summary
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
+    - !reference [.rules, redhat_pipeline_tests]
 
 redeploy/staging:
   extends: .direnv
