@@ -1,0 +1,92 @@
+---
+
+name: base-tmt_checks
+
+variables:
+  REQUEST_ID: "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
+  ARCH: change-me
+  RESULT: change-me
+  COMPOSE: change-me
+  GIT_CLONE_URL: change-me
+  GIT_REF: change-me
+  PLAN: change-me
+  SCHEDULE_ENTRIES: 1
+  TMT_EXIT_CODE: 0
+
+checks:
+  literal-strings:
+    - "[git] <RemoteGitRepository(clone_url={{ GIT_CLONE_URL }}, branch=not specified, ref={{ GIT_REF }})>"
+    - "[test-schedule-tmt-connect] cloning repo {{ GIT_CLONE_URL }} (branch not specified, ref {{ GIT_REF }})"
+    - "[test-schedule-tmt-connect] cloning repo"
+    - "[test-schedule-runner] running test schedule of {{ SCHEDULE_ENTRIES }} entries"
+
+  literal-strings[citool-debug.txt]:
+    - "[test-schedule-report] results saved into results.xml"
+    - "[test-schedule-report] results saved into results-junit.xml"
+
+  literal-patterns:
+    - "[testing-farm-request] Connected to Testing Farm Service 'https://api.dev.testing-farm.io', 'https://internal.api.dev.testing-farm.io'"
+    - "[coldstore] For the pipeline artifacts, see {{ artifacts_redhat_url_pattern }}/{{ REQUEST_ID }}"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Guest is being provisioned"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Guest is ready"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Guest has become alive"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Guest provisioned"
+    - "[artemis] [{{ artemis_guestname_pattern }}] destroying guest"
+    - "[artemis] [{{ artemis_guestname_pattern }}] successfully released"
+    - "[test-schedule-tmt-connect] tmt exited with code {{ TMT_EXIT_CODE }}"
+    - "[test-schedule-report] Result of testing: {{ RESULT }}"
+
+    - table:
+        -
+          - "{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}"
+          - CREATED
+          - OK
+          - UNDEFINED
+          - "{{ ARCH }} {{ COMPOSE }} S-"
+          - ""
+          - tmt
+
+    - table:
+        -
+          - "{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}"
+          - GUEST_SETUP
+          - OK
+          - UNDEFINED
+          - "{{ ARCH }} {{ COMPOSE }} S-"
+          - "{{ ARCH }} {{ COMPOSE }} S-"
+          - tmt
+
+    - table:
+        -
+          - "{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}"
+          - RUNNING
+          - OK
+          - UNDEFINED
+          - "{{ ARCH }} {{ COMPOSE }} S-"
+          - "{{ ARCH }} {{ COMPOSE }} S-"
+          - tmt
+
+    - table:
+        -
+          - "{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}"
+          - CLEANUP
+          - OK
+          - "{{ RESULT }}"
+          - "{{ ARCH }} {{ COMPOSE }} S-"
+          - "{{ ARCH }} {{ COMPOSE }} S-"
+          - tmt
+
+    - table:
+        -
+          - "{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}"
+          - COMPLETE
+          - OK
+          - "{{ RESULT }}"
+          - "{{ ARCH }} {{ COMPOSE }} S-"
+          - "{{ ARCH }} {{ COMPOSE }} S-"
+          - tmt
+
+  artifacts:
+    - "citool-debug.txt"
+    - "citool-debug.verbose.txt"
+    - "results.xml"

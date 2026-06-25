@@ -22,7 +22,7 @@ boto3 = "*"
 "ruamel.yaml" = "*"
 tft-cli = "*"
 markupsafe = "*"
-pytest-gluetool = {git = "https://gitlab.com/testing-farm/pytest-gluetool.git", rev = "main"}
+pytest-gluetool = {git = "https://gitlab.com/testing-farm/pytest-gluetool.git", rev = "8190357321ec2f26997559130216c0cd9fb990fa"}
 # TODO: gluetool *should* be deduced as a dependecy automatically from pytest-gluetool, but that does not happen.
 # Locking without implicitily stating gluetool here doesn't actually propagate the module to the lockfile.
 gluetool = "*"
