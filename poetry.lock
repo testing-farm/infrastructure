@@ -1821,6 +1821,7 @@ pytest-localserver = "*"
 pytest-metadata = "*"
 pytest-mock = "*"
 pytest-xdist = "*"
+requests = "*"
 typing-extensions = "*"
 
 [package.extras]
@@ -1829,8 +1830,8 @@ development = ["gluetool-modules-framework @ git+https://gitlab.com/testing-farm
 [package.source]
 type = "git"
 url = "https://gitlab.com/testing-farm/pytest-gluetool.git"
-reference = "main"
-resolved_reference = "8afa1b43ac4c3a86ec56850af464176a72975fdf"
+reference = "8190357321ec2f26997559130216c0cd9fb990fa"
+resolved_reference = "8190357321ec2f26997559130216c0cd9fb990fa"
 
 [[package]]
 name = "pytest-html"
@@ -2753,14 +2754,14 @@ widechars = ["wcwidth"]
 
 [[package]]
 name = "tft-cli"
-version = "0.0.36"
+version = "0.0.37"
 description = "Testing Farm CLI tool"
 category = "main"
 optional = false
 python-versions = "<4.0,>=3.12"
 files = [
-    {file = "tft_cli-0.0.36-py3-none-any.whl", hash = "sha256:02a730bcad535acea191394c4c47dcff2f7d8b284692f6622dc790a10ec3b2bb"},
-    {file = "tft_cli-0.0.36.tar.gz", hash = "sha256:ad84293a2fca4e8693cafeb58c99ddc6488a1a5d0f28b8800be5b3770ffc2f02"},
+    {file = "tft_cli-0.0.37-py3-none-any.whl", hash = "sha256:e336629e78f4d4ad5b66454e2ca44bfd781056e9c13ab08141281f588e5e6633"},
+    {file = "tft_cli-0.0.37.tar.gz", hash = "sha256:bf55bffbf30fbd25ffb177ba821a3632e841cf1f1dd503bf5f3ef6e628a7c8d1"},
 ]
 
 [package.dependencies]
@@ -2976,4 +2977,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "8809124d6ae00dfaf28b6e39069a34e1241f0cb183027df7cf203f3e033baf74"
+content-hash = "0d3beaa75b484e3ee1061ade3aaaa41ece48ba1c703615e97c023ba9b24d9936"
