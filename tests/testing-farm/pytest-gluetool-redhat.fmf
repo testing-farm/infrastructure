@@ -1,0 +1,38 @@
+---
+summary: Run pytest-gluetool tests
+
+description: |
+  The plan runs pytest for redhat ranch integration tests.
+
+provision:
+  how: container
+  image: quay.io/testing-farm/python-ci-image:latest
+
+discover:
+  how: shell
+  tests:
+    - name: pytest-gluetool-redhat
+      test: |
+        set -x
+        poetry env use python3.12 && poetry install
+        poetry run pytest -vvv --basetemp $PWD/.pytest tests/testing-farm/test_testing_farm.py --html report.html --variables tests/common.yaml --extra-testing-farm-args "$EXTRA_TESTING_FARM_ARGS" || RC=$?
+        # tmt-file-submit does not support storing into subdirectories - workaround
+        mkdir -p "$TMT_TEST_DATA/assets"
+        cp -f assets/style.css "$TMT_TEST_DATA/assets/"
+        tmt-file-submit -l report.html
+        exit $RC
+
+environment:
+  REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-bundle.crt
+
+prepare:
+  # placeholder .vault_pass to make ansible config happy
+  - how: shell
+    name: .vault_pass
+    script: echo "foo" > .vault_pass
+  - how: ansible
+    name: install certs
+    playbook: https://gitlab.com/testing-farm/profiles/-/raw/main/library/roles/redhat_ssl_certs/playbooks/apply.yml
+
+execute:
+  how: tmt

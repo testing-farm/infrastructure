@@ -132,6 +132,11 @@ workflow:
         - tests/worker/public/tmt*
         - tests/worker/public/sti*
 
+  redhat_pipeline_tests:
+    - changes:
+        - tests/testing-farm/base-scenarios/**/*
+        - tests/testing-farm/redhat/**/*
+
 direnv:
   stage: test
   before_script:
@@ -183,7 +188,7 @@ direnv:
       - .direnv/envrc.log
     when: always
 
-ansible-vault:
+.ansible-vault:
   extends: .direnv
   stage: test
   script:
@@ -196,7 +201,7 @@ ansible-vault:
     - !reference [.rules, not_schedule]
     - !reference [.rules, secrets]
 
-pre-commit:
+.pre-commit:
   extends: .direnv
   stage: test
   variables:
@@ -216,7 +221,7 @@ pre-commit:
     - !reference [.rules, not_schedule]
     - when: always
 
-test/dev:
+.test/dev:
   extends: .direnv
   stage: test
   script:
@@ -251,7 +256,7 @@ test/dev:
     - !reference [.rules, ansible]
     - !reference [.rules, terragrunt_dev]
 
-test/staging/pipeline:
+.test/staging/pipeline:
   extends: [.direnv, .archive_tests]
   stage: test
   script:
@@ -287,7 +292,7 @@ test/staging/pipeline:
     - !reference [.rules, terragrunt_staging_ci]
     - !reference [.rules, public_pipeline_tests]
 
-test/staging/pipeline/container:
+.test/staging/pipeline/container:
   extends: [.direnv, .archive_tests]
   stage: test
   script:
@@ -307,7 +312,7 @@ test/staging/pipeline/container:
     - !reference [.rules, terragrunt_staging_ci]
     - !reference [.rules, public_pipeline_tests]
 
-test/staging/compose:
+.test/staging/compose:
   extends: [.direnv, .archive_tests]
   stage: test
   script:
@@ -343,7 +348,7 @@ test/staging/compose:
     - !reference [.rules, terragrunt_staging_ci]
     - !reference [.rules, public_compose_tests]
 
-test/terraform/modules:
+.test/terraform/modules:
   extends: [.direnv]
   stage: test
   script:
@@ -355,7 +360,7 @@ test/terraform/modules:
     - !reference [.rules, terragrunt_modules_infra]
     - !reference [.rules, terragrunt_modules_testing_farm]
 
-test/infra:
+.test/infra:
   extends: .direnv
   stage: test
   script:
@@ -371,7 +376,7 @@ test/infra:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_infra]
 
-test/staging:
+.test/staging:
   extends: .direnv
   stage: test
   script:
@@ -385,7 +390,7 @@ test/staging:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging]
 
-test/production:
+.test/production:
   extends: .direnv
   stage: test
   script:
@@ -400,7 +405,24 @@ test/production:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_production]
 
-redeploy/staging:
+test/testing-farm/ranch-redhat:
+  stage: test
+  image: quay.io/testing-farm/cli:latest
+  script:
+    - >
+      TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT_ADMIN testing-farm request \
+        --git-ref $CI_MERGE_REQUEST_REF_PATH \
+        --git-url $CI_MERGE_REQUEST_PROJECT_URL \
+        --plan /tests/testing-farm/pytest-gluetool-redhat \
+        --secret TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT_ADMIN \
+        --environment "EXTRA_TESTING_FARM_ARGS='--worker-config-image quay.io/testing-farm/ranch-redhat:404c439a'" \
+        --skip-summary
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
+    - !reference [.rules, redhat_pipeline_tests]
+
+.redeploy/staging:
   extends: .direnv
   stage: deploy
   script:
@@ -418,7 +440,7 @@ redeploy/staging:
     - !reference [.rules, only_schedule]
     - if: '$SCHEDULED_JOB == "redeploy/staging"'
 
-cleanup/ci:
+.cleanup/ci:
   extends: .direnv
   stage: deploy
   script:
@@ -431,7 +453,7 @@ cleanup/ci:
     - !reference [.rules, only_schedule]
     - if: '$SCHEDULED_JOB == "cleanup/ci"'
 
-cleanup/dev:
+.cleanup/dev:
   extends: .direnv
   stage: deploy
   script:
@@ -444,7 +466,7 @@ cleanup/dev:
     - !reference [.rules, only_schedule]
     - if: '$SCHEDULED_JOB == "cleanup/dev"'
 
-deploy/infra:
+.deploy/infra:
   extends: .direnv
   stage: deploy
   script:
@@ -459,7 +481,7 @@ deploy/infra:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_infra]
 
-deploy/staging:
+.deploy/staging:
   extends: .direnv
   stage: deploy
   script:
@@ -473,12 +495,12 @@ deploy/staging:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging]
 
-deploy/production:
+.deploy/production:
   extends: .direnv
   stage: deploy
   needs:
     # NOTE: prevent artifacts to be copied from dependant jobs, we want a fresh direnv setup here
-    - job: deploy/staging
+    - job: .deploy/staging
       optional: true
       artifacts: false
   script:
@@ -492,7 +514,7 @@ deploy/production:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_production]
 
-update/composes/public:
+.update/composes/public:
   extends: .direnv
   stage: deploy
   script:

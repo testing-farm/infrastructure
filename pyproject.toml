@@ -24,7 +24,7 @@ certbot = "*"
 certbot-dns-route53 = "*"
 tft-cli = "*"
 markupsafe = "*"
-pytest-gluetool = {git = "https://gitlab.com/testing-farm/pytest-gluetool.git", rev = "main"}
+pytest-gluetool = {git = "https://gitlab.com/testing-farm/pytest-gluetool.git", rev = "78314b8ffebf4564600b8c635b45ced50b23f3cb"}
 # TODO: gluetool *should* be deduced as a dependecy automatically from pytest-gluetool, but that does not happen.
 # Locking without implicitily stating gluetool here doesn't actually propagate the module to the lockfile.
 gluetool = "*"
