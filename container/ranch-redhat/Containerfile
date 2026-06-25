@@ -1,0 +1,13 @@
+FROM alpine:latest AS build
+COPY citool-config/ /worker/production/citool-config/
+
+# pre-artifact-installation-map has hardcoded path to /CONFIG/guest-setup/pre-artifact-installation/entrypoint.yaml,
+# create a symlink /worker/guest-setup -> /worker/production/citool-config/guest-setup
+RUN ln -s ./production/citool-config/guest-setup /worker/guest-setup
+
+# testing-farm-request config is a jinja template, simply rename it,
+# the templates will be overwritten by secrets citool-config config
+RUN mv /worker/production/citool-config/config/testing-farm-request.j2 /worker/production/citool-config/config/testing-farm-request
+
+FROM quay.io/testing-farm/noop:latest
+COPY --from=build /worker/ /worker/

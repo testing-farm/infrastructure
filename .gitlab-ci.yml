@@ -132,6 +132,11 @@ workflow:
         - tests/worker/public/tmt*
         - tests/worker/public/sti*
 
+  ranch_redhat:
+    - changes:
+        - container/ranch-redhat/**/*
+        - terragrunt/environments/production/worker-redhat/citool-config/**/*
+
 direnv:
   stage: test
   before_script:
@@ -399,6 +404,19 @@ test/production:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_production]
+
+container/build/ranch-redhat:
+  stage: build
+  image: quay.io/buildah/stable:latest
+  script:
+    - dnf -y install make
+    - buildah login -u $QUAY_USERNAME -p $QUAY_PASSWORD quay.io
+    - IS_MAINTAINER=1 RANCH_REDHAT_IMAGE_TAG=$CI_PIPELINE_ID make container/build/ranch-redhat
+    - IS_MAINTAINER=1 RANCH_REDHAT_IMAGE_TAG=$CI_PIPELINE_ID make container/push/ranch-redhat
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
+    - !reference [.rules, ranch_redhat]
 
 redeploy/staging:
   extends: .direnv
