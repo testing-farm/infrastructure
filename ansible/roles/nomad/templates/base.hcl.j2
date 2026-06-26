@@ -3,6 +3,17 @@ data_dir = "{{ nomad_data_dir }}"
 log_level = "{{ nomad_log_level }}"
 enable_syslog = {{ nomad_syslog_enable | bool | lower }}
 
+{% if _nomad_node_client | bool and not _nomad_node_server | bool %}
+# Client-only nodes (workers) only run the local HTTP API listener; bind it to
+# localhost so the unauthenticated API is not exposed on the host's network
+# interfaces. The advertise block below stays "0.0.0.0", which is Nomad's
+# sentinel to auto-detect the private IP -- this is required because Nomad
+# refuses to start if advertise defaults to localhost.
+addresses {
+  http = "127.0.0.1"
+}
+
+{% endif %}
 advertise {
   http = "0.0.0.0"
   rpc  = "0.0.0.0"
