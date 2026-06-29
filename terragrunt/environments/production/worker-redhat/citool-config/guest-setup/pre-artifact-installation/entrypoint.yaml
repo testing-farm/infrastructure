@@ -3,6 +3,7 @@
   tasks:
   - include_tasks: workaround-rhui-outdated-certs.yaml
   # Fetch custom Python runtime and override the interpreter used by Ansible
+  - include_tasks: workaround-rhui-outdated-certs.yaml
   - include_tasks: install-python.yaml
     when:
       - '"auto-osbuild" not in IMAGE_NAME|lower'
