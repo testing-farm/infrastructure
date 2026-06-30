@@ -124,11 +124,24 @@ storage:
       with_mount_unit: true
 systemd:
   units:
+    # Build the TLS fullchain.pem that nginx serves. We only bake the leaf
+    # cert.pem into the CoreOS ignition file and assemble the full chain at
+    # boot, to avoid passing the entire fullchain through ignition.
+    #
+    # Each certificate embeds an issuer URL (CA Issuers field) pointing to
+    # the next certificate up the chain. The script follows these URLs,
+    # downloading and appending each intermediate until it reaches a
+    # self-signed root (which is excluded — clients already have it in
+    # their trust store).
+    #
+    # For the current Let's Encrypt ECDSA chain this produces:
+    #   leaf → YE2 → Root YE (cross-signed by X2)
+    # which verifies against the widely-trusted ISRG Root X2.
     - name: ssl-build-fullchain.service
       enabled: true
       contents: |
         [Unit]
-        Description=Build SSL fullchain.pem by downloading intermediate certificate
+        Description=Build SSL fullchain.pem from intermediate certificates
         After=network-online.target
         Wants=network-online.target
         Before=nginx.service
@@ -136,9 +149,19 @@ systemd:
         [Service]
         Type=oneshot
         ExecStart=/bin/bash -c '\
-          ISSUER_URL=$(openssl x509 -in /etc/ssl/nginx/cert.pem -noout -text | grep "CA Issuers" | sed "s/.*URI://") && \
-          curl -sL "$ISSUER_URL" | openssl x509 -inform DER -outform PEM > /etc/ssl/nginx/intermediate.pem && \
-          cat /etc/ssl/nginx/cert.pem /etc/ssl/nginx/intermediate.pem > /etc/ssl/nginx/fullchain.pem'
+          set -euo pipefail; \
+          cp /etc/ssl/nginx/cert.pem /etc/ssl/nginx/fullchain.pem; \
+          CRT=/etc/ssl/nginx/cert.pem; \
+          for _ in 1 2 3 4 5; do \
+            URL=$(openssl x509 -in "$CRT" -noout -text | grep "CA Issuers" | sed "s/.*URI://" || true); \
+            [ -z "$URL" ] && break; \
+            CRT=$(mktemp); \
+            curl -sL --retry 3 --retry-delay 5 "$URL" | openssl x509 -inform DER -outform PEM > "$CRT"; \
+            SUBJ=$(openssl x509 -in "$CRT" -noout -subject -nameopt RFC2253 | sed "s/^subject=//"); \
+            ISSR=$(openssl x509 -in "$CRT" -noout -issuer -nameopt RFC2253 | sed "s/^issuer=//"); \
+            [ "$SUBJ" = "$ISSR" ] && break; \
+            cat "$CRT" >> /etc/ssl/nginx/fullchain.pem; \
+          done'
         RemainAfterExit=yes
 
         [Install]

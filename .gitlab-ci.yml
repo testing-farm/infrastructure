@@ -110,7 +110,11 @@ workflow:
   terragrunt_staging_ci:
     - !reference [.rules, terragrunt_testing_farm]
     - changes:
+        # The staging-ci environment sources its config from these shared
+        # staging dirs (e.g. ci/server symlinks to ../../server), so changes
+        # there must trigger the staging-ci integration tests too.
         - terragrunt/environments/staging/artemis/**/*
+        - terragrunt/environments/staging/server/**/*
         - terragrunt/environments/staging/worker-local/**/*
 
   terragrunt_production:
