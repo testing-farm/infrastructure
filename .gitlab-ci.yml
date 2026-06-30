@@ -1,6 +1,17 @@
 ---
 default:
   image: quay.io/testing-farm/python-ci-image:latest
+  # Auto-retry infrastructure-side failures only (never `script_failure`), so a
+  # runner/pod hiccup — e.g. `Job failed (system failure): couldn't get pod
+  # details: Unauthorized` when the runner is redeployed mid-job — does not turn
+  # the pipeline red. Real lint/terragrunt failures are NOT retried.
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - scheduler_failure
+      - api_failure
 
 variables:
   # GitLab CI runs in world writable directory, we need to explicitely set ANSIBLE_CONFIG
