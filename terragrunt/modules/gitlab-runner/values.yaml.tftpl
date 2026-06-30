@@ -4,6 +4,13 @@ concurrent: ${concurrent}
 ## How often to check for new jobs (seconds)
 checkInterval: ${check_interval}
 
+## On chart/config changes the runner pod is terminated with a graceful stop:
+## it stops claiming new jobs and waits for running ones to finish. This grace
+## period (matches the chart default) must exceed our longest job (~25 min) so a
+## redeploy drains in-flight jobs instead of orphaning them with
+## `couldn't get pod details: Unauthorized`.
+terminationGracePeriodSeconds: 3600
+
 ## Prometheus metrics exporter
 metrics:
   enabled: true

@@ -98,7 +98,7 @@ inputs = {
   release_name       = "gitlab-runner"
   namespace          = "gitlab-runner"
   runner_description = "testing-farm-infra EKS runner"
-  chart_version      = "0.71.0"
+  chart_version      = "0.76.3"
 
   concurrent     = 50
   check_interval = 3

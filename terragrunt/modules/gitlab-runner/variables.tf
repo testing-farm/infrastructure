@@ -30,7 +30,12 @@ variable "namespace" {
 variable "chart_version" {
   description = "Version of the gitlab-runner Helm chart."
   type        = string
-  default     = "0.71.0"
+  # 0.76.3 -> GitLab Runner 17.11.3 (last of the 17.x line). Includes the
+  # Kubernetes informer (17.9+) which tracks build-pod status via watch instead
+  # of polling `get pod`, the call behind the `Getting job pod status
+  # Unauthorized` warnings. Staying on 17.x avoids the 18.0/19.0 breaking
+  # changes.
+  default = "0.76.3"
 }
 
 variable "concurrent" {
