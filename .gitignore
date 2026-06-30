@@ -56,6 +56,7 @@ report.html
 
 # python cache
 **/__pycache__
+**/*.pyc
 
 # mypy cache
 **/.mypy_cache
