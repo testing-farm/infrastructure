@@ -40,13 +40,23 @@
     - 'ansible_architecture != "ppc64"'
 
 - block:
-    - name: Add RCM Repository for RHEL8+
+    - name: Add RCM Repository for RHEL-8 / RHEL-9 / RHEL-11 or later
       yum_repository:
         description: RCMTOOLS repository
         name: rcmtools
         state: present
         gpgcheck: no
         baseurl: "http://download.devel.redhat.com/rel-eng/RCMTOOLS/latest-RCMTOOLS-2-RHEL-{{ ansible_distribution_major_version }}/compose/BaseOS/{{ ansible_architecture }}/os/"
+      when: 'ansible_distribution_major_version | int != 10'
+
+    - name: Add RCM Repository for RHEL-10
+      yum_repository:
+        description: RCMTOOLS repository
+        name: rcmtools
+        state: present
+        gpgcheck: no
+        baseurl: "http://download.devel.redhat.com/rel-eng/RCMTOOLS/RCMTOOLS-2.0-updates-RHEL-10-20260612.1/compose/BaseOS/{{ ansible_architecture }}/os/"
+      when: 'ansible_distribution_major_version | int == 10'
 
     - name: Install Brewkoji
       package:
