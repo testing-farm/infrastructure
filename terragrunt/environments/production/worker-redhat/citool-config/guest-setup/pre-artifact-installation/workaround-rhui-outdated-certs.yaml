@@ -1,0 +1,19 @@
+---
+# older images in azure have outdated RHUI certs, preventing any work with RHUI repos
+# workaround by updating the rhui package first
+- name: Detect system vendor
+  command: cat /sys/class/dmi/id/sys_vendor
+  register: system_vendor
+  changed_when: false
+  failed_when: false
+
+- name: Fix outdated RHUI certs on older images
+  yum:
+    name: '*'
+    state: latest
+    disablerepo: '*'
+    enablerepo: '*microsoft-azure*'
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_major_version | int == 7'
+    - 'system_vendor.stdout | default('') | trim == "Microsoft Corporation"'
