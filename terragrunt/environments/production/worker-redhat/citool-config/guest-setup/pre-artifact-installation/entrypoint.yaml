@@ -1,7 +1,6 @@
 - hosts: all
   gather_facts: false
   tasks:
-  - include_tasks: workaround-rhui-outdated-certs.yaml
   # Fetch custom Python runtime and override the interpreter used by Ansible
   - include_tasks: install-python.yaml
     when:
@@ -39,6 +38,8 @@
       - ansible_pkg_mgr == "yum"
     ansible.builtin.set_fact:
       _pkg_module: dnf5
+  # Workaround RHUI outdated certs
+  - include_tasks: workaround-rhui-outdated-certs.yaml
   # Workaround download.eng.bos.redhat.com deprecation
   - include_tasks: workaround-eng-bos.yaml
   # Beaker client repository related workarounds
