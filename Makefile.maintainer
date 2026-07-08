@@ -574,10 +574,10 @@ generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
 generate/dev/citool-config/public: .FORCE  ## Generate citool-config | dev
 	WORKER=worker-public poetry run python setup/generate_environment.py dev
 
-generate/staging/citool-config: .FORCE  ## Generate citool-config for public workers | staging
+generate/staging/citool-config: .FORCE wait/artemis/staging  ## Generate citool-config for public workers | staging
 	poetry run python setup/generate_environment.py staging
 
-generate/staging/citool-config/ci: .FORCE  ## Generate citool-config | staging | CI
+generate/staging/citool-config/ci: .FORCE wait/artemis/staging/ci  ## Generate citool-config | staging | CI
 	$(call check_staging_ci_env)
 	WORKER=worker-local ARTEMIS_DEPLOYMENT=ci/artemis STAGING_CI_SUFFIX=$$STAGING_CI_SUFFIX poetry run python setup/generate_environment.py staging
 
