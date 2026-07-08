@@ -16,4 +16,4 @@
   when:
     - 'ansible_distribution == "RedHat"'
     - 'ansible_distribution_major_version | int == 7'
-    - 'system_vendor.stdout | default('') | trim == "Microsoft Corporation"'
+    - 'system_vendor.stdout | trim == "Microsoft Corporation"'
