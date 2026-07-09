@@ -16,3 +16,6 @@ terminate-process-tree = ansible-playboo
 
 # TFT-3073 - ignore failures during destroy to mitigate stuck threads
 ignore-destroy-failures = yes
+
+# TFT-4899 - increase SIGTERM timeout
+sigterm-timeout = 120
