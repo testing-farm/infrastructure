@@ -59,4 +59,26 @@ accepted-environment-variables =
 # required to split the string into two values 'TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN' and '# pragma: allowlist secret'
 accepted-environment-secrets = POLARION_PASSWORD, POLARION_TOKEN, TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN,  # pragma: allowlist secret
 
+# TFT-4839 - refuse SSH options that could execute commands, load code, forward or pivot on the worker
+unsafe-ssh-options =
+    ProxyCommand,
+    ProxyJump,
+    PermitLocalCommand,
+    LocalCommand,
+    KnownHostsCommand,
+    RemoteCommand,
+    Match,
+    Include,
+    PKCS11Provider,
+    SecurityKeyProvider,
+    ForwardAgent,
+    ForwardX11,
+    ForwardX11Trusted,
+    XAuthLocation,
+    LocalForward,
+    RemoteForward,
+    DynamicForward,
+    GatewayPorts,
+    Tunnel
+
 tmt-environment-variables-map = ${config_root}/tmt-environment-variables-map.yaml
