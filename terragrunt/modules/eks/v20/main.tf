@@ -339,6 +339,14 @@ resource "helm_release" "external-dns" {
 
   namespace = local.kube_addons_namespace
 
+  # Addons roll out concurrently on a freshly-provisioned node, so give the
+  # release more room than the 300s default `wait`. On failure, roll back and
+  # clean up so a retry (see `retryable_errors` in the env terragrunt.hcl)
+  # starts from a clean state instead of a leftover "failed" release.
+  timeout         = 600
+  atomic          = true
+  cleanup_on_fail = true
+
   set {
     name  = "provider"
     value = "aws"

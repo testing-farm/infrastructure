@@ -2,13 +2,16 @@
 # https://terragrunt.gruntwork.io/docs/reference/config-blocks-and-attributes/#skip
 skip = true
 
-# Retry on transient network errors
+# Retry on transient network errors and rollout/wait timeouts
 retry_max_attempts       = 3
 retry_sleep_interval_sec = 5
 retryable_errors = [
   "(?s).*connection reset by peer.*",
   "(?s).*TLS handshake timeout.*",
   "(?s).*connection refused.*",
+  # Helm release `wait` occasionally times out while addons roll out on a
+  # freshly-provisioned node; the retry generally succeeds.
+  "(?s).*context deadline exceeded.*",
 ]
 
 locals {
