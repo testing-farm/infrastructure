@@ -35,7 +35,12 @@
         - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.repository.crb
-    - include_tasks: install-epel.yaml
+    - name: testing_farm_profiles.repository.epel
+      when:
+        - '"auto-osbuild" not in IMAGE_NAME|lower'
+        - '"pfmt" not in IMAGE_NAME|lower'
+      ansible.builtin.include_role:
+        name: testing_farm_profiles.repository.epel
     - include_tasks: workaround-beakerlib.yaml
     - include_tasks: install-koji-brew.yaml
     # For EOL distros this can fail, ignore the fact tag repo is not around
