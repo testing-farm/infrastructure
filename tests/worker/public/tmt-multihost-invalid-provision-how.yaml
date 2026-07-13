@@ -28,6 +28,7 @@ checks:
         <property name="baseosci.overall-result" value="error"/>
        </properties>
        <testsuite name="{{ PLAN }}" result="error" tests="0" stage="complete">
+        <error message="tmt errored out" name="tmt-log" href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}/tmt-run.log"/>
         <logs>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}{{ PLAN }}/data" name="data"/>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-invalid-provision-how{{ '.+' }}/tmt-run.log" name="tmt-log"/>
