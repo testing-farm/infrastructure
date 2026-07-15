@@ -13,7 +13,13 @@
         - '"image-mode" not in IMAGE_NAME|lower'
     # DO NOT ENABLE BY DEFAULT, IT BREAKS PYTHON TEST SUITE (and can others)
     # - include_tasks: nosync.yaml
-    - include_tasks: update-and-restart.yaml
+    - name: testing_farm_profiles.library.update_and_reboot
+      when:
+        - '"auto-osbuild" not in IMAGE_NAME|lower'
+        - '"pfmt" not in IMAGE_NAME|lower'
+        - '"eln" not in IMAGE_NAME|lower'
+      ansible.builtin.include_role:
+        name: testing_farm_profiles.library.update_and_reboot
     - include_tasks: workaround-fedora-eln.yaml
     - include_tasks: workaround-fedora-rawhide.yaml
     - include_tasks: workaround-fedora-release.yaml
