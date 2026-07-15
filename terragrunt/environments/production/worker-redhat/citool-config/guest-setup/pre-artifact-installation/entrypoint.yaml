@@ -75,6 +75,8 @@
   - include_tasks: enable-crb.yaml
   - include_tasks: install-epel.yaml
   - include_tasks: enable-epel.yaml
+  # TFT-4721 - upgrade beakerlib to latest on RHEL (incl. RHEL-10) via packit COPR
+  - include_tasks: workaround-beakerlib.yaml
   # Tag repository must be enabled to bring in latest deps which passed gating
   # https://projects.engineering.redhat.com/browse/TFT-640
   - include_tasks: tag-repository.yaml
