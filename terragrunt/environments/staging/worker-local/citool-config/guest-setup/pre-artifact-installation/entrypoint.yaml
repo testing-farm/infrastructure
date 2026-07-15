@@ -42,7 +42,12 @@
       ansible.builtin.include_role:
         name: testing_farm_profiles.repository.epel
     - include_tasks: workaround-beakerlib.yaml
-    - include_tasks: install-koji-brew.yaml
+    - name: testing_farm_profiles.library.koji
+      when:
+        - '"auto-osbuild" not in IMAGE_NAME|lower'
+        - '"pfmt" not in IMAGE_NAME|lower'
+      ansible.builtin.include_role:
+        name: testing_farm_profiles.library.koji
     # For EOL distros this can fail, ignore the fact tag repo is not around
     # It is considered a nice to have, but should not fail the setup.
     - include_tasks: tag-repository.yaml
