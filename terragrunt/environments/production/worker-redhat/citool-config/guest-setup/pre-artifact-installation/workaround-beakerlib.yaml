@@ -1,0 +1,38 @@
+---
+# https://issues.redhat.com/browse/TFT-4721
+# RHEL guests (including RHEL-10) ship an old beakerlib from the base repos.
+# Enable the packit beakerlib-beakerlib-master COPR for the running major
+# version and upgrade to the latest available, so newer beakerlib features
+# (e.g. `rlImport --all` nick + name, upstream PR #199) are available.
+- block:
+  - name: Make sure dnf core plugins are installed
+    command: "dnf -y install dnf-plugins-core"
+    retries: "{{ pkg_retry_count }}"
+    delay: "{{ pkg_retry_delay }}"
+    until: result_package is succeeded
+    register: result_package
+
+  - name: Add beakerlib copr repository (rhel)
+    command: "curl -Lo /etc/yum.repos.d/beakerlib-beakerlib-master.repo https://copr.fedorainfracloud.org/coprs/packit/beakerlib-beakerlib-master/repo/epel-{{ ansible_distribution_major_version }}"
+    retries: "{{ pkg_retry_count }}"
+    delay: "{{ pkg_retry_delay }}"
+    until: result_package is succeeded
+    register: result_package
+
+  - name: Upgrade beakerlib to latest
+    package:
+      name: beakerlib
+      state: latest
+    retries: "{{ pkg_retry_count }}"
+    delay: "{{ pkg_retry_delay }}"
+    until: result_package is succeeded
+    register: result_package
+
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_major_version | int >= 8'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"pfmt" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
+    - '"image-mode" not in IMAGE_NAME|lower'
