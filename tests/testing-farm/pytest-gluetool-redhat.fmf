@@ -12,10 +12,11 @@ discover:
   how: shell
   tests:
     - name: pytest-gluetool-redhat
+      duration: 2h
       test: |
         set -x
         poetry env use python3.12 && poetry install
-        poetry run pytest $PYTEST_OPTIONS -vvv --basetemp $PWD/.pytest tests/testing-farm/test_testing_farm.py --html report.html --variables tests/common.yaml --extra-testing-farm-args "$EXTRA_TESTING_FARM_ARGS" || RC=$?
+        poetry run pytest $PYTEST_OPTIONS -n $(ls tests/testing-farm/redhat/*.yaml | wc -l) -vvv --basetemp $PWD/.pytest tests/testing-farm/test_testing_farm.py --html report.html --variables tests/common.yaml --extra-testing-farm-args "$EXTRA_TESTING_FARM_ARGS" || RC=$?
         # tmt-file-submit does not support storing into subdirectories - workaround
         mkdir -p "$TMT_TEST_DATA/assets"
         cp -f assets/style.css "$TMT_TEST_DATA/assets/"
