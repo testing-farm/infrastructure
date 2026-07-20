@@ -6,22 +6,23 @@ variable:
   REQUEST_ID: change-me
 
 pipeline: |
-  hide-secrets
   rules-engine
+  hide-secrets
+  oom
   reportportal
   testing-farm-request --request-id {{ REQUEST_ID }}
-  archive
   coldstore
+  testing-farm-request-state-reporter
+  archive
   ansible
   artemis
   fedora-copr:copr
+  install-repository
   install-copr-build
   install-koji-build-execute
-  install-repository
   guest-setup-testing-farm:guest-setup
   guest-setup-order
   git
-  testing-farm-request-state-reporter
   test-schedule-tmt-connect:test-schedule-tmt
   test-scheduler-testing-farm
   test-schedule-report
