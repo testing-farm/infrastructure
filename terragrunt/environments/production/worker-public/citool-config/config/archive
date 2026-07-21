@@ -3,6 +3,9 @@ artifacts-host = artifacts.dev.testing-farm.io
 artifacts-root = /archive
 source-destination-map = ${config_root}/source-destination-map.yaml
 archive-mode = ssh
-rsync-options = --links,--times,--verbose,--compress,--checksum
+# --exclude=plans/**/tree/ drops the tmt test checkouts (cloned test source, not
+# results) from the upload. They dominate the file count - thousands of tiny files
+# per test variant - and drive the NFS metadata load and inode pressure on the host.
+rsync-options = --links,--times,--verbose,--compress,--checksum,--exclude=plans/**/tree/
 enable-parallel-archiving = yes
 rsync-timeout = 600
