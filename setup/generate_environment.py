@@ -6,6 +6,7 @@ import os
 import stat
 import subprocess
 import sys
+import time
 
 import requests
 import ruamel.yaml
@@ -75,7 +76,21 @@ def main() -> None:
         if 'No outputs found' in artemis_api_domain:
             raise Exception(f'No Artemis hostname found, "{ARTEMIS_DEPLOYMENT}" not deployed in "{environment}" environment?')
 
-        response = requests.get(f"http://{artemis_api_domain}/current/about", allow_redirects=True)
+        # The Artemis API domain is a freshly created `external-dns` record in Route53. Even after
+        # `wait_artemis_available.sh` sees a single successful lookup, DNS can still transiently return
+        # NXDOMAIN due to negative caching and Route53 eventual consistency, so retry on failure.
+        about_url = f"http://{artemis_api_domain}/current/about"
+        retry_timeout = 300
+        start_time = time.monotonic()
+        while True:
+            try:
+                response = requests.get(about_url, allow_redirects=True)
+                break
+            except requests.exceptions.ConnectionError as exc:
+                if time.monotonic() - start_time >= retry_timeout:
+                    raise Exception(f"Artemis about endpoint '{about_url}' was not reachable within {retry_timeout} seconds.") from exc
+                print(f"Artemis about endpoint '{about_url}' not reachable yet, retrying ...")
+                time.sleep(5)
 
         if response.status_code != 200:
             raise Exception(f"Artemis about endpoint '{response.url}' returned status code '{response.status_code}'.")
