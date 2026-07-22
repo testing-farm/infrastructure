@@ -29,10 +29,22 @@ fi
 
 echo "Waiting for Artemis API to be available via '$hostname'"
 
+# The hostname is a freshly created `external-dns` record in Route53. Because of DNS negative caching
+# and Route53 eventual consistency, a single successful lookup does not mean resolution is stable yet -
+# the very next query can still return NXDOMAIN. Require several consecutive successes before declaring
+# the domain available, so callers do not hit a transient resolution failure right after this check.
+required_successes=3
+successes=0
+
 for seconds in $(seq 1 $timeout); do
     if curl --connect-timeout 1 -Lso /dev/null $hostname/current/about; then
-        echo "Artemis api domain '$hostname' was resolvable in ~$seconds seconds"
-        exit 0
+        successes=$((successes + 1))
+        if [ "$successes" -ge "$required_successes" ]; then
+            echo "Artemis api domain '$hostname' was stably resolvable in ~$seconds seconds"
+            exit 0
+        fi
+    else
+        successes=0
     fi
     sleep 1
 done
