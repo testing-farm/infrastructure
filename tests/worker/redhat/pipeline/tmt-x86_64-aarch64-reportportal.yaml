@@ -16,6 +16,8 @@ pipeline: |
   install-repository
   git
   coldstore
+  events
+  testing-farm-stage-reporter
   testing-farm-request-state-reporter
   test-schedule-tmt-connect:test-schedule-tmt
   test-scheduler-testing-farm

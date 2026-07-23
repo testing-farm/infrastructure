@@ -13,6 +13,8 @@ pipeline: |
   guest-setup-no-playbooks:guest-setup
   git
   coldstore
+  events
+  testing-farm-stage-reporter
   testing-farm-request-state-reporter
   test-schedule-tmt
   test-scheduler-testing-farm
