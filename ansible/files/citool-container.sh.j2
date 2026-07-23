@@ -51,8 +51,7 @@ if [ -n "$CITOOL_CONFIG_IMAGE" ]; then
                 {%- for s in citool_config_podman_secrets | default([]) %}
                 --secret {[ s.name ]},target={[ s.target ]}{%- if s.mode is defined %},mode={[ s.mode ]}{%- endif %}
                 {%- endfor %}"
-  CITOOL_OPTIONS=(--debug-file citool-debug.txt --verbose-file citool-debug.verbose.txt
-                  --module-config-path "/CONFIG/{[ deployment ]}/citool-config/config,/CONFIG/common/citool-config/config,/CONFIG-SECRETS/config")
+  CITOOL_OPTIONS=(--module-config-path "/CONFIG/{[ deployment ]}/citool-config/config,/CONFIG/common/citool-config/config,/CONFIG-SECRETS/config")
 fi
 
 echo "Known images:"
@@ -110,6 +109,7 @@ exec podman run --init \
                 -e NOMAD_NODE_NAME="${NOMAD_NODE_NAME}" \
                 -e NOMAD_JOB_URL="${NOMAD_JOB_URL}" \
                 ${CITOOL_CONFIG_IMAGE:+-e CITOOL_CONFIG_IMAGE="${CITOOL_CONFIG_IMAGE}"} \
+                ${CITOOL_CONFIG_IMAGE:+-e CITOOL_CONFIG_PATHS="/CONFIG/{[ deployment ]}/citool-config/citool"} \
                 ${CITOOL_EXTRA_PODMAN_ARGS} \
                 ${DOCKER_CONFIG_MOUNT} \
                 "$CITOOL_IMAGE" "${CITOOL_OPTIONS[@]}" "${CITOOL_PIPELINE[@]}"
