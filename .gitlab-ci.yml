@@ -408,7 +408,7 @@ redeploy/staging:
     - !reference [.script_with_cleanup, script]
   variables:
     SCRIPT: >-
-      make staging/init &&
+      make staging/apply &&
       make staging/destroy &&
       make staging/apply &&
       make wait/artemis/staging &&
