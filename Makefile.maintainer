@@ -522,7 +522,6 @@ define run_pytest_gluetool
 			--citool-config-image $(RANCH_PUBLIC_IMAGE) \
 			--citool-image $(WORKER_IMAGE) \
 			--test-assets tests/worker \
-			--variables .generated/$1/$2/citool-config/environment.yaml \
 			--variables tests/common.yaml \
 			--html report.html tests/worker/test_pipeline.py; \
 	else \
