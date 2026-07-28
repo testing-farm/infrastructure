@@ -34,7 +34,7 @@ CONFIG_MOUNT="-v ${CITOOL_CONFIG_DIR}:/CONFIG:O"
 if [ -n "$CITOOL_CONFIG_IMAGE" ]; then
   CONFIG_VOLUME="citool-config-${REQUEST_ID:-$$}"
   podman volume create "$CONFIG_VOLUME"
-  if ! podman run --rm --pull=newer -v "$CONFIG_VOLUME":/worker "$CITOOL_CONFIG_IMAGE"; then
+  if ! podman run --rm --pull=newer -v "$CONFIG_VOLUME:/worker/{[ deployment ]}/citool-config" "$CITOOL_CONFIG_IMAGE"; then
       echo "ERROR: Failed to pull/run config image: $CITOOL_CONFIG_IMAGE"
       podman volume rm "$CONFIG_VOLUME" 2>/dev/null || true
       exit 1
@@ -43,7 +43,7 @@ if [ -n "$CITOOL_CONFIG_IMAGE" ]; then
   # Copy environment.yaml into the volume if it exists on the host, replacing the placeholder from the config image.
   if [ -f "${CITOOL_CONFIG_DIR}/environment.yaml" ]; then
     mount_path=$(podman volume mount "$CONFIG_VOLUME") || { echo "ERROR: Failed to mount volume $CONFIG_VOLUME"; exit 1; }
-    cp "${CITOOL_CONFIG_DIR}/environment.yaml" "${mount_path}/{[ deployment ]}/citool-config/environment.yaml"
+    cp "${CITOOL_CONFIG_DIR}/environment.yaml" "${mount_path}/environment.yaml"
     podman volume unmount "$CONFIG_VOLUME"
   fi
 
@@ -51,8 +51,7 @@ if [ -n "$CITOOL_CONFIG_IMAGE" ]; then
                 {%- for s in citool_config_podman_secrets | default([]) %}
                 --secret {[ s.name ]},target={[ s.target ]}{%- if s.mode is defined %},mode={[ s.mode ]}{%- endif %}
                 {%- endfor %}"
-  CITOOL_OPTIONS=(--debug-file citool-debug.txt --verbose-file citool-debug.verbose.txt
-                  --module-config-path "/CONFIG/{[ deployment ]}/citool-config/config,/CONFIG/common/citool-config/config,/CONFIG-SECRETS/config")
+  CITOOL_OPTIONS=(--module-config-path "/CONFIG/config,/CONFIG-SECRETS/config")
 fi
 
 echo "Known images:"
