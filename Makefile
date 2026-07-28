@@ -45,6 +45,7 @@ generate-pools-%: .FORCE  ## Generate Artemis pool config for a specific environ
 
 clean: .FORCE  ## Cleanup
 	rm -rf $(ROOT_DIR)/.direnv
+	@POETRY_ENV=$$(poetry env info -p 2>/dev/null) && echo "rm -rf $$POETRY_ENV" && rm -rf "$$POETRY_ENV" || true
 	rm -rf $(ROOT_DIR)/.venv
 	rm -rf $$PROJECT_ROOT/.pytest
 	find . -name .terragrunt-cache | xargs rm -rf
