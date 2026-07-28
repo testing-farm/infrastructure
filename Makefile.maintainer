@@ -514,14 +514,15 @@ define run_pytest_gluetool
 		poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) $3 -vvv --basetemp $$PROJECT_ROOT/.pytest \
 			--color=yes \
 			--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS) \
-			-v $$PROJECT_ROOT/.generated/$1/$2/citool-config:/CONFIG-SECRETS:ro \
-			-v $$PROJECT_ROOT/.generated/$1/$2/citool-config/environment.yaml:/CONFIG/$1/citool-config/environment.yaml:ro \
-			-v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config/config/archive:/CONFIG/$1/citool-config/config/archive:ro \
-			-v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config/config/coldstore:/CONFIG/$1/citool-config/config/coldstore:ro" \
-			--citool-config "/CONFIG/$1/citool-config/config,/CONFIG/common/citool-config/config,/CONFIG-SECRETS/config" \
+				-v $$PROJECT_ROOT/.generated/$1/$2/citool-config:/CONFIG-SECRETS:ro \
+				-v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config/environment.yaml:/CONFIG/environment.yaml:ro \
+				-v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config/config/archive:/CONFIG/config/archive:ro \
+				-v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config/config/coldstore:/CONFIG/config/coldstore:ro" \
+			--citool-config "/worker/$1/citool-config" \
 			--citool-config-image $(RANCH_PUBLIC_IMAGE) \
 			--citool-image $(WORKER_IMAGE) \
 			--test-assets tests/worker \
+			--variables terragrunt/environments/$1/$2/citool-config/environment.yaml \
 			--variables tests/common.yaml \
 			--html report.html tests/worker/test_pipeline.py; \
 	else \
@@ -531,7 +532,7 @@ define run_pytest_gluetool
 			--citool-config terragrunt/environments/$1/$2/citool-config --citool-image $(WORKER_IMAGE) \
 			--test-assets tests/worker \
 			--variables terragrunt/environments/$1/$2/citool-config/variables.yaml \
-			--variables .generated/$1/$2/citool-config/environment.yaml \
+			--variables terragrunt/environments/$1/$2/citool-config/environment.yaml \
 			--variables tests/common.yaml \
 			--html report.html tests/worker/test_pipeline.py; \
 	fi

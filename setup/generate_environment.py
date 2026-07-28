@@ -3,8 +3,7 @@
 # This script can be executed using `make`.
 #
 # For the citool-config container image workflow, generated files are written to the .generated/ directory,
-# which contains a selection of citool-config files for local execution used in CI as well as credentials
-# and environment-specific values.
+# which contains the citool-config-secrets to be mounted into the worker container.
 
 import os
 import stat
@@ -106,11 +105,11 @@ def main() -> None:
 
     # Create .generated directory with secrets used for citool-config container image tests
     source_dirpath = os.path.join('terragrunt', 'environments', environment, WORKER, 'citool-config')
-    output_dirpath = os.path.join('.generated', environment, WORKER, 'citool-config')
-    os.makedirs(output_dirpath, exist_ok=True)
+    citool_config_secrets_dirpath = os.path.join('.generated', environment, WORKER, 'citool-config')
+    os.makedirs(citool_config_secrets_dirpath, exist_ok=True)
 
     template_filepath = os.path.join(source_dirpath, 'environment.yaml.j2')
-    result_template_filepath = os.path.join(output_dirpath, 'environment.yaml')
+    result_template_filepath = os.path.join(source_dirpath, 'environment.yaml')
 
     print('Generating "{}"'.format(result_template_filepath))
 
@@ -123,23 +122,28 @@ def main() -> None:
         print(template_rendered, file=f)
 
     worker_artemis_ssh_key = f'{TERRAGRUNT_ENV_DIR}/{environment}/{WORKER}/citool-config/id_rsa_artemis'
-    worker_artemis_ssh_key_decrypted = os.path.join(output_dirpath, 'id_rsa_artemis.decrypted')
 
     print(f'Decrypting "{worker_artemis_ssh_key}"')
 
     with open(worker_artemis_ssh_key, 'r') as f:
         ssh_key_encrypted = f.read()
 
-    print(f'Writing "{worker_artemis_ssh_key_decrypted}"')
+    decrypted_data = vault.decrypt(ssh_key_encrypted)
 
-    with open(worker_artemis_ssh_key_decrypted, 'wb') as f:
-        f.write(vault.decrypt(ssh_key_encrypted))
+    # Decrypted key must exist in both locations: the original citool-config directory
+    # (used by the local directory workflow) and .generated/ (used by the config image workflow).
+    for decrypted_path in (
+        f'{worker_artemis_ssh_key}.decrypted',
+        os.path.join(citool_config_secrets_dirpath, 'id_rsa_artemis.decrypted'),
+    ):
+        print(f'Writing "{decrypted_path}"')
+        with open(decrypted_path, 'wb') as f:
+            f.write(decrypted_data)
+        print(f'Setting permissions of "{decrypted_path}" to 600')
+        os.chmod(decrypted_path, stat.S_IRUSR | stat.S_IWUSR)
 
-    print(f'Setting permissions of "{worker_artemis_ssh_key_decrypted}" to 600')
-    os.chmod(worker_artemis_ssh_key_decrypted, stat.S_IRUSR | stat.S_IWUSR)
-
-    # Generate secret config files for CONFIG-SECRETS mount
-    secrets_config_dir = os.path.join(output_dirpath, 'config')
+    # Generate config files for CONFIG-SECRETS mount
+    secrets_config_dir = os.path.join(citool_config_secrets_dirpath, 'config')
     os.makedirs(secrets_config_dir, exist_ok=True)
 
     # Resolve the API key from credentials
@@ -154,10 +158,11 @@ def main() -> None:
     with open(testing_farm_request_path, 'w') as f:
         f.write(f'[default]\napi-key = {api_key}\n')
 
-    artemis_config_path = os.path.join(secrets_config_dir, 'artemis')
-    print(f'Generating "{artemis_config_path}"')
-    with open(artemis_config_path, 'w') as f:
-        f.write('[default]\nssh-key = ${config_root}/id_rsa_artemis.decrypted\n')
+    for module_name in ('artemis', 'artemis-multihost'):
+        config_path = os.path.join(secrets_config_dir, module_name)
+        print(f'Generating "{config_path}"')
+        with open(config_path, 'w') as f:
+            f.write('[default]\nssh-key = ${config_root}/id_rsa_artemis.decrypted\n')
 
 
 if __name__ == '__main__':
