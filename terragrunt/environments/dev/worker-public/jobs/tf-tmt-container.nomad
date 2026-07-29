@@ -3,7 +3,7 @@ job "tf-tmt-container" {
   datacenters = ["dc1"]
 
   parameterized {
-      meta_required = ["REQUEST_ID"]
+    meta_required = ["REQUEST_ID"]
   }
 
   group "tmt" {
@@ -17,14 +17,12 @@ job "tf-tmt-container" {
       attempts = 2
     }
 
-    # Containers can take a lot of space, especially if they download a lot of data
-    # Set to 50GB now
     ephemeral_disk {
       size = "50000"
     }
 
     task "tmt" {
-      driver = "raw_exec"
+      driver = "podman"
 
       resources {
         cpu    = 2000
@@ -32,9 +30,28 @@ job "tf-tmt-container" {
       }
 
       config {
-        command = "tf-tmt-container"
-        args = ["${NOMAD_META_REQUEST_ID}", "${NOMAD_ALLOC_DIR}"]
+        image        = "quay.io/testing-farm/worker-public:03abae02"
+        privileged   = true
+        network_mode = "host"
+        init         = true
+        security_opt = ["label=disable"]
+
+        volumes = [
+          "/etc/citool.d:/etc/gluetool.d:O",
+          "/var/ARTIFACTS:/var/ARTIFACTS:z",
+          "/run/podman/podman.sock:/run/podman/podman.sock",
+          "/root/.ssh:/root/.ssh:ro",
+        ]
+
+        entrypoint = ["/bin/tf-tmt-container"]
       }
+
+      env {
+        CONTAINER_HOST = "unix:///run/podman/podman.sock"
+        ARTIFACTS_DIR  = "/var/ARTIFACTS"
+      }
+
+      kill_timeout = "15m"
     }
   }
 }
