@@ -1,3 +1,5 @@
+plugin_dir = "{{ nomad_plugin_dir }}"
+
 client {
     enabled = true
 
@@ -20,5 +22,15 @@ client {
 plugin "raw_exec" {
     config {
         enabled = true
+    }
+}
+
+plugin "nomad-driver-podman" {
+    config {
+{% if nomad_user == "root" %}
+        socket_path = "unix:///run/podman/podman.sock"
+{% else %}
+        socket_path = "unix:///run/user/{{ nomad_uid.stdout }}/podman/podman.sock"
+{% endif %}
     }
 }

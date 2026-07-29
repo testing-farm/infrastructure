@@ -40,8 +40,8 @@ nomad_servers:
 
 # nomad role
 nomad_version: 1.7.7
-nomad_user: root
-nomad_group: root
+nomad_user: nomad
+nomad_group: nomad
 nomad_disable_update_check: true
 nomad_enabled_schedulers: batch
 nomad_node_role: client
