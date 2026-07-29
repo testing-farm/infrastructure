@@ -6,8 +6,8 @@
         state: directory
         mode: "a+rwx"
 
-    - name: Copy nomad job definitions
-      copy:
+    - name: Render nomad job definitions
+      template:
         dest: "nomad/{{ item }}.nomad"
         src: "{{ worker_deployment_data }}/jobs/{{ item }}.nomad"
         mode: "a+rwx"

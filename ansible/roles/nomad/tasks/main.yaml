@@ -8,6 +8,13 @@
   include_tasks: install.yaml
 
 - block:
+    - name: Get nomad user UID
+      command: "id -u {{ nomad_user }}"
+      register: nomad_uid
+      changed_when: false
+      when:
+        - nomad_user != "root"
+
     - name: Create directories
       become: true
       file:
@@ -19,20 +26,31 @@
       with_items:
         - "{{ nomad_data_dir }}"
 
+    - name: Set plugin directory ownership
+      file:
+        path: "{{ nomad_plugin_dir }}"
+        state: directory
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0755
+        recurse: true
+      when:
+        - nomad_user != "root"
+
     - name: Create config directory
       file:
         dest: "{{ nomad_config_dir }}"
         state: directory
-        owner: root
-        group: root
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
         mode: 0755
 
     - name: Base configuration
       template:
         src: base.hcl.j2
         dest: "{{ nomad_config_dir }}/base.hcl"
-        owner: root
-        group: root
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
         mode: 0644
       notify:
         - Restart Nomad
@@ -41,8 +59,8 @@
       template:
         src: server.hcl.j2
         dest: "{{ nomad_config_dir }}/server.hcl"
-        owner: root
-        group: root
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
         mode: 0644
       when:
         - _nomad_node_server | bool
@@ -53,8 +71,8 @@
       template:
         src: client.hcl.j2
         dest: "{{ nomad_config_dir }}/client.hcl"
-        owner: root
-        group: root
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
         mode: 0644
       when:
         - _nomad_node_client | bool
@@ -72,6 +90,217 @@
     - name: reload systemd daemon
       systemd:
         daemon_reload: true
+
+    - name: Load fuse and tun kernel modules for rootless podman
+      modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - fuse
+        - tun
+      when:
+        - _nomad_node_client | bool
+
+    - name: Persist fuse and tun modules across reboots
+      copy:
+        dest: /etc/modules-load.d/rootless-podman.conf
+        content: |
+          fuse
+          tun
+        mode: 0644
+      when:
+        - _nomad_node_client | bool
+
+    - name: Ensure /dev/fuse and /dev/net/tun are world-accessible
+      file:
+        path: "{{ item }}"
+        mode: "0666"
+      loop:
+        - /dev/fuse
+        - /dev/net/tun
+      when:
+        - _nomad_node_client | bool
+
+    - name: Delegate cgroups v2 to user sessions
+      file:
+        path: /etc/systemd/system/user@.service.d
+        state: directory
+        mode: 0755
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Configure cgroups v2 delegation
+      copy:
+        dest: /etc/systemd/system/user@.service.d/delegate.conf
+        content: |
+          [Service]
+          Delegate=cpu cpuset io memory pids
+        mode: 0644
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Set up subordinate UID ranges for rootless podman
+      command: "usermod --add-subuids 100000-165535 {{ nomad_user }}"
+      register: subuid_result
+      changed_when: subuid_result.rc == 0
+      failed_when: subuid_result.rc != 0 and 'already exists' not in (subuid_result.stderr | default(''))
+      when:
+        - nomad_user != "root"
+
+    - name: Set up subordinate GID ranges for rootless podman
+      command: "usermod --add-subgids 100000-165535 {{ nomad_user }}"
+      register: subgid_result
+      changed_when: subgid_result.rc == 0
+      failed_when: subgid_result.rc != 0 and 'already exists' not in (subgid_result.stderr | default(''))
+      when:
+        - nomad_user != "root"
+
+    - name: Enable linger for nomad user
+      command: "loginctl enable-linger {{ nomad_user }}"
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Enable and start rootful podman socket
+      systemd:
+        name: podman.socket
+        enabled: true
+        state: started
+      when:
+        - _nomad_node_client | bool
+        - nomad_user == "root"
+
+    - name: Wait for user runtime directory
+      wait_for:
+        path: "/run/user/{{ nomad_uid.stdout }}"
+        state: present
+        timeout: 10
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Enable and start rootless podman socket
+      become_user: "{{ nomad_user }}"
+      environment:
+        XDG_RUNTIME_DIR: "/run/user/{{ nomad_uid.stdout }}"
+        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ nomad_uid.stdout }}/bus"
+      systemd:
+        name: podman.socket
+        scope: user
+        enabled: true
+        state: started
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Deploy containers.conf for rootless podman remote client
+      copy:
+        dest: "{{ nomad_containers_conf_path }}"
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0644
+        content: |
+          [engine]
+          remote = true
+          active_service = "host"
+
+          [engine.service_destinations.host]
+          uri = "unix:///run/podman/podman.sock"
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Create .ssh directory for nomad user
+      file:
+        path: "{{ nomad_home_dir }}/.ssh"
+        state: directory
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0700
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Copy SSH key to nomad user
+      copy:
+        src: "{{ ssh_private_key }}"
+        dest: "{{ nomad_home_dir }}/.ssh/id_rsa"
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0600
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+        - ssh_private_key is defined
+
+    - name: Create ssh-agent systemd user service directory
+      file:
+        path: "{{ nomad_home_dir }}/.config/systemd/user"
+        state: directory
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0755
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Deploy ssh-agent systemd user service
+      copy:
+        dest: "{{ nomad_home_dir }}/.config/systemd/user/nomad-ssh-agent.service"
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0644
+        content: |
+          [Unit]
+          Description=SSH Agent for {{ nomad_user }} user
+
+          [Service]
+          Type=simple
+          Environment=SSH_AUTH_SOCK={{ nomad_home_dir }}/.ssh/agent.sock
+          ExecStartPre=/bin/rm -f {{ nomad_home_dir }}/.ssh/agent.sock
+          ExecStart=/usr/bin/ssh-agent -D -a {{ nomad_home_dir }}/.ssh/agent.sock
+          ExecStartPost=/bin/sleep 1
+          ExecStartPost=/usr/bin/ssh-add {{ nomad_home_dir }}/.ssh/id_rsa
+          ExecStopPost=/bin/rm -f {{ nomad_home_dir }}/.ssh/agent.sock
+          Restart=on-failure
+
+          [Install]
+          WantedBy=default.target
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Enable and start ssh-agent for nomad user
+      become_user: "{{ nomad_user }}"
+      environment:
+        XDG_RUNTIME_DIR: "/run/user/{{ nomad_uid.stdout }}"
+        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ nomad_uid.stdout }}/bus"
+      systemd:
+        name: nomad-ssh-agent.service
+        scope: user
+        enabled: true
+        state: started
+        daemon_reload: true
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Set podman socket path
+      set_fact:
+        nomad_podman_socket_path: "{{ '/run/podman/podman.sock' if nomad_user == 'root' else '/run/user/' + nomad_uid.stdout + '/podman/podman.sock' }}"
+      when:
+        - _nomad_node_client | bool
+
+    - name: Create artifacts directory for podman-based worker jobs
+      file:
+        path: "{{ nomad_artifacts_dir }}"
+        state: directory
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0755
+      when: _nomad_node_client | bool
 
     - name: Start Nomad
       service:
