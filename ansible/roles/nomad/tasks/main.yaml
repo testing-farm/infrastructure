@@ -73,6 +73,41 @@
       systemd:
         daemon_reload: true
 
+    - name: Enable and start podman socket for nomad-driver-podman
+      systemd:
+        name: podman.socket
+        enabled: true
+        state: started
+      when:
+        - _nomad_node_client | bool
+        - nomad_user == "root"
+
+    - name: Enable linger for nomad user
+      command: "loginctl enable-linger {{ nomad_user }}"
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Enable and start podman socket (user) for nomad-driver-podman
+      become_user: "{{ nomad_user }}"
+      systemd:
+        name: podman.socket
+        scope: user
+        enabled: true
+        state: started
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Create artifacts directory for podman-based worker jobs
+      file:
+        path: "{{ nomad_artifacts_dir }}"
+        state: directory
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0755
+      when: _nomad_node_client | bool
+
     - name: Start Nomad
       service:
         name: nomad

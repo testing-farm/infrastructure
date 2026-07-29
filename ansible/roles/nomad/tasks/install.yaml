@@ -35,6 +35,35 @@
     mode: 0755
     remote_src: true
 
+- name: Create Nomad plugin directory
+  become: true
+  file:
+    path: "{{ nomad_plugin_dir }}"
+    state: directory
+    owner: "{{ nomad_user }}"
+    group: "{{ nomad_group }}"
+    mode: 0755
+
+- name: Download Nomad podman driver
+  command: "curl -Lo {{ download.path }}/{{ nomad_driver_podman_pkg }} {{ nomad_driver_podman_zip_url }}"
+  tags:
+    - skip_ansible_lint
+
+- name: Unarchive Nomad podman driver
+  become: true
+  unarchive:
+    src: "{{ download.path }}/{{ nomad_driver_podman_pkg }}"
+    dest: "{{ nomad_plugin_dir }}"
+    remote_src: true
+
+- name: Set podman driver permissions
+  become: true
+  file:
+    path: "{{ nomad_plugin_dir }}/nomad-driver-podman"
+    owner: "{{ nomad_user }}"
+    group: "{{ nomad_group }}"
+    mode: 0755
+
 - name: Cleanup
   file:
     path: "{{ download.path }}"
