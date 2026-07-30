@@ -3,6 +3,10 @@ artifacts-host = {{ artifacts_user }}@{{ artifacts_hostname }}
 artifacts-root = /var/artifacts
 source-destination-map = ${config_root}/source-destination-map.yaml
 archive-mode = ssh
-rsync-options = --links,--times,--verbose,--compress
+# Excludes:
+# * plans/**/tree/ - tmt test trees can be very large in some cases, caused outage in 2026
+# * plans/**/discover/ - discover step data not needed in the results
+# * rpminspect/tree/workdir - failed rpminspect requests can leave their workdir with thousands of files
+rsync-options = --links,--times,--verbose,--compress,--exclude=plans/**/tree/,--exclude=plans/**/discover/,--exclude=rpminspect/tree/workdir/
 enable-parallel-archiving = yes
 rsync-timeout = 600
