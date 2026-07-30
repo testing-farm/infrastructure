@@ -43,6 +43,9 @@ destroy:
     exclude:
       - "^citool-debug.txt$"
       - "^citool-debug.verbose.txt$"
+      # tmt test source clone, `git-<ref>` in the pipeline root. Exclude patterns are
+      # matched against the full `./*` glob result, hence the `./` prefix.
+      - "^\\./git-"
     permissions: "777"
 
   # TFT-2413 - critical files to be present for our users
