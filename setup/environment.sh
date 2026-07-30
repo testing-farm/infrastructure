@@ -44,7 +44,12 @@ echo 'will cite' | parallel --citation 2>/dev/null || true
 # install all requirements via poetry
 #
 info "install python deps"
-poetry install &>> $LOG
+if ! POETRY_OUTPUT=$(poetry install 2>&1); then
+    echo "$POETRY_OUTPUT" >> $LOG
+    echo "$POETRY_OUTPUT" >&2
+    error "'poetry install' failed, see the output above or the full log in '$LOG'"
+fi
+echo "$POETRY_OUTPUT" >> $LOG
 
 #
 # setup git goodies
