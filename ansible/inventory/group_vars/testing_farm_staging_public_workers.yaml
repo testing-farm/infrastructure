@@ -105,6 +105,12 @@ citool_config_podman_secrets:
       ssh-key = ${config_root}/id_rsa_artemis
     target: /CONFIG-SECRETS/config/artemis
 
+  - name: artemis-multihost
+    content: |
+      [default]
+      ssh-key = ${config_root}/id_rsa_artemis
+    target: /CONFIG-SECRETS/config/artemis-multihost
+
   - name: id_rsa_artemis
     file: /etc/citool.d/id_rsa_artemis
     target: /CONFIG-SECRETS/id_rsa_artemis
