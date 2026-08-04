@@ -76,6 +76,20 @@ artemis:
     dbPool: false
     dbSlowQueries: true
 
+  %{ if artemis_sentry_enabled && artemis_sentry_dsn != null ~}
+  sentry:
+    dsn: "${artemis_sentry_dsn}"
+    eventUrlTemplate: "${artemis_sentry_event_url_template != null ? artemis_sentry_event_url_template : ""}"
+
+  extraEnv:
+    - name: ARTEMIS_SENTRY_INTEGRATIONS
+      value: "${join(",", artemis_sentry_integrations)}"
+    - name: ARTEMIS_SENTRY_ISSUES_SAMPLE_RATE
+      value: "${artemis_sentry_issues_sample_rate}"
+    - name: ARTEMIS_SENTRY_TRACING_SAMPLE_RATE
+      value: "${artemis_sentry_tracing_sample_rate}"
+  ${~ endif }
+
 postgresql:
   resources: ${jsonencode(postgresql_resources)}
   metrics:

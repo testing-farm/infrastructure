@@ -207,6 +207,16 @@ data "ansiblevault_path" "vault_ssh_key" {
   key      = var.ssh_keys[count.index].key
 }
 
+data "ansiblevault_path" "sentry_dsn" {
+  path = var.ansible_vault_credentials
+  key  = "artemis.sentry.dsn"
+}
+
+data "ansiblevault_path" "sentry_event_url_template" {
+  path = var.ansible_vault_credentials
+  key  = "artemis.sentry.event_url_template"
+}
+
 resource "helm_release" "artemis" {
   name       = var.release_name
   repository = "https://gitlab.com/api/v4/projects/30361172/packages/helm/stable"
@@ -284,6 +294,13 @@ resource "helm_release" "artemis" {
         artemis_image_tag = var.image_tag
 
         artemis_api_lb_security_group_id = aws_security_group.artemis_api_lb.id
+
+        artemis_sentry_enabled             = var.sentry_enabled
+        artemis_sentry_dsn                 = sensitive(data.ansiblevault_path.sentry_dsn.value)
+        artemis_sentry_event_url_template  = sensitive(data.ansiblevault_path.sentry_event_url_template.value)
+        artemis_sentry_integrations        = var.sentry_integrations
+        artemis_sentry_issues_sample_rate  = var.sentry_issues_sample_rate
+        artemis_sentry_tracing_sample_rate = var.sentry_tracing_sample_rate
 
         artemis_api_resources             = try(var.resources.artemis_api, {})
         artemis_dispatcher_resources      = try(var.resources.artemis_dispatcher, {})

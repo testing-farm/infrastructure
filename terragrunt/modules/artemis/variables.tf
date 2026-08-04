@@ -139,6 +139,37 @@ variable "worker_extra_env" {
   default     = []
 }
 
+variable "sentry_enabled" {
+  description = "Enable loggins to Sentry"
+  type        = bool
+  default     = false
+}
+
+variable "sentry_integrations" {
+  description = "A list of enabled Sentry integrations"
+  type        = list(string)
+  default = [
+    "logging",
+    "stdlib",
+    "excepthook",
+    "dedupe",
+    "atexit",
+    "modules",
+  ]
+}
+
+variable "sentry_issues_sample_rate" {
+  description = "The ratio of events to sample to Sentry"
+  type        = number
+  default     = 1.0
+}
+
+variable "sentry_tracing_sample_rate" {
+  description = "The ratio of events for which to submit traces to Sentry"
+  type        = number
+  default     = 0.1
+}
+
 variable "resources" {
   description = "Configure resources for pods"
   type        = map(map(map(string)))
