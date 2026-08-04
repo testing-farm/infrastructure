@@ -209,6 +209,8 @@ inputs = {
   worker_processes = 4
   worker_threads   = 8
 
+  sentry_enabled = true
+
   resources = {
     artemis_api = {
       limits = {
