@@ -209,6 +209,9 @@ inputs = {
   worker_processes = 4
   worker_threads   = 8
 
+  deployment_name        = "artemis-production-public"
+  deployment_environment = "production"
+
   sentry_enabled = true
 
   resources = {

@@ -139,6 +139,18 @@ variable "worker_extra_env" {
   default     = []
 }
 
+variable "deployment_name" {
+  description = "The name of the deployment"
+  type        = string
+  default     = "artemis"
+}
+
+variable "deployment_environment" {
+  description = "The environment name"
+  type        = string
+  default     = null
+}
+
 variable "sentry_enabled" {
   description = "Enable loggins to Sentry"
   type        = bool

@@ -197,6 +197,9 @@ inputs = {
   worker_processes = 2
   worker_threads   = 2
 
+  deployment_name        = "artemis-staging-public"
+  deployment_environment = "staging"
+
   sentry_enabled = true
 
   resources = {
