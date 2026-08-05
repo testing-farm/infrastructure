@@ -20,6 +20,10 @@
         - '"eln" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.library.update_and_reboot
+      vars:
+        # Bare metal guests power-cycle the platform on reboot, firmware POST alone
+        # takes up to ~820 seconds on the older instance generations in our pools
+        update_and_reboot_task_reboot_timeout: 1200
     - include_tasks: workaround-fedora-eln.yaml
     - include_tasks: workaround-fedora-rawhide.yaml
     - include_tasks: workaround-fedora-release.yaml
