@@ -41,8 +41,6 @@ progress:
 destroy:
   - source: "./*"
     exclude:
-      - "^citool-debug.txt$"
-      - "^citool-debug.verbose.txt$"
       # tmt test source clone, `git-<ref>` in the pipeline root. Exclude patterns are
       # matched against the full `./*` glob result, hence the `./` prefix.
       - "^\\./git-"
