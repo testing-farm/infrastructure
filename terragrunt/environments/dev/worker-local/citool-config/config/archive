@@ -4,10 +4,17 @@ artifacts-local-root=/tmp
 artifacts-root = /archive
 source-destination-map = ${config_root}/source-destination-map.yaml
 archive-mode = local
-# Excludes:
-# * plans/**/tree/ - tmt test trees can be very large in some cases, caused outage in 2026
-# * plans/**/discover/ - discover step data not needed in the results
-# * rpminspect/tree/workdir - failed rpminspect requests can leave their workdir with thousands of files
-rsync-options = --links,--times,--verbose,--compress,--checksum,--exclude=plans/**/tree/,--exclude=plans/**/discover/,--exclude=rpminspect/tree/workdir/
+# Excludes. tmt lays its work directories out as `work-<plan>*/<plan-fmf-path>/<step>/`
+# and the plan fmf path is arbitrary, so the patterns match on `work-*/`, not `plans/`.
+# * work-*/**/tree/ - tmt's copy of the metadata tree. Also covers the rpminspect
+#   workdir, which a failed request leaves behind with thousands of files.
+# * work-*/**/discover/** - the discover step: the cloned test source, mostly `.git`
+#   objects, and the dist-git checkout. `tests.yaml` is kept, it records what tmt
+#   actually discovered. Two details: the `--include` has to stay ahead of the
+#   `--exclude`, rsync takes the first matching rule, and the exclude has to name the
+#   contents, `discover/**`. Excluding `discover/` prunes the directory without
+#   descending into it and the include never gets a chance to match.
+# * work-*/**/step.yaml - tmt's per-step state, one file per step per plan.
+rsync-options = --links,--times,--verbose,--compress,--checksum,--exclude=work-*/**/tree/,--include=work-*/**/discover/tests.yaml,--exclude=work-*/**/discover/**,--exclude=work-*/**/step.yaml
 enable-parallel-archiving = yes
 rsync-timeout = 600
