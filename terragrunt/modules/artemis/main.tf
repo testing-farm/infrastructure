@@ -295,7 +295,10 @@ resource "helm_release" "artemis" {
 
         artemis_api_lb_security_group_id = aws_security_group.artemis_api_lb.id
 
-        artemis_sentry_enabled             = var.sentry_enabled
+        artemis_deployment             = var.deployment_name
+        artemis_deployment_environment = var.deployment_environment
+
+        artemis_sentry_enabled             = var.sentry_enabled && data.ansiblevault_path.sentry_dsn.value != null
         artemis_sentry_dsn                 = sensitive(data.ansiblevault_path.sentry_dsn.value)
         artemis_sentry_event_url_template  = sensitive(data.ansiblevault_path.sentry_event_url_template.value)
         artemis_sentry_integrations        = var.sentry_integrations

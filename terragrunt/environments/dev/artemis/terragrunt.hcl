@@ -209,6 +209,8 @@ inputs = {
   worker_processes = 2
   worker_threads   = 1
 
+  deployment_environment = "development-${get_env("USER", "unknown")}"
+
   resources = {
     artemis_api = {
       limits = {
