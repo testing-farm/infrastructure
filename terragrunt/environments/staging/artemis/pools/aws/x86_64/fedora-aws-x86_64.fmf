@@ -1,7 +1,8 @@
 # AWS x86_64 c6a instances pool
 
 default-flavor: c6a.large
-flavor-regex: ^c6a\..+$
+# Exclude `c6a.metal`, bare metal is served by the `fedora-aws-x86_64-metal` pool
+flavor-regex: ^c6a\.(?!metal).+$
 
 custom-flavors:
     - name: c6a.large-100
