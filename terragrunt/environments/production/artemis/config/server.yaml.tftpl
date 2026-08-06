@@ -147,7 +147,7 @@ pools:
       default-flavor: c6g.large
       default-region: us-east-2
       default-root-disk-size: 100
-      flavor-regex: ^c6g\..+$
+      flavor-regex: ^c6g\.(?!metal).+$
       image-filters:
         - owner: self
         - owner: '587138297281'
@@ -866,7 +866,7 @@ pools:
       default-flavor: c6a.large
       default-region: us-east-2
       default-root-disk-size: 100
-      flavor-regex: ^c6a\..+$
+      flavor-regex: ^c6a\.(?!metal).+$
       image-filters:
         - owner: self
         - owner: '587138297281'
