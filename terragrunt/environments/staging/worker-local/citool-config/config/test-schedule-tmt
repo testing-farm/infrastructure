@@ -81,4 +81,7 @@ unsafe-ssh-options =
     GatewayPorts,
     Tunnel
 
+# reboot command unsafe behavior is required to support hard reboot
+tmt-run-options = --feeling-safe=provision/connect.reboot-commands
+
 tmt-environment-variables-map = ${config_root}/tmt-environment-variables-map.yaml

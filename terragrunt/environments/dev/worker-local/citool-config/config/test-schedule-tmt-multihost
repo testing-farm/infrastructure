@@ -59,7 +59,7 @@ accepted-environment-variables =
 # required to split the string into two values 'TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN' and '# pragma: allowlist secret'
 accepted-environment-secrets = POLARION_PASSWORD, POLARION_TOKEN, TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN,  # pragma: allowlist secret
 
-tmt-run-options = -vv,--log-topic=cli-invocations
+tmt-run-options = -vv --log-topic=cli-invocations
 
 # TFT-4839 - refuse SSH options that could execute commands, load code, forward or pivot on the worker
 unsafe-ssh-options =
