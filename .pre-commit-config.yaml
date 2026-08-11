@@ -29,6 +29,9 @@ repos:
       - id: ansible-lint
         args: ["--profile", "min"]
         entry: ansible-lint -v
+        # Keep in sync with `.pre-commit-config-maintainer.yaml`, where the
+        # `ansible-core<2.19` pin makes Python 3.12 mandatory.
+        language_version: python3.12
 
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.28.0
