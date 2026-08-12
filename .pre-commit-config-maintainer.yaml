@@ -29,6 +29,10 @@ repos:
     hooks:
       - id: ansible-lint
         args: ["--profile", "min"]
+        # `ansible-compat` refuses to import on Python 3.14 with anything older
+        # than `ansible-core` 2.20, and we pin `<2.19` below. Freeze the hook
+        # interpreter until we can lift that pin.
+        language_version: python3.12
         additional_dependencies:
           - ansible-core<2.19
 
