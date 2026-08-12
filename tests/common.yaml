@@ -9,6 +9,7 @@ artifacts_url_pattern: "https?:\\/\\/artifacts\\..+\\.testing-farm\\.io"
 console_log_pattern: "console-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\\.log"
 hostname_ip_address_pattern: "(?:[a-zA-Z0-9\\.\\-_]+?|\\d+\\.\\d+\\.\\d+\\.\\d+)"
 workdir_pattern: "work-.+"
+citool_config_secret_path_pattern: "(?:/etc/citool\\.d|/CONFIG-SECRETS)"
 timestamp_pattern: "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}\\+[0-9]{2}:[0-9]{2}"
 skipped_testsuite_pattern: |-
   <testsuite name=".+" result="skipped" tests="0" stage="complete">
