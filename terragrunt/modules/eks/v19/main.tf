@@ -233,13 +233,34 @@ resource "null_resource" "wait_for_cluster_endpoint" {
     command     = <<EOT
 host="${trimprefix(module.eks.cluster_endpoint, "https://")}"
 timeout=600
+# A single success proves nothing. The runner resolves through a CoreDNS
+# `Service` ClusterIP fronting several replicas, and a probe that fails plants
+# an `NXDOMAIN` with a 30s negative TTL in whichever replica served it. A later
+# probe can be answered by a different, already-warm replica while the poisoned
+# one keeps failing the provider's lookups. So demand a streak of consecutive
+# successes spanning more than that TTL before releasing the dependent
+# resources, and reset the streak on any failure.
+required_successes=7
+interval=10
+successes=0
 start_time=$(date +%s)
 echo "Waiting for EKS API endpoint '$host' to become reachable..."
 # A non-error HTTP response (e.g. 401) is success: it means DNS resolved and
 # the control plane answered. We only gate on reachability, not on `--fail`.
-until curl -ksS --max-time 5 "https://$host/livez" > /dev/null 2>&1; do
-  echo "EKS API endpoint '$host' not reachable yet..."
-  sleep 5
+while [ "$successes" -lt "$required_successes" ]; do
+  if curl -ksS --max-time 5 "https://$host/livez" > /dev/null 2>&1; then
+    successes=$((successes + 1))
+  else
+    if [ "$successes" -gt 0 ]; then
+      echo "EKS API endpoint '$host' became unreachable again, resetting streak..."
+    else
+      echo "EKS API endpoint '$host' not reachable yet..."
+    fi
+    successes=0
+  fi
+  if [ "$successes" -lt "$required_successes" ]; then
+    sleep "$interval"
+  fi
   current_time=$(date +%s)
   elapsed_time=$((current_time - start_time))
   if [ "$elapsed_time" -ge "$timeout" ]; then
