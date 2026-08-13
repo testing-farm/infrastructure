@@ -46,7 +46,7 @@ set_citool_image() {
 
 set_citool_config_image() {
     CITOOL_CONFIG_IMAGE="$(echo "$REQUEST" | jq -r '.settings.worker."config-image" | select (.!=null)')"
-    [ -n "$CITOOL_CONFIG_IMAGE" ] && export CITOOL_CONFIG_IMAGE
+    export CITOOL_CONFIG_IMAGE="${CITOOL_CONFIG_IMAGE:-{{ citool_config_container_image }}}"
 }
 
 # rpmlist on worker
