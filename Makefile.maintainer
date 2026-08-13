@@ -526,6 +526,10 @@ define run_pytest_gluetool
 			--variables tests/common.yaml \
 			--html report.html tests/worker/test_pipeline.py; \
 	else \
+		if [ "$1" = "dev" ]; then \
+			echo "⛔ RANCH_PUBLIC_IMAGE is required for dev tests (citool-config directory workflow is no longer supported on dev)"; \
+			exit 1; \
+		fi; \
 		poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) $3 -vvv --basetemp $$PROJECT_ROOT/.pytest \
 			--color=yes \
 			--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
