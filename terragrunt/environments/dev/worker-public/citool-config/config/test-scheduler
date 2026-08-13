@@ -1,3 +1,0 @@
-[default]
-unsupported-arches = aarch64, ia64, ppc64, ppc64le, s390x, i386, armhfp
-tec-patch-map = ${config_root}/tec-patch-map.yaml
