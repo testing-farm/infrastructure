@@ -1,7 +1,8 @@
 # AWS aarch64 c6g instances pool
 
 default-flavor: c6g.large
-flavor-regex: ^c6g\..+$
+# Exclude `c6g.metal`, bare metal is served by the `fedora-aws-aarch64-metal` pool
+flavor-regex: ^c6g\.(?!metal).+$
 
 custom-flavors:
     - name: c6g.large-100
