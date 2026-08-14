@@ -1,3 +1,0 @@
-[default]
-copr-url = https://copr.fedorainfracloud.org
-copr-web-url-template = https://copr.fedorainfracloud.org/coprs/{{ TASK.owner }}/{{ TASK.project }}/build/{{ TASK.task_id.build_id }}/
