@@ -4,6 +4,9 @@ CITOOL_EXTRA_PODMAN_ARGS ?= --pull newer
 # default worker image
 WORKER_IMAGE ?= quay.io/testing-farm/worker-public:latest
 
+# default citool-config image
+RANCH_PUBLIC_IMAGE ?= quay.io/testing-farm/ranch-public:latest
+
 # skip nomadstart if asked
 SKIP_NOMAD_START := $(if $(SKIP_NOMAD_START),-e skip_nomad_start=true,)
 
@@ -62,6 +65,7 @@ $(ccbold)Environment Variables$(ccend)
   ⚙️  $(ccgreen)test/*$(ccend) targets
 
      WORKER_IMAGE                 ... Adjust worker image when running tests [$(WORKER_IMAGE)]
+     RANCH_PUBLIC_IMAGE           ... Adjust citool-config image when running tests [$(RANCH_PUBLIC_IMAGE)]
 
   ⚙️  $(ccgreen)create/*/worker$(ccend) targets
 
@@ -510,36 +514,20 @@ osci/kubeconfig: .FORCE  ## Update kubeconfig for OSCI access to Fedora CI
 ##@ Tests | maintainer
 
 define run_pytest_gluetool
-	if [ -n "$(RANCH_PUBLIC_IMAGE)" ]; then \
-		poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) $3 -vvv --basetemp $$PROJECT_ROOT/.pytest \
-			--color=yes \
-			--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS) \
-				-v $$PROJECT_ROOT/.generated/$1/$2/citool-config:/CONFIG-SECRETS:ro \
-				-v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config/environment.yaml:/CONFIG/environment.yaml:ro \
-				-v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config/config/archive:/CONFIG/config/archive:ro \
-				-v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config/config/coldstore:/CONFIG/config/coldstore:ro" \
-			--citool-config "/worker/$1/citool-config" \
-			--citool-config-image $(RANCH_PUBLIC_IMAGE) \
-			--citool-image $(WORKER_IMAGE) \
-			--test-assets tests/worker \
-			--variables terragrunt/environments/$1/$2/citool-config/environment.yaml \
-			--variables tests/common.yaml \
-			--html report.html tests/worker/test_pipeline.py; \
-	else \
-		if [ "$1" = "dev" ]; then \
-			echo "⛔ RANCH_PUBLIC_IMAGE is required for dev tests (citool-config directory workflow is no longer supported on dev)"; \
-			exit 1; \
-		fi; \
-		poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) $3 -vvv --basetemp $$PROJECT_ROOT/.pytest \
-			--color=yes \
-			--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS)" \
-			--citool-config terragrunt/environments/$1/$2/citool-config --citool-image $(WORKER_IMAGE) \
-			--test-assets tests/worker \
-			--variables terragrunt/environments/$1/$2/citool-config/variables.yaml \
-			--variables terragrunt/environments/$1/$2/citool-config/environment.yaml \
-			--variables tests/common.yaml \
-			--html report.html tests/worker/test_pipeline.py; \
-	fi
+	poetry run pytest $(PYTEST_OPTIONS) $(PYTEST_PARALLEL_OPTIONS) $3 -vvv --basetemp $$PROJECT_ROOT/.pytest \
+		--color=yes \
+		--citool-extra-podman-args "$(CITOOL_EXTRA_PODMAN_ARGS) \
+			-v $$PROJECT_ROOT/.generated/$1/$2/citool-config:/CONFIG-SECRETS:ro \
+			-v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config/environment.yaml:/CONFIG/environment.yaml:ro \
+			-v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config/config/archive:/CONFIG/config/archive:ro \
+			-v $$PROJECT_ROOT/terragrunt/environments/$1/$2/citool-config/config/coldstore:/CONFIG/config/coldstore:ro" \
+		--citool-config "/worker/$1/citool-config" \
+		--citool-config-image $(RANCH_PUBLIC_IMAGE) \
+		--citool-image $(WORKER_IMAGE) \
+		--test-assets tests/worker \
+		--variables terragrunt/environments/$1/$2/citool-config/environment.yaml \
+		--variables tests/common.yaml \
+		--html report.html tests/worker/test_pipeline.py
 endef
 
 define download_oculus_to_pytest
