@@ -29,7 +29,7 @@ job "tf-tmt-container" {
       }
 
       config {
-        image        = "quay.io/testing-farm/worker-public:03abae02"
+        image        = "quay.io/testing-farm/worker-public:latest"
         network_mode = "host"
         init         = true
         security_opt = ["label=disable"]
