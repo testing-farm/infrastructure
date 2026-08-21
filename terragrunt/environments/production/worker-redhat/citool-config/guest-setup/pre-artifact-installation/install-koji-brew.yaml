@@ -40,6 +40,45 @@
     - 'ansible_architecture != "ppc64"'
 
 - block:
+    - name: Add x86_64 RCM Repository for RHEL7 ppc64 (using x86_64 for noarch packages)
+      yum_repository:
+        description: Red Hat RCM Tools
+        name: rcmtools
+        state: present
+        gpgcheck: no
+        baseurl: "http://download.devel.redhat.com/rel-eng/RCMTOOLS/latest-RCMTOOLS-1-RHEL-7/compose/Server/x86_64/os/"
+
+    - name: Install ppc64 libcomps dependencies from Brew
+      command: >-
+        yum install -y
+        https://download.eng.brq.redhat.com/brewroot/packages/libcomps/0.1.8/12.el7/ppc64/libcomps-0.1.8-12.el7.ppc64.rpm
+        https://download.eng.brq.redhat.com/brewroot/packages/libcomps/0.1.8/12.el7/ppc64/python2-libcomps-0.1.8-12.el7.ppc64.rpm
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
+
+    - name: Install Brewkoji
+      command: yum -y install brewkoji
+      retries: "{{ pkg_retry_count }}"
+      delay: "{{ pkg_retry_delay }}"
+      until: result_package is succeeded
+      register: result_package
+
+  when:
+    - 'ansible_distribution == "RedHat" or
+       ansible_distribution == "CentOS" or
+       ansible_distribution == "OracleLinux" or
+       ansible_distribution == "AlmaLinux" or
+       ansible_distribution == "Rocky"'
+    - 'ansible_distribution_major_version | int == 7'
+    - 'ansible_architecture == "ppc64"'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"pfmt" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
+
+- block:
     - name: Add RCM Repository for RHEL-8 / RHEL-9 / RHEL-11 or later
       yum_repository:
         description: RCMTOOLS repository
@@ -73,6 +112,21 @@
        ansible_distribution == "AlmaLinux" or
        ansible_distribution == "Rocky"'
     - 'ansible_distribution_major_version | int >= 8'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"pfmt" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
+
+- name: Remove RCM Repository
+  yum_repository:
+    name: rcmtools
+    state: absent
+  when:
+    - 'ansible_distribution == "RedHat" or
+       ansible_distribution == "CentOS" or
+       ansible_distribution == "OracleLinux" or
+       ansible_distribution == "AlmaLinux" or
+       ansible_distribution == "Rocky"'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
     - '"pfmt" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
