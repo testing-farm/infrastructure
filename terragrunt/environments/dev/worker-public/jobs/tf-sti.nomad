@@ -8,6 +8,7 @@ job "tf-sti" {
 
   group "sti" {
 
+    # Restart up to 2 times
     restart {
       attempts = 2
     }
