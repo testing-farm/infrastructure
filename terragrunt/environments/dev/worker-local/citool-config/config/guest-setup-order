@@ -1,2 +1,0 @@
-[default]
-artifact-guest-setup-map = ${config_root}/artifact-guest-setup-map.yaml
