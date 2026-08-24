@@ -4,6 +4,9 @@ release: latest
 # container image with citool and modules
 citool_container_image: "quay.io/testing-farm/worker-public:{{ release }}"
 
+# container image with citool-config
+citool_config_container_image: "quay.io/testing-farm/ranch-public:{{ release }}"
+
 # path to citool-config and jobs to deployment
 worker_deployment_data: "{{ root_dir }}/terragrunt/environments/staging/worker-public"
 
