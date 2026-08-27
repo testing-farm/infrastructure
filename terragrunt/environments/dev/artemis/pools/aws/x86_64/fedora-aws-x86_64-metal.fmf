@@ -2,7 +2,7 @@
 
 # TODO: revert once artemis!1552
 # default-flavor: c7i.metal-24xl
-flavor-regex: ^(c5|c5d|c5n|c7i|m5|m5zn|m7i|z1d)\.metal.*$
+flavor-regex: ^(c5|c5d|c5n|c7i|m5|m5zn|m7i)\.metal.*$
 
 custom-flavors:
     # Cascade Lake instances
@@ -199,36 +199,8 @@ custom-flavors:
                 min-size: "10 GiB"
                 max-size: "512 GiB"
 
-    # Skylake instances
-    - name: z1d.metal-100
-      base: z1d.metal
-      disk:
-          - size: "100 GiB"
-          - additional-disks:
-                max-count: 5
-                min-size: "10 GiB"
-                max-size: "512 GiB"
-
-    - name: z1d.metal-250
-      base: z1d.metal
-      disk:
-          - size: "250 GiB"
-          - additional-disks:
-                max-count: 5
-                min-size: "10 GiB"
-                max-size: "512 GiB"
-
-    - name: z1d.metal-500
-      base: z1d.metal
-      disk:
-          - size: "500 GiB"
-          - additional-disks:
-                max-count: 5
-                min-size: "10 GiB"
-                max-size: "512 GiB"
-
 patch-flavors:
-    - name-regex: '(c5n|z1d)\..+'
+    - name-regex: 'c5n\..+'
       cpu:
           family: 6
           family-name: Skylake
