@@ -1075,33 +1075,9 @@ pools:
                 max-size: 512 GiB
                 min-size: 10 GiB
           name: m7i.metal-24xl-500
-        - base: z1d.metal
-          disk:
-            - size: 100 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: z1d.metal-100
-        - base: z1d.metal
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: z1d.metal-250
-        - base: z1d.metal
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: z1d.metal-500
       default-region: us-east-2
       default-root-disk-size: 100
-      flavor-regex: ^(c5|c5d|c5n|c7i|m5|m5zn|m7i|z1d)\.metal.*$
+      flavor-regex: ^(c5|c5d|c5n|c7i|m5|m5zn|m7i)\.metal.*$
       image-filters:
         - owner: self
         - owner: '587138297281'
@@ -1253,7 +1229,7 @@ pools:
               - arch_capabilities
             model: 85
             model-name: Intel(R) Xeon(R) Platinum 8124M CPU @ 3.00GHz
-          name-regex: (c5n|z1d)\..+
+          name-regex: c5n\..+
           virtualization:
             is-supported: true
             is-virtualized: false
