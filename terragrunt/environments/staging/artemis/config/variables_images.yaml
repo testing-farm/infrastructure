@@ -33,9 +33,9 @@ composes:
     compose: Fedora-43
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-43-20260825.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-43-20260827.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-43-20260825.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-43-20260827.0
 
   fedora_43_image_mode:
     compose: Fedora-43-image-mode
@@ -47,9 +47,9 @@ composes:
     compose: Fedora-44
 
     x86_64: &fedora_latest_ref_x86_64
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-44-20260825.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-44-20260827.0
     aarch64: &fedora_latest_ref_aarch64
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-44-20260825.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-44-20260827.0
 
   fedora_44_image_mode:
     compose: Fedora-44-image-mode
@@ -61,9 +61,9 @@ composes:
     compose: Fedora-45
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-45-Prerelease-20260825.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-45-Prerelease-20260827.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-45-Prerelease-20260825.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-45-Prerelease-20260827.0
 
   fedora_45_image_mode:
     compose: Fedora-45-image-mode
@@ -87,9 +87,9 @@ composes:
     compose: Fedora-Rawhide
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20260826.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-Rawhide-20260828.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20260826.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-Rawhide-20260828.0
 
   fedora_rawhide_image_mode:
     compose: Fedora-Rawhide-image-mode
@@ -101,9 +101,9 @@ composes:
     compose: Fedora-eln
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-ELN-20260826.1
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-ELN-20260828.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-ELN-20260826.1
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-ELN-20260828.0
 
   centos_7:
     compose: CentOS-7
