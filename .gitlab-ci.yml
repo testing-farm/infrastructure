@@ -121,6 +121,7 @@ workflow:
     - !reference [.rules, infrastructure]
     - changes:
         - terragrunt/environments/production/**/*
+        - terragrunt/modules/artifacts-storage/**/*
 
   public_compose_tests:
     - changes:
