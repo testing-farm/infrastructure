@@ -1,0 +1,62 @@
+= Testing Farm Artifacts Storage Module
+
+This Terraform module provisions the dedicated S3 Files storage backend for the Testing Farm Red Hat artifact store (TFT-4796 / TFT-4588).
+
+== Architecture
+
+The module provisions:
+* A private S3 bucket with versioning and SSE-S3 encryption (mandatory for S3 Files).
+* An S3 Files filesystem attached to the bucket root prefix (`/`) with default synchronization settings.
+* An S3 Files mount target inside the designated private subnet.
+* Two IAM roles:
+** *Service Role*: Assumed by `elasticfilesystem.amazonaws.com` with scoped bucket sync and EventBridge event management permissions.
+** *Client Role & Instance Profile*: Assumed by the EC2 server (`AmazonS3FilesClientFullAccess` + S3 inline read/list permissions).
+* Security groups restricting NFS (TCP 2049) strictly to the client security group.
+
+== Requirements
+
+* Terraform >= 1.3.0
+* AWS Provider ~> 6.40
+
+== Inputs
+
+[cols="1,1,1,3"]
+|===
+| Name | Type | Default | Description
+
+| `bucket_name`
+| `string`
+| `"testing-farm-artifacts-redhat"`
+| Name of the S3 bucket for artifact storage.
+
+| `vpc_id`
+| `string`
+| `"vpc-008152fcfb0333f30"`
+| VPC ID where the mount target and security groups reside.
+
+| `subnet_id`
+| `string`
+| `"subnet-036ad213c3fb0eb7e"`
+| Subnet ID for the S3 Files mount target.
+
+| `name_prefix`
+| `string`
+| `"testing-farm-artifacts-redhat"`
+| Prefix for naming AWS resources.
+
+| `tags`
+| `map(string)`
+| `{}`
+| Resource tags.
+|===
+
+== Outputs
+
+* `bucket_name` / `bucket_arn`: S3 bucket identifiers.
+* `file_system_id` / `file_system_arn`: S3 Files filesystem identifiers.
+* `mount_target_id` / `mount_target_ipv4_address`: Mount target ID and private IPv4 address.
+* `client_security_group_id` / `mount_target_security_group_id`: Security group IDs for NFS client and mount target.
+* `instance_profile_name` / `instance_profile_arn`: IAM instance profile for the EC2 server (TFT-4797).
+* `instance_role_arn` / `service_role_arn`: IAM role ARNs.
+* `subnet_id` / `vpc_id`: Network IDs.
+* `availability_zone` / `availability_zone_id`: AZ information.
