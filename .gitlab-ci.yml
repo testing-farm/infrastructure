@@ -121,6 +121,7 @@ workflow:
     - !reference [.rules, infrastructure]
     - changes:
         - terragrunt/environments/production/**/*
+        - terragrunt/modules/artifacts-storage/**/*
 
   public_compose_tests:
     - changes:
@@ -359,6 +360,11 @@ test/terraform/modules:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_modules_infra]
     - !reference [.rules, terragrunt_modules_testing_farm]
+    - changes:
+        - terragrunt/modules/artifacts-storage/**/*
+        - terragrunt/environments/production/artifacts-redhat/storage/**/*
+        - Makefile.maintainer
+        - .gitlab-ci.yml
 
 test/infra:
   extends: .direnv

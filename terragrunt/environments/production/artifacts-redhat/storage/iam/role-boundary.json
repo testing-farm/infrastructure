@@ -1,0 +1,108 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ServiceBucketAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket", "s3:ListBucketVersions", "s3:GetBucketVersioning", "s3:GetBucketLocation"
+      ],
+      "Resource": "arn:aws:s3:::testing-farm-artifacts-redhat",
+      "Condition": {
+        "ArnEquals": {
+          "aws:PrincipalArn": "arn:aws:iam::727920394381:role/testing-farm-artifacts-redhat-s3files-service-role"
+        },
+        "StringEquals": {"aws:ResourceAccount": "727920394381"}
+      }
+    },
+    {
+      "Sid": "ServiceObjectSync",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject*", "s3:PutObject*", "s3:DeleteObject*",
+        "s3:AbortMultipartUpload", "s3:ListMultipartUploadParts"
+      ],
+      "Resource": "arn:aws:s3:::testing-farm-artifacts-redhat/*",
+      "Condition": {
+        "ArnEquals": {
+          "aws:PrincipalArn": "arn:aws:iam::727920394381:role/testing-farm-artifacts-redhat-s3files-service-role"
+        },
+        "StringEquals": {"aws:ResourceAccount": "727920394381"}
+      }
+    },
+    {
+      "Sid": "ServiceManagedEvents",
+      "Effect": "Allow",
+      "Action": [
+        "events:PutRule", "events:PutTargets", "events:DeleteRule", "events:RemoveTargets",
+        "events:EnableRule", "events:DisableRule"
+      ],
+      "Resource": "arn:aws:events:us-east-1:727920394381:rule/DO-NOT-DELETE-S3-Files*",
+      "Condition": {
+        "ArnEquals": {
+          "aws:PrincipalArn": "arn:aws:iam::727920394381:role/testing-farm-artifacts-redhat-s3files-service-role"
+        },
+        "StringEquals": {"events:ManagedBy": "elasticfilesystem.amazonaws.com"}
+      }
+    },
+    {
+      "Sid": "ServiceReadEvents",
+      "Effect": "Allow",
+      "Action": ["events:DescribeRule", "events:ListTargetsByRule"],
+      "Resource": "arn:aws:events:us-east-1:727920394381:rule/DO-NOT-DELETE-S3-Files*",
+      "Condition": {
+        "ArnEquals": {
+          "aws:PrincipalArn": "arn:aws:iam::727920394381:role/testing-farm-artifacts-redhat-s3files-service-role"
+        }
+      }
+    },
+    {
+      "Sid": "ServiceListEvents",
+      "Effect": "Allow",
+      "Action": ["events:ListRules", "events:ListRuleNamesByTarget"],
+      "Resource": "*",
+      "Condition": {
+        "ArnEquals": {
+          "aws:PrincipalArn": "arn:aws:iam::727920394381:role/testing-farm-artifacts-redhat-s3files-service-role"
+        },
+        "StringEquals": {"aws:RequestedRegion": "us-east-1"}
+      }
+    },
+    {
+      "Sid": "ClientBucketListing",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::testing-farm-artifacts-redhat",
+      "Condition": {
+        "ArnEquals": {
+          "aws:PrincipalArn": "arn:aws:iam::727920394381:role/testing-farm-artifacts-redhat-ec2-client-role"
+        },
+        "StringEquals": {"aws:ResourceAccount": "727920394381"}
+      }
+    },
+    {
+      "Sid": "ClientObjectReads",
+      "Effect": "Allow",
+      "Action": "s3:GetObject*",
+      "Resource": "arn:aws:s3:::testing-farm-artifacts-redhat/*",
+      "Condition": {
+        "ArnEquals": {
+          "aws:PrincipalArn": "arn:aws:iam::727920394381:role/testing-farm-artifacts-redhat-ec2-client-role"
+        },
+        "StringEquals": {"aws:ResourceAccount": "727920394381"}
+      }
+    },
+    {
+      "Sid": "ClientMountAccess",
+      "Effect": "Allow",
+      "Action": ["s3files:ClientMount", "s3files:ClientWrite", "s3files:ClientRootAccess"],
+      "Resource": "arn:aws:s3files:us-east-1:727920394381:file-system/*",
+      "Condition": {
+        "ArnEquals": {
+          "aws:PrincipalArn": "arn:aws:iam::727920394381:role/testing-farm-artifacts-redhat-ec2-client-role"
+        },
+        "StringEquals": {"aws:ResourceTag/StorageBackend": "testing-farm-artifacts-redhat"}
+      }
+    }
+  ]
+}

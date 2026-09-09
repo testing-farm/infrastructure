@@ -1,0 +1,142 @@
+= Artifact storage deployment permissions
+
+The Terraform deployment identity is the IAM user `arr-testing-farm.prod.artifacts` in account `727920394381`.
+It is separate from the two runtime roles created by xref:../../../../../modules/artifacts-storage/README.adoc[the storage module].
+The existing local AWS profile `redhat_us_east_1_storage` is only an alias; populate it with this user's credentials.
+Verify that `aws --profile redhat_us_east_1_storage sts get-caller-identity --query Arn --output text` returns `arn:aws:iam::727920394381:user/arr-testing-farm.prod.artifacts` before running Terraform.
+The earlier proposed username `arr-testing-farm.prod.storage` was replaced by `arr-testing-farm.prod.artifacts`.
+`arr-testing-farm.prod.storage` is now only the customer-managed storage policy name below.
+No user, access key, or bootstrap policy is created by the storage module.
+
+== Administrator bootstrap
+
+An account administrator must install these customer-managed policies before the first production plan/apply:
+
+`role-boundary.json`::
+Create as `arr-testing-farm.prod.role-boundary`.
+Maximum runtime permissions, selected by `aws:PrincipalArn`: the service role can synchronize the artifact bucket and manage S3 Files events; the client role can read S3 and access the tagged filesystem.
+Attach this policy as a *permissions boundary* to both roles, not as a permissions grant to the deployment user.
+Terraform sets the boundary on both roles through the `permissions_boundary_arn` input configured in xref:../terragrunt.hcl[the production storage leaf].
+
+`deployment-iam.json`::
+Create as `arr-testing-farm.prod.iam`.
+Manage exactly the two named runtime roles and the instance profile.
+Role creation and policy changes require the administrator-owned boundary.
+The deployer can only detach `AmazonS3FilesClientFullAccess` from the client role, to remove the legacy attachment created by the 2026-09-18 apply.
+Remove the `DetachLegacyClientPolicy` statement and publish an updated managed policy after the cleanup apply has removed that attachment; no managed-policy attachment permission is granted.
+Separate `iam:PassRole` statements permit the service role for `elasticfilesystem.amazonaws.com` and the client role for `ec2.amazonaws.com` (also required by `AddRoleToInstanceProfile`).
+Boundary removal, replacement with another policy, and boundary-policy mutation are denied.
+
+`deployment-storage.json`::
+Create as `arr-testing-farm.prod.storage`.
+Manage the named bucket's configuration, tagged S3 Files resources, and service-managed EventBridge rules in `us-east-1`.
+Bucket reads and tagging cover the locked AWS provider 6.63.0, including legacy tagging fallback.
+There is no direct object-data or bucket-policy write grant to the deployer.
+The dependent bucket-notification and EventBridge permissions are required by S3 Files, not additional Terraform resources.
+
+`deployment-network.json`::
+Create as `arr-testing-farm.prod.network`.
+Read network metadata and manage tagged security groups in the approved VPC.
+Create mount-target interfaces in the approved subnet using the tagged groups; modify/delete interfaces only in that subnet.
+No EC2 instance, load-balancer, Auto Scaling, or CloudWatch administration is granted.
+
+Do *not* attach `IAMFullAccess`, `AmazonS3FullAccess`, `AmazonEC2FullAccess`, or `AmazonS3FilesFullAccess` to this user.
+`AmazonElasticFileSystemFullAccess` is not a substitute for S3 Files permissions: provisioning uses the `s3files` namespace.
+The module grants the runtime client filesystem- and bucket-scoped inline permissions, capped by the boundary; it does not attach `AmazonS3FilesClientFullAccess`.
+
+These are customer-managed policies, not user inline policies: IAM limits user inline policies to 2,048 aggregate non-whitespace characters, versus 6,144 per customer-managed policy.
+Keep the split files; the tests check each managed-policy size limit.
+
+From this directory, using an administrator profile authorized in the correct account:
+
+[source,bash]
+----
+export AWS_PROFILE=ADMIN_PROFILE
+aws sts get-caller-identity
+# Verify Account is 727920394381 before proceeding.
+
+aws iam create-policy \
+    --policy-name arr-testing-farm.prod.role-boundary \
+    --policy-document file://role-boundary.json
+
+for policy in iam storage network; do
+    aws iam create-policy \
+        --policy-name "arr-testing-farm.prod.${policy}" \
+        --policy-document "file://deployment-${policy}.json"
+done
+
+# The administrator creates or selects this IAM user before attaching policies.
+for policy in iam storage network; do
+    aws iam attach-user-policy \
+        --user-name arr-testing-farm.prod.artifacts \
+        --policy-arn "arn:aws:iam::727920394381:policy/arr-testing-farm.prod.${policy}"
+done
+----
+
+For existing policies, have the administrator review and install a new policy version instead of recreating them.
+Review all direct/group grants and existing boundaries/SCPs on the user: adding restrictive policies does not remove older broad grants.
+Remove obsolete full-access grants only after checking their consumers.
+The deployment user cannot administer its own permissions or change the boundary policy.
+
+If adopting existing resources, verify ownership and import them explicitly.
+Before the first apply with boundaries, an administrator must add the `StorageBackend=testing-farm-artifacts-redhat` tag to the intended filesystem and security groups, then attach the boundary to both intended runtime roles.
+This ordering is also required when applying with broader credentials: Terraform now manages the boundaries, and the client boundary denies access to an untagged filesystem.
+Do not label unrelated/POC resources to make a plan pass.
+Fresh deployments receive the authorization tag through the production provider's `default_tags`.
+
+== Scope and remaining checks
+
+The policies are production-specific: account, region, bucket, role names, VPC, subnet, and authorization tag must match xref:../terragrunt.hcl[the storage leaf].
+The `StorageBackend` tag is required at filesystem/security-group creation and cannot be changed or added to unrelated existing resources by this deployment identity.
+Normal non-authorization tags remain updateable.
+
+Some permissions cannot be limited to a known resource ID before creation:
+
+* `s3files:CreateFileSystem` requires `Resource: "*"`; restrict its region and request tag. AWS exposes no bucket condition key for that action. The passed service role can access only the intended bucket.
+* EC2 discovery and EventBridge list operations require `Resource: "*"`; restrict their region.
+* New interface IDs are unknown. Interface modification/deletion is subnet-scoped, which also covers unrelated interfaces in that shared subnet. The account owner must approve that scope; after creation, tighten the interface lifecycle statement to the returned interface ARN if required. Do not assume service-owned interfaces receive our Terraform tags or invent a `CalledVia` condition without observing supported request context.
+* EventBridge's `DO-NOT-DELETE-S3-Files*` prefix is service-wide, not unique to this backend. Write access also requires `events:ManagedBy=elasticfilesystem.amazonaws.com`.
+
+The deployment identity controls runtime trust/inline policies and can potentially obtain those roles' *bounded* storage privileges; it is still a trusted infrastructure identity.
+A permissions boundary limits identity-based grants, not every possible resource-based grant to an assumed-role session. Administrators must also control external bucket/filesystem resource policies.
+Destructive lifecycle actions are included for reviewed maintenance, not automatic teardown. Terraform `prevent_destroy` is not an IAM deletion safeguard.
+
+Have the administrator validate all four documents with IAM Access Analyzer and exercise positive/negative IAM simulations before installing them.
+Cover both roles and `PassRole` destinations, missing/wrong boundaries, unrelated IAM identities/buckets/groups, retagging unrelated resources, and the expected service/client operations.
+These offline-reviewed documents are not evidence of successful live authorization; account SCPs and service request context still require an authenticated plan and separately approved apply.
+Do not widen permissions to make an unexplained denial disappear.
+
+Use the established repository process to put the user's credentials into the existing encrypted Vault profile; never commit plaintext credentials.
+The profile generator caches `.direnv/.aws`, so refresh the generated profile through the normal environment setup when credentials change.
+The provider's `allowed_account_ids` guard remains in place.
+
+Before deployment, ensure HCP workspace `production-artifacts-redhat-storage` exists with *local execution* (the AWS profile lives on the runner).
+The existing helper `terraform-cloud create-workspace --ignore-existing production-artifacts-redhat-storage` creates a new local-execution workspace; it does not fix the execution mode of an existing workspace.
+
+== Validation
+
+The Go suite renders the actual production Terragrunt inputs/provider configuration and plans the storage module with the locked AWS provider against loopback IAM, STS and EC2 stubs.
+It checks the planned role boundaries and filesystem/security-group tags against the IAM contract, including permission to write the planned bucket lifecycle configuration.
+It uses fake credentials and no remote backend, resource refresh or apply; it does not replace live IAM authorization checks.
+Terraform, Terragrunt and Go must be on `PATH`.
+
+From the repository root:
+
+[source,bash]
+----
+env -C terragrunt/modules/artifacts-storage/test go test -v
+terraform fmt -check terragrunt/modules/artifacts-storage
+terragrunt hclfmt --terragrunt-check --terragrunt-hclfmt-file terragrunt/environments/production/artifacts-redhat/storage/terragrunt.hcl
+----
+
+== References
+
+https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonS3FilesFullAccess.html[S3 Files deployment dependencies]
+
+https://docs.aws.amazon.com/service-authorization/latest/reference/list_s3files.html[S3 Files actions and condition keys]
+
+https://docs.aws.amazon.com/service-authorization/latest/reference/list_ec2.html[EC2 resource and condition support]
+
+https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html[IAM permissions boundaries]
+
+https://docs.aws.amazon.com/IAM/latest/APIReference/API_AddRoleToInstanceProfile.html[Instance profile PassRole requirement]
