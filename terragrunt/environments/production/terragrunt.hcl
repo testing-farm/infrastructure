@@ -97,11 +97,11 @@ TAGS_EOF
 EOF
 }
 
-# Provider for all other modules, except eks and artemis
+# Provider for all other modules, except eks, artemis, and artifacts-redhat
 generate "provider_us_east_2" {
   path      = "provider.tf"
   if_exists = "overwrite_terragrunt"
-  disable   = startswith(path_relative_to_include(), "eks") || strcontains(path_relative_to_include(), "artemis") ? true : false
+  disable   = startswith(path_relative_to_include(), "eks") || strcontains(path_relative_to_include(), "artemis") || startswith(path_relative_to_include(), "artifacts-redhat") ? true : false
   contents  = <<EOF
 provider "aws" {
 
@@ -128,7 +128,7 @@ terraform {
     organization = "testing-farm"
 
     workspaces {
-      name = "production-${path_relative_to_include()}"
+      name = "production-${replace(path_relative_to_include(), "/", "-")}"
     }
   }
 }

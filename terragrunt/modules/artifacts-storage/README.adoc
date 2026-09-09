@@ -1,0 +1,60 @@
+= Testing Farm Artifacts Storage Module
+
+This Terraform module provisions an S3 Files storage backend for Testing Farm artifact stores. The production Red Hat deployment is configured by its Terragrunt leaf (TFT-4796 / TFT-4588).
+
+== Architecture
+
+The module provisions:
+* A private S3 bucket with versioning and SSE-S3 encryption (mandatory for S3 Files).
+* A lifecycle rule expiring noncurrent object versions after one day, removing expired delete markers, and aborting incomplete multipart uploads after one day. Current artifacts are not expired.
+* An S3 Files filesystem attached to the bucket root prefix (`/`) with default synchronization settings.
+* An S3 Files mount target inside the designated private subnet.
+* Two IAM roles:
+** *Service Role*: Assumed by `elasticfilesystem.amazonaws.com` with scoped bucket sync and EventBridge event management permissions.
+** *Client Role & Instance Profile*: Assumed by the EC2 server, with inline `s3files:ClientMount`, `s3files:ClientWrite`, and `s3files:ClientRootAccess` permissions limited to this filesystem, plus bucket-scoped S3 read/list permissions. Root access is retained for filesystem ownership setup.
+* Security groups restricting NFS (TCP 2049) strictly to the client security group.
+
+== Requirements
+
+* Terraform >= 1.3.0
+* AWS Provider ~> 6.40
+
+== Inputs
+
+All inputs are required. Configure resource tags through the AWS provider's `default_tags`; the module adds only security group `Name` tags.
+
+[cols="1,1,1,3"]
+|===
+| Name | Type | Default | Description
+
+| `bucket_name`
+| `string`
+| Required
+| Name of the S3 bucket for artifact storage.
+
+| `vpc_id`
+| `string`
+| Required
+| VPC ID where the mount target and security groups reside.
+
+| `subnet_id`
+| `string`
+| Required
+| Subnet ID for the S3 Files mount target.
+
+| `name_prefix`
+| `string`
+| Required
+| Prefix for naming AWS resources.
+|===
+
+== Outputs
+
+* `bucket_name` / `bucket_arn`: S3 bucket identifiers.
+* `file_system_id` / `file_system_arn`: S3 Files filesystem identifiers.
+* `mount_target_id` / `mount_target_ipv4_address`: Mount target ID and private IPv4 address.
+* `client_security_group_id` / `mount_target_security_group_id`: Security group IDs for NFS client and mount target.
+* `instance_profile_name` / `instance_profile_arn`: IAM instance profile for the EC2 server (TFT-4797).
+* `instance_role_arn` / `service_role_arn`: IAM role ARNs.
+* `subnet_id` / `vpc_id`: Network IDs.
+* `availability_zone` / `availability_zone_id`: AZ information.
