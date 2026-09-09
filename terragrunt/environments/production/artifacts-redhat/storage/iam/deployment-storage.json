@@ -1,0 +1,97 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CreateAndTagBucket",
+      "Effect": "Allow",
+      "Action": ["s3:CreateBucket", "s3:TagResource"],
+      "Resource": "arn:aws:s3:::testing-farm-artifacts-redhat"
+    },
+    {
+      "Sid": "ManageBucketConfiguration",
+      "Effect": "Allow",
+      "Action": [
+        "s3:DeleteBucket", "s3:ListBucket", "s3:GetBucketAcl", "s3:GetBucketPolicy",
+        "s3:GetBucketCORS", "s3:GetBucketWebsite", "s3:GetBucketVersioning",
+        "s3:GetBucketRequestPayment", "s3:GetBucketLogging", "s3:GetBucketObjectLockConfiguration",
+        "s3:GetBucketLocation", "s3:GetBucketPublicAccessBlock", "s3:GetBucketNotification",
+        "s3:GetAccelerateConfiguration", "s3:GetLifecycleConfiguration", "s3:PutLifecycleConfiguration",
+        "s3:GetReplicationConfiguration", "s3:GetEncryptionConfiguration",
+        "s3:PutBucketVersioning", "s3:PutBucketPublicAccessBlock", "s3:PutBucketNotification",
+        "s3:PutEncryptionConfiguration", "s3:UntagResource", "s3:ListTagsForResource",
+        "s3:GetBucketTagging", "s3:PutBucketTagging"
+      ],
+      "Resource": "arn:aws:s3:::testing-farm-artifacts-redhat",
+      "Condition": {"StringEquals": {"aws:ResourceAccount": "727920394381"}}
+    },
+    {
+      "Sid": "CreateTaggedFileSystem",
+      "Effect": "Allow",
+      "Action": "s3files:CreateFileSystem",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "us-east-1",
+          "aws:RequestTag/StorageBackend": "testing-farm-artifacts-redhat"
+        }
+      }
+    },
+    {
+      "Sid": "TagFileSystemOnCreation",
+      "Effect": "Allow",
+      "Action": "s3files:TagResource",
+      "Resource": "arn:aws:s3files:us-east-1:727920394381:file-system/*",
+      "Condition": {
+        "StringEquals": {
+          "s3files:CreateAction": "CreateFileSystem",
+          "aws:RequestTag/StorageBackend": "testing-farm-artifacts-redhat"
+        }
+      }
+    },
+    {
+      "Sid": "ManageOwnedFileSystem",
+      "Effect": "Allow",
+      "Action": [
+        "s3files:GetFileSystem", "s3files:DeleteFileSystem", "s3files:CreateMountTarget",
+        "s3files:GetMountTarget", "s3files:UpdateMountTarget", "s3files:DeleteMountTarget",
+        "s3files:ListMountTargets", "s3files:ListTagsForResource", "s3files:GetSynchronizationConfiguration"
+      ],
+      "Resource": "arn:aws:s3files:us-east-1:727920394381:file-system/*",
+      "Condition": {
+        "StringEquals": {"aws:ResourceTag/StorageBackend": "testing-farm-artifacts-redhat"}
+      }
+    },
+    {
+      "Sid": "UpdateNonAuthorizationFileSystemTags",
+      "Effect": "Allow",
+      "Action": ["s3files:TagResource", "s3files:UntagResource"],
+      "Resource": "arn:aws:s3files:us-east-1:727920394381:file-system/*",
+      "Condition": {
+        "StringEquals": {"aws:ResourceTag/StorageBackend": "testing-farm-artifacts-redhat"},
+        "ForAllValues:StringNotEqualsIgnoreCase": {"aws:TagKeys": ["StorageBackend"]}
+      }
+    },
+    {
+      "Sid": "ManageServiceEventRules",
+      "Effect": "Allow",
+      "Action": ["events:PutRule", "events:PutTargets", "events:DeleteRule", "events:RemoveTargets"],
+      "Resource": "arn:aws:events:us-east-1:727920394381:rule/DO-NOT-DELETE-S3-Files*",
+      "Condition": {
+        "StringEquals": {"events:ManagedBy": "elasticfilesystem.amazonaws.com"}
+      }
+    },
+    {
+      "Sid": "ReadServiceEventRules",
+      "Effect": "Allow",
+      "Action": ["events:DescribeRule", "events:ListTargetsByRule"],
+      "Resource": "arn:aws:events:us-east-1:727920394381:rule/DO-NOT-DELETE-S3-Files*"
+    },
+    {
+      "Sid": "ListServiceEventRules",
+      "Effect": "Allow",
+      "Action": "events:ListRules",
+      "Resource": "*",
+      "Condition": {"StringEquals": {"aws:RequestedRegion": "us-east-1"}}
+    }
+  ]
+}
