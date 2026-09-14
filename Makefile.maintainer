@@ -403,6 +403,9 @@ production/plan/eks: .FORCE  ## Plan deployment | production | eks
 production/plan/artemis: .FORCE  ## Plan deployment | production | artemis
 	$(call run_terragrunt,production/artemis,plan)
 
+production/plan/artifacts-redhat: .FORCE  ## Plan deployment | production | artifacts-redhat
+	$(call run_terragrunt,production/artifacts-redhat,plan)
+
 production/apply: .FORCE  ## Deploy | production | all
 	$(call run_terragrunt,production,apply)
 
@@ -411,6 +414,9 @@ production/apply/eks: .FORCE  ## Deploy | production | eks
 
 production/apply/artemis: .FORCE  ## Deploy | production | artemis
 	$(call run_terragrunt,production/artemis,apply)
+
+production/apply/artifacts-redhat: .FORCE  ## Deploy | production | artifacts-redhat
+	$(call run_terragrunt,production/artifacts-redhat,apply)
 
 update/api/settings: .FORCE  ## Deploy API settings to production (graceful reload)
 	$(call check_deployment_branch)
@@ -588,6 +594,15 @@ test/terraform/modules:  ## Run terratest tests for Teraform modules
 	env -C terragrunt/modules/gitlab/group/test go test -v
 	env -C terragrunt/modules/gitlab/project/test go test -v
 	env -C terragrunt/modules/gitlab/schedules/test go test -v
+
+test/artifacts/lifecheck: .FORCE  ## Run live lifecheck on Red Hat artifact server
+	poetry run pytest $(PYTEST_OPTIONS) -vvv tests/artifacts/test_lifecheck.py --live-artifacts
+
+test/artifacts/lifecheck/reboot: .FORCE  ## Run live lifecheck with opt-in reboot on Red Hat artifact server
+	poetry run pytest $(PYTEST_OPTIONS) -vvv tests/artifacts/test_lifecheck.py --live-artifacts --artifacts-allow-reboot
+
+test/artifacts/helpers: .FORCE  ## Run offline unit tests for artifact server lifecheck helpers
+	poetry run pytest $(PYTEST_OPTIONS) -vvv tests/artifacts/test_lifecheck_helpers.py
 
 generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
 	WORKER=worker-local poetry run python setup/generate_environment.py dev
