@@ -1,0 +1,136 @@
+= Testing Farm Red Hat Artifact Server (Production)
+
+This directory contains the Terragrunt configuration for deploying the standalone `redhat.artifacts.testing.farm` service in production (TFT-4797 / TFT-4588).
+
+== Architecture & Scope
+
+The service provides artifact serving (`https://redhat.artifacts.testing.farm/<REQUEST_ID>/`) and restricted rsync-over-SSH artifact uploads from Red Hat workers.
+The architecture comprises five distinct Terragrunt units:
+
+1. `storage/`: Dedicated S3 Files storage backend (see `terragrunt/modules/artifacts-storage/README.adoc`).
+2. `zone/`: Public Route53 DNS zone for `artifacts.testing.farm` in the Fedora AWS account for external NS delegation.
+3. `security-group/`: Frontend security group in the Red Hat AWS account restricting ingress to approved private networks/workers.
+4. `ec2/`: Single on-demand `c6in.2xlarge` EC2 instance running the RHEL 10 bootc artifact-server image with S3 Files NFS client profile.
+5. `dns/`: Route53 A record pointing `redhat.artifacts.testing.farm` directly to the EC2 instance's private IPv4 address.
+
+NOTE: Public DNS delegation publishes zone authority but does *not* make the server Internet-facing. The intended HTTP/HTTPS and SSH audience is limited to approved Red Hat / VPN / worker paths. See <<deployment-gates>> for the outstanding corporate/VPN ingress configuration.
+
+== Workspaces & Accounts
+
+[cols="1,2,1,1"]
+|===
+| Unit | Terraform Cloud Workspace | AWS Account | Region
+
+| `storage`
+| `production-artifacts-redhat-storage`
+| Red Hat (`727920394381`)
+| `us-east-1`
+
+| `zone`
+| `production-artifacts-redhat-zone`
+| Fedora (`125523088429`)
+| `us-east-1`
+
+| `security-group`
+| `production-artifacts-redhat-security-group`
+| Red Hat (`727920394381`)
+| `us-east-1`
+
+| `ec2`
+| `production-artifacts-redhat-ec2`
+| Red Hat (`727920394381`)
+| `us-east-1`
+
+| `dns`
+| `production-artifacts-redhat-dns`
+| Fedora (`125523088429`)
+| `us-east-1`
+|===
+
+== Dependency Graph & Rollout Sequence
+
+Units are provisioned in four sequential dependency groups:
+
+```text
+       ┌───────────┐         ┌───────────┐
+       │  storage  │         │   zone    │
+       └─────┬─────┘         └─────┬─────┘
+             │                     │
+             ▼                     │
+       ┌───────────┐               │
+       │ sec-group │               │
+       └─────┬─────┘               │
+             │                     │
+             ▼                     │
+       ┌───────────┐               │
+       │    ec2    │               │
+       └─────┬─────┘               │
+             │                     │
+             └──────────┬──────────┘
+                        ▼
+                  ┌───────────┐
+                  │    dns    │
+                  └───────────┘
+```
+
+1. *Storage & Zone*: Provision S3 bucket, S3 Files filesystem/mount target, and create the Route53 child zone `artifacts.testing.farm`.
+2. *Security Group*: Provision frontend SG with worker access (`sg-0cb20f3b88c57fa30`) and the approved corporate/VPN rules required by <<deployment-gates>>.
+3. *EC2*: Launch on-demand `c6in.2xlarge` in the storage mount-target subnet with attached instance profile and both security groups.
+4. *DNS*: Provision A record `redhat.artifacts.testing.farm` -> EC2 `private_ip`.
+5. *Parent Delegation*: Hand off the child zone nameservers (`route53_zone_name_servers["artifacts.testing.farm"]`) to the parent domain owner for public NS delegation.
+
+== DNS Design Rationale (A Record vs CNAME)
+
+The stack intentionally uses a Route53 `A` record referencing the EC2 `private_ip` rather than a `CNAME` pointing to AWS EC2 private DNS.
+VPN and corporate Red Hat clients cannot be assumed to resolve Amazon-internal VPC hostnames. A direct `A` record ensures consistent resolution across internal networks without additional DNS forwarders.
+
+[[deployment-gates]]
+== Runtime Inputs & Prerequisites
+
+WARNING: Hold merge/apply until the TFT-4795 image handoff and approved network access rules are ready. The current frontend SG permits worker-SG sources only; it does not permit routed corporate/VPN clients. Adding approved web and administrator/lifecheck source CIDRs is deferred and remains a deployment blocker. Do not substitute guessed ranges or world-open ingress.
+
+Before provisioning the EC2 unit:
+* `ARTIFACTS_SERVER_AMI`: Environment variable containing the pinned RHEL 10 bootc artifact-server AMI (provided by TFT-4795).
+* TLS Certificate: Internal-CA certificate with SAN `redhat.artifacts.testing.farm`, intermediate chain, and private key loaded via the image's supported certificate interface.
+
+== Certificate Management & Renewal
+
+* *TLS Interface*: Provided by TFT-4795 bootc image.
+* *Renewal Policy*: Operator-driven through the image's supported certificate loading interface.
+* *Tracking & Reload*: Operators track expiry via certificate monitoring; certificate replacement is completed by updating the configured secret/file and executing the reload mechanism (e.g. `systemctl reload nginx`).
+
+== Validation & Lifecheck
+
+Verification is executed via pytest using dedicated test suites under `tests/artifacts/`:
+
+[source,bash]
+----
+# 1. Run offline unit tests for helpers
+make test/artifacts/helpers
+
+# 2. Plan Terragrunt stack
+make production/plan/artifacts-redhat
+
+# 3. Execute live lifecheck against deployed server
+make test/artifacts/lifecheck
+
+# 4. Execute lifecheck with explicit opt-in reboot validation
+make test/artifacts/lifecheck/reboot
+----
+
+The live lifecheck tests:
+* DNS resolution of `redhat.artifacts.testing.farm` to private IP.
+* HTTP port 80 -> HTTPS port 443 redirection.
+* TLS certificate SAN, chain validity, and ciphers.
+* Nginx autoindex directory listing.
+* CORS headers.
+* Rejection of SSH shell requests and unauthorized commands by the image's `rrsync` forced command. Transport errors, authentication failures and timeouts fail these checks.
+* Actual NFS/NFS4 mount presence at `/mnt/s3files` after triggering automount, and write permissions. A local filesystem or unmounted autofs entry does not pass.
+* Probe upload via restricted rsync-over-SSH followed by immediate single-attempt HTTPS retrieval (recording latency without retries).
+* Rejection of an rsync download of the verified probe using the upload key, confirming write-only access.
+* (Opt-in) Reboot verification, waiting for a changed boot ID and writable NFS recovery before checking pre-reboot probe persistence and post-reboot upload capability. Unexpected local errors fail immediately rather than being retried as server downtime.
+
+== Recovery & Troubleshooting
+
+* *Instance replacement*: Updating the AMI or instance parameters will replace the EC2 instance. The S3 Files filesystem retains all stored artifacts; the DNS A record automatically updates to the new private IP.
+* *Storage protection*: Do not destroy the `storage` module while troubleshooting compute. S3 Files synchronizes asynchronously with the backing S3 bucket.
