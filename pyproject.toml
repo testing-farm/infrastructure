@@ -43,12 +43,15 @@ yamllint = "*"
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
 markers = [
+    "artifacts",
     "container",
     "compose",
     "hardware",
     "image-mode",
+    "live",
     "pipeline",
     "public",
+    "reboot",
     "redhat",
     "rhivos"
 ]
