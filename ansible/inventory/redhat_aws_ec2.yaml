@@ -35,3 +35,7 @@ groups:
     tags.ServiceOwner == "TFT"
     and tags.ServiceComponent == "Server"
     and tags.ServicePhase == "Prod"
+  testing_farm_redhat_artifacts_servers:
+    tags.ServiceOwner == "TFT"
+    and tags.ServiceComponent == "ArtifactsServer"
+    and tags.ServicePhase == "Prod"
