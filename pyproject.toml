@@ -20,6 +20,8 @@ cryptography = "*"
 yq = "*"
 boto3 = "*"
 "ruamel.yaml" = "*"
+certbot = "*"
+certbot-dns-route53 = "*"
 tft-cli = "*"
 markupsafe = "*"
 pytest-gluetool = {git = "https://gitlab.com/testing-farm/pytest-gluetool.git", rev = "main"}
