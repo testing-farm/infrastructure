@@ -1,0 +1,10 @@
+- name: Disable Buildroot repository
+  command: "dnf config-manager --disable rhel-buildroot"
+  ignore_errors: true
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'ansible_distribution_major_version | int >= 8'
+    - '"auto-osbuild" not in IMAGE_NAME|lower'
+    - '"composer-api" not in IMAGE_NAME|lower'
+    - '"hardened" not in IMAGE_NAME|lower'
+    - '"rhui" not in IMAGE_NAME|lower'
