@@ -32,13 +32,23 @@ job "tf-tmt-container" {
       }
 
       config {
-        image        = "quay.io/testing-farm/worker-public:latest"
+        image        = "quay.io/testing-farm/worker-public:0e622a22"
         network_mode = "host"
         init         = true
         security_opt = ["label=disable"]
 
         volumes = [
-          "/etc/citool.d:/etc/gluetool.d:O",
+          # Config bundle is extracted at runtime by /bin/tf-tmt-container
+          # (extract_citool_config) into /etc/gluetool.d/config via the podma
+          # Artemis private key: host-only secret, layered in at the config-bundle root
+          # (${config_root}), so config/artemis's `ssh-key = ${config_root}/i
+          "/etc/citool.d/id_rsa_artemis:/etc/gluetool.d/id_rsa_artemis:O",
+          # environment.yaml: gluetool eval_context vars, must sit at the bun
+          "/etc/citool.d/environment.yaml:/etc/gluetool.d/environment.yaml:ro",
+          # Secrets config dir: second --module-config-path entry (set_module
+          # Kept OUT of /etc/gluetool.d so the config-image extraction can't collide with it.
+          # Overrides the public config per-key (e.g. api-key in testing-farm
+          "/etc/citool.d/config:/CONFIG-SECRETS/config:ro",
           "/var/ARTIFACTS:/var/ARTIFACTS",
           "{{ nomad_podman_socket_path }}:/run/podman/podman.sock",
           "{{ nomad_home_dir }}/.ssh/agent.sock:/run/ssh-agent.sock",
@@ -54,6 +64,8 @@ job "tf-tmt-container" {
         CONTAINER_HOST = "unix:///run/podman/podman.sock"
         ARTIFACTS_DIR  = "/var/ARTIFACTS"
         SSH_AUTH_SOCK  = "/run/ssh-agent.sock"
+
+        CITOOL_CONFIG_IMAGE_DEFAULT = "quay.io/testing-farm/ranch-public:latest"
       }
 
       kill_timeout = "15m"
