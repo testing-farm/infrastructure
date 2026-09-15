@@ -9,7 +9,6 @@
     - name: testing_farm_profiles.library.update_and_reboot
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
-        - '"pfmt" not in IMAGE_NAME|lower'
         - '"eln" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.library.update_and_reboot
@@ -20,43 +19,36 @@
     - name: testing_farm_profiles.library.fedora
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
-        - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.library.fedora
     - name: testing_farm_profiles.workarounds.centos_eol
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
-        - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.workarounds.centos_eol
     - name: testing_farm_profiles.workarounds.dns
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
-        - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.workarounds.dns
     - name: testing_farm_profiles.repository.crb
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
-        - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.repository.crb
     - name: testing_farm_profiles.repository.epel
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
-        - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.repository.epel
     - name: testing_farm_profiles.library.beakerlib
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
-        - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.library.beakerlib
     - name: testing_farm_profiles.library.koji
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
-        - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.library.koji
     # For EOL distros this can fail, ignore the fact tag repo is not around
@@ -64,14 +56,12 @@
     - name: testing_farm_profiles.repository.tag_repository
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
-        - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.repository.tag_repository
       ignore_errors: true
     - name: testing_farm_profiles.library.time
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
-        - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.library.time
       vars:
