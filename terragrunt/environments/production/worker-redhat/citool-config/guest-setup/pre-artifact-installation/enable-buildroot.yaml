@@ -10,7 +10,6 @@
   when:
     - 'ansible_distribution == "RedHat"'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
-    - '"pfmt" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'
     - '"image-mode" not in IMAGE_NAME|lower'
@@ -27,7 +26,6 @@
   when:
     - 'ansible_distribution == "RedHat"'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
-    - '"pfmt" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'
     - '"image-mode" not in IMAGE_NAME|lower'
@@ -49,7 +47,6 @@
     - 'ansible_distribution == "RedHat"'
     - 'ansible_distribution_major_version | int >= 8'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
-    - '"pfmt" not in IMAGE_NAME|lower'
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'
     - '"rhui" not in IMAGE_NAME|lower'
