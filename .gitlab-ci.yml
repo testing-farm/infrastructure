@@ -49,6 +49,13 @@ workflow:
     - changes:
         - ansible/secrets/credentials.yaml
 
+  certs:
+    # The staging SSL certificates are baked into the server ignition at deploy
+    # time (see `terragrunt/environments/staging/generate.yaml`), so a renewal
+    # must trigger a staging deployment and the staging tests.
+    - changes:
+        - ansible/secrets/certs/**/*
+
   infrastructure:
     - !reference [.rules, secrets]
     - !reference [.rules, gitlab_ci]
@@ -104,11 +111,13 @@ workflow:
 
   terragrunt_staging:
     - !reference [.rules, terragrunt_testing_farm]
+    - !reference [.rules, certs]
     - changes:
         - terragrunt/environments/staging/**/*
 
   terragrunt_staging_ci:
     - !reference [.rules, terragrunt_testing_farm]
+    - !reference [.rules, certs]
     - changes:
         # The staging-ci environment sources its config from these shared
         # staging dirs (e.g. ci/server symlinks to ../../server), so changes
