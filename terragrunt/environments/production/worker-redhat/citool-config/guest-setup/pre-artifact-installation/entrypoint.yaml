@@ -5,7 +5,6 @@
   - include_tasks: install-python.yaml
     when:
       - '"auto-osbuild" not in IMAGE_NAME|lower'
-      - '"pfmt" not in IMAGE_NAME|lower'
       - '"image-mode" not in IMAGE_NAME|lower'
 
 - hosts: all
@@ -58,7 +57,6 @@
     include_tasks: install-certs.yaml
     when:
       - '"auto-osbuild" not in IMAGE_NAME|lower'
-      - '"pfmt" not in IMAGE_NAME|lower'
       - '"composer-api" not in IMAGE_NAME|lower'
       - '"hardened" not in IMAGE_NAME|lower'
       - '"image-mode" not in IMAGE_NAME|lower'

@@ -26,7 +26,6 @@
   when:
     - '"image-mode" not in IMAGE_NAME|lower'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
-    - '"pfmt" not in IMAGE_NAME|lower'
     - '"image-mode" not in IMAGE_NAME|lower'
 
 
@@ -39,5 +38,4 @@
   when:
     - '"image-mode" not in IMAGE_NAME|lower'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
-    - '"pfmt" not in IMAGE_NAME|lower'
     - '"image-mode" not in IMAGE_NAME|lower'
