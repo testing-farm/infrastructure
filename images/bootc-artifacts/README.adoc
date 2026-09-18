@@ -51,8 +51,6 @@ The base image is entitled: run `podman login registry.redhat.io` first.
 
 == Open items (TFT-4795)
 
-* *Upload SSH key*: `config/ssh/authorized_keys.artifacts` holds a placeholder
-  public key. Replace with the real uploader key.
 * *S3 Files mount*: `amazon-efs-utils` (the AWS mount helper) is not installed
   yet and the mount unit is a stub (`config/artifacts.mount`). nginx serves the
   empty `/mnt/s3files` directory until this is wired up. Install

@@ -6,7 +6,5 @@
 # public key once available (TFT-4795 open item).
 #
 # Format:
-# command="/usr/bin/rrsync -wo /mnt/s3files",restrict ssh-ed25519 AAAA... uploader@testing-farm
-#
-# TODO(TFT-4795): drop in the real uploader public key.
-command="/usr/bin/rrsync -wo /mnt/s3files",restrict ssh-ed25519 AAAAPLACEHOLDERREPLACEME uploader@testing-farm
+# command="/usr/bin/rrsync -wo /mnt/s3files",restrict <key-type> <key> <comment>
+command="/usr/bin/rrsync -wo /mnt/s3files",restrict ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCq49hwQ8xxssyRZVfyPsqczF5VV8ex06bfGgyU3zTp5ETNDcoYmGIezofIVVsxkcDFtHkHwL2rEWOn5jf4DMmKHgqZcMMj5lGYiGIQR+60jFE6SF1MP6vN1YUpfZCG8O/jtVOPSIIVgA5JxZYt3VlUVG7T2TXsBBtns6RCUh2LxxI550cZumYGsdEQm8gnebRdBlYEyV/h6oTyJjRp2SPPSY7Pj8qZ4wuoUIuHvhMBbpDecrofND6jhvy7lbIxK/+RoM63Y9LjzxMDQiTN/w3wZ4nsqh838XAKEdpzqv540wvK9kdutTydHkME2ekQWq/G9Elbu2BEgVX9pvtAY63tKyO6whfaG7R/0S2YirgDcgFSgMvD3X+fFperEcYtnEioq02quHzZFgJ7JF8XLMwylxkE5MBw0OcFjUUnI2WSFOgvu+yCcasJfqozfgBrSjNl7fry9HG1Hf5riGqjc/Lb3j8i/QvclhFMsAfMufGpisrJb/ZpCZxY1WNISh1GJq2MDKT1rv8uAiCeXiNSRCsl26DdJ/XgSUaoS/v1xhYd/QMwKgDFtiEiziMUOoRBUKUCpHmw7uzE0WHUAG3xUMRFWgW2FgP2O0ocrrSl53XUgYfR41949puR2ZS6wbsFKNgE7CfuGTeuFVhOXHq3b8SIZWg+SNb9RuUDk8XuF8jAJQ== tft@redhat.com
