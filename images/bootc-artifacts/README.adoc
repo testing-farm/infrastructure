@@ -59,5 +59,10 @@ run `podman login images.paas.redhat.com` first. Reachable on the *Red Hat VPN*.
   `amazon-efs-utils` from the *AWS prebuilt repo* — do NOT build from source on
   RHEL 10 (the FIPS `aws-lc` build fails, confirmed in the TFT-4606 spike).
 * *TLS certs*: a throwaway *self-signed* cert is baked at
-  `/etc/pki/nginx/artifacts.{crt,key}` to unblock testing. The real cert is
-  provisioned on the host by the deploy (TFT-4797), which overrides these paths.
+  `/etc/pki/nginx/artifacts.{crt,key}` to unblock testing. The real cert is a
+  Let's Encrypt cert for `redhat.artifacts.testing.farm`, issued via the repo's
+  existing certbot *DNS-01 / Route53* flow (see `setup/renew_certs.sh`, certs
+  stored under `ansible/secrets/certs/*.vault`) and dropped onto the host by the
+  deploy (TFT-4797), overriding these paths. LE is not baked into the image:
+  DNS-01 only needs the Route53 zone (from TFT-4796), so it can be issued before
+  the box is up, but it belongs to the deploy, not the image build.

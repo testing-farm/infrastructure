@@ -42,12 +42,16 @@ build_ami() {
         exit 1
     fi
 
+    local aws_mounts=()
+    [ -f "${AWS_CONFIG_FILE:-$HOME/.aws/config}" ] && aws_mounts+=(-v "${AWS_CONFIG_FILE:-$HOME/.aws/config}:/root/.aws/config:ro")
+    [ -f "${AWS_SHARED_CREDENTIALS_FILE:-$HOME/.aws/credentials}" ] && aws_mounts+=(-v "${AWS_SHARED_CREDENTIALS_FILE:-$HOME/.aws/credentials}:/root/.aws/credentials:ro")
+
     echo "💿 building AMI in $AWS_REGION via bootc-image-builder"
     podman run \
         --rm -it --privileged \
         --pull=newer \
         --security-opt label=type:unconfined_t \
-        -v "$HOME/.aws:/root/.aws:ro" \
+        "${aws_mounts[@]}" \
         --env AWS_PROFILE \
         "$BIB_IMAGE" \
         --type ami \

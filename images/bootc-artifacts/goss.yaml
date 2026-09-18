@@ -6,12 +6,16 @@ package:
     installed: true
   rsync:
     installed: true
+  rsync-rrsync:
+    installed: true
   stunnel:
     installed: true
   nfs-utils:
     installed: true
 
 file:
+  /usr/bin/rrsync:
+    exists: true
   /etc/nginx/conf.d/artifacts.conf:
     exists: true
   /etc/ssh/sshd_config.d/10-artifacts.conf:
