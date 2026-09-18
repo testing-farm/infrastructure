@@ -39,7 +39,9 @@ useradd --system --create-home --home-dir /var/lib/artifacts \
 systemctl enable nginx sshd
 EOF
 
-# nginx: autoindex, CORS, HTTP->HTTPS 301, gzip content-types.
+# nginx: take over the main config (drops the stock default server) plus our
+# autoindex / CORS / HTTP->HTTPS 301 / gzip server blocks.
+COPY config/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY config/nginx/artifacts.conf /etc/nginx/conf.d/artifacts.conf
 
 # sshd: restricted rrsync forced command for the upload key (write-only, no shell).
@@ -72,6 +74,8 @@ openssl req -x509 -nodes -newkey rsa:4096 -days 3650 \
 chmod 0600 /etc/pki/nginx/artifacts.key
 chmod 0644 /etc/pki/nginx/artifacts.crt
 
-# Validate nginx config at build time.
-nginx -t
+# NOTE: no build-time `nginx -t`. Its config load opens the listen sockets, and
+# :80/:443 are privileged ports the (rootless) build step cannot bind
+# (EACCES). nginx binds fine at runtime, started by systemd as root. Config is
+# validated by goss.yaml and the TFT-4797 lifecheck tests instead.
 EOF
