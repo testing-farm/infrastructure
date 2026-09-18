@@ -3,12 +3,13 @@
 set -eo pipefail
 
 #
-# Renew Let's Encrypt certificates for staging environments
+# Renew Let's Encrypt certificates for Testing Farm environments
 # using DNS-01 challenge via Route53.
 #
 # Certificates renewed:
 #   - *.staging.testing-farm.io + staging.testing-farm.io (staging)
 #   - *.staging-ci.testing-farm.io (staging CI)
+#   - redhat.artifacts.testing.farm (production artifact storage; TFT-4795/4797)
 #
 # Requires:
 #   - certbot and certbot-dns-route53 installed (via pyproject.toml)
@@ -17,6 +18,9 @@ set -eo pipefail
 #
 
 AWS_PROFILE="${CERTBOT_AWS_PROFILE:-fedora_us_east_2}"
+# Route53 zone artifacts.testing.farm lives in the Fedora account 125523088429;
+# its certs are issued with this profile (Route53 is global, region irrelevant).
+ARTIFACTS_AWS_PROFILE="${ARTIFACTS_CERTBOT_AWS_PROFILE:-fedora_us_east_1}"
 CERTS_DIR="$PROJECT_ROOT/ansible/secrets/certs"
 CERTBOT_DIR=$(mktemp -d)
 
@@ -45,12 +49,16 @@ if [ -n "$CI" ]; then
     [ -z "$CI_PROJECT_PATH" ] && error "CI_PROJECT_PATH not set"
 fi
 
-# Export AWS credentials for certbot-dns-route53
-export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id --profile "$AWS_PROFILE")
-export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key --profile "$AWS_PROFILE")
-export AWS_DEFAULT_REGION=$(aws configure get region --profile "$AWS_PROFILE")
+# Export AWS credentials for certbot-dns-route53 (per Route53 account/profile).
+set_aws_creds() {
+    local profile="$1"
+    export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id --profile "$profile")
+    export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key --profile "$profile")
+    export AWS_DEFAULT_REGION=$(aws configure get region --profile "$profile")
+    [ -z "$AWS_ACCESS_KEY_ID" ] && error "Failed to get AWS credentials from profile '$profile'"
+}
 
-[ -z "$AWS_ACCESS_KEY_ID" ] && error "Failed to get AWS credentials from profile '$AWS_PROFILE'"
+set_aws_creds "$AWS_PROFILE"
 
 renew_cert() {
     local domain="$1"
@@ -88,6 +96,11 @@ renew_cert "staging.testing-farm.io" -d "*.staging.testing-farm.io" -d "staging.
 
 # Staging CI: wildcard only
 renew_cert "staging-ci.testing-farm.io" -d "*.staging-ci.testing-farm.io"
+
+# Production: Red Hat artifact storage server (single host, no wildcard).
+# Uses the Fedora account that hosts the artifacts.testing.farm Route53 zone.
+set_aws_creds "$ARTIFACTS_AWS_PROFILE"
+renew_cert "redhat.artifacts.testing.farm" -d "redhat.artifacts.testing.farm"
 
 if [ -z "$CI" ]; then
     info "Not running in GitLab CI, skipping MR creation"
