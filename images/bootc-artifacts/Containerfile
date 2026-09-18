@@ -27,8 +27,9 @@ dnf -y install nginx openssh-server rsync stunnel nfs-utils
 dnf -y clean all
 
 # nginx serves the S3 Files mount root; create it so nginx starts even before
-# the mount is wired up.
-mkdir -p /mnt/s3files
+# the mount is wired up. On bootc/ostree /mnt is a symlink (to /var/mnt) whose
+# target may not exist yet, so resolve it before mkdir.
+mkdir -p "$(readlink -f /mnt)/s3files"
 
 # Dedicated upload account: no password, no shell (access only via the rrsync
 # forced command in the authorized_keys file).
