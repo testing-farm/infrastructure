@@ -5,7 +5,7 @@
 # restricted rrsync forced command.
 #
 # Plan: TFT-4606. Build: TFT-4795. Deployed by: TFT-4797.
-ARG BASE_IMAGE=registry.redhat.io/rhel10/rhel-bootc:latest
+ARG BASE_IMAGE=images.paas.redhat.com/bootc/rhel-bootc:latest-10
 FROM $BASE_IMAGE
 
 RUN <<EOF

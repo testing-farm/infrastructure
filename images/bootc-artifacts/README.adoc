@@ -41,7 +41,8 @@ Or directly:
 AWS_BUCKET=<staging-bucket> ./build.sh ami
 ----
 
-The base image is entitled: run `podman login registry.redhat.io` first.
+The base image is `images.paas.redhat.com/bootc/rhel-bootc:latest-10` and is
+entitled: run `podman login images.paas.redhat.com` first.
 
 == Handoff
 

@@ -7,20 +7,20 @@
 #   ./build.sh ami             Build image, then produce an AMI (needs AWS creds)
 #
 # Env:
-#   BASE_IMAGE   base bootc image     (default registry.redhat.io/rhel10/rhel-bootc:latest)
+#   BASE_IMAGE   base bootc image     (default images.paas.redhat.com/bootc/rhel-bootc:latest-10)
 #   TARGET_IMAGE built image tag      (default quay.io/testing-farm/artifacts-bootc:latest)
 #   AWS_REGION   AMI region           (default us-east-1)
 #   AWS_BUCKET   S3 bucket for the AMI import staging
 #
 # Prereqs:
-#   - `podman login registry.redhat.io` (base image is entitled)
+#   - `podman login images.paas.redhat.com` (base image is entitled)
 #   - for `ami`: AWS credentials with EC2/S3 import permissions, and
 #     `AWS_BUCKET` set to a writable bucket in `AWS_REGION`.
 set -euo pipefail
 
 cd "$(dirname "$0")"
 
-BASE_IMAGE="${BASE_IMAGE:-registry.redhat.io/rhel10/rhel-bootc:latest}"
+BASE_IMAGE="${BASE_IMAGE:-images.paas.redhat.com/bootc/rhel-bootc:latest-10}"
 TARGET_IMAGE="${TARGET_IMAGE:-quay.io/testing-farm/artifacts-bootc:latest}"
 AWS_REGION="${AWS_REGION:-us-east-1}"
 BIB_IMAGE="registry.redhat.io/rhel10/bootc-image-builder:latest"
