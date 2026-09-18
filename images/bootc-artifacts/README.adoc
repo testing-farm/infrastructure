@@ -1,0 +1,62 @@
+= RHEL 10 bootc artifact storage server image
+
+Image-mode (bootc) RHEL 10 image for the Testing Farm Red Hat ranch artifact
+storage server. Serves artifacts from an S3 Files (NFS-over-S3) mount at
+`/mnt/s3files` via nginx autoindex, and accepts uploads over SSH using a
+restricted `rrsync` forced command.
+
+* Plan: https://redhat.atlassian.net/browse/TFT-4606[TFT-4606]
+* Build (this image): https://redhat.atlassian.net/browse/TFT-4795[TFT-4795]
+* Deploy: https://redhat.atlassian.net/browse/TFT-4797[TFT-4797]
+
+== What is baked in
+
+* `nginx` autoindex, `root /mnt/s3files`, CORS `*`, HTTP->HTTPS 301, and
+  `.txt.gz` / `.log.gz` / `.json.gz` served as `text/plain` with
+  `Content-Encoding: gzip`.
+* `sshd` restricted `rrsync` forced command for the `artifacts` upload user
+  (key-auth, write-only into `/mnt/s3files`, no shell).
+* Kernel/network tuning: BBR + fq, TCP buffers, `somaxconn`, `nofile`, sunrpc
+  slots via `/usr/lib/sysctl.d/`, `/etc/security/limits.d/`, and
+  `/usr/lib/bootc/kargs.d/`.
+
+== Build
+
+Locally, via podman + bootc-image-builder:
+
+[source,bash]
+----
+# Build just the container image
+make image/artifacts-bootc
+
+# Build the image and an AMI (needs AWS creds + AWS_BUCKET)
+AWS_BUCKET=<staging-bucket> make image/artifacts-bootc/ami
+----
+
+Or directly:
+
+[source,bash]
+----
+./build.sh image
+AWS_BUCKET=<staging-bucket> ./build.sh ami
+----
+
+The base image is entitled: run `podman login registry.redhat.io` first.
+
+== Handoff
+
+`build.sh ami` prints the resulting AMI id. Supply it to TFT-4797 as the
+`ARTIFACTS_SERVER_AMI` environment variable (consumed by
+`terragrunt/environments/production/artifacts-redhat/ec2/terragrunt.hcl`).
+
+== Open items (TFT-4795)
+
+* *Upload SSH key*: `config/ssh/authorized_keys.artifacts` holds a placeholder
+  public key. Replace with the real uploader key.
+* *S3 Files mount*: `amazon-efs-utils` (the AWS mount helper) is not installed
+  yet and the mount unit is a stub (`config/artifacts.mount`). nginx serves the
+  empty `/mnt/s3files` directory until this is wired up. Install
+  `amazon-efs-utils` from the *AWS prebuilt repo* — do NOT build from source on
+  RHEL 10 (the FIPS `aws-lc` build fails, confirmed in the TFT-4606 spike).
+* *TLS certs*: nginx expects `/etc/pki/nginx/artifacts.{crt,key}` provisioned on
+  the host by the deploy (TFT-4797); not baked into the image.

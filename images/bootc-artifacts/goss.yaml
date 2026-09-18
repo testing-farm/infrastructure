@@ -1,0 +1,31 @@
+---
+package:
+  nginx:
+    installed: true
+  openssh-server:
+    installed: true
+  rsync:
+    installed: true
+  stunnel:
+    installed: true
+  nfs-utils:
+    installed: true
+
+file:
+  /etc/nginx/conf.d/artifacts.conf:
+    exists: true
+  /etc/ssh/sshd_config.d/10-artifacts.conf:
+    exists: true
+  /etc/ssh/artifacts_authorized_keys:
+    exists: true
+  /usr/lib/sysctl.d/90-artifacts.conf:
+    exists: true
+  /usr/lib/bootc/kargs.d/90-artifacts.toml:
+    exists: true
+  /mnt/s3files:
+    exists: true
+    filetype: directory
+
+user:
+  artifacts:
+    exists: true

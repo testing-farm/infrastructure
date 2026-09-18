@@ -1,0 +1,64 @@
+# RHEL 10 image-mode (bootc) artifact storage server.
+#
+# Serves Testing Farm Red Hat ranch artifacts from an S3 Files (NFS-over-S3)
+# mount at /mnt/s3files via nginx autoindex, accepts uploads over SSH using a
+# restricted rrsync forced command.
+#
+# Plan: TFT-4606. Build: TFT-4795. Deployed by: TFT-4797.
+ARG BASE_IMAGE=registry.redhat.io/rhel10/rhel-bootc:latest
+FROM $BASE_IMAGE
+
+RUN <<EOF
+set -euo pipefail
+
+# Core packages.
+#   nginx          - autoindex artifact serving
+#   openssh-server - rrsync upload endpoint
+#   rsync          - provides rrsync (restricted rsync forced command)
+#   stunnel        - TLS tunnel for the S3 Files mount helper
+#   nfs-utils      - NFS client for the S3 Files mount
+#
+# NOTE (TFT-4795): amazon-efs-utils is intentionally NOT installed yet.
+# It is the AWS mount helper for S3 Files (NFS-over-S3); without it the
+# /mnt/s3files mount stays a stub (see config/artifacts.mount). To be solved
+# later - do NOT build from source on RHEL 10, the FIPS aws-lc build fails
+# (confirmed in the TFT-4606 spike POC). Install from the AWS prebuilt repo.
+dnf -y install nginx openssh-server rsync stunnel nfs-utils
+dnf -y clean all
+
+# nginx serves the S3 Files mount root; create it so nginx starts even before
+# the mount is wired up.
+mkdir -p /mnt/s3files
+
+# Dedicated upload account: no password, no shell (access only via the rrsync
+# forced command in the authorized_keys file).
+useradd --system --create-home --home-dir /var/lib/artifacts \
+    --shell /usr/sbin/nologin artifacts
+
+systemctl enable nginx sshd
+EOF
+
+# nginx: autoindex, CORS, HTTP->HTTPS 301, gzip content-types.
+COPY config/nginx/artifacts.conf /etc/nginx/conf.d/artifacts.conf
+
+# sshd: restricted rrsync forced command for the upload key (write-only, no shell).
+COPY config/ssh/sshd_artifacts.conf /etc/ssh/sshd_config.d/10-artifacts.conf
+COPY config/ssh/authorized_keys.artifacts /etc/ssh/artifacts_authorized_keys
+
+# S3 Files mount: intentionally NOT installed yet (stub), see config/artifacts.mount
+# and the amazon-efs-utils note above. TODO(TFT-4795).
+
+# Kernel/network tuning.
+COPY config/sysctl-artifacts.conf /usr/lib/sysctl.d/90-artifacts.conf
+COPY config/kargs-artifacts.toml /usr/lib/bootc/kargs.d/90-artifacts.toml
+COPY config/limits-artifacts.conf /etc/security/limits.d/90-artifacts.conf
+
+RUN <<EOF
+set -euo pipefail
+
+# Lock down the upload authorized_keys file for sshd AuthorizedKeysFile.
+chmod 0644 /etc/ssh/artifacts_authorized_keys
+
+# Validate nginx config at build time.
+nginx -t
+EOF

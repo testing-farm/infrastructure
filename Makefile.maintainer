@@ -589,6 +589,12 @@ test/terraform/modules:  ## Run terratest tests for Teraform modules
 	env -C terragrunt/modules/gitlab/project/test go test -v
 	env -C terragrunt/modules/gitlab/schedules/test go test -v
 
+image/artifacts-bootc: .FORCE  ## Build RHEL 10 bootc artifact-server image | local
+	images/bootc-artifacts/build.sh image
+
+image/artifacts-bootc/ami: .FORCE  ## Build RHEL 10 bootc artifact-server AMI | local (needs AWS_BUCKET)
+	images/bootc-artifacts/build.sh ami
+
 generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
 	WORKER=worker-local poetry run python setup/generate_environment.py dev
 
