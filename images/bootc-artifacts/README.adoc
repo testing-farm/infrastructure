@@ -58,5 +58,6 @@ run `podman login images.paas.redhat.com` first. Reachable on the *Red Hat VPN*.
   empty `/mnt/s3files` directory until this is wired up. Install
   `amazon-efs-utils` from the *AWS prebuilt repo* — do NOT build from source on
   RHEL 10 (the FIPS `aws-lc` build fails, confirmed in the TFT-4606 spike).
-* *TLS certs*: nginx expects `/etc/pki/nginx/artifacts.{crt,key}` provisioned on
-  the host by the deploy (TFT-4797); not baked into the image.
+* *TLS certs*: a throwaway *self-signed* cert is baked at
+  `/etc/pki/nginx/artifacts.{crt,key}` to unblock testing. The real cert is
+  provisioned on the host by the deploy (TFT-4797), which overrides these paths.

@@ -23,7 +23,7 @@ set -euo pipefail
 # /mnt/s3files mount stays a stub (see config/artifacts.mount). To be solved
 # later - do NOT build from source on RHEL 10, the FIPS aws-lc build fails
 # (confirmed in the TFT-4606 spike POC). Install from the AWS prebuilt repo.
-dnf -y install nginx openssh-server rsync stunnel nfs-utils
+dnf -y install nginx openssh-server rsync stunnel nfs-utils openssl
 dnf -y clean all
 
 # nginx serves the S3 Files mount root; create it so nginx starts even before
@@ -59,6 +59,18 @@ set -euo pipefail
 
 # Lock down the upload authorized_keys file for sshd AuthorizedKeysFile.
 chmod 0644 /etc/ssh/artifacts_authorized_keys
+
+# Self-signed TLS cert so nginx starts and testing is unblocked. The real
+# host-provisioned cert (TFT-4797) overrides these paths on deploy.
+# TODO(TFT-4795): replace with the real certificate.
+mkdir -p /etc/pki/nginx
+openssl req -x509 -nodes -newkey rsa:4096 -days 3650 \
+    -keyout /etc/pki/nginx/artifacts.key \
+    -out /etc/pki/nginx/artifacts.crt \
+    -subj "/CN=redhat.artifacts.testing.farm" \
+    -addext "subjectAltName=DNS:redhat.artifacts.testing.farm"
+chmod 0600 /etc/pki/nginx/artifacts.key
+chmod 0644 /etc/pki/nginx/artifacts.crt
 
 # Validate nginx config at build time.
 nginx -t
