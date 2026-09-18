@@ -5,12 +5,8 @@
 # restricted rrsync forced command.
 #
 # Plan: TFT-4606. Build: TFT-4795. Deployed by: TFT-4797.
-ARG BASE_IMAGE=images.paas.redhat.com/bootc/rhel-bootc:latest-10
+ARG BASE_IMAGE=images.paas.redhat.com/testingfarm/rhel-bootc:10
 FROM $BASE_IMAGE
-
-# Build-time only internal RHEL repos (base ships none, host is not subscribed).
-# Removed again inside the RUN below so it never ships in the final image.
-COPY config/rhel-build.repo /etc/yum.repos.d/rhel-build.repo
 
 RUN <<EOF
 set -euo pipefail
@@ -29,9 +25,6 @@ set -euo pipefail
 # (confirmed in the TFT-4606 spike POC). Install from the AWS prebuilt repo.
 dnf -y install nginx openssh-server rsync stunnel nfs-utils
 dnf -y clean all
-
-# Drop the build-time repo so it never ships in the final image.
-rm -f /etc/yum.repos.d/rhel-build.repo
 
 # nginx serves the S3 Files mount root; create it so nginx starts even before
 # the mount is wired up.

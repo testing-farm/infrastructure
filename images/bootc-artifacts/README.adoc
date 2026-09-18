@@ -41,13 +41,9 @@ Or directly:
 AWS_BUCKET=<staging-bucket> ./build.sh ami
 ----
 
-The base image is `images.paas.redhat.com/bootc/rhel-bootc:latest-10` and is
-entitled: run `podman login images.paas.redhat.com` first.
-
-The base ships no enabled dnf repos and the build host is not subscription
-registered, so packages are pulled from the internal devel mirror via
-`config/rhel-build.repo` (copied in for the install, then removed so it does
-not ship in the image). This requires the *Red Hat VPN*. x86_64 only for now.
+The base image is `images.paas.redhat.com/testingfarm/rhel-bootc:10`, a
+Testing Farm curated RHEL 10 bootc image with the internal repos preconfigured:
+run `podman login images.paas.redhat.com` first. Reachable on the *Red Hat VPN*.
 
 == Handoff
 
