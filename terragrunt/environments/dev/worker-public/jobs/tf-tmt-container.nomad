@@ -32,7 +32,8 @@ job "tf-tmt-container" {
       }
 
       config {
-        image        = "quay.io/testing-farm/worker-public:0e622a22"
+        # TODO: revert to latest once merged
+        image        = "quay.io/testing-farm/worker-public:68d72a1b"
         network_mode = "host"
         init         = true
         security_opt = ["label=disable"]
