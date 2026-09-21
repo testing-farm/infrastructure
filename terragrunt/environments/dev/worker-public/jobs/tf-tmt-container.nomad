@@ -43,9 +43,9 @@ job "tf-tmt-container" {
           # (extract_citool_config) into /etc/gluetool.d/config via the podma
           # Artemis private key: host-only secret, layered in at the config-bundle root
           # (${config_root}), so config/artemis's `ssh-key = ${config_root}/i
-          "/etc/citool.d/id_rsa_artemis:/etc/gluetool.d/id_rsa_artemis:O",
+          "/etc/citool.d/id_rsa_artemis:/CONFIG_SECRETS/id_rsa_artemis:ro",
           # environment.yaml: gluetool eval_context vars, must sit at the bun
-          "/etc/citool.d/environment.yaml:/etc/gluetool.d/environment.yaml:ro",
+          "/etc/citool.d/environment.yaml:/CONFIG/environment.yaml:ro",
           # Secrets config dir: second --module-config-path entry (set_module
           # Kept OUT of /etc/gluetool.d so the config-image extraction can't collide with it.
           # Overrides the public config per-key (e.g. api-key in testing-farm
