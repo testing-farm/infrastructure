@@ -589,11 +589,18 @@ test/terraform/modules:  ## Run terratest tests for Teraform modules
 	env -C terragrunt/modules/gitlab/project/test go test -v
 	env -C terragrunt/modules/gitlab/schedules/test go test -v
 
-image/artifacts-bootc: .FORCE  ## Build RHEL 10 bootc artifact-server image | local
-	images/bootc-artifacts/build.sh image
+image/artifacts-bootc/container: .FORCE  ## Build & push RHEL 10 bootc artifact-server image | Testing Farm
+	testing-farm request --skip-summary \
+		-e ENABLE_PUSH=yes -s AUTH_JSON="$(AUTH_JSON)" \
+		--plan /images/bootc-artifacts/container
 
-image/artifacts-bootc/ami: .FORCE  ## Build RHEL 10 bootc artifact-server AMI | local (needs AWS_BUCKET)
-	images/bootc-artifacts/build.sh ami
+image/artifacts-bootc/qcow2: .FORCE  ## Build RHEL 10 bootc artifact-server qcow2 | Testing Farm
+	testing-farm request --skip-summary --arch x86_64 \
+		-s AUTH_JSON="$(AUTH_JSON)" \
+		--plan /images/bootc-artifacts/qcow2
+
+image/artifacts-bootc/ami: .FORCE  ## Import artifact-server qcow2 into an AWS AMI | local (needs AWS_BUCKET, QCOW2)
+	images/bootc-artifacts/build.sh $(QCOW2)
 
 generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
 	WORKER=worker-local poetry run python setup/generate_environment.py dev

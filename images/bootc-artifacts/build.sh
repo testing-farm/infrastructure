@@ -1,70 +1,94 @@
 #!/bin/bash
-# Build the RHEL 10 bootc artifact-server image and (optionally) an AMI.
-# TFT-4795. Runs locally via podman + bootc-image-builder.
+# Import the artifact-server qcow2 into an AWS AMI.
+#
+# The container image and the qcow2 are built on Testing Farm via the tmt plans
+# in this directory (container.fmf, qcow2.fmf) - see README.adoc. This script
+# performs the one step Testing Farm does not cover: importing the built qcow2
+# into an AMI for the deploy (TFT-4797), which consumes it as ARTIFACTS_SERVER_AMI.
 #
 # Usage:
-#   ./build.sh image           Build and tag the bootc container image
-#   ./build.sh ami             Build image, then produce an AMI (needs AWS creds)
+#   ./build.sh <disk.qcow2>
 #
 # Env:
-#   BASE_IMAGE   base bootc image     (default images.paas.redhat.com/testingfarm/rhel-bootc:10)
-#   TARGET_IMAGE built image tag      (default quay.io/testing-farm/artifacts-bootc:latest)
-#   AWS_REGION   AMI region           (default us-east-1)
-#   AWS_BUCKET   S3 bucket for the AMI import staging
+#   AWS_BUCKET   S3 bucket used to stage the disk image for import   (required)
+#   AWS_REGION   AMI region                                          (default us-east-1)
+#   AMI_NAME     name for the registered AMI                (default artifacts-bootc-<ts>)
+#   AWS_PROFILE  AWS profile with EC2/S3 VM import permissions       (as usual)
 #
 # Prereqs:
-#   - `podman login images.paas.redhat.com` (base image is entitled)
-#   - for `ami`: AWS credentials with EC2/S3 import permissions, and
-#     `AWS_BUCKET` set to a writable bucket in `AWS_REGION`.
+#   - qemu-img (qcow2 -> raw conversion; EC2 import does not accept qcow2)
+#   - AWS credentials with the "vmimport" service role configured, see
+#     https://docs.aws.amazon.com/vm-import/latest/userguide/required-permissions.html
 set -euo pipefail
 
 cd "$(dirname "$0")"
 
-BASE_IMAGE="${BASE_IMAGE:-images.paas.redhat.com/testingfarm/rhel-bootc:10}"
-TARGET_IMAGE="${TARGET_IMAGE:-quay.io/testing-farm/artifacts-bootc:latest}"
+QCOW2="${1:-}"
 AWS_REGION="${AWS_REGION:-us-east-1}"
-BIB_IMAGE="registry.redhat.io/rhel10/bootc-image-builder:latest"
+AMI_NAME="${AMI_NAME:-artifacts-bootc-$(date +%Y%m%d-%H%M%S)}"
 
-build_image() {
-    echo "🔨 building $TARGET_IMAGE from $BASE_IMAGE"
-    podman build \
-        --pull=always \
-        --build-arg BASE_IMAGE="$BASE_IMAGE" \
-        -t "$TARGET_IMAGE" \
-        .
-}
+if [ -z "$QCOW2" ] || [ ! -f "$QCOW2" ]; then
+    echo "Usage: $0 <disk.qcow2>" >&2
+    echo "Error: qcow2 file '$QCOW2' not found. Build it first with 'make image/artifacts-bootc/qcow2'." >&2
+    exit 1
+fi
 
-build_ami() {
-    build_image
+if [ -z "${AWS_BUCKET:-}" ]; then
+    echo "Error: AWS_BUCKET must be set to stage the disk image for import." >&2
+    exit 1
+fi
 
-    if [ -z "${AWS_BUCKET:-}" ]; then
-        echo "Error: AWS_BUCKET must be set to build an AMI" >&2
-        exit 1
-    fi
+work="$(mktemp -d)"
+raw="$work/artifacts-bootc.raw"
+s3_key="artifacts-bootc-import/$(basename "$AMI_NAME").raw"
+trap 'rm -rf "$work"; aws s3 rm "s3://$AWS_BUCKET/$s3_key" --region "$AWS_REGION" >/dev/null 2>&1 || true' EXIT
 
-    local aws_mounts=()
-    [ -f "${AWS_CONFIG_FILE:-$HOME/.aws/config}" ] && aws_mounts+=(-v "${AWS_CONFIG_FILE:-$HOME/.aws/config}:/root/.aws/config:ro")
-    [ -f "${AWS_SHARED_CREDENTIALS_FILE:-$HOME/.aws/credentials}" ] && aws_mounts+=(-v "${AWS_SHARED_CREDENTIALS_FILE:-$HOME/.aws/credentials}:/root/.aws/credentials:ro")
+echo "🔧 converting $QCOW2 to raw (EC2 import does not accept qcow2)"
+qemu-img convert -f qcow2 -O raw "$QCOW2" "$raw"
 
-    echo "💿 building AMI in $AWS_REGION via bootc-image-builder"
-    podman run \
-        --rm -it --privileged \
-        --pull=newer \
-        --security-opt label=type:unconfined_t \
-        "${aws_mounts[@]}" \
-        --env AWS_PROFILE \
-        "$BIB_IMAGE" \
-        --type ami \
-        --aws-region "$AWS_REGION" \
-        --aws-bucket "$AWS_BUCKET" \
-        --aws-ami-name "artifacts-bootc-$(date +%Y%m%d-%H%M%S)" \
-        "$TARGET_IMAGE"
+echo "⬆️  uploading disk image to s3://$AWS_BUCKET/$s3_key"
+aws s3 cp "$raw" "s3://$AWS_BUCKET/$s3_key" --region "$AWS_REGION"
 
-    echo "✅ AMI build finished. Pass the resulting AMI id to TFT-4797 as ARTIFACTS_SERVER_AMI."
-}
+echo "💿 importing snapshot in $AWS_REGION"
+import_task=$(aws ec2 import-snapshot \
+    --region "$AWS_REGION" \
+    --description "$AMI_NAME" \
+    --disk-container "Format=raw,UserBucket={S3Bucket=$AWS_BUCKET,S3Key=$s3_key}" \
+    --query 'ImportTaskId' --output text)
+echo "   import task: $import_task"
 
-case "${1:-image}" in
-    image) build_image ;;
-    ami)   build_ami ;;
-    *)     echo "Usage: $0 {image|ami}" >&2; exit 1 ;;
-esac
+echo "⏳ waiting for snapshot import to complete"
+while :; do
+    read -r status progress message <<<"$(aws ec2 describe-import-snapshot-tasks \
+        --region "$AWS_REGION" --import-task-ids "$import_task" \
+        --query 'ImportSnapshotTasks[0].SnapshotTaskDetail.[Status,Progress,StatusMessage]' \
+        --output text)"
+    case "$status" in
+        completed) echo "   snapshot import completed"; break ;;
+        deleted|deleting|error) echo "Error: snapshot import $status: $message" >&2; exit 1 ;;
+        *) echo "   status=$status progress=${progress}% ${message}"; sleep 30 ;;
+    esac
+done
+
+snapshot_id=$(aws ec2 describe-import-snapshot-tasks \
+    --region "$AWS_REGION" --import-task-ids "$import_task" \
+    --query 'ImportSnapshotTasks[0].SnapshotTaskDetail.SnapshotId' --output text)
+echo "   snapshot: $snapshot_id"
+
+echo "🏷️  registering AMI $AMI_NAME"
+# bootc RHEL images boot via UEFI; ENA + NVMe are standard on modern instance types.
+ami_id=$(aws ec2 register-image \
+    --region "$AWS_REGION" \
+    --name "$AMI_NAME" \
+    --description "RHEL 10 bootc artifact storage server (TFT-4795)" \
+    --architecture x86_64 \
+    --root-device-name /dev/xvda \
+    --boot-mode uefi \
+    --ena-support \
+    --virtualization-type hvm \
+    --block-device-mappings "DeviceName=/dev/xvda,Ebs={SnapshotId=$snapshot_id,VolumeType=gp3,DeleteOnTermination=true}" \
+    --query 'ImageId' --output text)
+
+echo "✅ AMI build finished: $ami_id"
+echo "   Pass it to TFT-4797 as ARTIFACTS_SERVER_AMI (consumed by"
+echo "   terragrunt/environments/production/artifacts-redhat/ec2/terragrunt.hcl)."

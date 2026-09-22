@@ -22,33 +22,42 @@ restricted `rrsync` forced command.
 
 == Build
 
-Locally, via podman + bootc-image-builder:
+The container image and the qcow2 are built *on Testing Farm* via the tmt plans
+in this directory, which run the published Testing Farm tests:
+
+* `container.fmf` -> https://gitlab.com/testing-farm/tests/-/tree/main/container[`/container/build`]
+  (builds and pushes the container image with `buildah`).
+* `qcow2.fmf` -> https://gitlab.com/testing-farm/tests/-/tree/main/image-mode/qcow2[`/image-mode/qcow2/build`]
+  (builds a qcow2 from that image with `bootc-image-builder`).
 
 [source,bash]
 ----
-# Build just the container image
-make image/artifacts-bootc
+# Build and push the container image (AUTH_JSON = base64 registry auth)
+AUTH_JSON=$(base64 -w0 ~/.docker/config.json) make image/artifacts-bootc/container
 
-# Build the image and an AMI (needs AWS creds + AWS_BUCKET)
-AWS_BUCKET=<staging-bucket> make image/artifacts-bootc/ami
+# Build the qcow2 from the pushed image; download it from the request artifacts
+make image/artifacts-bootc/qcow2
+
+# Import the downloaded qcow2 into an AMI (needs AWS creds + AWS_BUCKET)
+AWS_BUCKET=<staging-bucket> QCOW2=<disk.qcow2> make image/artifacts-bootc/ami
 ----
 
-Or directly:
+The plans can also be run directly, e.g.
+`testing-farm request --plan /images/bootc-artifacts/container`.
 
-[source,bash]
-----
-./build.sh image
-AWS_BUCKET=<staging-bucket> ./build.sh ami
-----
-
-The base image is `images.paas.redhat.com/testingfarm/rhel-bootc:10`, a
-Testing Farm curated RHEL 10 bootc image with the internal repos preconfigured:
-run `podman login images.paas.redhat.com` first. Reachable on the *Red Hat VPN*.
+The base image is `images.paas.redhat.com/testingfarm/rhel-bootc:10`, a Testing
+Farm curated RHEL 10 bootc image on an internal Red Hat registry. The build must
+therefore run on the *Red Hat ranch* (select it via `TESTING_FARM_API_URL` /
+`TESTING_FARM_API_TOKEN`); the container plan installs the Red Hat IT CA so
+`buildah` can pull the base.
 
 == Handoff
 
-`build.sh ami` prints the resulting AMI id. Supply it to TFT-4797 as the
-`ARTIFACTS_SERVER_AMI` environment variable (consumed by
+Testing Farm covers container + qcow2 builds but not AMIs, so `build.sh` performs
+the one remaining step: it imports the built qcow2 into an AMI (qcow2 -> raw ->
+`ec2 import-snapshot` -> `register-image`) and prints the resulting AMI id.
+Supply it to TFT-4797 as the `ARTIFACTS_SERVER_AMI` environment variable
+(consumed by
 `terragrunt/environments/production/artifacts-redhat/ec2/terragrunt.hcl`).
 
 == Open items (TFT-4795)

@@ -1,0 +1,47 @@
+summary: Build a RHEL 10 bootc artifact-server qcow2 image
+
+description: |
+    Build a qcow2 disk image from the artifact-server container image using the
+    Testing Farm ``/image-mode/qcow2/build`` test
+    (https://gitlab.com/testing-farm/tests/-/tree/main/image-mode/qcow2), which
+    runs ``bootc-image-builder``.
+
+    The produced qcow2 is stored in the tmt plan data. It can be imported into an
+    AWS AMI for the deploy (TFT-4797) with ``build.sh`` - see README.adoc.
+
+    Required variables:
+
+      IMAGE      ... Container image to build the qcow2 from, e.g.
+                     ``quay.io/testing-farm/artifacts-bootc:latest``.
+
+    Optional variables:
+
+      QCOW2_FILE ... Name of the produced qcow2. By default ``artifacts-bootc.qcow2``.
+
+      AUTH_JSON  ... base64 encoded registry authentication file for pulling IMAGE.
+                     Sensitive, pass as a Testing Farm secret (``-s``). Required if
+                     pulling IMAGE needs authentication.
+
+environment:
+  IMAGE: quay.io/testing-farm/artifacts-bootc:latest
+  QCOW2_FILE: artifacts-bootc.qcow2
+
+discover:
+  how: fmf
+  url: https://gitlab.com/testing-farm/tests
+  test:
+    - /image-mode/qcow2/build
+
+prepare:
+  how: shell
+  script: |
+    if [ -z "$IMAGE" ]; then
+      echo "[E] Error: no IMAGE specified, cannot continue."
+      exit 1
+    fi
+
+provision:
+  how: virtual
+
+execute:
+  how: tmt
