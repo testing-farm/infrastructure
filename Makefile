@@ -59,7 +59,7 @@ reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstwor
 		FS = ":.*##"; \
 		printf "$(info $(PRELUDE))" \
 	} \
-	/^[a-zA-Z_/-]+:.*?##/ { \
+	/^[a-zA-Z0-9_/-]+:.*?##/ { \
 		printf "  \033[36m%-35s\033[0m %s\n", $$1, $$2 \
 	} \
 	/^##@/ { \
