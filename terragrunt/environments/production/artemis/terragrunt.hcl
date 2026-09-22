@@ -131,6 +131,18 @@ inputs = {
   dispatcher_replicas = 5
 
   worker_extra_env = [
+    # Pin the worker log level. The `artemis-core` chart never renders `ARTEMIS_LOG_LEVEL`,
+    # so `logging.level` in `terragrunt/modules/artemis/values.yaml.tftpl` has no effect. A
+    # `kubectl` edit from 2025-07-31 left `debug` on the live worker deployment, and because
+    # Helm merges `env` by `name` and keeps entries it never owned, that drift survived every
+    # upgrade since. Rendering the name here makes Helm own it again.
+    #
+    # Debug records exceed `PIPE_BUF` (4096), so the worker threads in each dramatiq child
+    # tear frames on its length-framed log pipe and deadlock the pod. See TFT-5005, TFT-5004.
+    {
+      name  = "ARTEMIS_LOG_LEVEL",
+      value = "info"
+    },
     # Do not use separate thread for task, keep it in main dramatiq worker thread.
     # This should prevent race conditions observed in some deployments.
     {
