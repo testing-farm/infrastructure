@@ -595,7 +595,7 @@ image/artifacts-bootc/container: .FORCE  ## Build & push RHEL 10 bootc artifact-
 		--plan /images/bootc-artifacts/container
 
 image/artifacts-bootc/qcow2: .FORCE  ## Build RHEL 10 bootc artifact-server qcow2 | Testing Farm
-	testing-farm request --skip-summary --arch x86_64 \
+	testing-farm request --skip-summary --arch x86_64 --compose RHEL-10-Nightly \
 		-s AUTH_JSON="$(AUTH_JSON)" \
 		--plan /images/bootc-artifacts/qcow2
 
