@@ -538,6 +538,11 @@ renew/certs:
     # image/artifacts-bootc/* targets live in Makefile.maintainer
     IS_MAINTAINER: "1"
   rules:
+    # TEMPORARY (TFT-4795): allow manual runs on the MR to validate the image
+    # build before merge. Revert this commit once merged.
+    - if: $CI_MERGE_REQUEST_IID
+      when: manual
+      allow_failure: true
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: manual
       allow_failure: true
