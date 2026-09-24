@@ -106,6 +106,12 @@ postgresql:
   resources: ${jsonencode(postgresql_resources)}
   metrics:
     enabled: true
+    ingress:
+      enabled: true
+      hostname: "${artemis_postgresql_exporter_hostname}"
+      annotations:
+        alb.ingress.kubernetes.io/group.name: artemis-metrics
+        alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
     resources: ${jsonencode(postgresql_exporter_resources)}
 
 adminer:
@@ -118,6 +124,12 @@ rabbitmq:
   resources: ${jsonencode(rabbitmq_resources)}
   metrics:
     enabled: true
+    ingress:
+      enabled: true
+      hostname: "${artemis_rabbitmq_exporter_hostname}"
+      annotations:
+        alb.ingress.kubernetes.io/group.name: artemis-metrics
+        alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
 
 redis:
   install: true
@@ -125,3 +137,9 @@ redis:
   metrics:
     enabled: true
     resources: ${jsonencode(redis_exporter_resources)}
+    ingress:
+      enabled: true
+      hostname: "${artemis_redis_exporter_hostname}"
+      annotations:
+        alb.ingress.kubernetes.io/group.name: artemis-metrics
+        alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
