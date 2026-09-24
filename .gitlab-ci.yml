@@ -516,3 +516,59 @@ renew/certs:
   rules:
     - !reference [.rules, only_schedule]
     - if: '$SCHEDULED_JOB == "renew/certs"'
+
+# ---------------------------------------------------------------------------
+# RHEL 10 bootc artifact-server image (TFT-4795)
+#
+# Build the container image and the qcow2 on Testing Farm, then upload the
+# qcow2 to AWS as an AMI via tft-admin (cnc image). See
+# images/bootc-artifacts/README.adoc.
+#
+# Required CI/CD variables:
+#   TESTING_FARM_API_TOKEN_RH_RANCH  RH ranch token (entitled RHEL bootc base)
+#   DOCKER_AUTH_CONFIG_BASE64        base64 registry auth for the container push
+#   VAULT_SECRET_ID                  Vault secret id for the cloud credentials
+#
+# Manual jobs: the future trigger is still to be decided (it will be a GitLab
+# pipeline in this repo), so for now they are only offered on the default branch.
+# ---------------------------------------------------------------------------
+.artifacts-bootc:
+  stage: deploy
+  variables:
+    # image/artifacts-bootc/* targets live in Makefile.maintainer
+    IS_MAINTAINER: "1"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+      allow_failure: true
+
+image/artifacts-bootc/container:
+  extends: .artifacts-bootc
+  image: quay.io/testing-farm/cli:latest
+  needs: []
+  before_script:
+    - export TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_RH_RANCH
+  script:
+    - make image/artifacts-bootc/container AUTH_JSON="$DOCKER_AUTH_CONFIG_BASE64"
+
+image/artifacts-bootc/qcow2:
+  extends: .artifacts-bootc
+  image: quay.io/testing-farm/cli:latest
+  needs:
+    - job: image/artifacts-bootc/container
+      optional: true
+  before_script:
+    - export TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_RH_RANCH
+  script:
+    - make image/artifacts-bootc/qcow2 AUTH_JSON="$DOCKER_AUTH_CONFIG_BASE64"
+
+image/artifacts-bootc/ami:
+  extends: .artifacts-bootc
+  image: quay.io/testing-farm/cnc:latest
+  needs:
+    - job: image/artifacts-bootc/qcow2
+      optional: true
+  # QCOW2_URL is the qcow2 from the qcow2 build request artifacts; pass it when
+  # triggering this manual job. VAULT_SECRET_ID must be set as a CI/CD variable.
+  script:
+    - images/bootc-artifacts/upload-ami.sh

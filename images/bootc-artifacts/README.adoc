@@ -35,15 +35,21 @@ in this directory, which run the published Testing Farm tests:
 # Build and push the container image (AUTH_JSON = base64 registry auth)
 AUTH_JSON=$(base64 -w0 ~/.docker/config.json) make image/artifacts-bootc/container
 
-# Build the qcow2 from the pushed image; download it from the request artifacts
+# Build the qcow2 from the pushed image; it is stored in the request artifacts
 make image/artifacts-bootc/qcow2
 
-# Import the downloaded qcow2 into an AMI (needs AWS creds + AWS_BUCKET)
-AWS_BUCKET=<staging-bucket> QCOW2=<disk.qcow2> make image/artifacts-bootc/ami
+# Upload the qcow2 to AWS as an AMI via tft-admin (run inside the cnc image, or
+# with tft-admin configured; QCOW2_URL points at the qcow2 build artifact)
+QCOW2_URL=<qcow2-url> VAULT_SECRET_ID=<id> make image/artifacts-bootc/ami
 ----
 
 The plans can also be run directly, e.g.
 `testing-farm request --plan /images/bootc-artifacts/container`.
+
+The same three steps run in GitLab CI as manual jobs (`image/artifacts-bootc/{container,qcow2,ami}`)
+- see `.gitlab-ci.yml`. They require the CI/CD variables `TESTING_FARM_API_TOKEN_RH_RANCH`
+(RH ranch token), `DOCKER_AUTH_CONFIG_BASE64` (base64 registry auth for the push),
+and `VAULT_SECRET_ID` (cloud credentials for the AMI upload).
 
 The base image is `images.paas.redhat.com/testingfarm/rhel-bootc:10`, a Testing
 Farm curated RHEL 10 bootc image on an internal Red Hat registry. The build must
@@ -53,11 +59,11 @@ therefore run on the *Red Hat ranch* (select it via `TESTING_FARM_API_URL` /
 
 == Handoff
 
-Testing Farm covers container + qcow2 builds but not AMIs, so `build.sh` performs
-the one remaining step: it imports the built qcow2 into an AMI (qcow2 -> raw ->
-`ec2 import-snapshot` -> `register-image`) and prints the resulting AMI id.
-Supply it to TFT-4797 as the `ARTIFACTS_SERVER_AMI` environment variable
-(consumed by
+Testing Farm covers container + qcow2 builds but not AMIs, so `upload-ami.sh`
+performs the one remaining step: it uploads the built qcow2 to AWS as an AMI
+using `tft-admin` (from the `cnc` image, `tft-admin cloud compose sync
+--from-url`, plus a cross-region `cloud compose import`). Supply the resulting
+AMI to TFT-4797 as the `ARTIFACTS_SERVER_AMI` environment variable (consumed by
 `terragrunt/environments/production/artifacts-redhat/ec2/terragrunt.hcl`).
 
 == Open items (TFT-4795)

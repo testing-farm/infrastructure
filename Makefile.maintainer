@@ -599,8 +599,8 @@ image/artifacts-bootc/qcow2: .FORCE  ## Build RHEL 10 bootc artifact-server qcow
 		-s AUTH_JSON="$(AUTH_JSON)" \
 		--plan /images/bootc-artifacts/qcow2
 
-image/artifacts-bootc/ami: .FORCE  ## Import artifact-server qcow2 into an AWS AMI | local (needs AWS_BUCKET, QCOW2)
-	images/bootc-artifacts/build.sh $(QCOW2)
+image/artifacts-bootc/ami: .FORCE  ## Upload artifact-server qcow2 to AWS as an AMI via tft-admin (needs cnc/tft-admin, QCOW2_URL, VAULT_SECRET_ID)
+	images/bootc-artifacts/upload-ami.sh
 
 generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
 	WORKER=worker-local poetry run python setup/generate_environment.py dev

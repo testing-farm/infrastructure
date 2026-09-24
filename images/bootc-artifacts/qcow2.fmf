@@ -6,8 +6,9 @@ description: |
     (https://gitlab.com/testing-farm/tests/-/tree/main/image-mode/qcow2), which
     runs ``bootc-image-builder``.
 
-    The produced qcow2 is stored in the tmt plan data. It can be imported into an
-    AWS AMI for the deploy (TFT-4797) with ``build.sh`` - see README.adoc.
+    The produced qcow2 is stored in the tmt plan data. It can be uploaded to AWS
+    as an AMI for the deploy (TFT-4797) with ``upload-ami.sh`` (tft-admin) - see
+    README.adoc.
 
     Required variables:
 
