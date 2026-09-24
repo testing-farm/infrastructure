@@ -381,7 +381,8 @@ EOF
 resource "helm_release" "external-dns" {
   depends_on = [
     kubernetes_namespace.kube-addons-ns,
-    kubernetes_secret.aws-credentials-secret
+    kubernetes_secret.aws-credentials-secret,
+    helm_release.aws_load_balancer_controller,
   ]
 
   name       = "external-dns"
