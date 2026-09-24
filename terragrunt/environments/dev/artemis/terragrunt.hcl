@@ -9,6 +9,9 @@ locals {
   route53_zone  = local.common.inputs.route53_zone
   namespace     = get_env("TF_VAR_artemis_namespace", "default")
   domain_suffix = local.namespace == "default" ? "" : "-${local.namespace}"
+  # Strip `testing-farm-` from the cluster name as use that to construct the artemis API domain name.
+  # For example for `testing-farm-production` cluster that would be `artemis.production.testing-farm.io`
+  domain_base = "${trimprefix(dependency.eks.outputs.cluster.cluster_name, "testing-farm-")}${local.domain_suffix}.${local.common.inputs.route53_zone}"
 
   mocked_cluster_certificate_authority_data = "bW9jay1jbHVzdGVyLWNlcnRpZmljYXRlCg==" # pragma: allowlist secret
 
@@ -73,9 +76,12 @@ inputs = {
   cluster_vpc_id                     = dependency.eks.outputs.vpc_id
   guests_aws_profile                 = local.common.inputs.aws_profile_guests
 
-  # Strip `testing-farm-` from the cluster name as use that to construct the artemis API domain name.
-  # For example for `testing-farm-production` cluster that would be `artemis.production.testing-farm.io`
-  api_domain = "artemis.${trimprefix(dependency.eks.outputs.cluster.cluster_name, "testing-farm-")}${local.domain_suffix}.${local.common.inputs.route53_zone}"
+  api_domain = "artemis.${domain_base}"
+  metrics_domain = {
+    postgresql = "postgresql.metrics.${domain_base}"
+    rabbitmq   = "rabbitmq.metrics.${domain_base}"
+    redis      = "redis.metrics.${domain_base}"
+  }
 
   release_name = "artemis"
   namespace    = local.namespace

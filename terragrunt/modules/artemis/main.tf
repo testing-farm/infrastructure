@@ -300,6 +300,10 @@ resource "helm_release" "artemis" {
         artemis_sentry_issues_sample_rate  = var.sentry_issues_sample_rate
         artemis_sentry_tracing_sample_rate = var.sentry_tracing_sample_rate
 
+        artemis_postgresql_exporter_hostname = var.metrics_domain.postgresql
+        artemis_rabbitmq_exporter_hostname   = var.metrics_domain.rabbitmq
+        artemis_redis_exporter_hostname      = var.metrics_domain.redis
+
         artemis_api_resources             = try(var.resources.artemis_api, {})
         artemis_dispatcher_resources      = try(var.resources.artemis_dispatcher, {})
         artemis_initdb_resources          = try(var.resources.artemis_initdb, {})
