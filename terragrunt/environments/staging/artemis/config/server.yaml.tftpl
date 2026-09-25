@@ -1587,154 +1587,154 @@ pools:
       command: aws
       create-security-group-per-guest: true
       custom-flavors:
-        - base: p2.xlarge
+        - base: g4dn.xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p2.xlarge-100
-        - base: p2.xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.xlarge-250
-        - base: p2.xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.xlarge-500
-        - base: p2.8xlarge
+          name: g4dn.xlarge-100
+        - base: g4dn.xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p2.8xlarge-100
-        - base: p2.8xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.8xlarge-250
-        - base: p2.8xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.8xlarge-500
-        - base: p2.16xlarge
+          name: g4dn.xlarge-250
+        - base: g4dn.xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p2.16xlarge-100
-        - base: p2.16xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.16xlarge-250
-        - base: p2.16xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.16xlarge-500
-        - base: p3.2xlarge
+          name: g4dn.xlarge-500
+        - base: g4dn.2xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.2xlarge-100
-        - base: p3.2xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.2xlarge-250
-        - base: p3.2xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.2xlarge-500
-        - base: p3.8xlarge
+          name: g4dn.2xlarge-100
+        - base: g4dn.2xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.8xlarge-100
-        - base: p3.8xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.8xlarge-250
-        - base: p3.8xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.8xlarge-500
-        - base: p3.16xlarge
+          name: g4dn.2xlarge-250
+        - base: g4dn.2xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.16xlarge-100
-        - base: p3.16xlarge
+          name: g4dn.2xlarge-500
+        - base: g4dn.4xlarge
           disk:
-            - size: 250 GiB
+            - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.16xlarge-250
-        - base: p3.16xlarge
+          name: g4dn.4xlarge-100
+        - base: g4dn.4xlarge
           disk:
-            - size: 500 GiB
+            - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.16xlarge-500
-      default-flavor: p3.2xlarge
+          name: g4dn.4xlarge-250
+        - base: g4dn.4xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.4xlarge-500
+        - base: g4dn.8xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.8xlarge-100
+        - base: g4dn.8xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.8xlarge-250
+        - base: g4dn.8xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.8xlarge-500
+        - base: g4dn.12xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.12xlarge-100
+        - base: g4dn.12xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.12xlarge-250
+        - base: g4dn.12xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.12xlarge-500
+        - base: g4dn.16xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.16xlarge-100
+        - base: g4dn.16xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.16xlarge-250
+        - base: g4dn.16xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.16xlarge-500
+      default-flavor: g4dn.2xlarge
       default-region: us-east-2
       default-root-disk-size: 100
-      flavor-regex: ^p[2345].+$
+      flavor-regex: ^g4dn.(xlarge|2xlarge|4xlarge|8xlarge|12xlarge|16xlarge)$
       image-filters:
         - owner: self
         - owner: '587138297281'
@@ -1743,16 +1743,10 @@ pools:
       master-key-name: testing-farm-worker
       patch-flavors:
         - gpu:
-            device-name: GK210 (Tesla K80)
+            device-name: NVIDIA T4
+            driver: nvidia
             vendor-name: NVIDIA
-          name-regex: p2.+
-          virtualization:
-            is-supported: false
-            is-virtualized: true
-        - gpu:
-            device-name: GV100 (Tesla V100)
-            vendor-name: NVIDIA
-          name-regex: p3.+
+          name-regex: g4dn\..+
           virtualization:
             is-supported: false
             is-virtualized: true
@@ -1779,154 +1773,154 @@ pools:
       command: aws
       create-security-group-per-guest: true
       custom-flavors:
-        - base: p2.xlarge
+        - base: g4dn.xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p2.xlarge-100
-        - base: p2.xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.xlarge-250
-        - base: p2.xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.xlarge-500
-        - base: p2.8xlarge
+          name: g4dn.xlarge-100
+        - base: g4dn.xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p2.8xlarge-100
-        - base: p2.8xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.8xlarge-250
-        - base: p2.8xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.8xlarge-500
-        - base: p2.16xlarge
+          name: g4dn.xlarge-250
+        - base: g4dn.xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p2.16xlarge-100
-        - base: p2.16xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.16xlarge-250
-        - base: p2.16xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.16xlarge-500
-        - base: p3.2xlarge
+          name: g4dn.xlarge-500
+        - base: g4dn.2xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.2xlarge-100
-        - base: p3.2xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.2xlarge-250
-        - base: p3.2xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.2xlarge-500
-        - base: p3.8xlarge
+          name: g4dn.2xlarge-100
+        - base: g4dn.2xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.8xlarge-100
-        - base: p3.8xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.8xlarge-250
-        - base: p3.8xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.8xlarge-500
-        - base: p3.16xlarge
+          name: g4dn.2xlarge-250
+        - base: g4dn.2xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.16xlarge-100
-        - base: p3.16xlarge
+          name: g4dn.2xlarge-500
+        - base: g4dn.4xlarge
           disk:
-            - size: 250 GiB
+            - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.16xlarge-250
-        - base: p3.16xlarge
+          name: g4dn.4xlarge-100
+        - base: g4dn.4xlarge
           disk:
-            - size: 500 GiB
+            - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.16xlarge-500
-      default-flavor: p3.2xlarge
+          name: g4dn.4xlarge-250
+        - base: g4dn.4xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.4xlarge-500
+        - base: g4dn.8xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.8xlarge-100
+        - base: g4dn.8xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.8xlarge-250
+        - base: g4dn.8xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.8xlarge-500
+        - base: g4dn.12xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.12xlarge-100
+        - base: g4dn.12xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.12xlarge-250
+        - base: g4dn.12xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.12xlarge-500
+        - base: g4dn.16xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.16xlarge-100
+        - base: g4dn.16xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.16xlarge-250
+        - base: g4dn.16xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.16xlarge-500
+      default-flavor: g4dn.2xlarge
       default-region: us-east-2
       default-root-disk-size: 100
-      flavor-regex: ^p[2345].+$
+      flavor-regex: ^g4dn.(xlarge|2xlarge|4xlarge|8xlarge|12xlarge|16xlarge)$
       image-filters:
         - owner: self
         - owner: '587138297281'
@@ -1935,16 +1929,10 @@ pools:
       master-key-name: testing-farm-worker
       patch-flavors:
         - gpu:
-            device-name: GK210 (Tesla K80)
+            device-name: NVIDIA T4
+            driver: nvidia
             vendor-name: NVIDIA
-          name-regex: p2.+
-          virtualization:
-            is-supported: false
-            is-virtualized: true
-        - gpu:
-            device-name: GV100 (Tesla V100)
-            vendor-name: NVIDIA
-          name-regex: p3.+
+          name-regex: g4dn\..+
           virtualization:
             is-supported: false
             is-virtualized: true
@@ -1971,154 +1959,154 @@ pools:
       command: aws
       create-security-group-per-guest: true
       custom-flavors:
-        - base: p2.xlarge
+        - base: g4dn.xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p2.xlarge-100
-        - base: p2.xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.xlarge-250
-        - base: p2.xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.xlarge-500
-        - base: p2.8xlarge
+          name: g4dn.xlarge-100
+        - base: g4dn.xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p2.8xlarge-100
-        - base: p2.8xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.8xlarge-250
-        - base: p2.8xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.8xlarge-500
-        - base: p2.16xlarge
+          name: g4dn.xlarge-250
+        - base: g4dn.xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p2.16xlarge-100
-        - base: p2.16xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.16xlarge-250
-        - base: p2.16xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p2.16xlarge-500
-        - base: p3.2xlarge
+          name: g4dn.xlarge-500
+        - base: g4dn.2xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.2xlarge-100
-        - base: p3.2xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.2xlarge-250
-        - base: p3.2xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.2xlarge-500
-        - base: p3.8xlarge
+          name: g4dn.2xlarge-100
+        - base: g4dn.2xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.8xlarge-100
-        - base: p3.8xlarge
-          disk:
-            - size: 250 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.8xlarge-250
-        - base: p3.8xlarge
-          disk:
-            - size: 500 GiB
-            - additional-disks:
-                max-count: 5
-                max-size: 512 GiB
-                min-size: 10 GiB
-          name: p3.8xlarge-500
-        - base: p3.16xlarge
+          name: g4dn.2xlarge-250
+        - base: g4dn.2xlarge
           disk:
             - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.16xlarge-100
-        - base: p3.16xlarge
+          name: g4dn.2xlarge-500
+        - base: g4dn.4xlarge
           disk:
-            - size: 250 GiB
+            - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.16xlarge-250
-        - base: p3.16xlarge
+          name: g4dn.4xlarge-100
+        - base: g4dn.4xlarge
           disk:
-            - size: 500 GiB
+            - size: 100 GiB
             - additional-disks:
                 max-count: 5
                 max-size: 512 GiB
                 min-size: 10 GiB
-          name: p3.16xlarge-500
-      default-flavor: p3.2xlarge
+          name: g4dn.4xlarge-250
+        - base: g4dn.4xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.4xlarge-500
+        - base: g4dn.8xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.8xlarge-100
+        - base: g4dn.8xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.8xlarge-250
+        - base: g4dn.8xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.8xlarge-500
+        - base: g4dn.12xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.12xlarge-100
+        - base: g4dn.12xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.12xlarge-250
+        - base: g4dn.12xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.12xlarge-500
+        - base: g4dn.16xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.16xlarge-100
+        - base: g4dn.16xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.16xlarge-250
+        - base: g4dn.16xlarge
+          disk:
+            - size: 100 GiB
+            - additional-disks:
+                max-count: 5
+                max-size: 512 GiB
+                min-size: 10 GiB
+          name: g4dn.16xlarge-500
+      default-flavor: g4dn.2xlarge
       default-region: us-east-2
       default-root-disk-size: 100
-      flavor-regex: ^p[2345].+$
+      flavor-regex: ^g4dn.(xlarge|2xlarge|4xlarge|8xlarge|12xlarge|16xlarge)$
       image-filters:
         - owner: self
         - owner: '587138297281'
@@ -2127,16 +2115,10 @@ pools:
       master-key-name: testing-farm-worker
       patch-flavors:
         - gpu:
-            device-name: GK210 (Tesla K80)
+            device-name: NVIDIA T4
+            driver: nvidia
             vendor-name: NVIDIA
-          name-regex: p2.+
-          virtualization:
-            is-supported: false
-            is-virtualized: true
-        - gpu:
-            device-name: GV100 (Tesla V100)
-            vendor-name: NVIDIA
-          name-regex: p3.+
+          name-regex: g4dn\..+
           virtualization:
             is-supported: false
             is-virtualized: true
