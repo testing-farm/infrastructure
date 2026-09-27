@@ -9,11 +9,21 @@ terraform {
 
 locals {
   aws_tags = {
-    FedoraGroup      = "ci"
+    # Authorization tag required by the network and compute deployment policies
+    StorageBackend = "testing-farm-artifacts-redhat"
+    # Legacy reporting tags
+    AppCode          = "TFT-001"
     ServiceOwner     = "TFT"
-    ServiceName      = "Artifacts"
+    ServiceName      = "TestingFarm"
     ServiceComponent = "SecurityGroup"
     ServicePhase     = "Prod"
+    # Red Hat IT unified tagging policy
+    app-code          = "TFT-001"
+    service-owner     = "TFT"
+    service-name      = "TestingFarm"
+    service-component = "SecurityGroup"
+    service-phase     = "prod"
+    map-migrated      = "migZZ8SDMVO5T"
   }
 }
 
@@ -53,29 +63,13 @@ inputs = {
   description = "Security group for Testing Farm Red Hat artifacts server"
   vpc_id      = dependency.storage.outputs.vpc_id
 
-  # Ingress restricted to approved Red Hat / VPN / worker paths
-  ingress_with_source_security_group_id = [
-    {
-      rule                     = "ssh-tcp"
-      source_security_group_id = "sg-0cb20f3b88c57fa30"
-      description              = "SSH upload access from Red Hat workers"
-    },
-    {
-      rule                     = "http-80-tcp"
-      source_security_group_id = "sg-0cb20f3b88c57fa30"
-      description              = "HTTP access from Red Hat workers"
-    },
-    {
-      rule                     = "https-443-tcp"
-      source_security_group_id = "sg-0cb20f3b88c57fa30"
-      description              = "HTTPS access from Red Hat workers"
-    },
-  ]
+  # Use the existing RH private-network access model for clients and administrators.
+  # The instance has no public IP; allow only the frontend ports, not all worker SG traffic.
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_rules       = ["ssh-tcp", "http-80-tcp", "https-443-tcp"]
 
   # Explicitly allow required outbound services for AWS API, package/image updates, DNS, and NTP
   # (NFS egress to mount target is managed separately by storage client SG)
   egress_rules       = ["https-443-tcp", "http-80-tcp", "dns-udp", "dns-tcp", "ntp-udp"]
   egress_cidr_blocks = ["0.0.0.0/0"]
-
-  tags = local.aws_tags
 }

@@ -5,6 +5,8 @@ from __future__ import annotations
 import itertools
 import json
 from pathlib import Path
+import shutil
+import ssl
 import subprocess
 import time
 from unittest.mock import MagicMock, patch
@@ -27,7 +29,6 @@ from tests.artifacts.helpers import (
     create_probe,
     fetch_probe_https,
     get_boot_id,
-    matches_san,
     reboot_and_wait,
     resolve_dns,
     run_admin_ssh_command,
@@ -35,24 +36,6 @@ from tests.artifacts.helpers import (
     sanitize_command,
     upload_probe_rsync,
 )
-
-
-def test_matches_san() -> None:
-    """Test exact and wildcard Subject Alternative Name matching."""
-    host = "redhat.artifacts.testing.farm"
-
-    # Exact matches
-    assert matches_san(host, "redhat.artifacts.testing.farm") is True
-    assert matches_san(host, "REDHAT.ARTIFACTS.TESTING.FARM") is True
-
-    # Wildcard parent matches
-    assert matches_san(host, "*.artifacts.testing.farm") is True
-    assert matches_san(host, "*.testing.farm") is True
-
-    # Non-matching SANs
-    assert matches_san(host, "other.artifacts.testing.farm") is False
-    assert matches_san(host, "*.example.com") is False
-    assert matches_san(host, "testing.farm") is False
 
 
 def test_sanitize_command() -> None:
@@ -156,6 +139,20 @@ def test_check_https_tls_mocked() -> None:
         assert "redhat.artifacts.testing.farm" in res["subjectAltName"]
 
 
+def test_admin_ssh_requires_verified_host_and_selected_identity() -> None:
+    """Administrative commands use RHEL's cloud-user and fail closed on unknown hosts."""
+    config = ArtifactsConfig(admin_key_path="/keys/admin", known_hosts_path="/keys/known_hosts")
+    with patch("subprocess.run", return_value=subprocess.CompletedProcess([], 0, stdout="", stderr="")) as run:
+        run_admin_ssh_command(config, "id")
+
+    command = run.call_args.args[0]
+    assert "cloud-user@redhat.artifacts.testing.farm" in command
+    assert "StrictHostKeyChecking=yes" in command
+    assert "UserKnownHostsFile=/keys/known_hosts" in command
+    assert "IdentitiesOnly=yes" in command
+    assert "ForwardAgent=no" in command
+
+
 def test_upload_probe_rsync_command_construction(tmp_path: Path) -> None:
     """Test rsync upload helper builds the proper command with cwd and SSH options."""
     config = ArtifactsConfig(
@@ -175,9 +172,51 @@ def test_upload_probe_rsync_command_construction(tmp_path: Path) -> None:
         called_kwargs = mock_run_cmd.call_args[1]
         assert "rsync" in called_cmd[0]
         assert called_cmd[-1] == "custom-user@10.0.1.50:"
-        assert "-p 2222" in called_cmd[4]
-        assert "-i /path/to/key" in called_cmd[4]
+        assert "--chmod=D755,F644" in called_cmd
+        ssh_command = called_cmd[called_cmd.index("-e") + 1]
+        assert "-p 2222" in ssh_command
+        assert "-i /path/to/key" in ssh_command
         assert called_kwargs["cwd"] == tmp_path
+
+
+@pytest.mark.skipif(shutil.which("rsync") is None, reason="rsync is required for transfer-mode regression")
+def test_upload_probe_public_modes_preserve_private_workspace(tmp_path: Path) -> None:
+    """Real rsync makes only the transferred probe public, irrespective of source umask."""
+    source = tmp_path / "private-workspace"
+    source.mkdir(mode=0o700)
+    destination = tmp_path / "receiver"
+    destination.mkdir(mode=0o700)
+    probe = create_probe(base_dir=source)
+    assert probe.local_path is not None
+    namespace = source / "probe-lifecheck"
+    namespace.chmod(0o700)
+    probe.local_path.parent.chmod(0o700)
+    probe.local_path.chmod(0o600)
+    secret = source / "unrelated-private-file"
+    secret.write_text("not an artifact")
+    secret.chmod(0o600)
+
+    result = CommandResult(command=[], exit_code=0, stdout="", stderr="", duration_seconds=0)
+    with patch("tests.artifacts.helpers.run_command", return_value=result) as command:
+        upload_probe_rsync(ArtifactsConfig(), probe, source)
+    arguments = command.call_args.args[0]
+    # Exercise the exact upload options with a local receiver, without SSH or live infrastructure.
+    options = arguments[1:arguments.index("-e")]
+    transfer = run_command(["rsync", *options, arguments[-2], str(destination)], cwd=source)
+    assert transfer.exit_code == 0, transfer.stderr
+
+    remote_file = destination / probe.relative_dir / probe.filename
+    assert remote_file.read_text() == probe.content
+    assert remote_file.stat().st_mode & 0o777 == 0o644
+    assert remote_file.parent.stat().st_mode & 0o777 == 0o755
+    assert (destination / "probe-lifecheck").stat().st_mode & 0o777 == 0o755
+    assert source.stat().st_mode & 0o777 == 0o700
+    assert destination.stat().st_mode & 0o777 == 0o700
+    assert namespace.stat().st_mode & 0o777 == 0o700
+    assert probe.local_path.parent.stat().st_mode & 0o777 == 0o700
+    assert probe.local_path.stat().st_mode & 0o777 == 0o600
+    assert secret.stat().st_mode & 0o777 == 0o600
+    assert not (destination / secret.name).exists()
 
 
 def test_fetch_probe_https_immediate_success(tmp_path: Path) -> None:
@@ -210,31 +249,75 @@ def test_fetch_probe_https_failure_no_retries(tmp_path: Path) -> None:
         assert mock_get.call_count == 1
 
 
-def test_check_autoindex_mocked() -> None:
-    """Test autoindex detection with mocked HTML directory listing."""
+@pytest.mark.parametrize(
+    ("status", "body", "enabled"),
+    [
+        (200, "<html><title>Index of /</title><pre><a href='../'>../</a></pre></html>", True),
+        (200, "<html><title>Home</title><a href='/help'>Help</a></html>", False),
+        (200, "<html><pre>Service unavailable</pre></html>", False),
+        (503, "<html><title>Index of /</title></html>", False),
+    ],
+)
+def test_check_autoindex(status: int, body: str, enabled: bool) -> None:
+    """Only a successful nginx directory listing passes, not an arbitrary HTML page."""
     config = ArtifactsConfig(host="10.0.1.50")
-    mock_resp = MagicMock()
-    mock_resp.status_code = 200
-    mock_resp.text = "<html><head><title>Index of /</title></head><body><pre><a href='../'>../</a></pre></body></html>"
-    mock_resp.headers = {"Content-Type": "text/html"}
+    mock_resp = MagicMock(status_code=status, text=body, headers={"Content-Type": "text/html"})
 
     with patch("requests.get", return_value=mock_resp):
         res = check_autoindex(config, path="/")
-        assert res["status_code"] == 200
-        assert res["autoindex_enabled"] is True
+        assert res["status_code"] == status
+        assert res["autoindex_enabled"] is enabled
 
 
-def test_check_cors_headers_mocked() -> None:
-    """Test CORS header verification on OPTIONS request."""
+@pytest.mark.parametrize(
+    ("status", "origin", "allowed"),
+    [
+        (200, "*", True),
+        (204, "https://dashboard.testing-farm.io", True),
+        (200, "", False),
+        (200, "https://other.example.com", False),
+        (301, "*", False),
+        (403, "*", False),
+        (405, "*", False),
+        (500, "*", False),
+    ],
+)
+def test_check_cors_headers(status: int, origin: str, allowed: bool) -> None:
+    """The viewer's cross-origin GET must succeed; headers on an error response do not pass."""
     config = ArtifactsConfig(host="10.0.1.50")
-    mock_resp = MagicMock()
-    mock_resp.status_code = 204
-    mock_resp.headers = {"Access-Control-Allow-Origin": "*"}
+    mock_resp = MagicMock(status_code=status, headers={"Access-Control-Allow-Origin": origin})
 
-    with patch("requests.options", return_value=mock_resp):
+    with patch("requests.get", return_value=mock_resp) as get, patch(
+        "requests.options", side_effect=AssertionError("CORS lifecheck must use the viewer's GET path")
+    ):
         res = check_cors_headers(config, path="/")
-        assert res["cors_ok"] is True
-        assert res["allow_origin"] == "*"
+        assert res["status_code"] == status
+        assert res["cors_ok"] is allowed
+        assert res["allow_origin"] == origin
+        get.assert_called_once_with(
+            "https://10.0.1.50:443/",
+            headers={"Origin": "https://dashboard.testing-farm.io"},
+            timeout=config.request_timeout,
+            verify=True,
+        )
+
+
+@pytest.mark.parametrize("reason", ["hostname mismatch", "certificate has expired", "unknown issuer"])
+def test_tls_verification_failure(reason: str) -> None:
+    """The standard TLS context verifies the target hostname and rejects invalid certificates."""
+    context = ssl.create_default_context()
+    assert context.check_hostname is True
+    assert context.verify_mode == ssl.CERT_REQUIRED
+    with patch("socket.create_connection") as connection, patch(
+        "ssl.create_default_context", return_value=context
+    ), patch.object(context, "wrap_socket", side_effect=ssl.SSLCertVerificationError(reason)) as wrap:
+        res = check_https_tls("redhat.artifacts.testing.farm")
+        assert res["tls_valid"] is False
+        assert reason in res["error"]
+        wrap.assert_called_once_with(
+            connection.return_value.__enter__.return_value,
+            server_hostname="redhat.artifacts.testing.farm",
+        )
 
 
 def test_check_restricted_ssh_access_mocked(tmp_path: Path) -> None:
@@ -328,6 +411,114 @@ def test_rsync_write_only_rejects_timeout(tmp_path: Path) -> None:
     assert res["download_rejected"] is False
 
 
+def _mount_command_result(command: list[str], descriptor: str) -> subprocess.CompletedProcess[str]:
+    """Model the native-unit image: NFS is mounted but the active fstab has no storage entry."""
+    remote = command[-1]
+    if "readlink" in remote:
+        stdout = "/var/mnt/s3files\n"
+    elif "findmnt --json" in remote:
+        stdout = json.dumps({"filesystems": [{
+            "target": "/var/mnt/s3files", "fstype": "nfs4", "source": "127.0.0.1:/",
+        }]})
+    elif "findmnt --fstab" in remote:
+        return subprocess.CompletedProcess(command, 1, stdout="", stderr="No storage entry in fstab")
+    elif "systemctl show" in remote and "systemctl cat" in remote:
+        stdout = descriptor
+    else:
+        raise AssertionError(f"Unexpected mount inspection: {remote}")
+    return subprocess.CompletedProcess(command, 0, stdout=stdout, stderr="")
+
+
+@pytest.mark.parametrize(
+    ("before", "after", "expected"),
+    [
+        ("", "", True),
+        ("What=fs-0963344dcd0f605ed:/", "What=fs-00000000000000000:/", False),
+        ("Type=s3files", "Type=nfs4", False),
+        ("Where=/var/mnt/s3files", "Where=/var/mnt/other", False),
+        ("mounttargetip=10.31.10.250", "mounttargetip=10.31.10.251", False),
+        ("mounttargetip=10.31.10.250", "mounttargetip=10.31.10.250,mounttargetip=10.31.10.251", False),
+        ("mounttargetip=10.31.10.250", "mounttargetip=10.31.10.251,mounttargetip=10.31.10.250", True),
+        ("_netdev,", "", False),
+        (",nofail", "", False),
+        ("LoadState=loaded", "LoadState=masked", False),
+        ("ActiveState=active", "ActiveState=inactive", False),
+        ("UnitFileState=enabled", "UnitFileState=disabled", False),
+        ("UnitFileState=enabled", "UnitFileState=enabled-runtime", False),
+        ("NeedDaemonReload=no", "NeedDaemonReload=yes", False),
+        ("--- unit configuration ---", "missing unit configuration", False),
+    ],
+)
+def test_mount_verifies_native_backend(
+    native_mount_descriptor: str, before: str, after: str, expected: bool,
+) -> None:
+    """A healthy native mount needs no fstab/automount; wrong backend or unit state fails."""
+    config = ArtifactsConfig(filesystem_id="fs-0963344dcd0f605ed", mount_target_ip="10.31.10.250")
+    descriptor = native_mount_descriptor.replace(before, after) if before else native_mount_descriptor
+    with patch("subprocess.run", side_effect=lambda command, **kwargs: _mount_command_result(command, descriptor)) as run:
+        result = check_mount_status(config)
+
+    assert result["mount_present"] is True
+    assert result["expected_backend"] is expected
+    commands = [call.args[0][-1] for call in run.call_args_list]
+    assert all("findmnt --fstab" not in command for command in commands)
+    assert "systemd-escape --path --suffix=mount -- /var/mnt/s3files" in commands[-1]
+    assert "systemctl show" in commands[-1] and "systemctl cat" in commands[-1]
+
+
+@pytest.mark.parametrize(
+    ("override", "expected"),
+    [
+        ("[Mount]\nWhat=fs-00000000000000000:/\n", False),
+        ("[Mount]\nOptions=_netdev,nofail,mounttargetip=10.31.10.251\n", False),
+        ("[Mount]\nWhat=fs-0963344dcd0f605ed:/\n", True),
+        ("[Unit]\nAfter=network-online.target time-sync.target\n", True),
+        ("[Mount\nWhat=fs-0963344dcd0f605ed:/\n", False),
+    ],
+)
+def test_mount_checks_effective_native_drop_ins(native_mount_descriptor: str, override: str, expected: bool) -> None:
+    """Use the effective fragment plus ordered drop-ins, not just the image's original file."""
+    config = ArtifactsConfig(filesystem_id="fs-0963344dcd0f605ed", mount_target_ip="10.31.10.250")
+    descriptor = native_mount_descriptor + "\n# /etc/systemd/system/var-mnt-s3files.mount.d/override.conf\n" + override
+    with patch("subprocess.run", side_effect=lambda command, **kwargs: _mount_command_result(command, descriptor)):
+        result = check_mount_status(config)
+
+    assert result["expected_backend"] is expected
+
+
+@pytest.mark.parametrize("timed_out", [False, True])
+def test_native_unit_inspection_failure_cannot_pass(native_mount_descriptor: str, timed_out: bool) -> None:
+    """Partial valid unit output cannot hide an SSH error or timeout."""
+    config = ArtifactsConfig(filesystem_id="fs-0963344dcd0f605ed", mount_target_ip="10.31.10.250")
+    failure = (
+        subprocess.TimeoutExpired("ssh", 1, output=native_mount_descriptor)
+        if timed_out else subprocess.CompletedProcess([], 1, stdout=native_mount_descriptor, stderr="Inspection failed")
+    )
+    with patch("subprocess.run", side_effect=[
+        _mount_command_result(["readlink"], native_mount_descriptor),
+        _mount_command_result(["findmnt --json"], native_mount_descriptor),
+        failure,
+    ]):
+        result = check_mount_status(config)
+
+    assert result["mount_present"] is True
+    assert result["expected_backend"] is False
+
+
+def test_mount_accepts_remote_canonical_path_without_admin_write_access() -> None:
+    """A valid uploader mount is not rejected because /mnt is an alias or admin is read-only."""
+    mount_info = json.dumps({"filesystems": [{"target": "/var/mnt/s3files", "fstype": "nfs4"}]})
+    with patch("subprocess.run", side_effect=[
+        subprocess.CompletedProcess([], 0, stdout="/var/mnt/s3files\n", stderr=""),
+        subprocess.CompletedProcess([], 0, stdout=mount_info, stderr=""),
+    ]):
+        result = check_mount_status(ArtifactsConfig())
+
+    assert result["mount_present"] is True
+    assert result["canonical_mount_point"] == "/var/mnt/s3files"
+    assert "is_writable" not in result
+
+
 def test_check_mount_status_mocked(tmp_path: Path) -> None:
     """Test S3 Files mount status verification on default /mnt/s3files."""
     config = ArtifactsConfig(host="10.0.1.50", mount_point="/mnt/s3files")
@@ -339,26 +530,20 @@ def test_check_mount_status_mocked(tmp_path: Path) -> None:
         stderr="",
         duration_seconds=0.1,
     )
-    mock_touch = CommandResult(
-        command=["ssh"],
-        exit_code=0,
-        stdout="writable\n",
-        stderr="",
-        duration_seconds=0.1,
-    )
+    resolved = CommandResult(command=["ssh"], exit_code=0, stdout="/mnt/s3files\n", stderr="", duration_seconds=0.1)
 
-    with patch("tests.artifacts.helpers.run_admin_ssh_command", side_effect=[mock_findmnt, mock_touch]):
+    with patch("tests.artifacts.helpers.run_admin_ssh_command", side_effect=[resolved, mock_findmnt]):
         res = check_mount_status(config, log_dir=tmp_path)
         assert res["mount_present"] is True
         assert res["fstype"] == "nfs4"
-        assert res["is_writable"] is True
+        assert res["canonical_mount_point"] == "/mnt/s3files"
         assert res["mount_point"] == "/mnt/s3files"
 
 
 @pytest.mark.parametrize(
     ("fstype", "target", "expected"),
     [
-        ("nfs", "/mnt/s3files", True),
+        ("nfs", "/mnt/s3files", False),
         ("nfs4", "/mnt/s3files", True),
         ("xfs", "/mnt/s3files", False),
         ("ext4", "/mnt/s3files", False),
@@ -367,44 +552,45 @@ def test_check_mount_status_mocked(tmp_path: Path) -> None:
     ],
 )
 def test_mount_requires_nfs_at_configured_target(fstype: str, target: str, expected: bool) -> None:
-    """Only an NFS filesystem at the configured mount point is accepted."""
+    """Only an NFSv4 filesystem at the resolved mount point is accepted."""
     mount_info = json.dumps({"filesystems": [{"target": target, "fstype": fstype}]})
     with patch("subprocess.run", side_effect=[
+        subprocess.CompletedProcess([], 0, stdout="/mnt/s3files\n", stderr=""),
         subprocess.CompletedProcess([], 0, stdout=mount_info, stderr=""),
-        subprocess.CompletedProcess([], 0, stdout="writable\n", stderr=""),
     ]):
         res = check_mount_status(ArtifactsConfig())
 
     assert res["mount_present"] is expected
-    assert res["is_writable"] is expected
 
 
 @pytest.mark.parametrize("stdout", ["not JSON", "[]", "{}", '{"filesystems": []}'])
 def test_mount_rejects_invalid_or_missing_filesystem_data(stdout: str) -> None:
     """Malformed or empty findmnt output cannot be accepted as a mount."""
-    with patch("subprocess.run", return_value=subprocess.CompletedProcess([], 0, stdout=stdout, stderr="")):
+    with patch("subprocess.run", side_effect=[
+        subprocess.CompletedProcess([], 0, stdout="/mnt/s3files\n", stderr=""),
+        subprocess.CompletedProcess([], 0, stdout=stdout, stderr=""),
+    ]):
         res = check_mount_status(ArtifactsConfig())
 
     assert res["mount_present"] is False
-    assert res["is_writable"] is False
 
 
-def test_mount_access_triggers_automount_and_checks_writability() -> None:
-    """Access the automount before findmnt, and honor a failed write-permission check."""
+def test_mount_inspection_does_not_require_admin_write_access() -> None:
+    """Inspect the mounted directory, but leave write verification to the upload identity."""
     config = ArtifactsConfig(mount_point="/mnt/artifacts store")
     mount_info = json.dumps({"filesystems": [{"target": config.mount_point, "fstype": "nfs4"}]})
     with patch("subprocess.run", side_effect=[
+        subprocess.CompletedProcess([], 0, stdout=f"{config.mount_point}\n", stderr=""),
         subprocess.CompletedProcess([], 0, stdout=mount_info, stderr=""),
-        subprocess.CompletedProcess([], 1, stdout="writable\n", stderr="Permission denied"),
     ]) as run:
         res = check_mount_status(config)
 
     assert res["mount_present"] is True
-    assert res["is_writable"] is False
-    inspection = run.call_args_list[0].args[0][-1]
+    inspection = run.call_args_list[1].args[0][-1]
     assert "stat -- '/mnt/artifacts store/.'" in inspection
     assert inspection.index("stat ") < inspection.index("findmnt ")
     assert "--mountpoint '/mnt/artifacts store'" in inspection
+    assert all("test -w" not in call.args[0][-1] for call in run.call_args_list)
 
 
 @pytest.mark.parametrize("timed_out", [False, True])
@@ -412,14 +598,14 @@ def test_mount_rejects_failed_inspection(timed_out: bool) -> None:
     """A failed or timed-out SSH command cannot prove an NFS mount, even with partial JSON."""
     mount_info = '{"filesystems": [{"target": "/mnt/s3files", "fstype": "nfs4"}]}'
     with patch("subprocess.run") as run:
-        if timed_out:
-            run.side_effect = subprocess.TimeoutExpired("ssh", 1, output=mount_info)
-        else:
-            run.return_value = subprocess.CompletedProcess([], 255, stdout=mount_info, stderr="Connection closed")
+        failure = (
+            subprocess.TimeoutExpired("ssh", 1, output=mount_info)
+            if timed_out else subprocess.CompletedProcess([], 255, stdout=mount_info, stderr="Connection closed")
+        )
+        run.side_effect = [subprocess.CompletedProcess([], 0, stdout="/mnt/s3files\n", stderr=""), failure]
         res = check_mount_status(ArtifactsConfig())
 
     assert res["mount_present"] is False
-    assert res["is_writable"] is False
 
 
 def test_get_boot_id_and_reboot_and_wait_mocked(tmp_path: Path) -> None:
@@ -433,13 +619,43 @@ def test_get_boot_id_and_reboot_and_wait_mocked(tmp_path: Path) -> None:
         subprocess.CompletedProcess([], 0, stdout=old_boot_id, stderr=""),
         subprocess.CompletedProcess([], 255, stdout="", stderr="Connection refused"),
         subprocess.CompletedProcess([], 0, stdout=new_boot_id, stderr=""),
+        subprocess.CompletedProcess([], 0, stdout="/mnt/s3files\n", stderr=""),
         subprocess.CompletedProcess([], 0, stdout='{"filesystems": [{"target": "/mnt/s3files", "fstype": "nfs4"}]}', stderr=""),
-        subprocess.CompletedProcess([], 0, stdout="", stderr=""),
     ]), patch("time.sleep"):
         ok, boot_id = reboot_and_wait(config, old_boot_id, log_dir=tmp_path)
 
     assert ok is True
     assert boot_id == new_boot_id
+
+
+def test_reboot_recovers_with_native_mount_without_fstab(native_mount_descriptor: str) -> None:
+    """A changed boot ID and healthy enabled native backend complete reboot recovery."""
+    config = ArtifactsConfig(
+        allow_reboot=True, reboot_timeout=60, reboot_poll_interval=1,
+        filesystem_id="fs-0963344dcd0f605ed", mount_target_ip="10.31.10.250",
+    )
+    unit_checks = 0
+
+    def transport(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        nonlocal unit_checks
+        remote = command[-1]
+        if "systemctl reboot" in remote:
+            return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+        if "boot_id" in remote:
+            return subprocess.CompletedProcess(command, 0, stdout="new-boot\n", stderr="")
+        descriptor = native_mount_descriptor
+        if "systemctl show" in remote:
+            unit_checks += 1
+            if unit_checks == 1:
+                descriptor = descriptor.replace("ActiveState=active", "ActiveState=inactive")
+        return _mount_command_result(command, descriptor)
+
+    with patch("subprocess.run", side_effect=transport), patch("time.sleep"), patch(
+        "time.time", side_effect=itertools.count(),
+    ), patch("time.monotonic", side_effect=itertools.count()):
+        assert reboot_and_wait(config, "old-boot") == (True, "new-boot")
+
+    assert unit_checks == 2
 
 
 def test_run_command_propagates_local_errors() -> None:
@@ -470,6 +686,8 @@ def test_reboot_requires_nfs_recovery(fstype: str) -> None:
     def remote_response(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         if "boot_id" in command[-1]:
             stdout = "new-boot-id\n"
+        elif "readlink" in command[-1]:
+            stdout = f"{config.mount_point}\n"
         elif "findmnt" in command[-1]:
             stdout = json.dumps({"filesystems": [{"target": config.mount_point, "fstype": fstype}]})
         else:

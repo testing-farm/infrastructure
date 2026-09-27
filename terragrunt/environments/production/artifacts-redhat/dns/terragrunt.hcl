@@ -4,7 +4,7 @@ include "root" {
 }
 
 terraform {
-  source = "tfr:///terraform-aws-modules/route53/aws//modules/records?version=2.11.1"
+  source = "../../../../modules//artifacts-dns"
 }
 
 locals {
@@ -62,7 +62,8 @@ dependency "ec2" {
 }
 
 inputs = {
-  zone_id = dependency.zone.outputs.route53_zone_zone_id["artifacts.testing.farm"]
+  zone_id   = dependency.zone.outputs.route53_zone_zone_id["artifacts.testing.farm"]
+  zone_name = "artifacts.testing.farm"
 
   records_jsonencoded = jsonencode([
     {

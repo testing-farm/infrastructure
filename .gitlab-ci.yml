@@ -122,6 +122,8 @@ workflow:
     - changes:
         - terragrunt/environments/production/**/*
         - terragrunt/modules/artifacts-storage/**/*
+        - terragrunt/modules/artifacts-server/**/*
+        - terragrunt/modules/artifacts-dns/**/*
 
   public_compose_tests:
     - changes:

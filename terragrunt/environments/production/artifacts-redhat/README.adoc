@@ -9,11 +9,11 @@ The architecture comprises five distinct Terragrunt units:
 
 1. `storage/`: Dedicated S3 Files storage backend (see `terragrunt/modules/artifacts-storage/README.adoc`).
 2. `zone/`: Public Route53 DNS zone for `artifacts.testing.farm` in the Fedora AWS account for external NS delegation.
-3. `security-group/`: Frontend security group in the Red Hat AWS account restricting ingress to approved private networks/workers.
+3. `security-group/`: Frontend security group allowing TCP 22/80/443 over the existing Red Hat private network.
 4. `ec2/`: Single on-demand `c6in.2xlarge` EC2 instance running the RHEL 10 bootc artifact-server image with S3 Files NFS client profile.
 5. `dns/`: Route53 A record pointing `redhat.artifacts.testing.farm` directly to the EC2 instance's private IPv4 address.
 
-NOTE: Public DNS delegation publishes zone authority but does *not* make the server Internet-facing. The intended HTTP/HTTPS and SSH audience is limited to approved Red Hat / VPN / worker paths. See <<deployment-gates>> for the outstanding corporate/VPN ingress configuration.
+NOTE: Public DNS delegation publishes zone authority but does *not* make the server Internet-facing. Administrators, artifact readers and workers connect directly over existing Red Hat corporate/VPN routing. No jump host is required; see <<deployment-gates>> for the private-network boundary.
 
 == Workspaces & Accounts
 
@@ -47,6 +47,18 @@ NOTE: Public DNS delegation publishes zone authority but does *not* make the ser
 | `us-east-1`
 |===
 
+== Deployment Identity
+
+The Red Hat units use the existing `redhat_us_east_1_storage` profile for IAM user `arr-testing-farm.prod.artifacts`.
+The profile name does not grant permissions: install the xref:storage/iam/README.adoc[storage, network and bounded-IAM bootstrap policies] and the additional xref:ec2/iam/README.adoc[compute deployment policy] before planning the whole stack.
+The storage policy bundle alone cannot discover AMIs or deploy EC2 instances; do not substitute worker credentials or full-access policies.
+The Fedora DNS units retain their separate profile and account guards.
+
+For an existing deployment, an administrator must verify ownership and add the `StorageBackend=testing-farm-artifacts-redhat` authorization tag to the frontend security group, EC2 instance and root EBS volume before using the restricted compute policy.
+The restricted user cannot add that tag to unrelated existing resources; the storage backend has its own xref:storage/iam/README.adoc[adoption and boundary ordering requirements].
+The AWS provider applies the default authorization tag to both instances and EBS volumes in `RunInstances`, even with `enable_volume_tags = false`; separate root block-device tags are unnecessary.
+These are separately approved IAM/tagging operations, not actions performed by an offline test or plan.
+
 == Dependency Graph & Rollout Sequence
 
 Units are provisioned in four sequential dependency groups:
@@ -74,7 +86,7 @@ Units are provisioned in four sequential dependency groups:
 ```
 
 1. *Storage & Zone*: Provision S3 bucket, S3 Files filesystem/mount target, and create the Route53 child zone `artifacts.testing.farm`.
-2. *Security Group*: Provision frontend SG with worker access (`sg-0cb20f3b88c57fa30`) and the approved corporate/VPN rules required by <<deployment-gates>>.
+2. *Security Group*: Provision TCP 22/80/443 ingress using the existing RH private-network access model described in <<deployment-gates>>. A worker source-SG reference does not grant access to corporate/VPN clients.
 3. *EC2*: Launch on-demand `c6in.2xlarge` in the storage mount-target subnet with attached instance profile and both security groups.
 4. *DNS*: Provision A record `redhat.artifacts.testing.farm` -> EC2 `private_ip`.
 5. *Parent Delegation*: Hand off the child zone nameservers (`route53_zone_name_servers["artifacts.testing.farm"]`) to the parent domain owner for public NS delegation.
@@ -87,50 +99,119 @@ VPN and corporate Red Hat clients cannot be assumed to resolve Amazon-internal V
 [[deployment-gates]]
 == Runtime Inputs & Prerequisites
 
-WARNING: Hold merge/apply until the TFT-4795 image handoff and approved network access rules are ready. The current frontend SG permits worker-SG sources only; it does not permit routed corporate/VPN clients. Adding approved web and administrator/lifecheck source CIDRs is deferred and remains a deployment blocker. Do not substitute guessed ranges or world-open ingress.
+WARNING: Keep the EC2 instance private (`associate_public_ip_address = false`). Frontend ingress allows only TCP 22/80/443 from `0.0.0.0/0`, matching the existing RH model for routed private-network access, not the workers' all-port rule. This admits any IPv4 source with a route to the instance; privacy relies on the existing network boundary, not a CIDR allowlist. Review this policy before introducing public IPs, load balancers or new network paths. NFS remains isolated to the dedicated client security group on TCP 2049, and S3 public-access blocking is unchanged.
 
 Before provisioning the EC2 unit:
-* `ARTIFACTS_SERVER_AMI`: Environment variable containing the pinned RHEL 10 bootc artifact-server AMI (provided by TFT-4795).
-* TLS Certificate: Internal-CA certificate with SAN `redhat.artifacts.testing.farm`, intermediate chain, and private key loaded via the image's supported certificate interface.
 
-== Certificate Management & Renewal
+* TFT-4795 must publish an accepted RHEL 10 bootc artifact-server release named `artifacts-bootc-x86_64-<CI_COMMIT_SHORT_SHA>`. Production applies the anchored `^artifacts-bootc-x86_64-[0-9a-f]{8}$` selector before choosing the newest available image by creation date in the provider's Red Hat AWS account. MR uploads named `artifacts-bootc-x86_64-mr-<iid>-<pipeline>` are ineligible even while they exist; cleanup is not the selection guard. A missing eligible release fails planning rather than falling back to an MR image or reaching apply with an empty AMI. `ARTIFACTS_SERVER_AMI` is no longer used. Publishing a newer eligible release makes it the desired image at the next fresh production plan/apply and can replace the instance without another configuration change. The release naming convention alone is not proof of runtime acceptance.
+* Administrator SSH uses the dedicated `tft-redhat-artifacts-admin` EC2 key pair in Red Hat account `727920394381`, region `us-east-1`, configured in `ec2/terragrunt.hcl`. The runner's `ARTIFACTS_ADMIN_KEY` is the matching local private-key file, not the EC2 key-pair name. Keep that private key off workers; the workers' key pair is not used for administrator access.
 
-* *TLS Interface*: Provided by TFT-4795 bootc image.
-* *Renewal Policy*: Operator-driven through the image's supported certificate loading interface.
-* *Tracking & Reload*: Operators track expiry via certificate monitoring; certificate replacement is completed by updating the configured secret/file and executing the reload mechanism (e.g. `systemctl reload nginx`).
+After boot, initialize the actual mounted root as described in <<storage-initialization>>, then arrange the internal-CA certificate with SAN `redhat.artifacts.testing.farm`, intermediate chain and private key before production HTTPS acceptance or traffic cutover. Do not put private keys into the image or Terraform state.
 
-== Validation & Lifecheck
+[[storage-initialization]]
+== Mounted Storage Ownership Initialization
 
-Verification is executed via pytest using dedicated test suites under `tests/artifacts/`:
+A newly mounted filesystem root can be `root:root`, mode `0755`: nginx can read it, but the `artifacts` user cannot create request directories. Image-build ownership changes affect only the underlying local directory, which is hidden by the mount. Keep that unmounted local directory root-owned; initialize ownership on the real mounted filesystem instead.
+
+This is an explicitly approved operator action after the first deployment, not a new Ansible/bootstrap stage or a recurring boot operation. The Make target reads the applied EC2 and storage Terragrunt outputs automatically: the private instance IP, filesystem ID and mount-target IP do not need a manually sourced environment file, and public DNS is not required. Stale backend overrides are rejected rather than silently targeting another filesystem.
+
+Read-only EC2 identity discovery uses `ARTIFACTS_AWS_PROFILE` (default `redhat_us_east_1_storage`), checks the deployed account and instance IP, matches the EC2 public key against configured SSH identities or local `~/.ssh/*.pub` files, and obtains host public keys from that instance's authenticated EC2 console. It never reads/copies private-key contents or trusts an unverified `ssh-keyscan`. If automatic discovery is unavailable, explicitly supply the local `ARTIFACTS_ADMIN_KEY` and independently verified `ARTIFACTS_KNOWN_HOSTS` paths; neither value is an EC2 key-pair name.
+
+Initialization connects directly to the deployed private IP over the existing RH corporate/VPN route; no jump host or worker configuration is needed. Standard SSH settings and the optional `ARTIFACTS_HOST`, administrator/upload username, SSH port and mount-point overrides remain available. Keep the administrator identity local and agent forwarding disabled.
 
 [source,bash]
 ----
-# 1. Run offline unit tests for helpers
-make test/artifacts/helpers
+# Resolve and verify deployment inputs only: no SSH connection or ownership change.
+make IS_MAINTAINER=1 artifacts/storage/initialize/check
 
-# 2. Plan Terragrunt stack
-make production/plan/artifacts-redhat
+# Only after approval: connect and initialize the verified filesystem root.
+make IS_MAINTAINER=1 artifacts/storage/initialize
+----
 
-# 3. Execute live lifecheck against deployed server
-make test/artifacts/lifecheck
+The check target does not establish SSH reachability, mount readiness or serving/upload acceptance. The initialization target first checks administrator SSH and reports transport/authentication failures separately from missing inputs, without attempting ownership changes. For a fully explicit non-Terragrunt workflow, the original environment-driven CLI remains available: `poetry run python -m tests.artifacts.initialize_storage --apply` with the inputs from <<lifecheck-inputs>>.
 
-# 4. Execute lifecheck with explicit opt-in reboot validation
-make test/artifacts/lifecheck/reboot
+The command requires explicit `--apply` through its Make target. It reuses the lifecheck's canonical NFSv4/native-unit backend validation, pins the remote working directory to that filesystem, and rechecks the image's mount-readiness guard before changing ownership. UID/GID are resolved from the running upload account, not hardcoded. The operation is nonrecursive: existing artifact files and directories are untouched, and no chmod is performed. The uploader's root write-access check and nginx's root read/search checks must then succeed; the subsequent real rsync/HTTPS lifecheck remains the serving/upload acceptance test.
+
+The instance's client role must permit mount/write and root ownership operations (`s3files:ClientRootAccess`). If initialization fails, inspect the complete deployment/connection/`initialize-storage-*.log` files in the printed per-run directory under `ARTIFACTS_ARTIFACT_DIR` (default `.pytest/artifacts-lifecheck`) and correct the actual mount/IAM/access problem; do not make the unmounted directory writable or disable SELinux. Initialization never changes IAM policies, mount configuration, certificates or upload keys.
+
+Do not repeat ownership changes automatically on every instance replacement. A changed uploader UID/GID requires a reviewed migration of existing ownership; this command deliberately does not recurse through stored artifacts. Lifechecks never call initialization or repair permissions themselves.
+
+Before live upload acceptance, obtain the intended `ARTIFACTS_UPLOAD_KEY` and verify that its public half matches the approved entry in `/etc/ssh/artifacts_authorized_keys`. Any separately approved public-key replacement must preserve the canonical `rrsync-artifacts` forced command, `restrict` and root-owned `0644` file. Keep upload and administrator identities separate; keep the administrator private key local.
+
+== Certificate Management & Renewal
+
+TFT-4795 supplies nginx and these file-loading paths; TFT-4797 owns arranging and renewing the real certificate. The baked self-signed certificate/key is diagnostic-only. Issuance remains with the approved internal CA, not an implicitly selected Let's Encrypt flow.
+
+1. Obtain a certificate for SAN `redhat.artifacts.testing.farm`, its intermediate chain and the matching private key from the approved issuer. Keep the trust roots separate from the served leaf/intermediate chain.
+2. Verify administrator SSH host keys independently against authenticated EC2 console output. Use `cloud-user`, a dedicated verified known-hosts file and `StrictHostKeyChecking=yes`. Connect directly over the RH private network; keep the admin identity local and agent forwarding disabled.
+3. Transfer the leaf/intermediate chain and private key directly to a root-owned `0700` staging directory on the server over that verified channel. Staged private-key files must be `0600`; do not include them in uploaded logs.
+4. Check the SAN, validity, chain against the approved CA, and matching certificate/key public-key fingerprints before installation. Retain the previous pair in a root-only rollback directory.
+5. Install the served chain at `/etc/pki/nginx/artifacts.crt` (`root:root`, `0644`) and private key at `/etc/pki/nginx/artifacts.key` (`root:root`, `0600`). Restore SELinux contexts with `sudo -n restorecon` on both paths. Complete both replacements before validation/reload; restore both old files if validation fails.
+6. Run `sudo -n nginx -t`, then `sudo -n systemctl reload nginx`. Verify the hostname from an approved client with the approved CA and normal hostname validation. Do not disable TLS verification or trust the baked test certificate as production issuance.
+7. Remove staged copies after success and track expiry/renewal ownership operationally. Renewal is operator-driven: repeat the same validation/install/reload procedure. This MR does not install an automatic renewal job or claim certificate monitoring is already deployed.
+
+== Validation & Lifecheck
+
+Verification is on-demand via pytest under `tests/artifacts/`. The runner needs direct HTTP/HTTPS reachability to the private service as well as SSH routing, rsync, the approved CA bundle, separate admin/upload identities, verified host keys and read-only S3 permissions for the owned probe objects. Grant `s3:GetObject` on `arn:aws:s3:::<ARTIFACTS_S3_BUCKET>/probe-lifecheck/*` and `s3:ListBucket` on `arn:aws:s3:::<ARTIFACTS_S3_BUCKET>`, with an `s3:prefix` condition restricted to `probe-lifecheck/` and `probe-lifecheck/*`. Both permissions are required: with only `GetObject`, S3 can return `403 AccessDenied` rather than `404 NoSuchKey` while a probe has not synchronized. The lifecheck keeps real authorization failures fail-fast; it does not retry `AccessDenied` as synchronization delay. Run the suite from an approved RH-network client with direct SSH and HTTP/HTTPS reachability, keeping privileged private keys local.
+
+[[lifecheck-inputs]]
+Supply these inputs from the deployed storage outputs and the approved access handoff (not guessed values):
+
+`ARTIFACTS_HOST` and `ARTIFACTS_PRIVATE_IP`
+`ARTIFACTS_ADMIN_USER=cloud-user` and `ARTIFACTS_ADMIN_KEY`
+`ARTIFACTS_UPLOAD_USER=artifacts` and `ARTIFACTS_UPLOAD_KEY`
+`ARTIFACTS_KNOWN_HOSTS` and `ARTIFACTS_CA_CERT`
+`ARTIFACTS_FILESYSTEM_ID` and `ARTIFACTS_MOUNT_TARGET_IP`
+`ARTIFACTS_S3_BUCKET` and optional `ARTIFACTS_AWS_PROFILE`
+
+The pytest lifecheck CLI exposes corresponding `--artifacts-*` options. S3 verification uses the runner's approved AWS profile/default credential chain, never image-baked credentials. `ARTIFACTS_S3_SYNC_TIMEOUT` bounds eventual readback (default 300 seconds).
+
+Maintainer targets require `IS_MAINTAINER=1`. The whole-stack plan also supports the first deployment: DNS uses the supplied zone ID and configured domain directly, without looking up a mock zone in AWS. During apply, Terragrunt deploys the zone and EC2 dependencies before DNS and requires their real outputs; no separate zone bootstrap apply is needed.
+
+[source,bash]
+----
+# 1. Run offline unit tests for helpers and DNS configuration
+make IS_MAINTAINER=1 test/artifacts/helpers
+
+# 2. Plan the whole Terragrunt stack, including zone and DNS
+make IS_MAINTAINER=1 production/plan/artifacts-redhat
+
+# 3. Only after reviewing and approving that plan, deploy the stack
+make IS_MAINTAINER=1 production/apply/artifacts-redhat
+
+# 4. Discover and check inputs, then explicitly initialize ownership once after approval
+make IS_MAINTAINER=1 artifacts/storage/initialize/check
+make IS_MAINTAINER=1 artifacts/storage/initialize
+
+# 5. Execute live lifecheck against the commissioned server
+make IS_MAINTAINER=1 test/artifacts/lifecheck
+
+# 6. Only with separate reboot approval, execute reboot validation
+make IS_MAINTAINER=1 test/artifacts/lifecheck/reboot
 ----
 
 The live lifecheck tests:
+
 * DNS resolution of `redhat.artifacts.testing.farm` to private IP.
 * HTTP port 80 -> HTTPS port 443 redirection.
-* TLS certificate SAN, chain validity, and ciphers.
+* TLS certificate chain validity and hostname verification using the standard TLS context. Negotiated TLS version and cipher are returned as diagnostics, not checked against a separate cipher policy.
 * Nginx autoindex directory listing.
-* CORS headers.
+* Successful cross-origin GET with the expected CORS header, matching the results viewer's request path.
 * Rejection of SSH shell requests and unauthorized commands by the image's `rrsync` forced command. Transport errors, authentication failures and timeouts fail these checks.
-* Actual NFS/NFS4 mount presence at `/mnt/s3files` after triggering automount, and write permissions. A local filesystem or unmounted autofs entry does not pass.
+* Actual NFSv4 mount presence at the remotely resolved canonical path (`/mnt/s3files` aliases `/var/mnt/s3files` in the image), with the installed S3 Files helper and loaded, active, persistently enabled native `var-mnt-s3files.mount` unit, with no pending daemon reload. The effective unit fragment and drop-ins must configure `What=<filesystem-id>:/`, the canonical `Where`, `Type=s3files`, and `_netdev,nofail,mounttargetip=<expected-IP>`. No fstab entry or automount is required: bootc replaces the active fstab during installation. Local filesystems, generic NFSv3 and autofs-only entries do not pass. A runtime SOURCE of `127.0.0.1` can be legitimate for the TLS proxy; validate the configured backend rather than comparing that source blindly with the mount-target IP.
+* Write permissions of the actual upload identity, verified by successful restricted rsync, not by `test -w` as the administrator.
 * Probe upload via restricted rsync-over-SSH followed by immediate single-attempt HTTPS retrieval (recording latency without retries).
 * Rejection of an rsync download of the verified probe using the upload key, confirming write-only access.
-* (Opt-in) Reboot verification, waiting for a changed boot ID and writable NFS recovery before checking pre-reboot probe persistence and post-reboot upload capability. Unexpected local errors fail immediately rather than being retried as server downtime.
+* Eventual exact probe bytes in the expected backing S3 bucket, supplementing immediate HTTPS visibility. Authorization failures fail immediately; only a missing/stale probe is retried within the synchronization deadline.
+* (Opt-in) Reboot verification, waiting for a changed boot ID and expected NFS recovery before checking pre-reboot probe persistence and new uploader writes. Unexpected local errors fail immediately rather than being retried as server downtime.
+
+The probe-only rsync transfer normalizes remote directories to `0755` and files to `0644`, independently of the runner's umask. This avoids private local modes being preserved by `rsync -a` and causing nginx readback failures; local probe workspaces, unrelated files and private keys are not made public.
+
+Probe cleanup covers partial uploads and all later failure paths; failed cleanup fails the lifecheck rather than only warning. It removes only the run's NFS probe directories. S3 synchronization is asynchronous and a versioned bucket can retain old object versions/delete markers: record owned prefixes from the logs, wait for deletion synchronization and arrange separately approved version cleanup if complete removal is required. The suite does not grant itself bucket-wide delete privileges or silently delete S3 versions.
+
+Offline helper tests do not prove the image's actual IAM/TLS transport or SELinux behavior. Before declaring acceptance, corroborate helper runtime state and enforcing-SELinux NFS serving, then run separately approved missing-storage/fail-closed and path-escape checks. Broader CORS GET/HEAD/OPTIONS/error and gzip checks remain required; reboot/fault tests and any worker canary each need explicit approval.
 
 == Recovery & Troubleshooting
 
-* *Instance replacement*: Updating the AMI or instance parameters will replace the EC2 instance. The S3 Files filesystem retains all stored artifacts; the DNS A record automatically updates to the new private IP.
+* *Instance replacement*: Changing the selected AMI or administrator key pair can replace the EC2 instance. Review the plan and obtain deployment approval before applying. The S3 Files filesystem retains all stored artifacts; the DNS A record automatically updates to the new private IP.
 * *Storage protection*: Do not destroy the `storage` module while troubleshooting compute. S3 Files synchronizes asynchronously with the backing S3 bucket.
