@@ -1,0 +1,141 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadCompute",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeImages", "ec2:DescribeInstances", "ec2:DescribeInstanceTypes",
+        "ec2:DescribeInstanceCreditSpecifications", "ec2:DescribeInstanceStatus",
+        "ec2:DescribeVolumes", "ec2:DescribeVolumesModifications", "ec2:DescribeKeyPairs",
+        "ec2:DescribeIamInstanceProfileAssociations"
+      ],
+      "Resource": "*",
+      "Condition": {"StringEquals": {"aws:RequestedRegion": "us-east-1"}}
+    },
+    {
+      "Sid": "LaunchAccountImages",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:us-east-1::image/ami-*",
+      "Condition": {"StringEquals": {"ec2:Owner": "727920394381"}}
+    },
+    {
+      "Sid": "LaunchTaggedInstances",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:us-east-1:727920394381:instance/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/StorageBackend": "testing-farm-artifacts-redhat",
+          "ec2:InstanceType": "c6in.2xlarge",
+          "ec2:MetadataHttpTokens": "required"
+        },
+        "ArnEquals": {
+          "ec2:InstanceProfile": "arn:aws:iam::727920394381:instance-profile/testing-farm-artifacts-redhat-instance-profile"
+        }
+      }
+    },
+    {
+      "Sid": "LaunchEncryptedVolumes",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:us-east-1:727920394381:volume/*",
+      "Condition": {
+        "Bool": {"ec2:Encrypted": "true"},
+        "StringEquals": {"aws:RequestTag/StorageBackend": "testing-farm-artifacts-redhat"}
+      }
+    },
+    {
+      "Sid": "LaunchPrivateInterfaces",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:us-east-1:727920394381:network-interface/*",
+      "Condition": {
+        "ArnEquals": {"ec2:Subnet": "arn:aws:ec2:us-east-1:727920394381:subnet/subnet-036ad213c3fb0eb7e"},
+        "Bool": {"ec2:AssociatePublicIpAddress": "false"}
+      }
+    },
+    {
+      "Sid": "UseApprovedSubnet",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:us-east-1:727920394381:subnet/subnet-036ad213c3fb0eb7e"
+    },
+    {
+      "Sid": "UseAdministratorKey",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:us-east-1:727920394381:key-pair/*",
+      "Condition": {"StringEquals": {"ec2:KeyPairName": "tft-redhat-artifacts-admin"}}
+    },
+    {
+      "Sid": "UseOwnedSecurityGroups",
+      "Effect": "Allow",
+      "Action": ["ec2:RunInstances", "ec2:ModifyInstanceAttribute"],
+      "Resource": "arn:aws:ec2:us-east-1:727920394381:security-group/*",
+      "Condition": {
+        "StringEquals": {"ec2:ResourceTag/StorageBackend": "testing-farm-artifacts-redhat"},
+        "ArnEquals": {"ec2:Vpc": "arn:aws:ec2:us-east-1:727920394381:vpc/vpc-008152fcfb0333f30"}
+      }
+    },
+    {
+      "Sid": "TagComputeOnCreation",
+      "Effect": "Allow",
+      "Action": "ec2:CreateTags",
+      "Resource": [
+        "arn:aws:ec2:us-east-1:727920394381:instance/*",
+        "arn:aws:ec2:us-east-1:727920394381:volume/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:CreateAction": "RunInstances",
+          "aws:RequestTag/StorageBackend": "testing-farm-artifacts-redhat"
+        }
+      }
+    },
+    {
+      "Sid": "ManageOwnedInstances",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstanceAttribute", "ec2:GetConsoleOutput",
+        "ec2:StartInstances", "ec2:StopInstances", "ec2:TerminateInstances",
+        "ec2:ModifyInstanceAttribute", "ec2:ModifyInstanceMetadataOptions"
+      ],
+      "Resource": "arn:aws:ec2:us-east-1:727920394381:instance/*",
+      "Condition": {"StringEquals": {"ec2:ResourceTag/StorageBackend": "testing-farm-artifacts-redhat"}}
+    },
+    {
+      "Sid": "ManageOwnedVolumes",
+      "Effect": "Allow",
+      "Action": ["ec2:ModifyVolume", "ec2:ModifyInstanceAttribute"],
+      "Resource": "arn:aws:ec2:us-east-1:727920394381:volume/*",
+      "Condition": {"StringEquals": {"ec2:ResourceTag/StorageBackend": "testing-farm-artifacts-redhat"}}
+    },
+    {
+      "Sid": "UpdateNonAuthorizationComputeTags",
+      "Effect": "Allow",
+      "Action": ["ec2:CreateTags", "ec2:DeleteTags"],
+      "Resource": [
+        "arn:aws:ec2:us-east-1:727920394381:instance/*",
+        "arn:aws:ec2:us-east-1:727920394381:volume/*"
+      ],
+      "Condition": {
+        "StringEquals": {"ec2:ResourceTag/StorageBackend": "testing-farm-artifacts-redhat"},
+        "ForAllValues:StringNotEqualsIgnoreCase": {"aws:TagKeys": ["StorageBackend"]}
+      }
+    },
+    {
+      "Sid": "AssociateClientProfile",
+      "Effect": "Allow",
+      "Action": ["ec2:AssociateIamInstanceProfile", "ec2:ReplaceIamInstanceProfileAssociation"],
+      "Resource": "arn:aws:ec2:us-east-1:727920394381:instance/*",
+      "Condition": {
+        "StringEquals": {"ec2:ResourceTag/StorageBackend": "testing-farm-artifacts-redhat"},
+        "ArnEquals": {
+          "ec2:NewInstanceProfile": "arn:aws:iam::727920394381:instance-profile/testing-farm-artifacts-redhat-instance-profile"
+        }
+      }
+    }
+  ]
+}

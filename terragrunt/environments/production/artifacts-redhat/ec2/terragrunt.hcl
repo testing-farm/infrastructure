@@ -4,17 +4,27 @@ include "root" {
 }
 
 terraform {
-  source = "tfr:///terraform-aws-modules/ec2-instance/aws//?version=5.6.1"
+  source = "../../../../modules//artifacts-server"
 }
 
 locals {
   aws_tags = {
-    FedoraGroup      = "ci"
+    # Authorization tag required by the compute deployment policy
+    StorageBackend = "testing-farm-artifacts-redhat"
+    # Legacy reporting tags
+    AppCode          = "TFT-001"
     ServiceOwner     = "TFT"
-    ServiceName      = "Artifacts"
+    ServiceName      = "TestingFarm"
     ServiceComponent = "ArtifactsServer"
     ServicePhase     = "Prod"
     Name             = "testing_farm_production_artifacts_redhat"
+    # Red Hat IT unified tagging policy
+    app-code          = "TFT-001"
+    service-owner     = "TFT"
+    service-name      = "TestingFarm"
+    service-component = "ArtifactsServer"
+    service-phase     = "prod"
+    map-migrated      = "migZZ8SDMVO5T"
   }
 }
 
@@ -65,10 +75,11 @@ dependency "security-group" {
 inputs = {
   name = "testing_farm_production_artifacts_redhat"
 
-  # Pinned approved RHEL 10 bootc artifact-server AMI supplied by TFT-4795 handoff
-  ami                         = get_env("ARTIFACTS_SERVER_AMI", "")
+  # TFT-4795 default-branch releases use CI_COMMIT_SHORT_SHA; MR uploads use a separate suffix.
+  ami_name                    = "artifacts-bootc-x86_64-*"
+  ami_name_regex              = "^artifacts-bootc-x86_64-[0-9a-f]{8}$"
   instance_type               = "c6in.2xlarge"
-  key_name                    = "tft-redhat-worker-key"
+  key_name                    = "tft-redhat-artifacts-admin"
   subnet_id                   = dependency.storage.outputs.subnet_id
   associate_public_ip_address = false
   enable_volume_tags          = false
@@ -89,6 +100,4 @@ inputs = {
     http_endpoint = "enabled"
     http_tokens   = "required"
   }
-
-  tags = local.aws_tags
 }

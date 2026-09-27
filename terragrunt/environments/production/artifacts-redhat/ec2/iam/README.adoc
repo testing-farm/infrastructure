@@ -1,0 +1,79 @@
+= Artifact server compute deployment permissions
+
+The xref:../../storage/iam/README.adoc[storage bootstrap policies] intentionally do not grant EC2 deployment permissions.
+Install `deployment-compute.json` as an additional customer-managed policy on the same IAM user, `arr-testing-farm.prod.artifacts` in account `727920394381`.
+The xref:../terragrunt.hcl[EC2 leaf] continues using the existing `redhat_us_east_1_storage` profile; its name is an alias, not a permission grant.
+Do not attach this policy to the runtime client role or its permissions boundary.
+
+== Scope
+
+* Compute discovery is read-only and limited to `us-east-1`; EC2 discovery actions do not support resource-level scoping.
+* Launch requires an account-owned AMI, `c6in.2xlarge`, IMDSv2, the existing client instance profile, the approved subnet, no public IP association, the named administrator key pair, and authorization-tagged security groups in the approved VPC.
+* New instances and encrypted EBS volumes require `StorageBackend=testing-farm-artifacts-redhat` at creation. Tagging permission is restricted to `RunInstances`; it cannot label unrelated existing resources as owned.
+* Instance lifecycle/attribute changes and console-output reads require the ownership tag. EBS resize/attribute operations require the volume's ownership tag. Non-authorization tag updates cannot add, change or remove the ownership tag, including case variants.
+* Instance-profile association is limited to the existing client profile using `ec2:NewInstanceProfile` (the profile being attached, not the instance's current profile). The storage IAM policy's existing `iam:PassRole` grant still permits only the bounded client role for `ec2.amazonaws.com`; this add-on grants no IAM administration.
+
+The policy is additive: it relies on the storage bundle for network metadata, security-group/interface management and IAM/profile access.
+It grants no AMI import/publication, key-pair creation, Spot/Fleet/Auto Scaling, standalone EBS creation/deletion, or load-balancer administration.
+It cannot enforce a single-instance count. Launch permissions accept any account-owned AMI; the release-only name selector is enforced by Terraform, not IAM.
+Lifecycle/attribute permissions are operational privileges of a trusted infrastructure deployer, not a security boundary against that deployer changing an owned instance's configuration.
+
+AMI ARNs have an empty account field, so image ownership is checked with `ec2:Owner`.
+Key-pair ARNs contain key-pair IDs rather than the configured name, so `ec2:KeyPairName` restricts the key-pair wildcard.
+The AWS provider merges its default tags into the `RunInstances` instance and volume tag specifications, even when module `enable_volume_tags` is false.
+Do not duplicate the authorization tag in `root_block_device.tags`: those per-device tags use post-launch updates and are not the tag-on-creation grant.
+
+== Administrator installation and existing-resource adoption
+
+This is an explicit administrator operation, not performed by Terraform or the offline tests.
+Use an approved administrator profile and verify the account before changing policies:
+
+[source,bash]
+----
+export AWS_PROFILE=ADMIN_PROFILE
+aws sts get-caller-identity
+# Verify Account is 727920394381 before proceeding.
+
+aws iam create-policy \
+    --policy-name arr-testing-farm.prod.compute \
+    --policy-document file://deployment-compute.json
+
+aws iam attach-user-policy \
+    --user-name arr-testing-farm.prod.artifacts \
+    --policy-arn arn:aws:iam::727920394381:policy/arr-testing-farm.prod.compute
+----
+
+Run these commands from this directory. For an existing policy, review and install a new policy version instead of recreating it.
+Retain the xref:../../storage/iam/README.adoc[administrator-owned runtime boundary and base policy installation].
+Review all other direct/group grants, boundaries and SCPs: adding this policy does not narrow pre-existing broad grants.
+
+For an existing server, first verify the applied instance, root volume and frontend security group belong to this deployment.
+An administrator must add `StorageBackend=testing-farm-artifacts-redhat` to those verified resources before the restricted identity plans/applies or reads console output.
+Do not retag unrelated instances, volumes or groups to make authorization pass.
+The storage filesystem/security groups require their own documented adoption and boundary ordering; never enable the client boundary before the filesystem's authorization tag is present.
+No live IAM or tagging migration is claimed by these source changes.
+
+== Validation and deployment gate
+
+Run the offline contracts from the repository root:
+
+[source,bash]
+----
+poetry run pytest tests/artifacts/test_deployment_configuration.py
+----
+
+The tests render the real production HCL in an isolated directory, replacing dependency-state reads with the existing mock outputs.
+They check the evaluated provider tags and compute policy against production inputs, action/resource scoping and authorization-tag protections, plus production CI module coverage.
+They do not evaluate AWS IAM or prove live authorization.
+
+Before installation, have the administrator validate the policy with IAM Access Analyzer and perform positive/negative IAM simulations.
+Cover all `RunInstances` resource types and `CreateTags` contexts, missing/wrong ownership tags, wrong account/region/subnet/VPC/key/profile/instance type, public-IP requests, unencrypted volumes, unrelated lifecycle/tag operations, and alternate `PassRole` destinations.
+Then obtain an authenticated, reviewed whole-stack plan and separately approve any apply; do not widen permissions to hide an unexplained denial.
+
+== References
+
+https://docs.aws.amazon.com/service-authorization/latest/reference/list_ec2.html[EC2 actions, resource types and condition keys]
+
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ExamplePolicies_EC2.html[EC2 launch and tag-on-creation IAM examples]
+
+https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/v6.63.0/internal/service/ec2/ec2_instance.go[AWS provider instance/volume tag-on-launch implementation]

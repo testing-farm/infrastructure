@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
+import configparser
 import dataclasses
 import hashlib
 import json
@@ -12,10 +14,13 @@ import socket
 import ssl
 import subprocess
 import time
-from typing import Any, Optional
+from typing import Any, Generator, Optional
 import urllib.parse
 import uuid
 
+import boto3
+from botocore.config import Config as AWSClientConfig
+from botocore.exceptions import ClientError
 from gluetool import GlueError
 from gluetool.result import Result
 from gluetool.utils import wait
@@ -37,7 +42,13 @@ class ArtifactsConfig:
     :param upload_key_path: Path to private SSH key for upload user.
     :param admin_user: Username for administrative SSH access (mount inspect, reboot).
     :param admin_key_path: Path to private SSH key for admin user.
+    :param known_hosts_path: Independently verified SSH host keys (otherwise use SSH configuration).
     :param ca_cert_path: Path to custom CA certificate for TLS validation.
+    :param s3_bucket: Expected backing bucket from deployment outputs.
+    :param aws_profile: Optional AWS profile for read-only S3 verification.
+    :param s3_sync_timeout: Maximum wait for asynchronous S3 synchronization.
+    :param filesystem_id: Expected S3 Files filesystem from deployment outputs.
+    :param mount_target_ip: Expected mount-target IP from deployment outputs.
     :param probe_namespace: Directory prefix under artifacts root for probe testing.
     :param request_timeout: Timeout in seconds for HTTP/HTTPS requests.
     :param ssh_timeout: Timeout in seconds for SSH/rsync commands.
@@ -55,8 +66,9 @@ class ArtifactsConfig:
     ssh_port: int = 22
     upload_user: str = "artifacts"
     upload_key_path: Optional[str] = None
-    admin_user: str = "fedora"
+    admin_user: str = "cloud-user"
     admin_key_path: Optional[str] = None
+    known_hosts_path: Optional[str] = None
     ca_cert_path: Optional[str] = None
     probe_namespace: str = "probe-lifecheck"
     request_timeout: float = 10.0
@@ -64,6 +76,11 @@ class ArtifactsConfig:
     reboot_timeout: int = 300
     reboot_poll_interval: int = 5
     mount_point: str = "/mnt/s3files"
+    filesystem_id: Optional[str] = None
+    mount_target_ip: Optional[str] = None
+    s3_bucket: Optional[str] = None
+    aws_profile: Optional[str] = None
+    s3_sync_timeout: int = 300
     allow_reboot: bool = False
     is_live: bool = False
     artifact_dir: str = ".pytest/artifacts-lifecheck"
@@ -293,39 +310,13 @@ def check_http_redirect(
         }
 
 
-def matches_san(hostname: str, san: str) -> bool:
-    """Check if a hostname matches a Subject Alternative Name entry (exact or wildcard).
-
-    Supports exact matches (redhat.artifacts.testing.farm) as well as wildcard parent
-    domain matching (*.artifacts.testing.farm or *.testing.farm).
-
-    :param hostname: Target hostname.
-    :param san: SAN entry from certificate.
-    :returns: True if hostname matches SAN, False otherwise.
-    """
-    if san.lower() == hostname.lower():
-        return True
-    if san.startswith("*."):
-        parent_domain = san[2:].lower()
-        host_lower = hostname.lower()
-        if host_lower.endswith(f".{parent_domain}"):
-            # Single-label subdomain match (e.g. *.artifacts.testing.farm matches redhat.artifacts.testing.farm)
-            prefix = host_lower[:-len(parent_domain) - 1]
-            if "." not in prefix:
-                return True
-        # Also allow multi-level parent matching if CA issued broader wildcard
-        if host_lower == parent_domain or host_lower.endswith(f".{parent_domain}"):
-            return True
-    return False
-
-
 def check_https_tls(
     host: str,
     port: int = 443,
     ca_cert: Optional[str] = None,
     timeout: float = 10.0,
 ) -> dict[str, Any]:
-    """Verify TLS certificate validity and SAN matches host.
+    """Verify the certificate chain and hostname with Python's standard TLS context.
 
     :param host: Target hostname.
     :param port: HTTPS port (default 443).
@@ -359,23 +350,31 @@ def _build_ssh_cmd(
     port: int,
     key_path: Optional[str] = None,
     timeout: float = 15.0,
+    known_hosts_path: Optional[str] = None,
 ) -> list[str]:
     """Build standardized SSH client command arguments.
 
     :param port: SSH port number.
     :param key_path: Optional private key path.
     :param timeout: Connection timeout in seconds.
+    :param known_hosts_path: Optional independently verified known-hosts file.
     :returns: List of base SSH command tokens.
     """
     cmd = [
         "ssh",
         "-p", str(port),
-        "-o", "StrictHostKeyChecking=accept-new",
+        "-o", "StrictHostKeyChecking=yes",
+        "-o", "IdentitiesOnly=yes",
+        "-o", "ForwardAgent=no",
         "-o", "BatchMode=yes",
         "-o", f"ConnectTimeout={int(timeout)}",
     ]
     if key_path:
         cmd.extend(["-i", key_path])
+    if known_hosts_path:
+        # A reused multiplexed session would bypass the supplied host-key verification.
+        cmd.extend(["-o", f"UserKnownHostsFile={known_hosts_path}",
+                    "-o", "ControlMaster=no", "-o", "ControlPath=none"])
     return cmd
 
 
@@ -385,7 +384,9 @@ def upload_probe_rsync(
     temp_dir: Path,
     log_dir: Optional[Path] = None,
 ) -> CommandResult:
-    """Upload probe payload via restricted rsync-over-SSH.
+    """Upload a public probe via restricted rsync-over-SSH without opening local files.
+
+    Receiver-side directory/file modes are normalized independently of local umask.
 
     :param config: ArtifactsConfig instance.
     :param probe: ProbePayload instance with local file created.
@@ -396,7 +397,7 @@ def upload_probe_rsync(
     if probe.local_path is None or not probe.local_path.exists():
         raise ValueError("Probe local file does not exist. Call create_probe with base_dir first.")
 
-    ssh_cmd = _build_ssh_cmd(config.ssh_port, config.upload_key_path, config.ssh_timeout)
+    ssh_cmd = _build_ssh_cmd(config.ssh_port, config.upload_key_path, config.ssh_timeout, config.known_hosts_path)
 
     # Target upload path with --relative: base root on remote host
     remote_target = f"{config.upload_user}@{config.host}:"
@@ -405,6 +406,7 @@ def upload_probe_rsync(
         "rsync",
         "-avz",
         "--relative",
+        "--chmod=D755,F644",
         "-e", shlex.join(ssh_cmd),
         rel_file_path,
         remote_target,
@@ -471,6 +473,71 @@ def fetch_probe_https(
     return status_code, response_body, latency_ms, content_matches
 
 
+def verify_probe_s3(
+    config: ArtifactsConfig,
+    probe: ProbePayload,
+    log_dir: Optional[Path] = None,
+    client: Any = None,
+) -> bool:
+    """Verify eventual byte equality in the expected backing bucket, without S3 writes.
+
+    :param config: Configuration containing the expected bucket and AWS profile.
+    :param probe: Unique uploaded probe whose exact bytes must reach S3.
+    :param log_dir: Directory for bounded synchronization diagnostics.
+    :param client: Optional SDK client at the external API boundary.
+    :returns: Whether expected bytes became visible before the deadline.
+    :raises ValueError: If the expected bucket is not configured.
+    :raises ClientError: For errors other than a not-yet-synchronized object.
+    """
+    if not config.s3_bucket:
+        raise ValueError("Set --artifacts-s3-bucket to the deployment's backing bucket")
+    if client is None:
+        client = boto3.Session(profile_name=config.aws_profile).client(
+            "s3",
+            config=AWSClientConfig(
+                connect_timeout=config.request_timeout,
+                read_timeout=config.request_timeout,
+                retries={"total_max_attempts": 1},
+            ),
+        )
+    key = f"{probe.relative_dir}/{probe.filename}"
+    expected = probe.content.encode("utf-8")
+
+    def check_object() -> Result[bool, str]:
+        verified = False
+        try:
+            response = client.get_object(Bucket=config.s3_bucket, Key=key)
+        except ClientError as exc:
+            if exc.response["Error"]["Code"] not in ("NoSuchKey", "404"):
+                raise
+            diagnostic = "Owned probe is not yet visible in S3"
+        else:
+            body = response["Body"]
+            try:
+                content = body.read(len(expected) + 1)
+            finally:
+                body.close()
+            if content == expected:
+                verified = True
+                diagnostic = "Expected probe bytes are durable in S3"
+            else:
+                diagnostic = f"S3 probe bytes differ (sha256={hashlib.sha256(content).hexdigest()})"
+        if log_dir is not None:
+            log_dir.mkdir(parents=True, exist_ok=True)
+            with (log_dir / f"s3-sync-{probe.probe_id}.log").open("a", encoding="utf-8") as log:
+                log.write(f"{time.time():.3f} s3://{config.s3_bucket}/{key}: {diagnostic}\n")
+        if verified:
+            return Result.Ok(True)
+        return Result.Error(diagnostic)
+
+    try:
+        wait("artifact probe S3 synchronization", check_object, timeout=config.s3_sync_timeout, tick=5)
+    except GlueError as exc:
+        logger.error(f"S3 synchronization failed for owned probe {key}: {exc}")
+        return False
+    return True
+
+
 def check_autoindex(
     config: ArtifactsConfig,
     path: str = "/",
@@ -486,10 +553,7 @@ def check_autoindex(
 
     try:
         response = requests.get(url, timeout=config.request_timeout, verify=verify)
-        has_autoindex = (
-            response.status_code == 200
-            and ("<title>Index of" in response.text or "<pre>" in response.text or "<a href=" in response.text)
-        )
+        has_autoindex = response.status_code == 200 and "<title>Index of" in response.text
         return {
             "status_code": response.status_code,
             "autoindex_enabled": has_autoindex,
@@ -507,23 +571,23 @@ def check_cors_headers(
     config: ArtifactsConfig,
     path: str = "/",
 ) -> dict[str, Any]:
-    """Verify CORS headers on HTTP/HTTPS responses.
+    """Verify the viewer's cross-origin HTTPS GET succeeds with the expected CORS header.
 
     :param config: ArtifactsConfig instance.
     :param path: Path to inspect.
-    :returns: Dictionary with cors_allowed, allow_origin header, etc.
+    :returns: Dictionary with status_code, cors_ok, allow_origin, and headers.
     """
     url = f"https://{config.host}:{config.https_port}{path}"
     verify: Any = config.ca_cert_path if config.ca_cert_path else True
     headers = {"Origin": "https://dashboard.testing-farm.io"}
 
     try:
-        response = requests.options(url, headers=headers, timeout=config.request_timeout, verify=verify)
+        response = requests.get(url, headers=headers, timeout=config.request_timeout, verify=verify)
         allow_origin = response.headers.get("Access-Control-Allow-Origin", "")
         return {
             "status_code": response.status_code,
             "allow_origin": allow_origin,
-            "cors_ok": allow_origin in ("*", "https://dashboard.testing-farm.io"),
+            "cors_ok": 200 <= response.status_code < 300 and allow_origin in ("*", headers["Origin"]),
             "headers": dict(response.headers),
         }
     except requests.RequestException as exc:
@@ -558,7 +622,7 @@ def check_restricted_ssh_access(
     :param log_dir: Optional log directory.
     :returns: Dictionary summarizing rejection results.
     """
-    ssh_cmd = _build_ssh_cmd(config.ssh_port, config.upload_key_path, config.ssh_timeout)
+    ssh_cmd = _build_ssh_cmd(config.ssh_port, config.upload_key_path, config.ssh_timeout, config.known_hosts_path)
 
     # No remote command sends a shell request. Disable PTY allocation so a no-pty
     # restriction alone cannot stand in for rejection by the forced command.
@@ -596,7 +660,7 @@ def check_rsync_write_only(
     :param log_dir: Directory to retain complete rsync diagnostics.
     :returns: Download rejection status, exit code, and stderr.
     """
-    ssh_cmd = _build_ssh_cmd(config.ssh_port, config.upload_key_path, config.ssh_timeout)
+    ssh_cmd = _build_ssh_cmd(config.ssh_port, config.upload_key_path, config.ssh_timeout, config.known_hosts_path)
     remote_source = f"{config.upload_user}@{config.host}:{probe.relative_dir}/{probe.filename}"
     res = run_command(
         [
@@ -631,7 +695,7 @@ def run_admin_ssh_command(
     :param log_prefix: Prefix for log file.
     :returns: CommandResult.
     """
-    ssh_cmd = _build_ssh_cmd(config.ssh_port, config.admin_key_path, config.ssh_timeout)
+    ssh_cmd = _build_ssh_cmd(config.ssh_port, config.admin_key_path, config.ssh_timeout, config.known_hosts_path)
     cmd = [*ssh_cmd, f"{config.admin_user}@{config.host}", remote_cmd]
     return run_command(cmd, timeout=config.ssh_timeout, log_dir=log_dir, log_prefix=log_prefix)
 
@@ -641,62 +705,164 @@ def check_mount_status(
     mount_point: Optional[str] = None,
     log_dir: Optional[Path] = None,
 ) -> dict[str, Any]:
-    """Verify S3 Files NFS mount status, filesystem type, and options via admin SSH.
+    """Inspect the exact canonical NFSv4 mount without requiring admin write access.
+
+    When expected backend IDs are supplied, also validate the loaded, active,
+    persistently enabled native mount unit and its effective configuration.
+    Upload permissions are verified by the authenticated rsync probe, not by the
+    administrative identity used to inspect the filesystem.
 
     :param config: ArtifactsConfig instance.
     :param mount_point: Target mount point path (defaults to config.mount_point).
     :param log_dir: Optional log directory.
-    :returns: Dictionary with mount_present, fstype, options, and writeable status.
+    :returns: Mount presence, backend match, canonical path, filesystem type, source and options.
     """
     target_mount = mount_point or config.mount_point
-    # Access a child path to trigger systemd automount before inspecting the backing filesystem.
-    res = run_admin_ssh_command(
+    resolved = run_admin_ssh_command(
         config,
-        f"stat -- {shlex.quote(target_mount + '/.')} >/dev/null && "
-        f"findmnt --json --list --mountpoint {shlex.quote(target_mount)} "
-        "--types nfs,nfs4 --output TARGET,FSTYPE",
+        f"readlink -f -- {shlex.quote(target_mount)}",
         log_dir=log_dir,
-        log_prefix="mount-findmnt",
+        log_prefix="mount-resolve",
     )
-
+    canonical_mount = resolved.stdout.strip()
     filesystems: list[dict[str, Any]] = []
-    error = res.stderr
-    if res.exit_code == 0 and not res.timed_out:
-        try:
-            mount_info = json.loads(res.stdout)
-        except json.JSONDecodeError as exc:
-            error = f"Invalid findmnt JSON for {target_mount}: {exc}"
-        else:
-            if isinstance(mount_info, dict) and isinstance(mount_info.get("filesystems"), list):
-                filesystems = mount_info["filesystems"]
+    res = resolved
+    error = resolved.stderr
+    if resolved.exit_code == 0 and not resolved.timed_out and canonical_mount.startswith("/"):
+        # Inspect the mounted directory without using an administrator write probe.
+        res = run_admin_ssh_command(
+            config,
+            f"stat -- {shlex.quote(canonical_mount + '/.')} >/dev/null && "
+            f"findmnt --json --list --mountpoint {shlex.quote(canonical_mount)} "
+            "--types nfs4 --output TARGET,FSTYPE,SOURCE,OPTIONS",
+            log_dir=log_dir,
+            log_prefix="mount-findmnt",
+        )
+        error = res.stderr
+        if res.exit_code == 0 and not res.timed_out:
+            try:
+                mount_info = json.loads(res.stdout)
+            except json.JSONDecodeError as exc:
+                error = f"Invalid findmnt JSON for {target_mount}: {exc}"
             else:
-                error = f"Missing filesystem list in findmnt output for {target_mount}"
+                if isinstance(mount_info, dict) and isinstance(mount_info.get("filesystems"), list):
+                    filesystems = mount_info["filesystems"]
+                else:
+                    error = f"Missing filesystem list in findmnt output for {target_mount}"
+    else:
+        error = error or f"Cannot resolve remote mount path {target_mount}"
+        canonical_mount = ""
 
     filesystem = next((
         entry for entry in filesystems
         if isinstance(entry, dict)
-        and entry.get("target") == target_mount
-        and entry.get("fstype") in ("nfs", "nfs4")
+        and entry.get("target") == canonical_mount
+        and entry.get("fstype") == "nfs4"
     ), {})
-    mount_present = bool(filesystem)
-    is_writable = False
-    if mount_present:
-        res_touch = run_admin_ssh_command(
+    expected_backend = False
+    if filesystem and config.filesystem_id and config.mount_target_ip:
+        descriptor = run_admin_ssh_command(
             config,
-            f"test -w {shlex.quote(target_mount)}",
+            "test -x /sbin/mount.s3files && rpm -q amazon-efs-utils >/dev/null && "
+            f"unit=$(systemd-escape --path --suffix=mount -- {shlex.quote(canonical_mount)}) && "
+            "systemctl show --no-pager --property=Id,LoadState,ActiveState,UnitFileState,FragmentPath,NeedDaemonReload \"$unit\" && "
+            "printf '\\n--- unit configuration ---\\n' && systemctl cat --no-pager \"$unit\"",
             log_dir=log_dir,
-            log_prefix="mount-writable",
+            log_prefix="mount-backend",
         )
-        is_writable = res_touch.exit_code == 0 and not res_touch.timed_out
+        state_text, separator, unit_text = descriptor.stdout.partition("\n--- unit configuration ---\n")
+        backend_error = ""
+        if descriptor.exit_code == 0 and not descriptor.timed_out and separator:
+            state = dict(line.split("=", 1) for line in state_text.splitlines() if "=" in line)
+            unit_config = configparser.ConfigParser(interpolation=None, strict=False)
+            unit_config.optionxform = str
+            try:
+                # systemctl cat includes the fragment and ordered drop-ins; the last scalar setting wins.
+                unit_config.read_string(unit_text)
+            except configparser.Error as exc:
+                backend_error = f"Invalid native mount configuration for {canonical_mount}: {exc}"
+            else:
+                options: dict[str, str] = {}
+                for option in unit_config.get("Mount", "Options", fallback="").split(","):
+                    name, _, value = option.strip().partition("=")
+                    options[name] = value
+                expected_backend = (
+                    state.get("LoadState") == "loaded"
+                    and state.get("ActiveState") == "active"
+                    and state.get("UnitFileState") == "enabled"
+                    and state.get("NeedDaemonReload") == "no"
+                    and unit_config.get("Mount", "What", fallback="") == f"{config.filesystem_id}:/"
+                    and unit_config.get("Mount", "Where", fallback="") == canonical_mount
+                    and unit_config.get("Mount", "Type", fallback="") == "s3files"
+                    and {"_netdev", "nofail"}.issubset(options)
+                    and options.get("mounttargetip") == config.mount_target_ip
+                )
+        if not expected_backend:
+            error = descriptor.stderr or backend_error or (
+                "Native mount unit is not loaded, active, enabled, current, or configured for the expected S3 Files backend"
+            )
 
     return {
-        "mount_present": mount_present,
+        "mount_present": bool(filesystem),
+        "expected_backend": expected_backend,
         "fstype": filesystem.get("fstype", "unknown"),
-        "is_writable": is_writable,
+        "source": filesystem.get("source", ""),
+        "options": filesystem.get("options", ""),
         "mount_point": target_mount,
+        "canonical_mount_point": canonical_mount,
         "stdout": res.stdout,
         "stderr": error,
     }
+
+
+def initialize_storage_root(
+    config: ArtifactsConfig,
+    log_dir: Optional[Path] = None,
+) -> CommandResult:
+    """Initialize ownership of the verified mounted root, never its contents.
+
+    This is an explicit operator action, not part of any lifecheck.
+
+    :param config: Expected backend and verified administrator SSH identity.
+    :param log_dir: Directory for complete command diagnostics.
+    :returns: Successful initialization command result, including root metadata.
+    :raises GlueError: If required inputs, mount validation or initialization fail.
+    """
+    if not all((config.admin_key_path, config.known_hosts_path, config.filesystem_id, config.mount_target_ip)):
+        raise GlueError("Storage initialization requires the admin key, verified known hosts, filesystem ID and mount-target IP")
+
+    mount = check_mount_status(config, log_dir=log_dir)
+    if not mount["mount_present"] or not mount["expected_backend"]:
+        raise GlueError(f"Refusing storage initialization: expected persistent NFS backend is not ready: {mount['stderr']}")
+    canonical_mount = mount["canonical_mount_point"]
+    if not canonical_mount.startswith("/") or canonical_mount == "/":
+        raise GlueError(f"Refusing storage initialization at invalid data mount: {canonical_mount!r}")
+
+    upload_user = shlex.quote(config.upload_user)
+    # Pin the working directory to the verified filesystem, then recheck readiness.
+    # Even a lazy unmount cannot redirect chown of '.' onto the underlying local directory.
+    command = (
+        f"set -eu; cd -- {shlex.quote(canonical_mount)}; "
+        '/usr/local/libexec/check-artifacts-mount "$PWD"; '
+        'test "$(stat -c %d:%i .)" = "$(stat -c %d:%i "$PWD")" || '
+        '{ echo "Mount changed while pinning the storage root" >&2; exit 1; }; '
+        f"uid=$(id -u -- {upload_user}); gid=$(id -g -- {upload_user}); "
+        'test "$uid" -ne 0 || { echo "Refusing root upload identity" >&2; exit 1; }; '
+        'stat -c "Before: %u:%g %a %n" .; '
+        'sudo -n chown --no-dereference -- "$uid:$gid" .; '
+        f"sudo -n -u {upload_user} test -w . || "
+        '{ echo "Upload identity cannot write the mounted root" >&2; exit 1; }; '
+        'sudo -n -u nginx test -r . && sudo -n -u nginx test -x . || '
+        '{ echo "nginx cannot read/search the mounted root" >&2; exit 1; }; '
+        'stat -c "After: %u:%g %a %n" .'
+    )
+    result = run_admin_ssh_command(config, command, log_dir=log_dir, log_prefix="initialize-storage")
+    if result.exit_code != 0 or result.timed_out:
+        raise GlueError(
+            f"Storage initialization failed at {canonical_mount} (exit {result.exit_code}, "
+            f"timed out: {result.timed_out}); inspect initialization logs: {result.stderr}"
+        )
+    return result
 
 
 def get_boot_id(
@@ -726,7 +892,7 @@ def reboot_and_wait(
     old_boot_id: str,
     log_dir: Optional[Path] = None,
 ) -> tuple[bool, str]:
-    """Reboot over admin SSH and wait for a new boot ID and writable NFS mount.
+    """Reboot over admin SSH and wait for a new boot ID and NFS mount.
 
     :param config: ArtifactsConfig instance.
     :param old_boot_id: Previous boot ID before reboot.
@@ -739,7 +905,7 @@ def reboot_and_wait(
     logger.info(f"Triggering reboot on {config.host} with initial boot ID: {old_boot_id}")
     run_admin_ssh_command(
         config,
-        "sudo systemctl reboot || sudo reboot",
+        "sudo -n systemctl reboot || sudo -n reboot",
         log_dir=log_dir,
         log_prefix="trigger-reboot",
     )
@@ -756,10 +922,12 @@ def reboot_and_wait(
 
         new_boot_id = boot_id
         mount = check_mount_status(config, log_dir=log_dir)
-        if not mount["mount_present"] or not mount["is_writable"]:
+        if not mount["mount_present"] or (
+            config.filesystem_id and config.mount_target_ip and not mount["expected_backend"]
+        ):
             return Result.Error(
                 f"NFS mount {config.mount_point} has not recovered on {config.host} "
-                f"(type {mount['fstype']}, writable {mount['is_writable']}): {mount['stderr']}"
+                f"(type {mount['fstype']}): {mount['stderr']}"
             )
         return Result.Ok(boot_id)
 
@@ -774,7 +942,7 @@ def reboot_and_wait(
         logger.error(f"Reboot verification failed for {config.host}: {exc}")
         return False, new_boot_id
 
-    logger.info(f"Host {config.host} rebooted with writable NFS and new boot ID: {new_boot_id}")
+    logger.info(f"Host {config.host} rebooted with NFS and new boot ID: {new_boot_id}")
     return True, new_boot_id
 
 
@@ -792,12 +960,13 @@ def cleanup_probe(
     :param log_dir: Optional log directory.
     :returns: True if cleanup succeeded, False otherwise.
     """
-    # Strict path check: relative_dir must start with configured probe_namespace and not contain traversal
-    if not probe.relative_dir.startswith(config.probe_namespace) or ".." in probe.relative_dir:
+    # Strict path check: relative_dir must live under the configured probe_namespace and not contain traversal
+    if not probe.relative_dir.startswith(f"{config.probe_namespace}/") or ".." in probe.relative_dir:
         logger.error(f"Refusing to cleanup invalid probe path: {probe.relative_dir}")
         return False
 
-    remote_cmd = f"rm -rf {config.mount_point}/{probe.relative_dir}"
+    # Probes are uploaded by the restricted upload user, so the admin user needs sudo to remove them.
+    remote_cmd = f"sudo -n rm -rf -- {shlex.quote(f'{config.mount_point}/{probe.relative_dir}')}"
     res = run_admin_ssh_command(
         config,
         remote_cmd,
@@ -805,7 +974,27 @@ def cleanup_probe(
         log_prefix="cleanup-probe",
     )
 
-    if res.exit_code != 0:
+    if res.exit_code != 0 or res.timed_out:
         logger.warning(f"Probe cleanup failed for {probe.relative_dir}: {res.stderr}")
         return False
     return True
+
+
+@contextmanager
+def cleanup_probe_on_exit(
+    config: ArtifactsConfig,
+    probe: ProbePayload,
+    log_dir: Optional[Path] = None,
+) -> Generator[None, None, None]:
+    """Confine cleanup to an owned probe even when upload or later checks fail.
+
+    :param config: ArtifactsConfig instance.
+    :param probe: Probe to clean, including partially transferred files.
+    :param log_dir: Directory for complete cleanup diagnostics.
+    :raises GlueError: If cleanup fails; a lifecheck must not silently leave data.
+    """
+    try:
+        yield
+    finally:
+        if not cleanup_probe(config, probe, log_dir):
+            raise GlueError(f"Cannot clean owned probe {probe.relative_dir}; see cleanup-probe diagnostics")
