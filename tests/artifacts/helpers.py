@@ -792,12 +792,13 @@ def cleanup_probe(
     :param log_dir: Optional log directory.
     :returns: True if cleanup succeeded, False otherwise.
     """
-***REMOVED*** Strict path check: relative_dir must start with configured probe_namespace and not contain traversal
-    if not probe.relative_dir.startswith(config.probe_namespace) or ".." in probe.relative_dir:
+***REMOVED*** Strict path check: relative_dir must live under the configured probe_namespace and not contain traversal
+    if not probe.relative_dir.startswith(f"{config.probe_namespace}/") or ".." in probe.relative_dir:
         logger.error(f"Refusing to cleanup invalid probe path: {probe.relative_dir}")
         return False
 
-    remote_cmd = f"rm -rf {config.mount_point}/{probe.relative_dir}"
+***REMOVED*** Probes are uploaded by the restricted upload user, so the admin user needs sudo to remove them.
+    remote_cmd = f"sudo rm -rf -- {shlex.quote(f'{config.mount_point}/{probe.relative_dir}')}"
     res = run_admin_ssh_command(
         config,
         remote_cmd,
