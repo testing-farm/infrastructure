@@ -9,11 +9,19 @@ terraform {
 
 locals {
   aws_tags = {
-    FedoraGroup      = "ci"
+    # Legacy reporting tags
+    AppCode          = "TFT-001"
     ServiceOwner     = "TFT"
-    ServiceName      = "Artifacts"
+    ServiceName      = "TestingFarm"
     ServiceComponent = "SecurityGroup"
     ServicePhase     = "Prod"
+    # Red Hat IT unified tagging policy
+    app-code          = "TFT-001"
+    service-owner     = "TFT"
+    service-name      = "TestingFarm"
+    service-component = "SecurityGroup"
+    service-phase     = "prod"
+    map-migrated      = "migZZ8SDMVO5T"
   }
 }
 
@@ -76,6 +84,4 @@ inputs = {
   # (NFS egress to mount target is managed separately by storage client SG)
   egress_rules       = ["https-443-tcp", "http-80-tcp", "dns-udp", "dns-tcp", "ntp-udp"]
   egress_cidr_blocks = ["0.0.0.0/0"]
-
-  tags = local.aws_tags
 }
