@@ -14,7 +14,6 @@ import pytest
 from tests.artifacts.helpers import (
     ArtifactsConfig,
     ProbePayload,
-    cleanup_probe,
     create_probe,
 )
 
@@ -77,14 +76,20 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     group.addoption(
         "--artifacts-admin-user",
         action="store",
-        default=os.environ.get("ARTIFACTS_ADMIN_USER", "fedora"),
-        help="Administrative SSH user (default: fedora)",
+        default=os.environ.get("ARTIFACTS_ADMIN_USER", "cloud-user"),
+        help="Administrative SSH user (default: cloud-user)",
     )
     group.addoption(
         "--artifacts-admin-key",
         action="store",
         default=os.environ.get("ARTIFACTS_ADMIN_KEY"),
         help="Path to private SSH key for admin user",
+    )
+    group.addoption(
+        "--artifacts-known-hosts",
+        action="store",
+        default=os.environ.get("ARTIFACTS_KNOWN_HOSTS"),
+        help="Independently verified SSH known-hosts file (otherwise use SSH configuration)",
     )
     group.addoption(
         "--artifacts-ca-cert",
@@ -97,6 +102,20 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         action="store",
         default=os.environ.get("ARTIFACTS_MOUNT_POINT", "/mnt/s3files"),
         help="Mount point of S3 Files on the artifact server (default: /mnt/s3files)",
+    )
+    for option, environment, description in (
+        ("filesystem-id", "ARTIFACTS_FILESYSTEM_ID", "Expected S3 Files filesystem ID from deployment outputs"),
+        ("mount-target-ip", "ARTIFACTS_MOUNT_TARGET_IP", "Expected mount-target IP from deployment outputs"),
+        ("s3-bucket", "ARTIFACTS_S3_BUCKET", "Expected backing S3 bucket for byte readback"),
+        ("aws-profile", "ARTIFACTS_AWS_PROFILE", "AWS profile with read-only s3:GetObject permission"),
+    ):
+        group.addoption(f"--artifacts-{option}", action="store", default=os.environ.get(environment), help=description)
+    group.addoption(
+        "--artifacts-s3-sync-timeout",
+        action="store",
+        type=int,
+        default=int(os.environ.get("ARTIFACTS_S3_SYNC_TIMEOUT", "300")),
+        help="Maximum wait for asynchronous S3 synchronization (seconds, default 300)",
     )
     group.addoption(
         "--artifacts-allow-reboot",
@@ -129,8 +148,14 @@ def artifacts_config(request: pytest.FixtureRequest) -> ArtifactsConfig:
         upload_key_path=request.config.getoption("--artifacts-upload-key"),
         admin_user=request.config.getoption("--artifacts-admin-user"),
         admin_key_path=request.config.getoption("--artifacts-admin-key"),
+        known_hosts_path=request.config.getoption("--artifacts-known-hosts"),
         ca_cert_path=request.config.getoption("--artifacts-ca-cert"),
         mount_point=request.config.getoption("--artifacts-mount-point"),
+        filesystem_id=request.config.getoption("--artifacts-filesystem-id"),
+        mount_target_ip=request.config.getoption("--artifacts-mount-target-ip"),
+        s3_bucket=request.config.getoption("--artifacts-s3-bucket"),
+        aws_profile=request.config.getoption("--artifacts-aws-profile"),
+        s3_sync_timeout=request.config.getoption("--artifacts-s3-sync-timeout"),
         allow_reboot=request.config.getoption("--artifacts-allow-reboot"),
         is_live=request.config.getoption("--live-artifacts"),
         artifact_dir=request.config.getoption("--artifacts-artifact-dir"),

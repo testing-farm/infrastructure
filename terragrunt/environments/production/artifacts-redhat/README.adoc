@@ -90,18 +90,37 @@ VPN and corporate Red Hat clients cannot be assumed to resolve Amazon-internal V
 WARNING: Hold merge/apply until the TFT-4795 image handoff and approved network access rules are ready. The current frontend SG permits worker-SG sources only; it does not permit routed corporate/VPN clients. Adding approved web and administrator/lifecheck source CIDRs is deferred and remains a deployment blocker. Do not substitute guessed ranges or world-open ingress.
 
 Before provisioning the EC2 unit:
-* `ARTIFACTS_SERVER_AMI`: Environment variable containing the pinned RHEL 10 bootc artifact-server AMI (provided by TFT-4795).
-* TLS Certificate: Internal-CA certificate with SAN `redhat.artifacts.testing.farm`, intermediate chain, and private key loaded via the image's supported certificate interface.
+
+* `ARTIFACTS_SERVER_AMI`: Environment variable containing the reviewed, accepted RHEL 10 bootc artifact-server AMI (provided by TFT-4795). Configure it for both scoped runs and the production CI plan/apply jobs; a shell-only export does not configure CI. The diagnostic AMI is not an accepted production image.
+
+After boot, before production HTTPS acceptance or traffic cutover, arrange the internal-CA certificate with SAN `redhat.artifacts.testing.farm`, intermediate chain and private key using the interface below. Do not put private keys into the image or Terraform state.
 
 == Certificate Management & Renewal
 
-* *TLS Interface*: Provided by TFT-4795 bootc image.
-* *Renewal Policy*: Operator-driven through the image's supported certificate loading interface.
-* *Tracking & Reload*: Operators track expiry via certificate monitoring; certificate replacement is completed by updating the configured secret/file and executing the reload mechanism (e.g. `systemctl reload nginx`).
+TFT-4795 supplies nginx and these file-loading paths; TFT-4797 owns arranging and renewing the real certificate. The baked self-signed certificate/key is diagnostic-only. Issuance remains with the approved internal CA, not an implicitly selected Let's Encrypt flow.
+
+1. Obtain a certificate for SAN `redhat.artifacts.testing.farm`, its intermediate chain and the matching private key from the approved issuer. Keep the trust roots separate from the served leaf/intermediate chain.
+2. Verify administrator SSH host keys independently against authenticated EC2 console output. Use `cloud-user`, a dedicated verified known-hosts file and `StrictHostKeyChecking=yes`. A ProxyJump may route SSH through an approved worker; keep the admin identity local and agent forwarding disabled.
+3. Transfer the leaf/intermediate chain and private key directly to a root-owned `0700` staging directory on the server over that verified channel. Staged private-key files must be `0600`; do not leave them on the jump worker or in uploaded logs.
+4. Check the SAN, validity, chain against the approved CA, and matching certificate/key public-key fingerprints before installation. Retain the previous pair in a root-only rollback directory.
+5. Install the served chain at `/etc/pki/nginx/artifacts.crt` (`root:root`, `0644`) and private key at `/etc/pki/nginx/artifacts.key` (`root:root`, `0600`). Restore SELinux contexts with `sudo -n restorecon` on both paths. Complete both replacements before validation/reload; restore both old files if validation fails.
+6. Run `sudo -n nginx -t`, then `sudo -n systemctl reload nginx`. Verify the hostname from an approved client with the approved CA and normal hostname validation. Do not disable TLS verification or trust the baked test certificate as production issuance.
+7. Remove staged copies after success and track expiry/renewal ownership operationally. Renewal is operator-driven: repeat the same validation/install/reload procedure. This MR does not install an automatic renewal job or claim certificate monitoring is already deployed.
 
 == Validation & Lifecheck
 
-Verification is executed via pytest using dedicated test suites under `tests/artifacts/`:
+Verification is on-demand via pytest under `tests/artifacts/`. The runner needs direct HTTP/HTTPS reachability to the private service as well as SSH routing, rsync, the approved CA bundle, separate admin/upload identities, verified host keys and read-only `s3:GetObject` permission for the owned probe objects. SSH ProxyJump alone does not route Python's HTTPS requests. Keep privileged private keys local; do not copy them to a production worker just to run the suite.
+
+Supply these inputs from the deployed storage outputs and the approved access handoff (not guessed values):
+
+`ARTIFACTS_HOST` and `ARTIFACTS_PRIVATE_IP`
+`ARTIFACTS_ADMIN_USER=cloud-user` and `ARTIFACTS_ADMIN_KEY`
+`ARTIFACTS_UPLOAD_USER=artifacts` and `ARTIFACTS_UPLOAD_KEY`
+`ARTIFACTS_KNOWN_HOSTS` and `ARTIFACTS_CA_CERT`
+`ARTIFACTS_FILESYSTEM_ID` and `ARTIFACTS_MOUNT_TARGET_IP`
+`ARTIFACTS_S3_BUCKET` and optional `ARTIFACTS_AWS_PROFILE`
+
+The CLI exposes corresponding `--artifacts-*` options. S3 verification uses the runner's approved AWS profile/default credential chain, never image-baked credentials. `ARTIFACTS_S3_SYNC_TIMEOUT` bounds eventual readback (default 300 seconds).
 
 [source,bash]
 ----
@@ -119,16 +138,23 @@ make test/artifacts/lifecheck/reboot
 ----
 
 The live lifecheck tests:
+
 * DNS resolution of `redhat.artifacts.testing.farm` to private IP.
 * HTTP port 80 -> HTTPS port 443 redirection.
 * TLS certificate SAN, chain validity, and ciphers.
 * Nginx autoindex directory listing.
 * CORS headers.
 * Rejection of SSH shell requests and unauthorized commands by the image's `rrsync` forced command. Transport errors, authentication failures and timeouts fail these checks.
-* Actual NFS/NFS4 mount presence at `/mnt/s3files` after triggering automount, and write permissions. A local filesystem or unmounted autofs entry does not pass.
+* Actual NFSv4 mount presence at the remotely resolved canonical path (`/mnt/s3files` aliases `/var/mnt/s3files` in the image), with installed S3 Files helper and persistent fstab configuration matching the expected filesystem/IP. Local filesystems, generic NFSv3 and autofs-only entries do not pass. A runtime SOURCE of `127.0.0.1` can be legitimate for the TLS proxy; do not compare it blindly with the mount-target IP.
+* Write permissions of the actual upload identity, verified by successful restricted rsync, not by `test -w` as the administrator.
 * Probe upload via restricted rsync-over-SSH followed by immediate single-attempt HTTPS retrieval (recording latency without retries).
 * Rejection of an rsync download of the verified probe using the upload key, confirming write-only access.
-* (Opt-in) Reboot verification, waiting for a changed boot ID and writable NFS recovery before checking pre-reboot probe persistence and post-reboot upload capability. Unexpected local errors fail immediately rather than being retried as server downtime.
+* Eventual exact probe bytes in the expected backing S3 bucket, supplementing immediate HTTPS visibility. Authorization failures fail immediately; only a missing/stale probe is retried within the synchronization deadline.
+* (Opt-in) Reboot verification, waiting for a changed boot ID and expected NFS recovery before checking pre-reboot probe persistence and new uploader writes. Unexpected local errors fail immediately rather than being retried as server downtime.
+
+Probe cleanup covers partial uploads and all later failure paths; failed cleanup fails the lifecheck rather than only warning. It removes only the run's NFS probe directories. S3 synchronization is asynchronous and a versioned bucket can retain old object versions/delete markers: record owned prefixes from the logs, wait for deletion synchronization and arrange separately approved version cleanup if complete removal is required. The suite does not grant itself bucket-wide delete privileges or silently delete S3 versions.
+
+Offline helper tests do not prove the image's actual IAM/TLS transport or SELinux behavior. Before declaring acceptance, corroborate helper runtime state and enforcing-SELinux NFS serving, then run separately approved missing-storage/fail-closed and path-escape checks. Broader CORS GET/HEAD/OPTIONS/error and gzip checks remain required; reboot/fault tests and any worker canary each need explicit approval.
 
 == Recovery & Troubleshooting
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import ExitStack
 import logging
 from pathlib import Path
 
@@ -17,7 +18,7 @@ from tests.artifacts.helpers import (
     check_mount_status,
     check_restricted_ssh_access,
     check_rsync_write_only,
-    cleanup_probe,
+    cleanup_probe_on_exit,
     create_probe,
     fetch_probe_https,
     get_boot_id,
@@ -25,6 +26,7 @@ from tests.artifacts.helpers import (
     reboot_and_wait,
     resolve_dns,
     upload_probe_rsync,
+    verify_probe_s3,
 )
 
 logger = logging.getLogger(__name__)
@@ -120,10 +122,13 @@ def test_restricted_ssh_rejected(artifacts_config: ArtifactsConfig, artifact_dir
 @pytest.mark.artifacts
 @pytest.mark.live
 def test_mount_status(artifacts_config: ArtifactsConfig, artifact_dir: Path) -> None:
-    """Verify S3 Files NFS mount presence and writeability via admin SSH."""
+    """Verify exact canonical NFSv4 mount presence; rsync separately verifies uploader writes."""
+    assert artifacts_config.filesystem_id and artifacts_config.mount_target_ip, (
+        "Set --artifacts-filesystem-id and --artifacts-mount-target-ip from deployment outputs"
+    )
     res = check_mount_status(config=artifacts_config, mount_point=artifacts_config.mount_point, log_dir=artifact_dir)
     assert res["mount_present"], f"S3 Files NFS mount not found at {artifacts_config.mount_point}: {res.get('stderr')}"
-    assert res["is_writable"], f"{artifacts_config.mount_point} directory is not writable"
+    assert res["expected_backend"], f"Unexpected or nonpersistent storage backend: {res.get('stderr')}"
 
 
 @pytest.mark.artifacts
@@ -135,17 +140,17 @@ def test_probe_upload_and_readback(
 ) -> None:
     """Upload a unique probe via restricted rsync-over-SSH and verify immediate first-attempt HTTPS read-back."""
     probe, temp_dir = probe_workspace
+    assert artifacts_config.s3_bucket, "Set --artifacts-s3-bucket before the upload lifecheck"
 
-    # Upload probe via restricted rsync-over-SSH
-    upload_res = upload_probe_rsync(
-        config=artifacts_config,
-        probe=probe,
-        temp_dir=temp_dir,
-        log_dir=artifact_dir,
-    )
-    assert upload_res.exit_code == 0, f"rsync upload failed (exit {upload_res.exit_code}): {upload_res.stderr}"
+    with cleanup_probe_on_exit(artifacts_config, probe, artifact_dir):
+        upload_res = upload_probe_rsync(
+            config=artifacts_config,
+            probe=probe,
+            temp_dir=temp_dir,
+            log_dir=artifact_dir,
+        )
+        assert upload_res.exit_code == 0, f"rsync upload failed (exit {upload_res.exit_code}): {upload_res.stderr}"
 
-    try:
         # Immediate single-attempt HTTPS retrieval without retry
         status, body, latency_ms, matches = fetch_probe_https(
             config=artifacts_config,
@@ -163,11 +168,7 @@ def test_probe_upload_and_readback(
             f"Write-only rsync restriction not verified (exit {restriction['exit_code']}): "
             f"{restriction['stderr']}"
         )
-    finally:
-        # Confined cleanup of probe directory
-        cleanup_success = cleanup_probe(config=artifacts_config, probe=probe, log_dir=artifact_dir)
-        if not cleanup_success:
-            logger.warning(f"Probe cleanup could not remove {probe.relative_dir}")
+        assert verify_probe_s3(artifacts_config, probe, artifact_dir), "Probe did not synchronize to the expected S3 bucket"
 
 
 @pytest.mark.artifacts
@@ -183,20 +184,22 @@ def test_reboot_and_persistence(
         pytest.skip("Reboot validation is opt-in. Pass --artifacts-allow-reboot to execute.")
 
     probe1, temp_dir = probe_workspace
+    assert artifacts_config.s3_bucket, "Set --artifacts-s3-bucket before reboot validation"
+    assert artifacts_config.filesystem_id and artifacts_config.mount_target_ip, "Configure expected storage identity"
 
-    # 1. Upload pre-reboot probe and verify immediate read-back
-    upload_res = upload_probe_rsync(artifacts_config, probe1, temp_dir, artifact_dir)
-    assert upload_res.exit_code == 0, f"Pre-reboot upload failed: {upload_res.stderr}"
+    with ExitStack() as cleanup:
+        cleanup.enter_context(cleanup_probe_on_exit(artifacts_config, probe1, artifact_dir))
+        upload_res = upload_probe_rsync(artifacts_config, probe1, temp_dir, artifact_dir)
+        assert upload_res.exit_code == 0, f"Pre-reboot upload failed: {upload_res.stderr}"
 
-    status, _, _, matches = fetch_probe_https(artifacts_config, probe1, artifact_dir)
-    assert status == 200 and matches, "Pre-reboot HTTPS fetch failed"
+        status, _, _, matches = fetch_probe_https(artifacts_config, probe1, artifact_dir)
+        assert status == 200 and matches, "Pre-reboot HTTPS fetch failed"
+        assert verify_probe_s3(artifacts_config, probe1, artifact_dir), "Pre-reboot probe is absent from backing S3"
 
-    # 2. Record initial boot ID
-    old_boot_id = get_boot_id(artifacts_config, artifact_dir)
-    assert old_boot_id, "Failed to retrieve initial kernel boot ID"
+        old_boot_id = get_boot_id(artifacts_config, artifact_dir)
+        assert old_boot_id, "Failed to retrieve initial kernel boot ID"
 
-    try:
-        # 3. Trigger reboot and wait for recovery with new boot ID
+        # Trigger reboot only after the first probe is verified.
         reboot_ok, new_boot_id = reboot_and_wait(artifacts_config, old_boot_id, artifact_dir)
         assert reboot_ok, f"Reboot failed or timed out. New boot ID: '{new_boot_id}'"
         assert new_boot_id != old_boot_id, f"Boot ID unchanged after reboot: {new_boot_id}"
@@ -207,12 +210,10 @@ def test_reboot_and_persistence(
 
         # 5. Create and upload post-reboot probe to verify new writes succeed
         probe2 = create_probe(base_dir=temp_dir)
+        cleanup.enter_context(cleanup_probe_on_exit(artifacts_config, probe2, artifact_dir))
         upload2_res = upload_probe_rsync(artifacts_config, probe2, temp_dir, artifact_dir)
         assert upload2_res.exit_code == 0, f"Post-reboot upload failed: {upload2_res.stderr}"
 
         status2, _, _, matches2 = fetch_probe_https(artifacts_config, probe2, artifact_dir)
         assert status2 == 200 and matches2, "Post-reboot probe HTTPS fetch failed"
-    finally:
-        cleanup_probe(artifacts_config, probe1, artifact_dir)
-        if "probe2" in locals():
-            cleanup_probe(artifacts_config, probe2, artifact_dir)
+        assert verify_probe_s3(artifacts_config, probe2, artifact_dir), "Post-reboot probe is absent from backing S3"

@@ -596,13 +596,13 @@ test/terraform/modules:  ## Run terratest tests for Teraform modules
 	env -C terragrunt/modules/gitlab/schedules/test go test -v
 
 test/artifacts/lifecheck: .FORCE  ## Run live lifecheck on Red Hat artifact server
-	poetry run pytest $(PYTEST_OPTIONS) -vvv tests/artifacts/test_lifecheck.py --live-artifacts
+	poetry run python -m pytest $(PYTEST_OPTIONS) -vvv tests/artifacts/test_lifecheck.py --live-artifacts
 
 test/artifacts/lifecheck/reboot: .FORCE  ## Run live lifecheck with opt-in reboot on Red Hat artifact server
-	poetry run pytest $(PYTEST_OPTIONS) -vvv tests/artifacts/test_lifecheck.py --live-artifacts --artifacts-allow-reboot
+	poetry run python -m pytest $(PYTEST_OPTIONS) -vvv tests/artifacts/test_lifecheck.py --live-artifacts --artifacts-allow-reboot
 
 test/artifacts/helpers: .FORCE  ## Run offline unit tests for artifact server lifecheck helpers
-	poetry run pytest $(PYTEST_OPTIONS) -vvv tests/artifacts/test_lifecheck_helpers.py
+	poetry run python -m pytest $(PYTEST_OPTIONS) -vvv tests/artifacts -m 'not live'
 
 generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
 	WORKER=worker-local poetry run python setup/generate_environment.py dev
