@@ -538,3 +538,76 @@ renew/certs:
   rules:
     - !reference [.rules, only_schedule]
     - if: '$SCHEDULED_JOB == "renew/certs"'
+
+# ---------------------------------------------------------------------------
+# RHEL 10 bootc artifact-server image (TFT-4795)
+#
+# All three steps run on Testing Farm, driven from the public cli image:
+#   - container + qcow2 are built by this repo's tmt plans;
+#   - the AMI upload runs testing-farm/tests /testing-farm/upload-qcow2/aws,
+#     which provisions the cnc image (tft-admin) *inside* Testing Farm - so the
+#     GitLab runner never has to pull the private cnc image.
+# See images/bootc-artifacts/README.adoc.
+#
+# Required CI/CD variables:
+#   TESTING_FARM_API_TOKEN_REDHAT  RH ranch token (entitled RHEL bootc base)
+#   QUAY_USERNAME / QUAY_PASSWORD  quay.io credentials for the container push
+#   VAULT_SECRET_ID                Vault secret id for the cloud credentials
+#
+# Manual jobs: the future trigger is still to be decided (it will be a GitLab
+# pipeline in this repo), so for now they are only offered on the default branch.
+# ---------------------------------------------------------------------------
+.artifacts-bootc:
+  stage: deploy
+  image: quay.io/testing-farm/cli:latest
+  variables:
+    # image/artifacts-bootc/* targets live in Makefile.maintainer
+    IS_MAINTAINER: "1"
+  before_script:
+    - export TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT
+  rules:
+    # TEMPORARY (TFT-4795): allow manual runs on the MR to validate the image
+    # build before merge. Revert this commit once merged.
+    - if: $CI_MERGE_REQUEST_IID
+      when: manual
+      allow_failure: true
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+      allow_failure: true
+
+image/artifacts-bootc/container:
+  extends: .artifacts-bootc
+  needs: []
+  script:
+    # Build the base64 registry-auth file AUTH_JSON from QUAY_USERNAME / QUAY_PASSWORD.
+    - export AUTH_JSON=$(printf '{"auths":{"quay.io":{"auth":"%s"}}}' "$(printf '%s:%s' "$QUAY_USERNAME" "$QUAY_PASSWORD" | base64 -w0)" | base64 -w0)
+    - make image/artifacts-bootc/container AUTH_JSON="$AUTH_JSON"
+
+image/artifacts-bootc/qcow2:
+  extends: .artifacts-bootc
+  needs:
+    - job: image/artifacts-bootc/container
+      optional: true
+  script:
+    - export AUTH_JSON=$(printf '{"auths":{"quay.io":{"auth":"%s"}}}' "$(printf '%s:%s' "$QUAY_USERNAME" "$QUAY_PASSWORD" | base64 -w0)" | base64 -w0)
+    - make image/artifacts-bootc/qcow2 AUTH_JSON="$AUTH_JSON"
+
+image/artifacts-bootc/ami:
+  extends: .artifacts-bootc
+  needs:
+    - job: image/artifacts-bootc/qcow2
+      optional: true
+  variables:
+    IMAGE_NAME: artifacts-bootc-x86_64
+    QCOW2_ARCH: x86_64
+  # QCOW2_URL is the qcow2 from the qcow2 build request artifacts; pass it when
+  # triggering this manual job. VAULT_SECRET_ID must be set as a CI/CD variable.
+  script:
+    - >
+      testing-farm request --skip-summary
+      --git-url https://gitlab.com/testing-farm/tests.git --git-ref main
+      -e QCOW2_URL="$QCOW2_URL"
+      -e IMAGE_NAME="$IMAGE_NAME"
+      -e QCOW2_ARCH="$QCOW2_ARCH"
+      -s VAULT_SECRET_ID="$VAULT_SECRET_ID"
+      --plan /testing-farm/upload-qcow2/aws
