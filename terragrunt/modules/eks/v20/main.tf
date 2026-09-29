@@ -322,6 +322,18 @@ resource "kubernetes_storage_class" "gp3" {
   }
 }
 
+resource "helm_release" "aws_load_balancer_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  version    = "3.5.0"
+
+  set {
+    name  = "clusterName"
+    value = var.cluster_name
+  }
+}
+
 resource "kubernetes_namespace" "kube-addons-ns" {
   depends_on = [null_resource.wait_for_cluster_endpoint]
 
