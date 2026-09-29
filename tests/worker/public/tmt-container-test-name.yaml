@@ -56,6 +56,7 @@ checks:
        {{ skipped_testsuite_pattern }}
        {{ skipped_testsuite_pattern }}
        {{ skipped_testsuite_pattern }}
+       {{ skipped_testsuite_pattern }}
        <testsuite name="{{ PLAN }}" result="passed" tests="1" stage="complete">
         <logs>
          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-test-filter{{ '.+' }}{{ PLAN }}/data" name="data"/>
