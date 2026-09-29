@@ -39,15 +39,18 @@
     ansible_distribution_major_version | int > 6
 
 # RHEL 6 workaround
+# Registers its own variable, a skipped task would overwrite `reboot_required`
 - name: Check if reboot is required (RHEL-6)
   ansible.builtin.shell: "[ -z \"$(needs-restarting)\" ] && exit 0 || exit 1"
-  register: reboot_required
-  changed_when: "reboot_required.rc == 1"
-  failed_when: "reboot_required.rc not in (0, 1)"
+  register: reboot_required_rhel6
+  changed_when: "reboot_required_rhel6.rc == 1"
+  failed_when: "reboot_required_rhel6.rc not in (0, 1)"
   when:
-    - "ansible_distribution != \"RedHat\""
+    - "ansible_distribution == \"RedHat\""
     - "ansible_distribution_major_version | int <= 6"
 
 - name: Reboot the machine if required
   ansible.builtin.reboot:
-  when: "reboot_required.rc == 1"
+  when: >-
+    reboot_required is changed or
+    reboot_required_rhel6 is changed
