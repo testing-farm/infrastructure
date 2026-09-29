@@ -1,0 +1,13 @@
+***REMOVED***
+- hosts: all
+  tasks:
+    - include_tasks: update-from-artifacts.yaml
+      when:
+        - UPDATE_FROM_ARTIFACTS
+        - '"auto-osbuild" not in IMAGE_NAME|lower'
+        - '"pfmt" not in IMAGE_NAME|lower'
+        - '"ostree" not in IMAGE_NAME|lower'
+        - '"image-mode" not in IMAGE_NAME|lower'
+***REMOVED*** Buildroot is needed only to install the artifacts, tests must not see it
+***REMOVED*** https://redhat.atlassian.net/browse/TFT-5133
+    - include_tasks: disable-buildroot.yaml
