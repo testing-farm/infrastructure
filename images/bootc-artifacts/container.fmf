@@ -1,0 +1,65 @@
+summary: Build the RHEL 10 bootc artifact-server container image
+
+description: |
+    Build the RHEL 10 image-mode (bootc) artifact storage server container image
+    using the Testing Farm ``/container/build`` test
+    (https://gitlab.com/testing-farm/tests/-/tree/main/container).
+
+    The image is built with ``buildah`` on a Testing Farm guest, from the
+    ``Containerfile`` in this directory, and (with ENABLE_PUSH) pushed to the
+    container registry.
+
+    Required variables:
+
+      TARGET_IMAGE ... The image to build, e.g.
+                       ``quay.io/testing-farm/artifacts-bootc:latest``.
+
+    Optional variables:
+
+      ENABLE_PUSH  ... When set, push TARGET_IMAGE to the registry. Requires AUTH_JSON.
+
+      AUTH_JSON    ... base64 encoded registry authentication file. Sensitive,
+                       pass as a Testing Farm secret (``-s``). Required for ENABLE_PUSH.
+
+      PLATFORMS    ... Platforms to build for, space delimited. By default only
+                       ``linux/amd64`` - the artifact server is a single x86_64 host.
+
+environment:
+  CONTAINER_FILE: Containerfile
+  BUILD_DIR: images/bootc-artifacts
+  CONTEXT_DIR: .
+  TARGET_IMAGE: quay.io/testing-farm/artifacts-bootc:latest
+  PLATFORMS: linux/amd64
+
+discover:
+  how: fmf
+  url: https://gitlab.com/testing-farm/tests
+  test:
+    - /container/build
+  adjust-tests:
+    - duration: 2h
+      because: Building can take a long time, especially if emulating other arches.
+
+prepare:
+  - name: Check for required variables
+    how: shell
+    script: |
+      if [ -z "$TARGET_IMAGE" ]; then
+        echo "[E] Error: no TARGET_IMAGE specified, cannot continue."
+        exit 1
+      fi
+
+  # The base image (images.paas.redhat.com/testingfarm/rhel-bootc:10) lives on an
+  # internal Red Hat registry - trust the Red Hat IT CA so buildah can pull it.
+  - name: Install Red Hat IT CA certificates
+    how: shell
+    script: |
+      curl -kLo /etc/pki/ca-trust/source/anchors/Current-IT-Root-CAs.pem https://certs.corp.redhat.com/certs/Current-IT-Root-CAs.pem
+      update-ca-trust
+
+provision:
+  how: container
+  image: quay.io/buildah/stable
+
+execute:
+  how: tmt
