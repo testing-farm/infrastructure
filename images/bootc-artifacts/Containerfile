@@ -1,0 +1,82 @@
+# RHEL 10 image-mode (bootc) artifact storage server.
+#
+# Serves Testing Farm Red Hat ranch artifacts from an S3 Files (NFS-over-S3)
+# mount at /mnt/s3files via nginx autoindex, accepts uploads over SSH using a
+# restricted rrsync forced command.
+#
+# Plan: TFT-4606. Build: TFT-4795. Deployed by: TFT-4797.
+ARG BASE_IMAGE=images.paas.redhat.com/testingfarm/rhel-bootc:10
+FROM $BASE_IMAGE
+
+RUN <<EOF
+set -euo pipefail
+
+# Core packages.
+#   nginx          - autoindex artifact serving
+#   openssh-server - rrsync upload endpoint
+#   rsync          - rsync utility
+#   rsync-rrsync   - provides /usr/bin/rrsync (restricted rsync forced command)
+#   stunnel        - TLS tunnel for the S3 Files mount helper
+#   nfs-utils      - NFS client for the S3 Files mount
+#
+# NOTE (TFT-4795): amazon-efs-utils is intentionally NOT installed yet.
+# It is the AWS mount helper for S3 Files (NFS-over-S3); without it the
+# /mnt/s3files mount stays a stub (see config/artifacts.mount). To be solved
+# later - do NOT build from source on RHEL 10, the FIPS aws-lc build fails
+# (confirmed in the TFT-4606 spike POC). Install from the AWS prebuilt repo.
+dnf -y install nginx openssh-server rsync rsync-rrsync stunnel nfs-utils openssl
+dnf -y clean all
+
+# nginx serves the S3 Files mount root; create it so nginx starts even before
+# the mount is wired up. On bootc/ostree /mnt is a symlink (to /var/mnt) whose
+# target may not exist yet, so resolve it before mkdir.
+mkdir -p "$(readlink -f /mnt)/s3files"
+
+# Dedicated upload account: no password, no shell (access only via the rrsync
+# forced command in the authorized_keys file).
+useradd --system --create-home --home-dir /var/lib/artifacts \
+    --shell /usr/sbin/nologin artifacts
+
+systemctl enable nginx sshd
+EOF
+
+# nginx: take over the main config (drops the stock default server) plus our
+# autoindex / CORS / HTTP->HTTPS 301 / gzip server blocks.
+COPY config/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY config/nginx/artifacts.conf /etc/nginx/conf.d/artifacts.conf
+
+# sshd: restricted rrsync forced command for the upload key (write-only, no shell).
+COPY config/ssh/sshd_artifacts.conf /etc/ssh/sshd_config.d/10-artifacts.conf
+COPY config/ssh/authorized_keys.artifacts /etc/ssh/artifacts_authorized_keys
+
+# S3 Files mount: intentionally NOT installed yet (stub), see config/artifacts.mount
+# and the amazon-efs-utils note above. TODO(TFT-4795).
+
+# Kernel/network tuning.
+COPY config/sysctl-artifacts.conf /usr/lib/sysctl.d/90-artifacts.conf
+COPY config/kargs-artifacts.toml /usr/lib/bootc/kargs.d/90-artifacts.toml
+COPY config/limits-artifacts.conf /etc/security/limits.d/90-artifacts.conf
+
+RUN <<EOF
+set -euo pipefail
+
+# Lock down the upload authorized_keys file for sshd AuthorizedKeysFile.
+chmod 0644 /etc/ssh/artifacts_authorized_keys
+
+# Self-signed TLS cert so nginx starts and testing is unblocked. The real
+# host-provisioned cert (TFT-4797) overrides these paths on deploy.
+# TODO(TFT-4795): replace with the real certificate.
+mkdir -p /etc/pki/nginx
+openssl req -x509 -nodes -newkey rsa:4096 -days 3650 \
+    -keyout /etc/pki/nginx/artifacts.key \
+    -out /etc/pki/nginx/artifacts.crt \
+    -subj "/CN=redhat.artifacts.testing.farm" \
+    -addext "subjectAltName=DNS:redhat.artifacts.testing.farm"
+chmod 0600 /etc/pki/nginx/artifacts.key
+chmod 0644 /etc/pki/nginx/artifacts.crt
+
+# NOTE: no build-time `nginx -t`. Its config load opens the listen sockets, and
+# :80/:443 are privileged ports the (rootless) build step cannot bind
+# (EACCES). nginx binds fine at runtime, started by systemd as root. Config is
+# validated by goss.yaml and the TFT-4797 lifecheck tests instead.
+EOF

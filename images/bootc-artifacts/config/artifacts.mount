@@ -1,0 +1,21 @@
+# S3 Files (NFS-over-S3) mount for artifact storage. TFT-4795.
+#
+# STUB: disabled until amazon-efs-utils is added to the image (TFT-4795 open
+# item). DNS for *.s3files.*.on.aws is NXDOMAIN in-VPC, so the real unit must
+# mount by mount-target IP with _netdev,nofail,x-systemd.automount.
+#
+# Real unit (to enable once the mount helper and mount-target IP are wired in):
+#   [Unit]
+#   Description=S3 Files artifact mount
+#   [Mount]
+#   What=<MOUNT_TARGET_IP>:/
+#   Where=/mnt/s3files
+#   Type=nfs4
+#   Options=_netdev,nofail
+#   [Install]
+#   WantedBy=remote-fs.target
+#
+# Left inert on purpose - nginx serves the empty /mnt/s3files dir until the
+# mount is enabled. TODO(TFT-4795): replace with the real mount + automount.
+[Unit]
+Description=S3 Files artifact mount (stub - not enabled, see TFT-4795)
