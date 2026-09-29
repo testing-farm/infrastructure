@@ -232,6 +232,12 @@ variable "ansible_vault_secrets_root" {
   type        = string
 }
 
+variable "ansible_vault_password" {
+  description = "Ansible vault password."
+  type        = string
+  sensitive   = true
+}
+
 variable "cluster_name" {
   description = "Name of the EKS cluster."
   type        = string

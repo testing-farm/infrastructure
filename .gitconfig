@@ -4,10 +4,10 @@
 # https://www.giters.com/building5/ansible-vault-tools
 #
 
-[diff "ansible-vault"]
-	textconv = ansible-vault view
-	# Do not cache the vault contents
-	cachetextconv = false
+; [diff "ansible-vault"]
+; 	textconv = ansible-vault view
+; 	# Do not cache the vault contents
+; 	cachetextconv = false
 
 [merge "ansible-vault"]
 	name = ansible-vault merge driver

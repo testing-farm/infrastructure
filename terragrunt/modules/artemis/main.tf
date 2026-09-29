@@ -194,11 +194,6 @@ data "ansiblevault_path" "pool_secret_key_aws" {
   key  = "credentials.aws.profiles.fedora_us_east_2.secret_key"
 }
 
-data "ansiblevault_path" "vault_password" {
-  path = var.ansible_vault_credentials
-  key  = "credentials.vault.password"
-}
-
 data "ansiblevault_path" "vault_ssh_key" {
   count = length(var.ssh_keys)
 
@@ -322,6 +317,6 @@ resource "helm_release" "artemis" {
 
   set_sensitive {
     name  = "artemis.vaultPassword"
-    value = sensitive(data.ansiblevault_path.vault_password.value)
+    value = var.ansible_vault_password
   }
 }
