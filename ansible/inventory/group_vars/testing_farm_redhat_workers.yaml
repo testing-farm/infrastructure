@@ -50,7 +50,7 @@ citool_config_podman_secrets:
   - name: testing-farm-request
     content: |
       [default]
-      api-key = {{ credentials.testing_farm.production.redhat.worker_api_key }}
+      api-key = {{ credentials.testing_farm.production.redhat.users.worker.token }}
     target: /CONFIG-SECRETS/config/testing-farm-request
 
   - name: artemis
