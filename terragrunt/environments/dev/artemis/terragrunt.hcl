@@ -97,6 +97,7 @@ inputs = {
   ansible_vault_password_file = get_env("TF_VAR_ansible_vault_password_file")
   ansible_vault_credentials   = get_env("TF_VAR_ansible_vault_credentials")
   ansible_vault_secrets_root  = get_env("TF_VAR_ansible_vault_secrets_root")
+  ansible_vault_password      = get_env("TF_VAR_ansible_vault_password")
 
   config_root = "${get_original_terragrunt_dir()}/config"
   config_extra_files = [

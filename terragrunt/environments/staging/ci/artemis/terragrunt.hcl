@@ -81,6 +81,7 @@ inputs = {
   ansible_vault_password_file = local.artemis.inputs.ansible_vault_password_file
   ansible_vault_credentials   = local.artemis.inputs.ansible_vault_credentials
   ansible_vault_secrets_root  = local.artemis.inputs.ansible_vault_secrets_root
+  ansible_vault_password      = local.artemis.inputs.ansible_vault_password
 
   # point the config root to the staging artemis instance
   config_root        = "${get_parent_terragrunt_dir()}/artemis/config"
