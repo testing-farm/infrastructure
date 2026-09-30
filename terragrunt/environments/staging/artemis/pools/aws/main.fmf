@@ -24,9 +24,9 @@ security-group: |
 # Image filters
 image-filters:
     - owner: self
-***REMOVED*** Automotive images
+    # Automotive images
     - owner: "587138297281"
-***REMOVED*** Debezium images
+    # Debezium images
     - owner: "133133877115"
-***REMOVED*** Packit Image Builder images
+    # Packit Image Builder images
     - owner: "463606842039"

@@ -44,7 +44,7 @@
     - 'ansible_distribution_major_version == "8"'
     - '"auto-osbuild" not in IMAGE_NAME|lower'
     - '"pfmt" not in IMAGE_NAME|lower'
-***REMOVED*** Do not run on CentOS-8-Stream
+    # Do not run on CentOS-8-Stream
     - not 'stream' in IMAGE_NAME|lower
     - '"composer-api" not in IMAGE_NAME|lower'
     - '"hardened" not in IMAGE_NAME|lower'

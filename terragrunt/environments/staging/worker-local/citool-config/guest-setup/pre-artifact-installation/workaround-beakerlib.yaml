@@ -1,4 +1,4 @@
-***REMOVED***
+---
 # https://issues.redhat.com/browse/TFT-838
 - block:
   - name: Make sure dnf core plugins are installed

@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - hosts: testing_farm_redhat_servers:testing_farm_redhat_workers
   vars_files:
     - ../secrets/credentials.yaml

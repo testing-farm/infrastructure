@@ -78,7 +78,7 @@ renew_cert() {
         --output "$cert_dir/privkey.pem.vault" \
         "$CERTBOT_DIR/live/$domain/privkey.pem"
 
-***REMOVED*** Clean up certbot state for next certificate
+    # Clean up certbot state for next certificate
     rm -rf "$CERTBOT_DIR"
     CERTBOT_DIR=$(mktemp -d)
 }

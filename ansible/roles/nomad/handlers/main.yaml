@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - name: Restart Nomad
   become: true
   service:

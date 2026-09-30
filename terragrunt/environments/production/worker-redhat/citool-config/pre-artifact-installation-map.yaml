@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - rule: "True"
   playbooks:
     - /CONFIG/guest-setup/pre-artifact-installation/entrypoint.yaml

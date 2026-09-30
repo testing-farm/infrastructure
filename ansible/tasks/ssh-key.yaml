@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - name: "Register {{ ansible_user }} user"
   user:
     name: "{{ ansible_user }}"

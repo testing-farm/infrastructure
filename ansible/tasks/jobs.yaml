@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - name: Copy job scripts (dev, staging)
   become: true
   template:

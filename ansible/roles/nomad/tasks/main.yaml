@@ -1,4 +1,4 @@
-***REMOVED***
+---
 # File: main.yaml - Main tasks for Nomad
 
 - name: Include OS variables

@@ -44,9 +44,9 @@ def check_sanity(image: str, available_images: list[str]) -> bool:
 
 
 def update_image(image_name: str, available_images: list[str]) -> Optional[str]:
-***REMOVED*** Construct a regex from the current image to match possible candidates with newer date, e.g.
-***REMOVED*** 'Fedora-Cloud-Base-37-20230803.0.x86_64-hvm-us-east-2-gp3-0' ->
-***REMOVED*** 'Fedora-Cloud-Base-37-(\d{8})\.\d+.x86_64-hvm-us-east-2-gp3-0'
+    # Construct a regex from the current image to match possible candidates with newer date, e.g.
+    # 'Fedora-Cloud-Base-37-20230803.0.x86_64-hvm-us-east-2-gp3-0' ->
+    # 'Fedora-Cloud-Base-37-(\d{8})\.\d+.x86_64-hvm-us-east-2-gp3-0'
     image_regex = re.sub(r'\d{8}(?:.n)?\.\d+', r'(\\d{8}(?:.n)?\\.\\d+)', image_name)
 
     if image_name == image_regex:
@@ -58,19 +58,19 @@ def update_image(image_name: str, available_images: list[str]) -> Optional[str]:
                        'Please investigate and fix manually.[/red]'.format(image_name))
         return None
 
-***REMOVED*** Match all candidates of the same image with different dates
+    # Match all candidates of the same image with different dates
     matched_images = []
     for available_image in available_images:
         if match := re.fullmatch(image_regex, available_image):
             matched_images.append(match)
 
-***REMOVED*** Find the newest one
+    # Find the newest one
     newest_image = None
     for match in matched_images:
         if not newest_image or match.group(1) > newest_image.group(1):
             newest_image = match
 
-***REMOVED*** If the newest one differs from the current one, bump it
+    # If the newest one differs from the current one, bump it
     if newest_image and newest_image.group(0) != image_name:
         print('    📤 Bumped "{}"'.format(image_name))
         print('    📥     to "{}".'.format(newest_image.group(0)))
@@ -100,10 +100,10 @@ def update_variables_images_file(variables_images_filepath: str, available_image
             if updated_image := update_image(compose[arch]['image'], available_images):
                 compose[arch]['image'] = updated_image
 
-***REMOVED*** Save the possibly modified variables images file
+    # Save the possibly modified variables images file
     print('💾 Saving file "{}".'.format(variables_images_filepath))
     tmp_variables_file = tempfile.NamedTemporaryFile(mode='w')
-    print('***REMOVED***', file=tmp_variables_file)
+    print('---', file=tmp_variables_file)
     Y.dump(composes, tmp_variables_file)
     shutil.copy(tmp_variables_file.name, variables_images_filepath)
 

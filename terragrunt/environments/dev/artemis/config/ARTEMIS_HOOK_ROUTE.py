@@ -69,7 +69,7 @@ def policy_prefer_non_metal(
     guest_request: GuestRequest,
 ) -> PolicyReturnType:
 
-***REMOVED*** Do not apply the policy when a pool is requested explicitly.
+    # Do not apply the policy when a pool is requested explicitly.
     if guest_request.environment.pool is not None:
         return pools
 
@@ -96,7 +96,7 @@ def policy_prefer_non_gpu(
     guest_request: GuestRequest,
 ) -> PolicyReturnType:
 
-***REMOVED*** Do not apply the policy when a pool is requested explicitly.
+    # Do not apply the policy when a pool is requested explicitly.
     if guest_request.environment.pool is not None:
         return pools
 

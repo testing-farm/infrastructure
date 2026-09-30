@@ -8,7 +8,7 @@ job "tf-tmt-multihost" {
 
   group "tmt" {
 
-***REMOVED*** Restart up to 2 times
+    # Restart up to 2 times
     restart {
       attempts = 2
     }

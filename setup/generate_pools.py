@@ -9,17 +9,17 @@ environment's artemis directory:
     terragrunt/environments/<env>/artemis/
     ├── config/
     │   ├── server-header.yaml.tftpl   # Static header (users, ssh-keys, etc.)
-    │   └── server.yaml.tftpl      ***REMOVED*** Generated output (header + pools)
+    │   └── server.yaml.tftpl          # Generated output (header + pools)
     └── pools/
         ├── .fmf/version
-        ├── main.fmf               ***REMOVED*** Root defaults (capabilities, etc.)
+        ├── main.fmf                   # Root defaults (capabilities, etc.)
         └── aws/
-            ├── main.fmf           ***REMOVED*** AWS driver defaults (credentials, etc.)
+            ├── main.fmf               # AWS driver defaults (credentials, etc.)
             ├── x86_64/
-            │   ├── main.fmf       ***REMOVED*** x86_64 architecture settings
+            │   ├── main.fmf           # x86_64 architecture settings
             │   └── fedora-aws-x86_64.fmf
             └── aarch64/
-                ├── main.fmf       ***REMOVED*** aarch64 architecture settings
+                ├── main.fmf           # aarch64 architecture settings
                 └── fedora-aws-aarch64.fmf
 
 FMF inheritance allows each leaf node (.fmf file without children) to inherit
@@ -67,7 +67,7 @@ ENVIRONMENTS = [
 ]
 
 # Indentation for parameters under 'parameters:' key
-PARAM_INDENT = '      '***REMOVED*** 6 spaces (2 for pools + 4 for parameters key)
+PARAM_INDENT = '      '    # 6 spaces (2 for pools + 4 for parameters key)
 
 
 app = typer.Typer(
@@ -128,7 +128,7 @@ def _quote_terraform_values(o: Any) -> Any:
         return [_quote_terraform_values(item) for item in o]
 
     if isinstance(o, str) and '${' in o and '\n' not in o:
-    ***REMOVED*** Single-line Terraform template expression - ensure it's quoted
+        # Single-line Terraform template expression - ensure it's quoted
         return ruamel.yaml.scalarstring.DoubleQuotedScalarString(o)
 
     return o
@@ -152,59 +152,59 @@ def generate_pool_text(node: fmf.Tree) -> str:
         print(f'Warning: pool {poolname} has no driver defined', file=sys.stderr)
         driver = 'unknown'
 
-***REMOVED*** Separate raw template keys from regular parameters
+    # Separate raw template keys from regular parameters
     raw_params = {}
     for key in list(data.keys()):
         if key in RAW_TEMPLATE_KEYS and _is_terraform_template(data[key]):
             raw_params[key] = data.pop(key)
 
-***REMOVED*** Quote Terraform template expressions in regular parameters
+    # Quote Terraform template expressions in regular parameters
     data = _quote_terraform_values(data)
 
-***REMOVED*** Build pool entry text manually to control key ordering
+    # Build pool entry text manually to control key ordering
     lines = []
     lines.append(f'  - name: {poolname}')
     lines.append(f'    driver: {driver}')
     lines.append('    parameters:')
 
-***REMOVED*** Serialize regular parameters
+    # Serialize regular parameters
     params_yaml = as_yaml(data).rstrip('\n')
 
-***REMOVED*** Inject raw template parameters at the right position (alphabetically sorted)
+    # Inject raw template parameters at the right position (alphabetically sorted)
     all_param_keys = sorted(list(data.keys()) + list(raw_params.keys()))
 
-***REMOVED*** Re-serialize parameters in sorted order, injecting raw template values
+    # Re-serialize parameters in sorted order, injecting raw template values
     if raw_params:
-    ***REMOVED*** We need to insert the raw template keys in sorted position
-    ***REMOVED*** First, serialize the regular params as a dict
+        # We need to insert the raw template keys in sorted position
+        # First, serialize the regular params as a dict
         regular_yaml_lines = params_yaml.split('\n')
 
-    ***REMOVED*** Find where to insert each raw param
+        # Find where to insert each raw param
         output_param_lines = []
         regular_key_positions = {}
 
-    ***REMOVED*** Parse the regular YAML to find TOP-LEVEL key positions only
-    ***REMOVED*** (lines that start without indentation)
+        # Parse the regular YAML to find TOP-LEVEL key positions only
+        # (lines that start without indentation)
         for i, line in enumerate(regular_yaml_lines):
             if line and not line[0].isspace() and ':' in line:
                 key = line.split(':')[0]
                 regular_key_positions[key] = i
 
-    ***REMOVED*** Interleave regular and raw params in sorted order
+        # Interleave regular and raw params in sorted order
         used_regular_lines = set()
         for key in all_param_keys:
             if key in raw_params:
-            ***REMOVED*** Emit raw template parameter
+                # Emit raw template parameter
                 value = raw_params[key]
-            ***REMOVED*** Strip leading/trailing whitespace from the template value
+                # Strip leading/trailing whitespace from the template value
                 value = value.strip()
                 output_param_lines.append(f'{key}:')
                 for tpl_line in value.split('\n'):
                     output_param_lines.append(f'  {tpl_line}')
             elif key in regular_key_positions:
-            ***REMOVED*** Find all lines belonging to this key
+                # Find all lines belonging to this key
                 start = regular_key_positions[key]
-            ***REMOVED*** Find the end (next top-level key or end of lines)
+                # Find the end (next top-level key or end of lines)
                 end = len(regular_yaml_lines)
                 for next_key in sorted(regular_key_positions.keys()):
                     pos = regular_key_positions[next_key]
@@ -217,7 +217,7 @@ def generate_pool_text(node: fmf.Tree) -> str:
 
         params_yaml = '\n'.join(output_param_lines)
 
-***REMOVED*** Indent parameters content under 'parameters:'
+    # Indent parameters content under 'parameters:'
     for line in params_yaml.split('\n'):
         if line.strip():
             lines.append(PARAM_INDENT + line)
@@ -263,7 +263,7 @@ def generate_server_yaml(env_path: str) -> str:
 
     pools_yaml = generate_pools_yaml(env_path)
 
-***REMOVED*** Ensure header ends with a newline
+    # Ensure header ends with a newline
     if not header.endswith('\n'):
         header += '\n'
 

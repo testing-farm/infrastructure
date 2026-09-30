@@ -79,9 +79,9 @@ def main() -> None:
         if 'No outputs found' in artemis_api_domain:
             raise Exception(f'No Artemis hostname found, "{ARTEMIS_DEPLOYMENT}" not deployed in "{environment}" environment?')
 
-    ***REMOVED*** The Artemis API domain is a freshly created `external-dns` record in Route53. Even after
-    ***REMOVED*** `wait_artemis_available.sh` sees a single successful lookup, DNS can still transiently return
-    ***REMOVED*** NXDOMAIN due to negative caching and Route53 eventual consistency, so retry on failure.
+        # The Artemis API domain is a freshly created `external-dns` record in Route53. Even after
+        # `wait_artemis_available.sh` sees a single successful lookup, DNS can still transiently return
+        # NXDOMAIN due to negative caching and Route53 eventual consistency, so retry on failure.
         about_url = f"http://{artemis_api_domain}/current/about"
         retry_timeout = 300
         start_time = time.monotonic()
@@ -103,7 +103,7 @@ def main() -> None:
             'staging_ci_suffix': f"-{os.getenv('STAGING_CI_SUFFIX')}" if os.getenv('STAGING_CI_SUFFIX') else ''
         })
 
-***REMOVED*** Create .generated directory with secrets used for citool-config container image tests
+    # Create .generated directory with secrets used for citool-config container image tests
     source_dirpath = os.path.join('terragrunt', 'environments', environment, WORKER, 'citool-config')
     citool_config_secrets_dirpath = os.path.join('.generated', environment, WORKER, 'citool-config')
     os.makedirs(citool_config_secrets_dirpath, exist_ok=True)
@@ -130,8 +130,8 @@ def main() -> None:
 
     decrypted_data = vault.decrypt(ssh_key_encrypted)
 
-***REMOVED*** Decrypted key must exist in both locations: the original citool-config directory
-***REMOVED*** (used by the local directory workflow) and .generated/ (used by the config image workflow).
+    # Decrypted key must exist in both locations: the original citool-config directory
+    # (used by the local directory workflow) and .generated/ (used by the config image workflow).
     for decrypted_path in (
         f'{worker_artemis_ssh_key}.decrypted',
         os.path.join(citool_config_secrets_dirpath, 'id_rsa_artemis.decrypted'),
@@ -142,12 +142,12 @@ def main() -> None:
         print(f'Setting permissions of "{decrypted_path}" to 600')
         os.chmod(decrypted_path, stat.S_IRUSR | stat.S_IWUSR)
 
-***REMOVED*** Generate config files for CONFIG-SECRETS mount
+    # Generate config files for CONFIG-SECRETS mount
     secrets_config_dir = os.path.join(citool_config_secrets_dirpath, 'config')
     os.makedirs(secrets_config_dir, exist_ok=True)
 
-***REMOVED*** Resolve the API key from credentials
-***REMOVED*** NOTE: dev local environment uses staging TF API
+    # Resolve the API key from credentials
+    # NOTE: dev local environment uses staging TF API
     environment_credentials = environment
     if environment == 'dev' and WORKER == 'worker-local':
         environment_credentials = 'staging'

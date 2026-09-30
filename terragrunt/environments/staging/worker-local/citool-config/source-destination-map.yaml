@@ -1,4 +1,4 @@
-***REMOVED***
+---
 #
 # The map file is used by archive module to map source to destination
 # and optionally set permissions.
@@ -41,8 +41,8 @@ progress:
 destroy:
   - source: "./*"
     exclude:
-  ***REMOVED*** tmt test source clone, `git-<ref>` in the pipeline root. Exclude patterns are
-  ***REMOVED*** matched against the full `./*` glob result, hence the `./` prefix.
+      # tmt test source clone, `git-<ref>` in the pipeline root. Exclude patterns are
+      # matched against the full `./*` glob result, hence the `./` prefix.
       - "^\\./git-"
     permissions: "777"
 

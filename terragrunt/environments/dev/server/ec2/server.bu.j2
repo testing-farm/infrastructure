@@ -10,9 +10,9 @@ passwd:
         - ansible/secrets/ssh/id_rsa_public_worker.pub
 storage:
   files:
-***REMOVED*** Disable auto-updates, we cannot currently do this now with a single server
-***REMOVED*** https://docs.fedoraproject.org/en-US/fedora-coreos/auto-updates/
-***REMOVED*** https://coreos.github.io/zincati/usage/auto-updates/#disabling-auto-updates
+    # Disable auto-updates, we cannot currently do this now with a single server
+    # https://docs.fedoraproject.org/en-US/fedora-coreos/auto-updates/
+    # https://coreos.github.io/zincati/usage/auto-updates/#disabling-auto-updates
     - path: /etc/zincati/config.d/90-disable-auto-updates.toml
       contents:
         inline: |

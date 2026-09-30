@@ -1,4 +1,4 @@
-***REMOVED***
+---
 default:
   image: quay.io/testing-farm/python-ci-image:latest
 
@@ -13,31 +13,31 @@ variables:
 
 workflow:
   rules:
-***REMOVED*** for merge requests
+    # for merge requests
     - if: $CI_MERGE_REQUEST_ID
-***REMOVED*** for the tip of the default branch
+    # for the tip of the default branch
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-***REMOVED*** for schedules
+    # for schedules
     - if: $CI_PIPELINE_SOURCE == "schedule"
 
 .rules:
   not_default_branch:
-***REMOVED*** do not run for default branch
+    # do not run for default branch
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: never
 
   not_schedule:
-***REMOVED*** do not run for schedules
+    # do not run for schedules
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
 
   only_default_branch:
-***REMOVED*** run only for default branch
+    # run only for default branch
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
       when: never
 
   only_schedule:
-***REMOVED*** run only for schedule
+    # run only for schedule
     - if: $CI_PIPELINE_SOURCE != "schedule"
       when: never
 
@@ -92,11 +92,11 @@ workflow:
   terragrunt_dev:
     - !reference [.rules, terragrunt_testing_farm]
     - changes:
-    ***REMOVED*** NOTE: need to be explicit here, no nice excludes supported yet
-    ***REMOVED*** We do not run this when variables-composes changed for example
-    ***REMOVED*** https://gitlab.com/gitlab-org/gitlab/-/issues/198688
-    ***REMOVED***
-    ***REMOVED*** NOTE: we do not want this run on config changes, validation is done against staging
+        # NOTE: need to be explicit here, no nice excludes supported yet
+        # We do not run this when variables-composes changed for example
+        # https://gitlab.com/gitlab-org/gitlab/-/issues/198688
+        #
+        # NOTE: we do not want this run on config changes, validation is done against staging
         - terragrunt/environments/dev/*/terragrunt.hcl
         - terragrunt/environments/dev/artemis/**/*
         - terragrunt/environments/dev/server/**/*
@@ -110,9 +110,9 @@ workflow:
   terragrunt_staging_ci:
     - !reference [.rules, terragrunt_testing_farm]
     - changes:
-    ***REMOVED*** The staging-ci environment sources its config from these shared
-    ***REMOVED*** staging dirs (e.g. ci/server symlinks to ../../server), so changes
-    ***REMOVED*** there must trigger the staging-ci integration tests too.
+        # The staging-ci environment sources its config from these shared
+        # staging dirs (e.g. ci/server symlinks to ../../server), so changes
+        # there must trigger the staging-ci integration tests too.
         - terragrunt/environments/staging/artemis/**/*
         - terragrunt/environments/staging/server/**/*
         - terragrunt/environments/staging/worker-local/**/*
@@ -200,15 +200,15 @@ pre-commit:
   extends: .direnv
   stage: test
   variables:
-***REMOVED*** Disable parallelism on all levels to mitigate test flakes
+    # Disable parallelism on all levels to mitigate test flakes
     GOMAXPROCS: 1
     TF_PARALLELISM: 1
     TERRAGRUNT_PARALLELISM: 1
   script:
     - !reference [.direnv, script]
-***REMOVED*** Need to init the modules, or pre-commit terragrunt_validate will fail :(
+    # Need to init the modules, or pre-commit terragrunt_validate will fail :(
     - make -j4 dev/init staging/init staging/init/ci production/init
-***REMOVED*** Check if no changes after init (replacement for unstable terragrunt_validate pre-commit hook)
+    # Check if no changes after init (replacement for unstable terragrunt_validate pre-commit hook)
     - "if ! git diff; then echo 'Error: terragrunt init shows some changes.'; exit 1; fi"
     - pre-commit run --config .pre-commit-config-maintainer.yaml --all-files
   rules:
@@ -477,7 +477,7 @@ deploy/production:
   extends: .direnv
   stage: deploy
   needs:
-***REMOVED*** NOTE: prevent artifacts to be copied from dependant jobs, we want a fresh direnv setup here
+    # NOTE: prevent artifacts to be copied from dependant jobs, we want a fresh direnv setup here
     - job: deploy/staging
       optional: true
       artifacts: false
@@ -509,9 +509,9 @@ renew/certs:
   stage: deploy
   script:
     - !reference [.direnv, script]
-***REMOVED*** Renews the staging and staging-ci Let's Encrypt wildcard certs via DNS-01
-***REMOVED*** (Route53) and opens an MR with the re-encrypted vault files. Merge then
-***REMOVED*** redeploy staging to bake the new certs into the server ignition.
+    # Renews the staging and staging-ci Let's Encrypt wildcard certs via DNS-01
+    # (Route53) and opens an MR with the re-encrypted vault files. Merge then
+    # redeploy staging to bake the new certs into the server ignition.
     - setup/renew_certs.sh
   rules:
     - !reference [.rules, only_schedule]

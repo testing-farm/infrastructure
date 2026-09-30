@@ -1,4 +1,4 @@
-***REMOVED***
+---
 
 - rule: >
     EXISTS('TMT_PLUGIN_REPORT_REPORTPORTAL_TOKEN')

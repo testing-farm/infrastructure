@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - block:
   - name: set hostname
     hostname:

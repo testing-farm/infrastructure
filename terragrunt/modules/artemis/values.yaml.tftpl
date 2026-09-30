@@ -1,6 +1,6 @@
 ## Artemis-specific options
 ##
-***REMOVED***
+artemis:
   image:
     tag: ${artemis_image_tag}
 
@@ -25,8 +25,8 @@
     service:
       annotations:
         external-dns.alpha.kubernetes.io/hostname: ${artemis_api_domain}
-    ***REMOVED*** Use a separately managed security group instead of loadBalancerSourceRanges
-    ***REMOVED*** https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/service/annotations/#security-groups
+        # Use a separately managed security group instead of loadBalancerSourceRanges
+        # https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/service/annotations/#security-groups
         service.beta.kubernetes.io/aws-load-balancer-security-groups: ${artemis_api_lb_security_group_id}
       type: LoadBalancer
       port: 80

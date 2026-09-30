@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - block:
   - name: disable systemd-resolved
     command: "systemctl disable systemd-resolved"

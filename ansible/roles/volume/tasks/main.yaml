@@ -1,4 +1,4 @@
-***REMOVED***
+---
 # The tasks configures additional attached volume
 - when:
     - volume_attached_device is defined
@@ -16,7 +16,7 @@
       set_fact:
         partition: "1"
 
-***REMOVED*** NVMe volumes have different partition name
+    # NVMe volumes have different partition name
     - name: Set partition fact (NVMe)
       set_fact:
         partition: "p1"
@@ -25,7 +25,7 @@
     - name: Create the fileystem
       filesystem:
         fstype: ext4
-***REMOVED*** "{{ volume_attached_device }}{{ partition }}"
+        dev: "{{ volume_attached_device }}{{ partition }}"
 
     - name: Make sure mounting directory exists
       file:

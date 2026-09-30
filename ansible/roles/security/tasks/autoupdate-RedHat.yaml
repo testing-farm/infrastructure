@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - name: Set correct automatic update utility vars (RHEL 8).
   set_fact:
     update_utility: dnf-automatic

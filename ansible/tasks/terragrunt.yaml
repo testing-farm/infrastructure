@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - block:
     - command: "bash -c pwd"
       args:

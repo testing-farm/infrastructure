@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - hosts: localhost
   vars_files:
     - ../secrets/credentials.yaml

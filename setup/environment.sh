@@ -113,7 +113,7 @@ if [ ! -e "$TOOLS_PATH/kubectl" ]; then
     curl -sLo $TOOLS_PATH/kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/kubectl
     chmod +x $TOOLS_PATH/kubectl
 
-***REMOVED*** download and install krew
+    # download and install krew
     export KREW_ROOT=$DIRENV_PATH/.krew/
     PATH_add $DIRENV_PATH/.krew/bin
 
@@ -140,13 +140,13 @@ if [ ! -e "$SSH_CONFIG" ]; then
 
     info "setup ssh config"
 
-***REMOVED***
-***REMOVED*** create ssh config
-***REMOVED***
-***REMOVED*** Fetch inventory once and extract all host vars in a single pass
-***REMOVED*** Workaround for ansible-core bug where `ansible-inventory --list` wraps
-***REMOVED*** values in `{"__ansible_unsafe": "..."}` objects in JSON output.
-***REMOVED*** https://github.com/ansible/ansible/issues/82999
+    #
+    # create ssh config
+    #
+    # Fetch inventory once and extract all host vars in a single pass
+    # Workaround for ansible-core bug where `ansible-inventory --list` wraps
+    # values in `{"__ansible_unsafe": "..."}` objects in JSON output.
+    # https://github.com/ansible/ansible/issues/82999
     INVENTORY_JSON=$(ansible-inventory --list | jq 'walk(if type == "object" and has("__ansible_unsafe") then .__ansible_unsafe else . end)')
 
     PUBLIC_WORKERS=$(jq -r '.testing_farm_public_workers.hosts // [] | join(" ")' <<< "$INVENTORY_JSON")
@@ -154,7 +154,7 @@ if [ ! -e "$SSH_CONFIG" ]; then
     REDHAT_WORKERS=$(jq -r '.testing_farm_redhat_workers.hosts // [] | join(" ")' <<< "$INVENTORY_JSON")
     REDHAT_SERVERS=$(jq -r '.testing_farm_redhat_servers.hosts // [] | join(" ")' <<< "$INVENTORY_JSON")
 
-***REMOVED*** decrypt all ssh keys
+    # decrypt all ssh keys
     for key in $(find ansible/secrets/ssh/* -maxdepth 1 ! -name '*.pub' ! -name '*.decrypted'); do
         ansible-vault decrypt --vault-password-file $PROJECT_ROOT/.vault_pass --output ${key}.decrypted $key &>> $LOG
     done

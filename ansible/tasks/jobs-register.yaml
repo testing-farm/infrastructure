@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - block:
     - name: Create directory with nomad job definitions
       file:

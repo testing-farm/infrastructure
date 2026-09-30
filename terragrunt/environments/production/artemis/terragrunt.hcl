@@ -132,26 +132,26 @@ inputs = {
   dispatcher_replicas = 5
 
   worker_extra_env = [
-***REMOVED*** Pin the worker log level. The `artemis-core` chart never renders `ARTEMIS_LOG_LEVEL`,
-***REMOVED*** so `logging.level` in `terragrunt/modules/artemis/values.yaml.tftpl` has no effect. A
-***REMOVED*** `kubectl` edit from 2025-07-31 left `debug` on the live worker deployment, and because
-***REMOVED*** Helm merges `env` by `name` and keeps entries it never owned, that drift survived every
-***REMOVED*** upgrade since. Rendering the name here makes Helm own it again.
-***REMOVED***
-***REMOVED*** Debug records exceed `PIPE_BUF` (4096), so the worker threads in each dramatiq child
-***REMOVED*** tear frames on its length-framed log pipe and deadlock the pod. See TFT-5005, TFT-5004.
+    # Pin the worker log level. The `artemis-core` chart never renders `ARTEMIS_LOG_LEVEL`,
+    # so `logging.level` in `terragrunt/modules/artemis/values.yaml.tftpl` has no effect. A
+    # `kubectl` edit from 2025-07-31 left `debug` on the live worker deployment, and because
+    # Helm merges `env` by `name` and keeps entries it never owned, that drift survived every
+    # upgrade since. Rendering the name here makes Helm own it again.
+    #
+    # Debug records exceed `PIPE_BUF` (4096), so the worker threads in each dramatiq child
+    # tear frames on its length-framed log pipe and deadlock the pod. See TFT-5005, TFT-5004.
     {
       name  = "ARTEMIS_LOG_LEVEL",
       value = "info"
     },
-***REMOVED*** Do not use separate thread for task, keep it in main dramatiq worker thread.
-***REMOVED*** This should prevent race conditions observed in some deployments.
+    # Do not use separate thread for task, keep it in main dramatiq worker thread.
+    # This should prevent race conditions observed in some deployments.
     {
       name  = "ARTEMIS_OFFLOAD_TASKS",
       value = "false"
     },
-***REMOVED*** Keep retrying releasing resources to mitigate security group leftovers when VM is not released in time.
-***REMOVED*** 32 attempts with exponential backoff with max. 1h timeout for approx. 25h before giving up.
+    # Keep retrying releasing resources to mitigate security group leftovers when VM is not released in time.
+    # 32 attempts with exponential backoff with max. 1h timeout for approx. 25h before giving up.
     {
       name  = "ARTEMIS_ACTOR_RELEASE_POOL_RESOURCES_RETRIES",
       value = "32"

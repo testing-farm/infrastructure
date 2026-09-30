@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - block:
     - name: "Install required packages podman, cronie, policycoreutils-python-utils and prometheus-podman-exporter"
       package:
@@ -38,7 +38,7 @@
 
     - name: "Relabel all files"
       command: "restorecon -RvvF {{ container_storage_path }}"
-  ***REMOVED*** not needed if updating podman config, important during first deployment
+      # not needed if updating podman config, important during first deployment
       when: "'update_podman' not in ansible_run_tags"
 
     - name: "Add crontab for cleaning up podman"

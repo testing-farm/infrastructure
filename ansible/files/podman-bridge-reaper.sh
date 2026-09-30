@@ -29,8 +29,8 @@ network_names=$(podman network ls --quiet)
 # The default `podman0` is always protected, even before any container attaches.
 declare -A owned=([podman0]=1)
 if [[ -n $network_names ]]; then
-***REMOVED*** Capture via command substitution (not process substitution) so a failing
-***REMOVED*** inspect aborts via `set -e` before any deletion -- fail closed.
+    # Capture via command substitution (not process substitution) so a failing
+    # inspect aborts via `set -e` before any deletion -- fail closed.
     network_interfaces=$(podman network inspect --format '{{.NetworkInterface}}' $network_names)
     while read -r iface; do
         [[ -n $iface ]] && owned[$iface]=1
@@ -42,10 +42,10 @@ for path in /sys/class/net/podman[0-9]*; do
     bridge=${path##*/}
 
     [[ $bridge =~ ^podman[0-9]+$ ]] || continue   # numeric `podmanN` only
-    [[ -v owned[$bridge] ]] && continue       ***REMOVED*** owned by a podman network
+    [[ -v owned[$bridge] ]] && continue           # owned by a podman network
 
     members=("$path/brif/"*)
-    (( ${#members[@]} )) && continue          ***REMOVED*** a container is attached
+    (( ${#members[@]} )) && continue              # a container is attached
 
     if ip link delete "$bridge"; then
         echo "reaped orphan podman bridge: $bridge"

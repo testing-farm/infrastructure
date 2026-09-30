@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - name: Enable epel on CentOS Stream
   command: "dnf config-manager --enable epel"
   when:

@@ -120,14 +120,14 @@ inputs = {
   dispatcher_replicas = 1
 
   worker_extra_env = [
-***REMOVED*** Do not use separate thread for task, keep it in main dramatiq worker thread.
-***REMOVED*** This should prevent race conditions observed in some deployments.
+    # Do not use separate thread for task, keep it in main dramatiq worker thread.
+    # This should prevent race conditions observed in some deployments.
     {
       name  = "ARTEMIS_OFFLOAD_TASKS",
       value = "false"
     },
-***REMOVED*** Keep retrying releasing resources to mitigate security group leftovers when VM is not released in time.
-***REMOVED*** 32 attempts with exponential backoff with max. 1h timeout for approx. 25h before giving up.
+    # Keep retrying releasing resources to mitigate security group leftovers when VM is not released in time.
+    # 32 attempts with exponential backoff with max. 1h timeout for approx. 25h before giving up.
     {
       name  = "ARTEMIS_ACTOR_RELEASE_POOL_RESOURCES_RETRIES",
       value = "32"

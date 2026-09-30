@@ -8,7 +8,7 @@ job "tf-tmt-container" {
 
   group "tmt" {
 
-***REMOVED*** Restart up to 2 times
+    # Restart up to 2 times
     restart {
       attempts = 2
     }
@@ -17,8 +17,8 @@ job "tf-tmt-container" {
       attempts = 2
     }
 
-***REMOVED*** Containers can take a lot of space, especially if they download a lot of data
-***REMOVED*** Set to 50GB now
+    # Containers can take a lot of space, especially if they download a lot of data
+    # Set to 50GB now
     ephemeral_disk {
       size = "50000"
     }
