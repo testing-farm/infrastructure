@@ -11,8 +11,8 @@
         - '"auto-osbuild" not in IMAGE_NAME|lower'
         - '"pfmt" not in IMAGE_NAME|lower'
         - '"image-mode" not in IMAGE_NAME|lower'
-***REMOVED*** DO NOT ENABLE BY DEFAULT, IT BREAKS PYTHON TEST SUITE (and can others)
-***REMOVED*** - include_tasks: nosync.yaml
+    # DO NOT ENABLE BY DEFAULT, IT BREAKS PYTHON TEST SUITE (and can others)
+    # - include_tasks: nosync.yaml
     - name: testing_farm_profiles.library.update_and_reboot
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
@@ -21,8 +21,8 @@
       ansible.builtin.include_role:
         name: testing_farm_profiles.library.update_and_reboot
       vars:
-    ***REMOVED*** Bare metal guests power-cycle the platform on reboot, firmware POST alone
-    ***REMOVED*** takes up to ~820 seconds on the older instance generations in our pools
+        # Bare metal guests power-cycle the platform on reboot, firmware POST alone
+        # takes up to ~820 seconds on the older instance generations in our pools
         update_and_reboot_task_reboot_timeout: 1200
     - include_tasks: workaround-fedora-eln.yaml
     - include_tasks: workaround-fedora-rawhide.yaml
@@ -63,8 +63,8 @@
         - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.library.koji
-***REMOVED*** For EOL distros this can fail, ignore the fact tag repo is not around
-***REMOVED*** It is considered a nice to have, but should not fail the setup.
+    # For EOL distros this can fail, ignore the fact tag repo is not around
+    # It is considered a nice to have, but should not fail the setup.
     - name: testing_farm_profiles.repository.tag_repository
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
@@ -79,5 +79,5 @@
       ansible.builtin.include_role:
         name: testing_farm_profiles.library.time
       vars:
-    ***REMOVED*** https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configure-ec2-ntp.html
+        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configure-ec2-ntp.html
         time_ntp_server: 169.254.169.123

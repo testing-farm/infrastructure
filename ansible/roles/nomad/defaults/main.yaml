@@ -1,4 +1,4 @@
-***REMOVED***
+---
 ## Core
 nomad_debug: false
 nomad_node_role: "both"

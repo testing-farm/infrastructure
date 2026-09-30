@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - block:
   - name: Add RHEL7 updates Extras repository
     yum_repository:

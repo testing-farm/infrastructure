@@ -6,7 +6,7 @@ terraform {
       version = ">=2.2.0"
     }
     aws = {
-  ***REMOVED*** EKS module v20 requires AWS provider >= 5.34.
+      # EKS module v20 requires AWS provider >= 5.34.
       version = ">=5.34.0, <6.0.0"
     }
     helm = {
@@ -103,19 +103,19 @@ module "eks" {
       most_recent = true
       configuration_values = jsonencode({
         controller = {
-      ***REMOVED*** tags to apply for each created EBS volume
-      ***REMOVED*** https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/tagging.md
+          # tags to apply for each created EBS volume
+          # https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/tagging.md
           extraVolumeTags = var.resource_tags
-      ***REMOVED*** support volume modifications via PVC annotations
-      ***REMOVED*** https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/modify-volume.md
+          # support volume modifications via PVC annotations
+          # https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/modify-volume.md
           volumeModificationFeature = {
             enabled = true
           }
         }
       })
     }
-***REMOVED*** Convert self-managed components to managed addons for automatic
-***REMOVED*** version compatibility on EKS upgrades
+    # Convert self-managed components to managed addons for automatic
+    # version compatibility on EKS upgrades
     coredns = {
       most_recent = true
     }
@@ -127,7 +127,7 @@ module "eks" {
       most_recent    = true
       before_compute = var.addons_before_compute
     }
-***REMOVED*** Enable kubectl top and HPA support
+    # Enable kubectl top and HPA support
     eks-pod-identity-agent = {
       most_recent = true
     }
@@ -166,9 +166,9 @@ module "eks" {
 
       tags = var.resource_tags
 
-  ***REMOVED*** AL2 uses the Amazon-managed launch template where `disk_size` works.
-  ***REMOVED*** AL2023 requires a custom launch template where `disk_size` is ignored,
-  ***REMOVED*** so we specify the root volume via `block_device_mappings` instead.
+      # AL2 uses the Amazon-managed launch template where `disk_size` works.
+      # AL2023 requires a custom launch template where `disk_size` is ignored,
+      # so we specify the root volume via `block_device_mappings` instead.
       use_custom_launch_template = var.node_group_ami_type != "AL2_x86_64"
       block_device_mappings = var.node_group_ami_type != "AL2_x86_64" ? {
         xvda = {
@@ -180,16 +180,16 @@ module "eks" {
         }
       } : {}
 
-  ***REMOVED*** Put ephemeral CI I/O (containerd image layers, kubelet emptyDirs and
-  ***REMOVED*** build dirs) on the instance-store NVMe instead of the EBS root volume.
-  ***REMOVED*** nodeadm RAID0s the local disk(s) and bind-mounts /var/lib/containerd
-  ***REMOVED*** and /var/lib/kubelet onto it before kubelet starts. Requires an
-  ***REMOVED*** instance type with instance storage (e.g. c6id.*); a no-op otherwise.
+      # Put ephemeral CI I/O (containerd image layers, kubelet emptyDirs and
+      # build dirs) on the instance-store NVMe instead of the EBS root volume.
+      # nodeadm RAID0s the local disk(s) and bind-mounts /var/lib/containerd
+      # and /var/lib/kubelet onto it before kubelet starts. Requires an
+      # instance type with instance storage (e.g. c6id.*); a no-op otherwise.
       cloudinit_pre_nodeadm = var.node_group_ami_type != "AL2_x86_64" ? [
         {
           content_type = "application/node.eks.aws"
           content      = <<-EOT
-            ***REMOVED***
+            ---
             apiVersion: node.eks.aws/v1alpha1
             kind: NodeConfig
             spec:

@@ -1,4 +1,4 @@
-***REMOVED***
+---
 
 - name: Install dnf-utils (CentOS >= 8, RHEL >= 8, Fedora)
   ansible.builtin.package:

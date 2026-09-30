@@ -35,7 +35,7 @@ process_record() {
 
     echo "    [+] Processing record: $record_name"
 
-***REMOVED*** Get all records with this name (there might be multiple types)
+    # Get all records with this name (there might be multiple types)
     echo "$records" | jq -c ".ResourceRecordSets[] | select(.Name == \"$record_name\")" | while read -r record_details; do
         record_type=$(echo "$record_details" | jq -r ".Type")
 
@@ -44,7 +44,7 @@ process_record() {
             continue
         fi
 
-    ***REMOVED*** Create change batch for deletion
+        # Create change batch for deletion
         change_batch=$(echo "$record_details" | jq '{
             Changes: [{
                 Action: "DELETE",
@@ -57,7 +57,7 @@ process_record() {
         else
             echo "    [+] Deleting $record_type record: $record_name"
 
-        ***REMOVED*** Execute the deletion
+            # Execute the deletion
             change_id=$(aws --profile "$profile" route53 change-resource-record-sets \
                 --hosted-zone-id "$zone_id" \
                 --change-batch "$change_batch" \
@@ -83,23 +83,23 @@ while true; do
     batch_count=$((batch_count + 1))
     echo "  [+] Processing batch $batch_count..."
 
-***REMOVED*** Build command with or without pagination token
+    # Build command with or without pagination token
     if [ -n "$next_token" ]; then
         records=$(aws --profile "$profile" route53 list-resource-record-sets --hosted-zone-id "$zone_id" --max-items $BATCH_SIZE --starting-token "$next_token" --output json)
     else
         records=$(aws --profile "$profile" route53 list-resource-record-sets --hosted-zone-id "$zone_id" --max-items $BATCH_SIZE --output json)
     fi
 
-***REMOVED*** Find records matching our patterns in this batch
+    # Find records matching our patterns in this batch
     staging_records=$(echo "$records" | jq -r ".ResourceRecordSets[]? | select(.Name | test(\"$staging_pattern\")) | .Name")
     gitlab_ci_records=$(echo "$records" | jq -r ".ResourceRecordSets[]? | select(.Name | test(\"$gitlab_ci_pattern\")) | .Name")
 
-***REMOVED*** Combine records from this batch
+    # Combine records from this batch
     batch_records=$(echo -e "$staging_records\n$gitlab_ci_records" | grep -v "^$" | sort -u)
 
     if [ -z "$batch_records" ]; then
         echo "  [+] No matching records found in batch $batch_count"
-    ***REMOVED*** Check if there are more pages
+        # Check if there are more pages
         next_token=$(echo "$records" | jq -r ".NextToken // empty")
         if [ -z "$next_token" ]; then
             break
@@ -109,14 +109,14 @@ while true; do
 
     echo "  [+] Found $(echo "$batch_records" | wc -l) records to process in batch $batch_count"
 
-***REMOVED*** Process each matching record in this batch
+    # Process each matching record in this batch
     echo "$batch_records" | while read -r record_name; do
         if [ -n "$record_name" ]; then
             process_record "$record_name" "$records"
         fi
     done
 
-***REMOVED*** Check if there are more pages
+    # Check if there are more pages
     next_token=$(echo "$records" | jq -r ".NextToken // empty")
     if [ -z "$next_token" ]; then
         break

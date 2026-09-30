@@ -1,4 +1,4 @@
-***REMOVED***
+---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -12,7 +12,7 @@ repos:
       - id: check-yaml
         args:
           - "--allow-multiple-documents"
-      ***REMOVED*** https://github.com/pre-commit/pre-commit-hooks/issues/273
+          # https://github.com/pre-commit/pre-commit-hooks/issues/273
           - "--unsafe"
         exclude: ^images/bootc/goss.yaml
       - id: detect-private-key
@@ -29,9 +29,9 @@ repos:
     hooks:
       - id: ansible-lint
         args: ["--profile", "min"]
-    ***REMOVED*** `ansible-compat` refuses to import on Python 3.14 with anything older
-    ***REMOVED*** than `ansible-core` 2.20, and we pin `<2.19` below. Freeze the hook
-    ***REMOVED*** interpreter until we can lift that pin.
+        # `ansible-compat` refuses to import on Python 3.14 with anything older
+        # than `ansible-core` 2.20, and we pin `<2.19` below. Freeze the hook
+        # interpreter until we can lift that pin.
         language_version: python3.12
         additional_dependencies:
           - ansible-core<2.19
@@ -71,7 +71,7 @@ repos:
       - id: terraform_tfsec
         exclude: |
           (?x)^(
-        ***REMOVED*** well, tfsec does know nothing about terragrunt inputs :(
+            # well, tfsec does know nothing about terragrunt inputs :(
             terragrunt/environments/.*/server/ec2/.*
           )$
       - id: terragrunt_fmt

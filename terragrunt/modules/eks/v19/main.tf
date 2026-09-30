@@ -90,19 +90,19 @@ module "eks" {
       most_recent = true
       configuration_values = jsonencode({
         controller = {
-      ***REMOVED*** tags to apply for each created EBS volume
-      ***REMOVED*** https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/tagging.md
+          # tags to apply for each created EBS volume
+          # https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/tagging.md
           extraVolumeTags = var.resource_tags
-      ***REMOVED*** support volume modifications via PVC annotations
-      ***REMOVED*** https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/modify-volume.md
+          # support volume modifications via PVC annotations
+          # https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/modify-volume.md
           volumeModificationFeature = {
             enabled = true
           }
         }
       })
     }
-***REMOVED*** Convert self-managed components to managed addons for automatic
-***REMOVED*** version compatibility on EKS upgrades
+    # Convert self-managed components to managed addons for automatic
+    # version compatibility on EKS upgrades
     coredns = {
       most_recent = true
     }
@@ -114,7 +114,7 @@ module "eks" {
       most_recent    = true
       before_compute = var.addons_before_compute
     }
-***REMOVED*** Enable kubectl top and HPA support
+    # Enable kubectl top and HPA support
     eks-pod-identity-agent = {
       most_recent = true
     }
@@ -153,9 +153,9 @@ module "eks" {
 
       tags = var.resource_tags
 
-  ***REMOVED*** AL2 uses the Amazon-managed launch template where `disk_size` works.
-  ***REMOVED*** AL2023 requires a custom launch template where `disk_size` is ignored,
-  ***REMOVED*** so we specify the root volume via `block_device_mappings` instead.
+      # AL2 uses the Amazon-managed launch template where `disk_size` works.
+      # AL2023 requires a custom launch template where `disk_size` is ignored,
+      # so we specify the root volume via `block_device_mappings` instead.
       use_custom_launch_template = var.node_group_ami_type != "AL2_x86_64"
       block_device_mappings = var.node_group_ami_type != "AL2_x86_64" ? {
         xvda = {
@@ -167,11 +167,11 @@ module "eks" {
         }
       } : {}
 
-  ***REMOVED*** NOTE: IPv6 is disabled at the gitlab-runner level via `pre_build_script`
-  ***REMOVED*** rather than here because the EKS module v19.x doesn't support custom
-  ***REMOVED*** userdata with AL2023 (which uses `nodeadm` instead of `bootstrap.sh`).
-  ***REMOVED*** Upgrading to EKS module v20.x would allow node-level IPv6 disable via
-  ***REMOVED*** `cloudinit_pre_nodeadm` with `node.eks.aws` sysctl configuration.
+      # NOTE: IPv6 is disabled at the gitlab-runner level via `pre_build_script`
+      # rather than here because the EKS module v19.x doesn't support custom
+      # userdata with AL2023 (which uses `nodeadm` instead of `bootstrap.sh`).
+      # Upgrading to EKS module v20.x would allow node-level IPv6 disable via
+      # `cloudinit_pre_nodeadm` with `node.eks.aws` sysctl configuration.
     }
   }
 }

@@ -1,8 +1,8 @@
-***REMOVED***
+---
 - name: Copy citool configuration
   become: true
   synchronize:
-***REMOVED*** ending `/` is required to copy only contents over
+    # ending `/` is required to copy only contents over
     src: "{{ worker_deployment_data }}/citool-config/"
     dest: "/etc/citool.d"
     archive: false
@@ -32,7 +32,7 @@
 - name: Copy Artemis Private Key
   become: true
   copy:
-***REMOVED*** ending `/` is required to copy only contents over
+    # ending `/` is required to copy only contents over
     src: "{{ artemis_ssh_private_key }}/"
     dest: "/etc/citool.d/id_rsa_artemis"
     owner: "root"
@@ -41,7 +41,7 @@
 - name: Copy Artemis Public Key
   become: true
   copy:
-***REMOVED*** ending `/` is required to copy only contents over
+    # ending `/` is required to copy only contents over
     src: "{{ artemis_ssh_public_key }}/"
     dest: "/etc/citool.d/id_rsa_artemis.pub"
     owner: "root"

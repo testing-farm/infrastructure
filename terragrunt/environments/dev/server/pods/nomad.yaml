@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   annotations:
-    bind-mount-options: /etc/***REMOVED***Z
+    bind-mount-options: /etc/nomad:Z
   labels:
     app: nomad
   name: nomad
@@ -12,7 +12,7 @@ spec:
   hostNetwork: true
   containers:
     - name: nomad
-      image: quay.io/testing-farm/***REMOVED***latest
+      image: quay.io/testing-farm/nomad:latest
       args:
         - agent
         - -config=/etc/nomad/server.conf
@@ -20,7 +20,7 @@ spec:
         - name: nomad-config
           mountPath: /etc/nomad/:Z
         - name: nomad-data
-          mountPath: /var/***REMOVED***Z
+          mountPath: /var/nomad:Z
   volumes:
     - name: nomad-config
       hostPath:

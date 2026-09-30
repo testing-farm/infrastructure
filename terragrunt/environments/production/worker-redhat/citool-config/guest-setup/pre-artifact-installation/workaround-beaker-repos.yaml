@@ -1,4 +1,4 @@
-***REMOVED***
+---
 #
 # Rename beaker-* repositories to rhel-*
 # TFT-2228
@@ -12,11 +12,11 @@
     - name: Print repos before rename
       debug: var=beaker_repos.stdout_lines
 
-***REMOVED*** All RHEL repos start with a capital letter after `beaker-` prefix,
-***REMOVED*** so use that logic to match them. Other repositories are not system
-***REMOVED*** repositories.
-***REMOVED*** For additional details see:
-***REMOVED*** https://gitlab.com/testing-farm/infrastructure/-/merge_requests/331#note_1584548035
+    # All RHEL repos start with a capital letter after `beaker-` prefix,
+    # so use that logic to match them. Other repositories are not system
+    # repositories.
+    # For additional details see:
+    # https://gitlab.com/testing-farm/infrastructure/-/merge_requests/331#note_1584548035
     - name: Rename beaker-* repos to rhel-*
       shell: >
         sed -i 's/beaker-\([A-Z]\)/rhel-\1/' /etc/yum.repos.d/beaker-[A-Z]*

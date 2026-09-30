@@ -1,4 +1,4 @@
-***REMOVED***
+---
 
 - name: Determine target architecture
   ansible.builtin.raw: uname -m
@@ -7,7 +7,7 @@
 
 - name: Configure custom Python runtime
   when:
-***REMOVED*** Try to use system interpreter if no source defined for arch or disabled
+    # Try to use system interpreter if no source defined for arch or disabled
     - _uname_arch.stdout.strip() in python_bin_url
   block:
     - name: Install dependencies to unpack the runtime
@@ -36,13 +36,13 @@
       ansible.builtin.debug:
         msg: "ansible_pkg_mgr={{ ansible_pkg_mgr }}"
 
-***REMOVED***
-***REMOVED*** Ansible 2.16 incorrectly detects `ansible_pkg_mgr` as `yum` on Fedora ELN, even though
-***REMOVED*** `/usr/bin/yum` and `/usr/bin/dnf` are symlinks to `/usr/bin/dnf5`. Ansible 2.18+ correctly
-***REMOVED*** detects `dnf5`. No supported Fedora release uses yum, so this override is always safe.
-***REMOVED*** Since `set_fact` cannot override gathered facts in `ansible_facts` dict, we use
-***REMOVED*** `module_defaults` with `_pkg_module` variable in `entrypoint.yaml` instead.
-***REMOVED***
+    #
+    # Ansible 2.16 incorrectly detects `ansible_pkg_mgr` as `yum` on Fedora ELN, even though
+    # `/usr/bin/yum` and `/usr/bin/dnf` are symlinks to `/usr/bin/dnf5`. Ansible 2.18+ correctly
+    # detects `dnf5`. No supported Fedora release uses yum, so this override is always safe.
+    # Since `set_fact` cannot override gathered facts in `ansible_facts` dict, we use
+    # `module_defaults` with `_pkg_module` variable in `entrypoint.yaml` instead.
+    #
     - name: Fix incorrect yum package manager detection on Fedora (Ansible 2.16 workaround)
       when:
         - ansible_distribution == "Fedora"
@@ -50,10 +50,10 @@
       ansible.builtin.set_fact:
         _pkg_module: dnf5
 
-***REMOVED***
-***REMOVED*** Using a custom Python distribution means losing access to C bindings of package managers. Use our own wrapper for
-***REMOVED*** YUM and DNF with Ansible's builtin package module.
-***REMOVED***
+    #
+    # Using a custom Python distribution means losing access to C bindings of package managers. Use our own wrapper for
+    # YUM and DNF with Ansible's builtin package module.
+    #
     - name: Override package manager module
       when: "ansible_pkg_mgr in ['unknown', 'dnf']"
       ansible.builtin.set_fact:

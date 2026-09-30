@@ -14,7 +14,7 @@ retryable_errors = [
 # Create terraform cloud workspace
 terraform {
   before_hook "terraform_cloud_project" {
-***REMOVED*** do not run the hook for ci
+    # do not run the hook for ci
     commands = startswith(path_relative_to_include(), "ci") ? [] : ["apply", "init", "import", "plan"]
     execute = [
       "terraform-cloud",

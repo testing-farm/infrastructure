@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - hosts: all
   tasks:
     - include_tasks: workaround-openssh.yaml

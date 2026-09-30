@@ -1,4 +1,4 @@
-***REMOVED***
+---
 exclude_paths:
   - .gitlab-ci.yml
 

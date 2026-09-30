@@ -159,13 +159,13 @@ To update composes on Public Ranch:
 To prevent a specific image from being updated automatically, add a `# skip` inline comment next to the `image:` line in `variables_images.yaml`:
 
 [source,yaml]
-***REMOVED***-
+----
   fedora_eln:
     compose: Fedora-eln
 
     x86_64:
       image: Fedora-Cloud-Base-AmazonEC2.x86_64-ELN-20260505.2  # skip because Fedora ELN broken (TFT-4651)
-***REMOVED***-
+----
 
 The comment is case-insensitive and can include a reason after the `skip` keyword. Remove the comment when the image should be updated again.
 

@@ -5,7 +5,7 @@
 flavor-regex: ^(c5|c5d|c5n|c7i|m5|m5zn|m7i)\.metal.*$
 
 custom-flavors:
-***REMOVED*** Cascade Lake instances
+    # Cascade Lake instances
     - name: c5.metal-100
       base: c5.metal
       disk:
@@ -60,7 +60,7 @@ custom-flavors:
                 min-size: "10 GiB"
                 max-size: "512 GiB"
 
-***REMOVED*** Skylake instances
+    # Skylake instances
     - name: c5n.metal-100
       base: c5n.metal
       disk:
@@ -88,7 +88,7 @@ custom-flavors:
                 min-size: "10 GiB"
                 max-size: "512 GiB"
 
-***REMOVED*** Sapphire Rapids instances
+    # Sapphire Rapids instances
     - name: c7i.metal-24xl-100
       base: c7i.metal-24xl
       disk:
@@ -116,7 +116,7 @@ custom-flavors:
                 min-size: "10 GiB"
                 max-size: "512 GiB"
 
-***REMOVED*** Cascade Lake instances
+    # Cascade Lake instances
     - name: m5.metal-100
       base: m5.metal
       disk:
@@ -171,7 +171,7 @@ custom-flavors:
                 min-size: "10 GiB"
                 max-size: "512 GiB"
 
-***REMOVED*** Sapphire Rapids instances
+    # Sapphire Rapids instances
     - name: m7i.metal-24xl-100
       base: m7i.metal-24xl
       disk:

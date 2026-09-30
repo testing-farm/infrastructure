@@ -4,7 +4,7 @@ default-flavor: g4dn.2xlarge
 flavor-regex: ^g4dn.(xlarge|2xlarge|4xlarge|8xlarge|12xlarge|16xlarge)$
 
 custom-flavors:
-***REMOVED*** g4dn (GPU accelerated, NVIDIA T4) - TFT-4657
+    # g4dn (GPU accelerated, NVIDIA T4) - TFT-4657
     - name: g4dn.xlarge-100
       base: g4dn.xlarge
       disk:

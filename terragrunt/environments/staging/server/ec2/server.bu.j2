@@ -10,9 +10,9 @@ passwd:
         - ansible/secrets/ssh/id_rsa_public_worker.pub
 storage:
   files:
-***REMOVED*** Disable auto-updates, we cannot currently do this now with a single server
-***REMOVED*** https://docs.fedoraproject.org/en-US/fedora-coreos/auto-updates/
-***REMOVED*** https://coreos.github.io/zincati/usage/auto-updates/#disabling-auto-updates
+    # Disable auto-updates, we cannot currently do this now with a single server
+    # https://docs.fedoraproject.org/en-US/fedora-coreos/auto-updates/
+    # https://coreos.github.io/zincati/usage/auto-updates/#disabling-auto-updates
     - path: /etc/zincati/config.d/90-disable-auto-updates.toml
       contents:
         inline: |
@@ -124,19 +124,19 @@ storage:
       with_mount_unit: true
 systemd:
   units:
-***REMOVED*** Build the TLS fullchain.pem that nginx serves. We only bake the leaf
-***REMOVED*** cert.pem into the CoreOS ignition file and assemble the full chain at
-***REMOVED*** boot, to avoid passing the entire fullchain through ignition.
-***REMOVED***
-***REMOVED*** Each certificate embeds an issuer URL (CA Issuers field) pointing to
-***REMOVED*** the next certificate up the chain. The script follows these URLs,
-***REMOVED*** downloading and appending each intermediate until it reaches a
-***REMOVED*** self-signed root (which is excluded — clients already have it in
-***REMOVED*** their trust store).
-***REMOVED***
-***REMOVED*** For the current Let's Encrypt ECDSA chain this produces:
-***REMOVED***   leaf → YE2 → Root YE (cross-signed by X2)
-***REMOVED*** which verifies against the widely-trusted ISRG Root X2.
+    # Build the TLS fullchain.pem that nginx serves. We only bake the leaf
+    # cert.pem into the CoreOS ignition file and assemble the full chain at
+    # boot, to avoid passing the entire fullchain through ignition.
+    #
+    # Each certificate embeds an issuer URL (CA Issuers field) pointing to
+    # the next certificate up the chain. The script follows these URLs,
+    # downloading and appending each intermediate until it reaches a
+    # self-signed root (which is excluded — clients already have it in
+    # their trust store).
+    #
+    # For the current Let's Encrypt ECDSA chain this produces:
+    #   leaf → YE2 → Root YE (cross-signed by X2)
+    # which verifies against the widely-trusted ISRG Root X2.
     - name: ssl-build-fullchain.service
       enabled: true
       contents: |

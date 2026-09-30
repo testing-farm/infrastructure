@@ -20,7 +20,7 @@ spec:
       value: valkey://valkey:6379
     - name: API_HOSTNAME
       value: https://tmt.staging.testing-farm.io
-***REMOVED*** Valkey
+    # Valkey
   - image: docker.io/valkey/valkey:alpine
     name: valkey
     ports:

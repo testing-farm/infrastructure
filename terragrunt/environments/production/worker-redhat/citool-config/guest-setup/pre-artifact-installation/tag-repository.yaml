@@ -1,4 +1,4 @@
-***REMOVED***
+---
 
 #
 # Add tag repository with low priority, for installing additional dependencies of tested artifacts.
@@ -48,25 +48,25 @@
         tag_repository_url_mainline: "http://download.devel.redhat.com/brewroot/repos/{{ tag_repository_name_mainline }}/latest/{{ ansible_architecture }}/"
         tag_repository_url_z_stream: "http://download.devel.redhat.com/brewroot/repos/{{ tag_repository_name_z_stream }}/latest/{{ ansible_architecture }}/"
 
-***REMOVED***
-***REMOVED*** Set the priority to lowest, this will make sure latest updates are not pulled in instead of default repository
-***REMOVED***
+    #
+    # Set the priority to lowest, this will make sure latest updates are not pulled in instead of default repository
+    #
     - name: Set tag repository priority
       set_fact:
         tag_repository_priority: 999
 
-***REMOVED***
-***REMOVED*** Handle RHEL7
-***REMOVED***
+    #
+    # Handle RHEL7
+    #
     - block:
-    ***REMOVED*** On RHUI systems enable optional repositories
+        # On RHUI systems enable optional repositories
         - name: Enable optional repo on RHUI systems
           command: yum-config-manager --enable rhel-7-server-rhui-optional-rpms
           when: "'rhui' in IMAGE_NAME|lower"
 
-    ***REMOVED*** Install yum-plugin-priorities to support repository priorities
+        # Install yum-plugin-priorities to support repository priorities
         - name: Make sure yum-plugin-priorities is installed on < RHEL8
-      ***REMOVED*** package module not yet support on RHEL6
+          # package module not yet support on RHEL6
           command: "yum -y install yum-plugin-priorities"
           retries: "{{ pkg_retry_count }}"
           delay: "{{ pkg_retry_delay }}"
@@ -77,9 +77,9 @@
         - ansible_distribution == "RedHat"
         - ansible_distribution_major_version|int < 8
 
-***REMOVED***
-***REMOVED*** block: end
-***REMOVED***
+    #
+    # block: end
+    #
 
     - name: Add tag repository
       template:

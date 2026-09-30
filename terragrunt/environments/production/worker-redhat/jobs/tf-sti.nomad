@@ -8,7 +8,7 @@ job "tf-sti" {
 
   group "sti" {
 
-***REMOVED*** Restart up to 2 times
+    # Restart up to 2 times
     restart {
       attempts = 2
     }

@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - name: Deploy API settings to production
   hosts: testing_farm_public_servers
   become: true

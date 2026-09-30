@@ -17,10 +17,10 @@ from typing import Any, Tuple
 def test_pipeline(
     citool: Tuple[CitoolRunnerType, str], variables: dict[str, Any], scenario: Scenario, scenario_name: str
 ) -> None:
-***REMOVED*** Create a transform function when running in GitLab CI
-***REMOVED*** NOTE(mvadkert): GitLab actually has two kind of URLs for artifacts, one for files and the other for directories:
-***REMOVED*** https://testing-farm.gitlab.io/-/gluetool-modules/-/jobs/11512494224/artifacts/infrastructure/.pytest/popen-gw13/test_pipeline_tests_worker_pub0/citool-debug.txt
-***REMOVED*** https://gitlab.com/testing-farm/gluetool-modules/-/jobs/11512494224/artifacts/browse/infrastructure/.pytest/popen-gw13/test_pipeline_tests_worker_pub0
+    # Create a transform function when running in GitLab CI
+    # NOTE(mvadkert): GitLab actually has two kind of URLs for artifacts, one for files and the other for directories:
+    # https://testing-farm.gitlab.io/-/gluetool-modules/-/jobs/11512494224/artifacts/infrastructure/.pytest/popen-gw13/test_pipeline_tests_worker_pub0/citool-debug.txt
+    # https://gitlab.com/testing-farm/gluetool-modules/-/jobs/11512494224/artifacts/browse/infrastructure/.pytest/popen-gw13/test_pipeline_tests_worker_pub0
     if 'CI_ARTIFACT_URL_PREFIX_FILE' in os.environ and 'CI_ARTIFACT_URL_PREFIX_DIR' in os.environ:
         artifact_url_prefix_file = os.environ['CI_ARTIFACT_URL_PREFIX_FILE']
         artifact_url_prefix_dir = os.environ['CI_ARTIFACT_URL_PREFIX_DIR']

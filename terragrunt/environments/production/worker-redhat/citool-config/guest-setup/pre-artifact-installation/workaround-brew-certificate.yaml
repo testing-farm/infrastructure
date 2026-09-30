@@ -1,4 +1,4 @@
-***REMOVED***
+---
 #
 # Remove RH-IT-Root-CA server CA reference from brew koji config
 # This is a workaround of a recent brew outage until we have a new brewkoji version.

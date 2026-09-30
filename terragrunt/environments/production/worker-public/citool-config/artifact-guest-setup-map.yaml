@@ -1,4 +1,4 @@
-***REMOVED***
+---
 # These patterns are used by gluetool to transform an artifact type to related guest setup shared function.
 
 - '^fedora-koji-build$': 'setup_guest_install_koji_build_execute'

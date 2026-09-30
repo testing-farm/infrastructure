@@ -1,4 +1,4 @@
-***REMOVED***
+---
 ansible_user: fedora
 
 # Pin node_exporter version to avoid the unauthenticated GitHub API call the

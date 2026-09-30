@@ -47,8 +47,8 @@ session.mount(
             backoff_factor=2,
             status_forcelist=[429, 502, 503, 504],
             raise_on_status=False,
-        ***REMOVED*** Make sure we retry also on POST, not done by default
-        ***REMOVED*** https://urllib3.readthedocs.io/en/1.26.8/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS
+            # Make sure we retry also on POST, not done by default
+            # https://urllib3.readthedocs.io/en/1.26.8/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS
             allowed_methods=False
         ),
     ),

@@ -19,13 +19,13 @@ locals {
   # List of IPs which have access to guests provisioned by Artemis
   guests_ip_ranges = distinct(sort([
     for ip in concat(
-  ***REMOVED*** Additional IPs from input variables
+      # Additional IPs from input variables
       var.additional_lb_source_ips,
-  ***REMOVED*** Additional IPs from secrets
-  ***REMOVED*** we accept a string with comma or newline delimited IPs
+      # Additional IPs from secrets
+      # we accept a string with comma or newline delimited IPs
       split("\n", replace(trimspace(data.ansiblevault_path.guests_additional_ips.value), " ", "\n"))
     ) :
-***REMOVED*** The IP can already have range defined
+    # The IP can already have range defined
     length(regexall("/[0-9]+", ip)) > 0 ? ip : "${ip}/32"
     if ip != null
   ]))
@@ -33,13 +33,13 @@ locals {
   # List of IPs which have access to Artemis API
   artemis_lb_source_ranges = distinct(sort([
     for ip in concat(
-  ***REMOVED*** Additional IPs from input variables
+      # Additional IPs from input variables
       var.additional_lb_source_ips,
-  ***REMOVED*** Additional IPs from secrets
-  ***REMOVED*** we accept a string with comma or newline delimited IPs
+      # Additional IPs from secrets
+      # we accept a string with comma or newline delimited IPs
       split("\n", replace(trimspace(data.ansiblevault_path.artemis_additional_ips.value), " ", "\n"))
     ) :
-***REMOVED*** The IP can already have range defined
+    # The IP can already have range defined
     length(regexall("/[0-9]+", ip)) > 0 ? ip : "${ip}/32"
     if ip != null
   ]))
@@ -103,7 +103,7 @@ resource "aws_security_group" "allow_guest_traffic" {
     from_port = 0
     to_port   = 0
     protocol  = "-1"
-***REMOVED*** allow guest traffic from workers and given list of addresses comming from variables
+    # allow guest traffic from workers and given list of addresses comming from variables
     cidr_blocks = concat(
       local.guests_ip_ranges,
       var.workers_ip_ranges
@@ -116,7 +116,7 @@ resource "aws_security_group" "allow_guest_traffic" {
     to_port          = 0
     protocol         = "-1"
     cidr_blocks      = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
-    ipv6_cidr_blocks = ["::/0"]  ***REMOVED***tfsec:ignore:aws-ec2-no-public-egress-sgr
+    ipv6_cidr_blocks = ["::/0"]      #tfsec:ignore:aws-ec2-no-public-egress-sgr
     description      = "Allow all outbound traffic"
   }
 }
@@ -146,7 +146,7 @@ resource "aws_security_group" "artemis_api_lb" {
     to_port          = 0
     protocol         = "-1"
     cidr_blocks      = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
-    ipv6_cidr_blocks = ["::/0"]  ***REMOVED***tfsec:ignore:aws-ec2-no-public-egress-sgr
+    ipv6_cidr_blocks = ["::/0"]      #tfsec:ignore:aws-ec2-no-public-egress-sgr
     description      = "Allow all outbound traffic"
   }
 

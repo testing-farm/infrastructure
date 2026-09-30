@@ -1,4 +1,4 @@
-***REMOVED***
+---
 # File: vars/RedHat.yaml - Red Hat OS variables for Nomad
 
 nomad_os_packages:

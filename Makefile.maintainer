@@ -128,7 +128,7 @@ dev/plan: dev/generate .FORCE  ## Plan deployment | dev | all
 dev/plan/eks: .FORCE  ## Plan deployment | dev | eks
 	$(call run_terragrunt,dev/eks,plan)
 
-dev/plan/***REMOVED*** .FORCE  ## Plan deployment | dev | artemis
+dev/plan/artemis: .FORCE  ## Plan deployment | dev | artemis
 	$(call run_terragrunt,dev/artemis,plan)
 
 dev/plan/server: dev/generate .FORCE  ## Plan deployment | dev | server
@@ -142,7 +142,7 @@ dev/apply: dev/generate .FORCE  ## Deploy | dev | all
 dev/apply/eks: .FORCE  ## Deploy | dev | eks
 	$(call run_terragrunt,dev/eks,apply)
 
-dev/apply/***REMOVED*** .FORCE  ## Deploy | dev | artemis
+dev/apply/artemis: .FORCE  ## Deploy | dev | artemis
 	$(call run_terragrunt,dev/artemis,apply)
 
 dev/apply/server: dev/generate .FORCE  ## Deploy | dev | server
@@ -288,7 +288,7 @@ staging/plan: staging/generate .FORCE  ## Plan deployment | staging
 staging/plan/eks: .FORCE  ## Plan deployment | staging | eks
 	$(call run_terragrunt,staging/eks,plan)
 
-staging/plan/***REMOVED*** .FORCE  ## Plan deployment | staging | artemis
+staging/plan/artemis: .FORCE  ## Plan deployment | staging | artemis
 	$(call run_terragrunt,staging/artemis,plan)
 
 staging/plan/server: staging/generate .FORCE  ## Plan deployment | staging | server
@@ -305,7 +305,7 @@ staging/apply: staging/generate .FORCE  ## Deploy | staging | all
 staging/apply/eks: .FORCE  ## Deploy | staging | eks
 	$(call run_terragrunt,staging/eks,apply)
 
-staging/apply/***REMOVED*** .FORCE  ## Deploy | staging | artemis
+staging/apply/artemis: .FORCE  ## Deploy | staging | artemis
 	$(call run_terragrunt,staging/artemis,apply)
 
 staging/apply/ci: staging/generate/ci .FORCE  ## Deploy | staging | artemis | CI
@@ -400,7 +400,7 @@ production/plan: .FORCE  ## Plan deployment | production
 production/plan/eks: .FORCE  ## Plan deployment | production | eks
 	$(call run_terragrunt,production/eks,plan)
 
-production/plan/***REMOVED*** .FORCE  ## Plan deployment | production | artemis
+production/plan/artemis: .FORCE  ## Plan deployment | production | artemis
 	$(call run_terragrunt,production/artemis,plan)
 
 production/apply: .FORCE  ## Deploy | production | all
@@ -409,7 +409,7 @@ production/apply: .FORCE  ## Deploy | production | all
 production/apply/eks: .FORCE  ## Deploy | production | eks
 	$(call run_terragrunt,production/eks,apply)
 
-production/apply/***REMOVED*** .FORCE  ## Deploy | production | artemis
+production/apply/artemis: .FORCE  ## Deploy | production | artemis
 	$(call run_terragrunt,production/artemis,apply)
 
 update/api/settings: .FORCE  ## Deploy API settings to production (graceful reload)
@@ -423,9 +423,9 @@ production/destroy: .FORCE terminate/artemis/guests/production  ## Destroy | pro
 production/kubeconfig: .FORCE  ## Update kubeconfig for production environment
 	aws eks --profile fedora_us_east_1 update-kubeconfig --name testing-farm-production
 
-production/public/proxy/***REMOVED***  ## Setup ssh proxy for Public ranch nomad
+production/public/proxy/nomad:  ## Setup ssh proxy for Public ranch nomad
 	@if ! curl -s http://localhost:4646/v1/health/client; then \
-		echo -e "🚀 \033[0;32mSetting up ssh proxy for public ranch ***REMOVED*** http://localhost:4646\033[0m"; \
+		echo -e "🚀 \033[0;32mSetting up ssh proxy for public ranch nomad: http://localhost:4646\033[0m"; \
 		ssh -fNL 4646:localhost:4646 testing_farm_public_server_01; \
 	else \
 	        echo -e "🚀 \033[0;32mProxy for public ranch nomad already available: http://localhost:4646\033[0m"; \

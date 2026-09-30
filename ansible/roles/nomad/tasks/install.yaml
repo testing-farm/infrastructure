@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - name: Install required packages
   become: true
   package:

@@ -1,4 +1,4 @@
-***REMOVED***
+---
 # older images in azure have outdated RHUI certs, preventing any work with RHUI repos
 # workaround by updating the rhui package first
 - name: Detect system vendor

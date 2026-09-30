@@ -1,4 +1,4 @@
-***REMOVED***
+---
 - name: Generate deployment files
   hosts: localhost
   vars:
