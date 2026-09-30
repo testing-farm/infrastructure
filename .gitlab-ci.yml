@@ -590,19 +590,32 @@ image/artifacts-bootc/qcow2:
       optional: true
   script:
     - export AUTH_JSON=$(printf '{"auths":{"quay.io":{"auth":"%s"}}}' "$(printf '%s:%s' "$QUAY_USERNAME" "$QUAY_PASSWORD" | base64 -w0)" | base64 -w0)
-    - make image/artifacts-bootc/qcow2 AUTH_JSON="$AUTH_JSON"
+    # Build the qcow2 and derive its download URL for the AMI job (passed on via
+    # the dotenv artifact below). A preset QCOW2_URL takes precedence.
+    - |
+      if [ -z "${QCOW2_URL:-}" ]; then
+        make image/artifacts-bootc/qcow2 AUTH_JSON="$AUTH_JSON" | tee qcow2-build.log
+        QCOW2_URL=$(images/bootc-artifacts/qcow2-url.sh "$(cat qcow2-build.log)")
+      fi
+    - echo "QCOW2_URL=${QCOW2_URL}" > qcow2.env
+  artifacts:
+    reports:
+      dotenv: qcow2.env
 
 image/artifacts-bootc/ami:
   extends: .artifacts-bootc
   needs:
     - job: image/artifacts-bootc/qcow2
       optional: true
+      artifacts: true
   variables:
     IMAGE_NAME: artifacts-bootc-x86_64
     QCOW2_ARCH: x86_64
-  # QCOW2_URL is the qcow2 from the qcow2 build request artifacts; pass it when
-  # triggering this manual job. VAULT_SECRET_ID must be set as a CI/CD variable.
+  # QCOW2_URL is inherited from the qcow2 job's dotenv artifact; set it manually to
+  # override (e.g. when running this job standalone). VAULT_SECRET_ID must be set as
+  # a CI/CD variable.
   script:
+    - '[ -n "${QCOW2_URL:-}" ] || { echo "[E] QCOW2_URL is empty - run the qcow2 job first or set QCOW2_URL manually."; exit 1; }'
     - >
       testing-farm request --skip-summary
       --git-url https://gitlab.com/testing-farm/tests.git --git-ref main
