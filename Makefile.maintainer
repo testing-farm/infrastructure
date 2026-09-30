@@ -599,6 +599,9 @@ image/artifacts-bootc/qcow2: .FORCE  ## Build RHEL 10 bootc artifact-server qcow
 		-s AUTH_JSON="$(AUTH_JSON)" \
 		--plan /images/bootc-artifacts/qcow2
 
+image/artifacts-bootc/qcow2-url: .FORCE  ## Derive the qcow2 download URL from a qcow2 build request (needs REQUEST)
+	images/bootc-artifacts/qcow2-url.sh "$(REQUEST)"
+
 QCOW2_ARCH ?= x86_64
 IMAGE_NAME ?= artifacts-bootc-$(QCOW2_ARCH)
 
