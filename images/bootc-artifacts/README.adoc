@@ -39,7 +39,7 @@ AUTH_JSON=$(base64 -w0 ~/.docker/config.json) make image/artifacts-bootc/contain
 make image/artifacts-bootc/qcow2
 
 # Derive the qcow2 download URL from that build request (REQUEST = its request id)
-QCOW2_URL=$(images/bootc-artifacts/qcow2-url.sh <qcow2-request-id>)
+QCOW2_URL=$(images/bootc-artifacts/qcow2-url.py <qcow2-request-id>)
 
 # Upload the qcow2 to AWS as an AMI via the testing-farm/tests upload-qcow2 plan
 QCOW2_URL=$QCOW2_URL VAULT_SECRET_ID=<id> make image/artifacts-bootc/ami
@@ -47,7 +47,11 @@ QCOW2_URL=$QCOW2_URL VAULT_SECRET_ID=<id> make image/artifacts-bootc/ami
 
 In GitLab CI the `qcow2` job derives `QCOW2_URL` automatically and hands it to the
 `ami` job via a dotenv artifact; set `QCOW2_URL` manually on the `ami` job only to
-override it.
+override it. To derive the URL the job reads the build artifacts from the Red Hat
+ranch artifact server (`artifacts.osci.redhat.com`), which is signed by the Red Hat
+Internal Root CA; the vendored `redhat-it-root-ca.pem` is installed into the cli
+image trust store in that job so the fetch verifies (the public Testing Farm API
+keeps verifying via the image's default bundle).
 
 The plans can also be run directly, e.g.
 `testing-farm request --plan /images/bootc-artifacts/container`.
