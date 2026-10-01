@@ -218,6 +218,50 @@ resource "aws_ec2_tag" "subnet_tag" {
   value       = "shared"
 }
 
+data "aws_region" "current" {}
+
+# Fail fast when EKS did not finish setting up the cluster security group. EKS
+# creates it and then adds a self-referencing allow-all ingress rule. AL2 nodes
+# use the Amazon-managed launch template, so this group is the only one attached
+# to them. EKS once left it with no ingress rule and no tags. With nothing able
+# to reach the nodes, the `coredns`, `aws-ebs-csi-driver` and `metrics-server`
+# addons hung in `CREATING` until they timed out, 20+ minutes later. This check
+# runs right after the cluster is created, before the node group finishes, so
+# the apply fails before the addons start.
+resource "null_resource" "check_cluster_security_group" {
+  triggers = {
+    cluster_security_group_id = module.eks.cluster_primary_security_group_id
+  }
+
+  provisioner "local-exec" {
+    command     = <<EOT
+sg="${module.eks.cluster_primary_security_group_id}"
+timeout=120
+interval=10
+start_time=$(date +%s)
+echo "Checking that cluster security group '$sg' allows traffic from itself..."
+while true; do
+  allowed=$(aws --profile "${var.aws_profile}" --region "${data.aws_region.current.name}" \
+    ec2 describe-security-groups --group-ids "$sg" \
+    --query "contains(SecurityGroups[0].IpPermissions[?IpProtocol=='-1'].UserIdGroupPairs[].GroupId, '$sg')" \
+    --output text)
+  if [ "$allowed" = "True" ]; then
+    echo "Cluster security group '$sg' has its self-referencing ingress rule."
+    exit 0
+  fi
+  elapsed_time=$(( $(date +%s) - start_time ))
+  if [ "$elapsed_time" -ge "$timeout" ]; then
+    echo "Cluster security group '$sg' has no self-referencing ingress rule, EKS did not finish setting it up."
+    echo "Nodes would be unreachable and the EKS addons would hang in CREATING."
+    exit 1
+  fi
+  sleep "$interval"
+done
+EOT
+    interpreter = ["/bin/bash", "-c"]
+  }
+}
+
 # Wait for the freshly created EKS API endpoint to become reachable before
 # creating any Kubernetes/Helm resources. A newly created cluster can report
 # `ACTIVE` before its public endpoint DNS has propagated to the runner's
@@ -225,6 +269,8 @@ resource "aws_ec2_tag" "subnet_tag" {
 # intermittent `dial tcp: lookup <endpoint>: no such host` failures on the
 # `kubernetes_*` resources below, breaking the dev CI pipeline at random.
 resource "null_resource" "wait_for_cluster_endpoint" {
+  depends_on = [null_resource.check_cluster_security_group]
+
   triggers = {
     cluster_endpoint = module.eks.cluster_endpoint
   }
