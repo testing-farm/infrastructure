@@ -7,8 +7,10 @@
 # Usage: qcow2-url.sh <request-id-or-string-containing-it>
 #
 # Prints the qcow2 URL to stdout (and nothing else there, so callers can capture
-# it directly). Needs TESTING_FARM_API_URL in the environment. QCOW2_FILE may be
-# overridden (default: artifacts-bootc.qcow2, matching qcow2.fmf).
+# it directly). TESTING_FARM_API_URL selects the Testing Farm API (defaults to
+# the public endpoint, which holds every request regardless of ranch; the GET
+# needs no token). QCOW2_FILE may be overridden (default: artifacts-bootc.qcow2,
+# matching qcow2.fmf).
 #
 
 set -o pipefail
@@ -19,11 +21,15 @@ error() {
 }
 
 QCOW2_FILE="${QCOW2_FILE:-artifacts-bootc.qcow2}"
+# The request record lives in the central Testing Farm API (same endpoint for all
+# ranches - the ranch is selected by the token, not the URL). Default to the
+# public API so this works in CI where only the ranch token is exported; the
+# local env (.envrc) overrides it with the vault-provided value.
+TESTING_FARM_API_URL="${TESTING_FARM_API_URL:-https://api.dev.testing-farm.io/v0.1}"
 
 REQUEST_ID=$(sed -nE 's/.*([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}).*/\1/p' <<< "${1:-}")
 
 [ -z "$REQUEST_ID" ] && error "Valid request ID is required as the first parameter."
-[ -z "${TESTING_FARM_API_URL:-}" ] && error "TESTING_FARM_API_URL not set in the environment."
 
 ARTIFACTS_BASE=$(curl -sf "${TESTING_FARM_API_URL}/requests/${REQUEST_ID}" | jq -r '.run.artifacts')
 [ -z "$ARTIFACTS_BASE" ] || [ "$ARTIFACTS_BASE" == "null" ] \
