@@ -90,6 +90,16 @@ citool-container.sh rules-engine \
 # create pipeline error if no results.xml available
 if [ ! -e "results.xml" ]; then
     create_results_xml failure error
+    pipeline_failed=1
 fi
 
 printf "\n[pipeline-end] $(date)"
+
+# No results.xml means the pipeline failed before it could run and report the
+# tests (for example a transient Testing Farm API outage while loading the
+# request). Exit non-zero so Nomad's restart/reschedule policy retries the job
+# instead of exiting 0 and leaving the request stuck in 'queued'. A real test
+# run (pass or fail) always writes results.xml and still exits 0.
+if [ -n "${pipeline_failed:-}" ]; then
+    exit 1
+fi
