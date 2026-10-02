@@ -605,14 +605,17 @@ image/artifacts-bootc/qcow2-url: .FORCE  ## Derive the qcow2 download URL from a
 QCOW2_ARCH ?= x86_64
 IMAGE_NAME ?= artifacts-bootc-$(QCOW2_ARCH)
 
-image/artifacts-bootc/ami: .FORCE  ## Upload artifact-server qcow2 to AWS as an AMI via Testing Farm (needs QCOW2_URL, VAULT_SECRET_ID)
+# The upload plan derives QCOW2_URL from QCOW2_REQUEST inside Testing Farm; pass one
+# or the other (a ready QCOW2_URL skips derivation). Only the set one is forwarded so
+# an empty value never shadows the derived URL.
+image/artifacts-bootc/ami: .FORCE  ## Upload artifact-server qcow2 to AWS as an AMI via Testing Farm (needs QCOW2_REQUEST or QCOW2_URL, and VAULT_SECRET_ID)
 	testing-farm request --skip-summary \
-		--git-url https://gitlab.com/testing-farm/tests.git --git-ref main \
-		-e QCOW2_URL="$(QCOW2_URL)" \
+		$(if $(QCOW2_REQUEST),-e QCOW2_REQUEST="$(QCOW2_REQUEST)") \
+		$(if $(QCOW2_URL),-e QCOW2_URL="$(QCOW2_URL)") \
 		-e IMAGE_NAME="$(IMAGE_NAME)" \
 		-e QCOW2_ARCH="$(QCOW2_ARCH)" \
 		-s VAULT_SECRET_ID="$(VAULT_SECRET_ID)" \
-		--plan /testing-farm/upload-qcow2/aws
+		--plan /images/bootc-artifacts/upload
 
 generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
 	WORKER=worker-local poetry run python setup/generate_environment.py dev
