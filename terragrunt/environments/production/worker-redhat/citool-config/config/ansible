@@ -1,5 +1,13 @@
 [default]
-interpreter-detection-order = /usr/bin/python3,
+# The standalone Python runtime is unpacked to `python_install_path`
+# (/var/opt/standalone-python, see ansible-extra-vars.yaml.j2) by the
+# pre-artifact guest-setup. Detect it first so every later Ansible run -- most
+# importantly the artifact-installation stage -- uses it instead of the guest's
+# system Python. On RHEL-6 the system Python is 2.6.6, which ansible-core
+# rejects; detection falls through to the system paths on images where the
+# standalone runtime was not installed.
+interpreter-detection-order = /var/opt/standalone-python/bin/python3,
+                              /usr/bin/python3,
                               /usr/bin/python2,
                               /usr/libexec/platform-python
 
