@@ -38,20 +38,23 @@ AUTH_JSON=$(base64 -w0 ~/.docker/config.json) make image/artifacts-bootc/contain
 # Build the qcow2 from the pushed image; it is stored in the request artifacts
 make image/artifacts-bootc/qcow2
 
-# Derive the qcow2 download URL from that build request (REQUEST = its request id)
-QCOW2_URL=$(images/bootc-artifacts/qcow2-url.py <qcow2-request-id>)
-
-# Upload the qcow2 to AWS as an AMI via the testing-farm/tests upload-qcow2 plan
-QCOW2_URL=$QCOW2_URL VAULT_SECRET_ID=<id> make image/artifacts-bootc/ami
+# Upload the qcow2 to AWS as an AMI. QCOW2_REQUEST is the qcow2 build's request id;
+# the upload plan derives the download URL from it inside Testing Farm.
+QCOW2_REQUEST=<qcow2-request-id> VAULT_SECRET_ID=<id> make image/artifacts-bootc/ami
 ----
 
-In GitLab CI the `qcow2` job derives `QCOW2_URL` automatically and hands it to the
-`ami` job via a dotenv artifact; set `QCOW2_URL` manually on the `ami` job only to
-override it. To derive the URL the job reads the build artifacts from the Red Hat
-ranch artifact server (`artifacts.osci.redhat.com`), which is signed by the Red Hat
-Internal Root CA; the vendored `redhat-it-root-ca.pem` is installed into the cli
-image trust store in that job so the fetch verifies (the public Testing Farm API
-keeps verifying via the image's default bundle).
+The qcow2 download URL lives on the Red Hat ranch artifact server
+(`artifacts.osci.redhat.com`), which the GitLab runner cannot resolve. Rather than
+reach it from the runner, the `ami` step runs the `images/bootc-artifacts/upload`
+plan, whose `prepare` step derives `QCOW2_URL` from `QCOW2_REQUEST` *inside Testing
+Farm* (in the `cnc` container, which can reach that host) and exports it to the
+upload test. Pass `QCOW2_URL=<url>` instead of `QCOW2_REQUEST` to skip derivation
+with a ready URL (`images/bootc-artifacts/qcow2-url.py <request-id>` prints it when
+run from the Red Hat network, e.g. for debugging).
+
+In GitLab CI the `qcow2` job records the build request id and hands it to the `ami`
+job via a dotenv artifact (`QCOW2_REQUEST`); set `QCOW2_REQUEST` or `QCOW2_URL`
+manually on the `ami` job to override.
 
 The plans can also be run directly, e.g.
 `testing-farm request --plan /images/bootc-artifacts/container`.
@@ -71,11 +74,13 @@ therefore run on the *Red Hat ranch* (select it via `TESTING_FARM_API_URL` /
 == Handoff
 
 Testing Farm's build tests cover container + qcow2 but not AMIs, so the AMI step
-runs the testing-farm/tests `/testing-farm/upload-qcow2/aws` plan, which
-provisions the `cnc` image inside Testing Farm and uses `tft-admin` to upload the
-qcow2 to AWS (`cloud compose sync --from-url`, plus a cross-region `cloud compose
-import`). Running it through Testing Farm keeps the GitLab runner off the private
-`cnc` image. Supply the resulting AMI to TFT-4797 as the `ARTIFACTS_SERVER_AMI`
+runs the local `images/bootc-artifacts/upload` plan. It provisions the `cnc` image
+inside Testing Farm, derives the qcow2 URL from the build request in a `prepare`
+step (see Build above), and runs the testing-farm/tests `/testing-farm/upload-qcow2`
+test, which uses `tft-admin` to upload the qcow2 to AWS (`cloud compose sync
+--from-url`, plus a cross-region `cloud compose import`). Running it through Testing
+Farm keeps the GitLab runner off the private `cnc` image and off the internal
+artifact server. Supply the resulting AMI to TFT-4797 as the `ARTIFACTS_SERVER_AMI`
 environment variable (consumed by
 `terragrunt/environments/production/artifacts-redhat/ec2/terragrunt.hcl`).
 
