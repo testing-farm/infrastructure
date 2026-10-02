@@ -101,9 +101,9 @@ composes:
     compose: Fedora-eln
 
     x86_64:
-      image: Fedora-Cloud-Base-AmazonEC2.x86_64-ELN-20261002.0
+      image: Fedora-Cloud-Base-AmazonEC2.x86_64-ELN-20261001.0
     aarch64:
-      image: Fedora-Cloud-Base-AmazonEC2.aarch64-ELN-20261002.0
+      image: Fedora-Cloud-Base-AmazonEC2.aarch64-ELN-20261001.0
 
   centos_7:
     compose: CentOS-7
