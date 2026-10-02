@@ -2,15 +2,21 @@ summary: Upload the artifact-server qcow2 to AWS, deriving the URL inside Testin
 
 description: |
     Upload the qcow2 produced by a /images/bootc-artifacts/qcow2 build request to
-    AWS as an AMI, using the testing-farm/tests ``/testing-farm/upload-qcow2`` test
-    (``tft-admin``, inside the cnc image).
+    AWS as an AMI, reusing the testing-farm/tests ``/testing-farm/upload-qcow2``
+    orchestration (``tft-admin``, inside the cnc image).
 
     Unlike running ``/testing-farm/upload-qcow2/aws`` directly, QCOW2_URL does not
-    have to be supplied. It is derived from the build request in a ``prepare`` step
-    that runs *inside Testing Farm*, where the Red Hat ranch artifact server
-    (``artifacts.osci.redhat.com``) is reachable. This lets the GitLab runner drive
-    the upload with only the build request id, because the runner cannot resolve
-    that host itself. See README.adoc.
+    have to be supplied. The wrapper test /images/bootc-artifacts/upload-qcow2
+    derives it from the build request *inside Testing Farm*, where the Red Hat ranch
+    artifact server (``artifacts.osci.redhat.com``) is reachable, and then runs the
+    upstream run.sh in the same shell. This lets the GitLab runner drive the upload
+    with only the build request id, because the runner cannot resolve that host
+    itself.
+
+    Derivation and upload share one shell on purpose: the cnc container runs as a
+    non-root user that cannot write tmt's work directory, so QCOW2_URL cannot be
+    handed between tmt steps via $TMT_PLAN_ENVIRONMENT_FILE / $TMT_PLAN_SOURCE_SCRIPT
+    (both live there). See upload-qcow2/upload.sh and README.adoc.
 
     Required variables:
 
@@ -44,71 +50,13 @@ environment:
 
 discover:
   how: fmf
-  url: https://gitlab.com/testing-farm/tests
   test:
-    - /testing-farm/upload-qcow2
+    - /images/bootc-artifacts/upload-qcow2
 
 provision:
   how: container
   image: quay.io/testing-farm/cnc:latest
   user: cnc
-
-prepare:
-  how: shell
-  # Derive QCOW2_URL from the build request and export it to the execute step by
-  # appending to tmt's $TMT_PLAN_SOURCE_SCRIPT (sourced before the test). That file is
-  # writable by the test user; $TMT_PLAN_ENVIRONMENT_FILE lives in the root-owned tmt
-  # workdir, which the non-root cnc user cannot write (and the container has no sudo).
-  # Runs inside the cnc image, which can reach the Red Hat ranch artifact server.
-  # Mirrors images/bootc-artifacts/qcow2-url.py; kept inline because the plan's repo
-  # is not copied onto the guest. A preset QCOW2_URL is used as-is.
-  script: |
-    set -eu
-    if [ -n "${QCOW2_URL:-}" ]; then
-        echo "[i] QCOW2_URL is preset, skipping derivation: $QCOW2_URL"
-        exit 0
-    fi
-    python3 - <<'PY'
-    import json, os, re, shlex, sys
-    import urllib.request
-    from urllib.parse import urljoin
-
-    api = (os.environ.get("TESTING_FARM_API_URL") or "https://api.dev.testing-farm.io/v0.1").rstrip("/")
-    qfile = os.environ.get("QCOW2_FILE") or "artifacts-bootc.qcow2"
-    source_script = os.environ["TMT_PLAN_SOURCE_SCRIPT"]
-
-    match = re.search(
-        r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}",
-        os.environ.get("QCOW2_REQUEST", ""),
-    )
-    if not match:
-        sys.exit("[E] QCOW2_REQUEST must contain a valid request id")
-    request_id = match.group(0)
-
-    with urllib.request.urlopen("{}/requests/{}".format(api, request_id), timeout=30) as resp:
-        artifacts = (json.load(resp).get("run") or {}).get("artifacts")
-    if not artifacts:
-        sys.exit("[E] no artifacts URL for request {}".format(request_id))
-
-    results_url = "{}/results.xml".format(artifacts.rstrip("/"))
-    with urllib.request.urlopen(results_url, timeout=30) as resp:
-        results = resp.read().decode("utf-8", "replace")
-
-    plan_data_url = None
-    for log in re.findall(r"<log\b[^>]*>", results):
-        if 'name="data"' in log:
-            href = re.search(r'href="([^"]+)"', log)
-            if href:
-                plan_data_url = urljoin(results_url, href.group(1))
-                break
-    if not plan_data_url:
-        sys.exit("[E] no plan-data URL in results.xml for request {}".format(request_id))
-
-    qcow2_url = "{}/{}".format(plan_data_url.rstrip("/"), qfile)
-    print("[i] derived QCOW2_URL={}".format(qcow2_url))
-    with open(source_script, "a") as f:
-        f.write("export QCOW2_URL={}\n".format(shlex.quote(qcow2_url)))
-    PY
 
 execute:
   how: tmt

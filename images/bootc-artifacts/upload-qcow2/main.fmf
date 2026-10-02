@@ -1,0 +1,14 @@
+summary: Derive the qcow2 download URL and upload it to the cloud
+
+description: |
+    Wrapper around the testing-farm/tests /testing-farm/upload-qcow2 test, used by
+    the /images/bootc-artifacts/upload plan.
+
+    It derives QCOW2_URL from QCOW2_REQUEST (reusing ../qcow2-url.py) and then runs
+    the upstream run.sh in the same shell, so the derived URL never has to cross a
+    tmt step boundary -- the cnc container runs as a non-root user that cannot write
+    tmt's work directory. A preset QCOW2_URL is used directly. See ../upload.fmf and
+    ../README.adoc.
+
+test: ./upload.sh
+duration: 1h
