@@ -22,13 +22,16 @@ restricted `rrsync` forced command.
 
 == Build
 
-The container image and the qcow2 are built *on Testing Farm* via the tmt plans
-in this directory, which run the published Testing Farm tests:
+The container image and the qcow2 are built *on Testing Farm*:
 
 * `container.fmf` -> https://gitlab.com/testing-farm/tests/-/tree/main/container[`/container/build`]
-  (builds and pushes the container image with `buildah`).
-* `qcow2.fmf` -> https://gitlab.com/testing-farm/tests/-/tree/main/image-mode/qcow2[`/image-mode/qcow2/build`]
-  (builds a qcow2 from that image with `bootc-image-builder`).
+  -- a local plan in this directory (it needs this repo's `Containerfile` and installs
+  the Red Hat IT CA so `buildah` can pull the internal base image); builds and pushes
+  the container image with `buildah`.
+* the upstream https://gitlab.com/testing-farm/tests/-/tree/main/image-mode/qcow2[`/image-mode/qcow2/build`]
+  plan, requested *directly* (via `--git-url`) -- it only needs the pushed container
+  image, so no local wrapper plan is kept. `make image/artifacts-bootc/qcow2` passes
+  it `IMAGE` and `QCOW2_FILE`; builds a qcow2 from that image with `bootc-image-builder`.
 
 [source,bash]
 ----
