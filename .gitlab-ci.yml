@@ -544,11 +544,11 @@ renew/certs:
   before_script:
     - export TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT
   rules:
-    # TEMPORARY (TFT-4795): allow manual runs on the MR to validate the image
-    # build before merge. Revert this commit once merged.
+    # TEMPORARY (TFT-4795): auto-run the image build on the MR to validate it before
+    # merge. The container -> qcow2 -> ami 'needs' chain makes each job start only
+    # after the previous one succeeds. Revert this commit once merged.
     - if: $CI_MERGE_REQUEST_IID
-      when: manual
-      allow_failure: true
+      when: on_success
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: manual
       allow_failure: true
