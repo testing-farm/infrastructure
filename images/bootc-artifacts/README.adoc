@@ -46,11 +46,14 @@ QCOW2_REQUEST=<qcow2-request-id> VAULT_SECRET_ID=<id> make image/artifacts-bootc
 The qcow2 download URL lives on the Red Hat ranch artifact server
 (`artifacts.osci.redhat.com`), which the GitLab runner cannot resolve. Rather than
 reach it from the runner, the `ami` step runs the `images/bootc-artifacts/upload`
-plan, whose `prepare` step derives `QCOW2_URL` from `QCOW2_REQUEST` *inside Testing
-Farm* (in the `cnc` container, which can reach that host) and exports it to the
-upload test. Pass `QCOW2_URL=<url>` instead of `QCOW2_REQUEST` to skip derivation
-with a ready URL (`images/bootc-artifacts/qcow2-url.py <request-id>` prints it when
-run from the Red Hat network, e.g. for debugging).
+plan, whose wrapper test `images/bootc-artifacts/upload-qcow2` derives `QCOW2_URL`
+from `QCOW2_REQUEST` *inside Testing Farm* (in the `cnc` container, which can reach
+that host) and then performs the upload in the same shell. Derivation and upload
+share one shell because the `cnc` container runs as a non-root user that cannot
+write tmt's work directory, so `QCOW2_URL` cannot be handed between tmt steps. Pass
+`QCOW2_URL=<url>` instead of `QCOW2_REQUEST` to skip derivation with a ready URL
+(`images/bootc-artifacts/qcow2-url.py <request-id>` prints it when run from the Red
+Hat network, e.g. for debugging).
 
 In GitLab CI the `qcow2` job records the build request id and hands it to the `ami`
 job via a dotenv artifact (`QCOW2_REQUEST`); set `QCOW2_REQUEST` or `QCOW2_URL`
@@ -75,9 +78,10 @@ therefore run on the *Red Hat ranch* (select it via `TESTING_FARM_API_URL` /
 
 Testing Farm's build tests cover container + qcow2 but not AMIs, so the AMI step
 runs the local `images/bootc-artifacts/upload` plan. It provisions the `cnc` image
-inside Testing Farm, derives the qcow2 URL from the build request in a `prepare`
-step (see Build above), and runs the testing-farm/tests `/testing-farm/upload-qcow2`
-test, which uses `tft-admin` to upload the qcow2 to AWS (`cloud compose sync
+inside Testing Farm and runs the wrapper test `images/bootc-artifacts/upload-qcow2`,
+which derives the qcow2 URL from the build request (see Build above) and then reuses
+the testing-farm/tests `/testing-farm/upload-qcow2` orchestration in the same shell.
+That orchestration uses `tft-admin` to upload the qcow2 to AWS (`cloud compose sync
 --from-url`, plus a cross-region `cloud compose import`). Running it through Testing
 Farm keeps the GitLab runner off the private `cnc` image and off the internal
 artifact server. Supply the resulting AMI to TFT-4797 as the `ARTIFACTS_SERVER_AMI`
