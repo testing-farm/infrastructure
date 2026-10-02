@@ -55,11 +55,13 @@ provision:
 
 prepare:
   how: shell
-  # Derive QCOW2_URL from the build request and export it to the execute step via
-  # tmt's $TMT_PLAN_ENVIRONMENT_FILE. Runs inside the cnc image, which can reach the
-  # Red Hat ranch artifact server. Mirrors images/bootc-artifacts/qcow2-url.py; kept
-  # inline because the plan's repo is not copied onto the guest. A preset QCOW2_URL
-  # is used as-is.
+  # Derive QCOW2_URL from the build request and export it to the execute step by
+  # appending to tmt's $TMT_PLAN_SOURCE_SCRIPT (sourced before the test). That file is
+  # writable by the test user; $TMT_PLAN_ENVIRONMENT_FILE lives in the root-owned tmt
+  # workdir, which the non-root cnc user cannot write (and the container has no sudo).
+  # Runs inside the cnc image, which can reach the Red Hat ranch artifact server.
+  # Mirrors images/bootc-artifacts/qcow2-url.py; kept inline because the plan's repo
+  # is not copied onto the guest. A preset QCOW2_URL is used as-is.
   script: |
     set -eu
     if [ -n "${QCOW2_URL:-}" ]; then
@@ -67,13 +69,13 @@ prepare:
         exit 0
     fi
     python3 - <<'PY'
-    import json, os, re, sys
+    import json, os, re, shlex, sys
     import urllib.request
     from urllib.parse import urljoin
 
     api = (os.environ.get("TESTING_FARM_API_URL") or "https://api.dev.testing-farm.io/v0.1").rstrip("/")
     qfile = os.environ.get("QCOW2_FILE") or "artifacts-bootc.qcow2"
-    env_file = os.environ["TMT_PLAN_ENVIRONMENT_FILE"]
+    source_script = os.environ["TMT_PLAN_SOURCE_SCRIPT"]
 
     match = re.search(
         r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}",
@@ -104,8 +106,8 @@ prepare:
 
     qcow2_url = "{}/{}".format(plan_data_url.rstrip("/"), qfile)
     print("[i] derived QCOW2_URL={}".format(qcow2_url))
-    with open(env_file, "a") as f:
-        f.write("QCOW2_URL={}\n".format(qcow2_url))
+    with open(source_script, "a") as f:
+        f.write("export QCOW2_URL={}\n".format(shlex.quote(qcow2_url)))
     PY
 
 execute:
