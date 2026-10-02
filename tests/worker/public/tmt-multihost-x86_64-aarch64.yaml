@@ -327,14 +327,23 @@ checks:
           - ""
           - tmt
 
+  # Since tmt 1.79, these variables are no longer visible in the `environment:` debug
+  # dump of the `ssh` command (tmt stopped passing them via the command's environment),
+  # they are instead exported inline in the remote shell command tmt runs over `ssh`.
+  # See https://redhat-internal.slack.com/archives/C03BRN71JAF/p1790841623828099 for details.
   literal-patterns[work-basic*/log.txt]:
     - |
-      environment:
-          TESTING_FARM_REQUEST_ID: {{ REQUEST_ID }}
-          TESTING_FARM_TEST_TYPE: fmf
-          TESTING_FARM_GIT_URL: {{ GIT_CLONE_URL }}
-          TESTING_FARM_GIT_REF: {{ GIT_REF }}
-          TMT_VERSION: {{ '\d+' }}.{{ '\d+' }}.{{ '\d+' }}
-          TMT_TREE: /var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/tree
-          TMT_PLAN_DATA: /var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/data
-          TMT_PLAN_SOURCE_SCRIPT: /var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/data/plan-source-script.sh
+      Run command: ssh -oForwardX11=no -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oConnectionAttempts=5 -oConnectTimeout=60 -oServerAliveInterval=5 -oServerAliveCountMax=60 -oIdentitiesOnly=yes -i /etc/citool.d/id_rsa_artemis.decrypted -oPasswordAuthentication=no -S/var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}/ssh-sockets/{{ '[0-9.]+' }}-root.socket root@{{ '[0-9.]+' }} 'export TESTING_FARM_REQUEST_ID={{ REQUEST_ID }}; export TESTING_FARM_TEST_TYPE=fmf; export TESTING_FARM_GIT_URL={{ GIT_CLONE_URL }}; export TESTING_FARM_GIT_REF={{ GIT_REF }}; export TMT_VERSION={{ '\d+' }}.{{ '\d+' }}.{{ '\d+' }}{{ '[a-z0-9.+]*' }}; export TMT_TREE=/var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/tree; export TMT_PLAN_DATA=/var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/data; export TMT_PLAN_ENVIRONMENT_FILE=/var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/data/variables.env-{{ '(server|client)' }}; export TMT_PLAN_SOURCE_SCRIPT=/var/ARTIFACTS/work-basic{{ '[a-zA-Z0-9_-]+' }}{{ PLAN }}/data/plan-source-script.sh-{{ '(server|client)' }};
+
+    # https://github.com/teemtee/tmt/pull/5209, shipped in the tmt 1.79 hotfix build from
+    # https://github.com/teemtee/tmt/pull/5214, restores the *local* ssh process's own
+    # environment (os.environ) for guest commands that don't set one explicitly, such as
+    # the `whoami` guest readiness check below. Before the fix it logged `environment: {}`.
+    - |
+      ; whoami'
+      {{ '\d+' }}:{{ '\d+' }}:{{ '\d+' }}{{ '\s+' }}[server]{{ '\s+' }}environment:
+      [server]{{ '\s+' }}TMT_POLICY_ROOT: /etc/tmt/policies
+    - |
+      ; whoami'
+      {{ '\d+' }}:{{ '\d+' }}:{{ '\d+' }}{{ '\s+' }}[client]{{ '\s+' }}environment:
+      [client]{{ '\s+' }}TMT_POLICY_ROOT: /etc/tmt/policies
