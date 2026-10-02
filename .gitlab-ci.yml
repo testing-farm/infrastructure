@@ -590,21 +590,22 @@ image/artifacts-bootc/qcow2:
       optional: true
   script:
     - export AUTH_JSON=$(printf '{"auths":{"quay.io":{"auth":"%s"}}}' "$(printf '%s:%s' "$QUAY_USERNAME" "$QUAY_PASSWORD" | base64 -w0)" | base64 -w0)
-    # qcow2-url.py reads the build artifacts from the Red Hat ranch artifact server
-    # (artifacts.osci.redhat.com), which is signed by the Red Hat Internal Root CA
-    # that the cli image's public bundle does not trust. Add the vendored root so
-    # the fetch verifies (the public Testing Farm API keeps verifying via the
-    # existing bundle). Mirrors container.fmf's RH IT CA install.
-    - cp images/bootc-artifacts/redhat-it-root-ca.pem /usr/local/share/ca-certificates/redhat-it-root-ca.crt
-    - update-ca-certificates
-    # Build the qcow2 and derive its download URL for the AMI job (passed on via
-    # the dotenv artifact below). A preset QCOW2_URL takes precedence.
+    # Build the qcow2 and record the build request id for the ami job (handed on via
+    # the dotenv artifact below). The download URL is NOT derived here: the runner
+    # cannot reach the Red Hat ranch artifact server; the ami job's upload plan
+    # derives it inside Testing Farm. A preset QCOW2_REQUEST or QCOW2_URL takes
+    # precedence over building.
     - |
-      if [ -z "${QCOW2_URL:-}" ]; then
+      if [ -z "${QCOW2_REQUEST:-}" ] && [ -z "${QCOW2_URL:-}" ]; then
         make image/artifacts-bootc/qcow2 AUTH_JSON="$AUTH_JSON" | tee qcow2-build.log
-        QCOW2_URL=$(images/bootc-artifacts/qcow2-url.py "$(cat qcow2-build.log)")
+        QCOW2_REQUEST=$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}' qcow2-build.log | head -1)
+        [ -n "$QCOW2_REQUEST" ] || { echo "[E] could not find the build request id in the qcow2 build output."; exit 1; }
       fi
-    - echo "QCOW2_URL=${QCOW2_URL}" > qcow2.env
+    - |
+      : > qcow2.env
+      if [ -n "${QCOW2_REQUEST:-}" ]; then echo "QCOW2_REQUEST=${QCOW2_REQUEST}" >> qcow2.env; fi
+      if [ -n "${QCOW2_URL:-}" ]; then echo "QCOW2_URL=${QCOW2_URL}" >> qcow2.env; fi
+      cat qcow2.env
   artifacts:
     reports:
       dotenv: qcow2.env
@@ -618,16 +619,15 @@ image/artifacts-bootc/ami:
   variables:
     IMAGE_NAME: artifacts-bootc-x86_64
     QCOW2_ARCH: x86_64
-  # QCOW2_URL is inherited from the qcow2 job's dotenv artifact; set it manually to
-  # override (e.g. when running this job standalone). VAULT_SECRET_ID must be set as
-  # a CI/CD variable.
+  # QCOW2_REQUEST is inherited from the qcow2 job's dotenv artifact; the upload plan
+  # derives the download URL from it inside Testing Farm (the runner cannot reach the
+  # artifact server). Set QCOW2_REQUEST manually to point at a different build, or
+  # QCOW2_URL to skip derivation with a ready URL. VAULT_SECRET_ID must be set as a
+  # CI/CD variable.
   script:
-    - '[ -n "${QCOW2_URL:-}" ] || { echo "[E] QCOW2_URL is empty - run the qcow2 job first or set QCOW2_URL manually."; exit 1; }'
-    - >
-      testing-farm request --skip-summary
-      --git-url https://gitlab.com/testing-farm/tests.git --git-ref main
-      -e QCOW2_URL="$QCOW2_URL"
-      -e IMAGE_NAME="$IMAGE_NAME"
-      -e QCOW2_ARCH="$QCOW2_ARCH"
-      -s VAULT_SECRET_ID="$VAULT_SECRET_ID"
-      --plan /testing-farm/upload-qcow2/aws
+    - |
+      [ -n "${QCOW2_REQUEST:-}" ] || [ -n "${QCOW2_URL:-}" ] || { echo "[E] neither QCOW2_REQUEST nor QCOW2_URL is set - run the qcow2 job first or set one manually."; exit 1; }
+      set -- --skip-summary -e IMAGE_NAME="$IMAGE_NAME" -e QCOW2_ARCH="$QCOW2_ARCH" -s VAULT_SECRET_ID="$VAULT_SECRET_ID" --plan /images/bootc-artifacts/upload
+      if [ -n "${QCOW2_REQUEST:-}" ]; then set -- "$@" -e QCOW2_REQUEST="$QCOW2_REQUEST"; fi
+      if [ -n "${QCOW2_URL:-}" ]; then set -- "$@" -e QCOW2_URL="$QCOW2_URL"; fi
+      testing-farm request "$@"
