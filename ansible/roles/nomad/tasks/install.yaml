@@ -46,6 +46,7 @@
     mode: 0755
     remote_src: true
 
+# Podman driver is only used by the dev worker, prod and staging use raw_exec
 - name: Create Nomad plugin directory
   become: true
   file:
@@ -54,11 +55,15 @@
     owner: root
     group: root
     mode: 0755
+  when:
+    - nomad_user != "root"
 
 - name: Download Nomad podman driver
   command: "curl -Lo {{ download.path }}/{{ nomad_driver_podman_pkg }} {{ nomad_driver_podman_zip_url }}"
   tags:
     - skip_ansible_lint
+  when:
+    - nomad_user != "root"
 
 - name: Unarchive Nomad podman driver
   become: true
@@ -66,6 +71,8 @@
     src: "{{ download.path }}/{{ nomad_driver_podman_pkg }}"
     dest: "{{ download.path }}"
     remote_src: true
+  when:
+    - nomad_user != "root"
 
 - name: Install Nomad podman driver
   become: true
@@ -76,6 +83,8 @@
     group: root
     mode: 0755
     remote_src: true
+  when:
+    - nomad_user != "root"
 
 - name: Cleanup
   file:

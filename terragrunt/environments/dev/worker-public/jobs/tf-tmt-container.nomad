@@ -4,6 +4,7 @@ job "tf-tmt-container" {
 
   parameterized {
     meta_required = ["REQUEST_ID"]
+    meta_optional = ["CITOOL_CONFIG_IMAGE", "REQUEST_TIMEOUT"]
   }
 
   group "tmt" {
@@ -65,8 +66,13 @@ job "tf-tmt-container" {
         CONTAINER_HOST = "unix:///run/podman/podman.sock"
         ARTIFACTS_DIR  = "/var/ARTIFACTS"
         SSH_AUTH_SOCK  = "/run/ssh-agent.sock"
+        API_URL        = "http://{{ api_hostname }}/v0.1"
+        ARTIFACTS_URL  = "http://{{ artifacts_hostname }}"
 
+        CITOOL_CONFIG_IMAGE         = "${NOMAD_META_CITOOL_CONFIG_IMAGE}"
         CITOOL_CONFIG_IMAGE_DEFAULT = "quay.io/testing-farm/ranch-public:latest"
+
+        REQUEST_TIMEOUT = "${NOMAD_META_REQUEST_TIMEOUT}"
       }
 
       kill_timeout = "15m"
