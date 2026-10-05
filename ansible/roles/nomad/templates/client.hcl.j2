@@ -1,4 +1,6 @@
+{% if nomad_user != "root" %}
 plugin_dir = "{{ nomad_plugin_dir }}"
+{% endif %}
 
 client {
     enabled = true
@@ -17,7 +19,12 @@ client {
     gc_disk_usage_threshold = {{ nomad_gc_disk_usage_threshold }}
 
     # Specifies the maximum number of allocations which a client will track before triggering a garbage collection of terminal allocations.
-    gc_max_allocs = {{ nomad_gc_max_allocs }}}
+    gc_max_allocs = {{ nomad_gc_max_allocs }}
+
+    # Cap for a task's kill_timeout (Nomad default is 30s). Must be >= the job
+    # kill_timeout so citool can release its Artemis guests on cancellation / drain.
+    max_kill_timeout = "{{ nomad_max_kill_timeout }}"
+}
 
 plugin "raw_exec" {
     config {
@@ -25,12 +32,10 @@ plugin "raw_exec" {
     }
 }
 
+{% if nomad_user != "root" %}
 plugin "nomad-driver-podman" {
     config {
-{% if nomad_user == "root" %}
-        socket_path = "unix:///run/podman/podman.sock"
-{% else %}
         socket_path = "unix:///run/user/{{ nomad_uid.stdout }}/podman/podman.sock"
-{% endif %}
     }
 }
+{% endif %}
