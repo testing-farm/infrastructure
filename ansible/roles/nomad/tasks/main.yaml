@@ -12,6 +12,9 @@
       command: "id -u {{ nomad_user }}"
       register: nomad_uid
       changed_when: false
+      # Also needed by the update_jobs run, which renders job templates that
+      # depend on nomad_podman_socket_path (computed from nomad_uid below).
+      tags: update_jobs
       when:
         - nomad_user != "root"
 
@@ -100,6 +103,7 @@
         - tun
       when:
         - _nomad_node_client | bool
+        - nomad_user != "root"
 
     - name: Persist fuse and tun modules across reboots
       copy:
@@ -110,6 +114,7 @@
         mode: 0644
       when:
         - _nomad_node_client | bool
+        - nomad_user != "root"
 
     - name: Ensure /dev/fuse and /dev/net/tun are world-accessible
       file:
@@ -120,6 +125,7 @@
         - /dev/net/tun
       when:
         - _nomad_node_client | bool
+        - nomad_user != "root"
 
     - name: Delegate cgroups v2 to user sessions
       file:
@@ -162,15 +168,6 @@
       when:
         - _nomad_node_client | bool
         - nomad_user != "root"
-
-    - name: Enable and start rootful podman socket
-      systemd:
-        name: podman.socket
-        enabled: true
-        state: started
-      when:
-        - _nomad_node_client | bool
-        - nomad_user == "root"
 
     - name: Wait for user runtime directory
       wait_for:
@@ -289,9 +286,13 @@
 
     - name: Set podman socket path
       set_fact:
-        nomad_podman_socket_path: "{{ '/run/podman/podman.sock' if nomad_user == 'root' else '/run/user/' + nomad_uid.stdout + '/podman/podman.sock' }}"
+        nomad_podman_socket_path: "/run/user/{{ nomad_uid.stdout }}/podman/podman.sock"
+      # Also needed by the update_jobs run, which renders job templates that
+      # reference nomad_podman_socket_path.
+      tags: update_jobs
       when:
         - _nomad_node_client | bool
+        - nomad_user != "root"
 
     - name: Create artifacts directory for podman-based worker jobs
       file:
@@ -300,7 +301,9 @@
         owner: "{{ nomad_user }}"
         group: "{{ nomad_group }}"
         mode: 0755
-      when: _nomad_node_client | bool
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
 
     - name: Start Nomad
       service:

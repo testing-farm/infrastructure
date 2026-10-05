@@ -41,6 +41,11 @@ nomad_syslog_enable: true
 nomad_gc_interval: 168h
 nomad_gc_disk_usage_threshold: 80
 nomad_gc_max_allocs: 20000
+
+# Maximum allowed task kill_timeout. Job kill_timeout is capped at this value
+# Must be >= the job kill_timeout (15m) so citool has time to release its
+# Artemis guests on request cancellation before receiving SIGKILL.
+nomad_max_kill_timeout: "15m"
 # Server garbage collection settings
 nomad_node_gc_threshold: 24h
 nomad_eval_gc_threshold: 168h
