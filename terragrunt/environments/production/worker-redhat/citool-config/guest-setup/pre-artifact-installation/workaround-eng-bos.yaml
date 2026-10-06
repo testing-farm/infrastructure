@@ -3,7 +3,10 @@
 # Needed for old releases and images still using it.
 #
 - name: Workaround download.eng.bos.redhat.com deprecation
-  command: >-
+  # NOTE: Must be `shell`, not `command` -- the glob below needs shell expansion,
+  # otherwise `sed` receives the literal `*.repo` path and the rewrite silently
+  # fails (swallowed by `ignore_errors`). See the sibling CentOS EOL workarounds.
+  shell: >-
     sed -i 's/download\.eng\.bos/download.devel/g' /etc/yum.repos.d/*.repo
   ignore_errors: true
 
