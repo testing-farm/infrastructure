@@ -3,6 +3,8 @@ server {
     add_header Access-Control-Allow-Origin *;
     location / {
         proxy_pass http://127.0.0.1:8002;
+        proxy_read_timeout 180s;
+        proxy_send_timeout 180s;
     }
     listen       80;
 }
