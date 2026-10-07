@@ -12,11 +12,8 @@ Encrypted at rest (ansible-vault — committed, must stay encrypted):
 - `ansible/secrets/ssh/id_rsa_*` — SSH private keys
 - `ansible/secrets/quay/*.json` — Quay registry auth
 
-Local plaintext artifacts that must **NEVER** be committed:
-
-- `.vault_pass` — ansible-vault password
-- `*.decrypted` — decrypted working copies of any secret
-- any backup/suffixed copy of a secret file (e.g. `credentials.yaml.bak`)
+Plaintext/backup variants of these (`.vault_pass`, `*.decrypted`, `*.bak`, …)
+are kept out of git by `.gitignore` — never force-add them.
 
 ## Hard rules
 
