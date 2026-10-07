@@ -5,7 +5,7 @@ reproducer-comment = # tmt reproducer | https://docs.testing-farm.io/Testing%20F
 # TFT-2545 - set  TMT_REPORT_ARTIFACTS_URL
 # TFT-5167 - set TMT_TEST_PIDFILE_ROOT to keep our tmt test pidfile off the default /var/tmp,
 # so a tmt run started by a user against a reserved guest cannot hijack our reboot signalling
-environment-variables = TMT_POLICY_ROOT=/etc/tmt/policies, TMT_REPORT_ARTIFACTS_URL={{ COLDSTORE_URL }}, PATH=/opt/gluetool/bin:/usr/bin:/usr/sbin, HOME=/root, PYTHONUNBUFFERED=1, PODMAN_IGNORE_CGROUPSV1_WARNING=1, TMT_GIT_CLONE_INTERVAL=30, TMT_GIT_CLONE_ATTEMPTS=20, TMT_IMPORT_BEFORE_NAME_FILTER=1, TMT_TEST_PIDFILE_ROOT=/var/tmp/tmt-testing-farm, TMT_CONNECT_TIMEOUT=1200
+environment-variables = TMT_POLICY_ROOT=/etc/tmt/policies, TMT_REPORT_ARTIFACTS_URL={{ COLDSTORE_URL }}, PATH=/opt/gluetool/bin:/usr/bin:/usr/sbin, HOME=/root, PYTHONUNBUFFERED=1, PODMAN_IGNORE_CGROUPSV1_WARNING=1, TMT_GIT_CLONE_INTERVAL=30, TMT_GIT_CLONE_ATTEMPTS=20, TMT_IMPORT_BEFORE_NAME_FILTER=1, TMT_TEST_PIDFILE_ROOT=/var/tmp/tmt-testing-farm, TMT_CONNECT_TIMEOUT=1200, TMT_REBOOT_TIMEOUT=1200
 
 #
 # polarion report plugin - pylero env vars https://github.com/RedHatQE/pylero#configuration
