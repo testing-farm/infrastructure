@@ -17,6 +17,9 @@ if [ "$USER" != "root" ]; then
 fi
 
 CITOOL_IMAGE="${CITOOL_IMAGE:-citool:latest}"
+{%- if citool_config_container_image is defined %}
+CITOOL_CONFIG_IMAGE="${CITOOL_CONFIG_IMAGE:-{[ citool_config_container_image ]}}"
+{%- endif %}
 CITOOL_CONFIG_DIR="${CITOOL_CONFIG_DIR:-/etc/citool.d}"
 CITOOL_RUN_DIR="${CITOOL_RUN_DIR:-$PWD}"
 CITOOL_OPTIONS=()
