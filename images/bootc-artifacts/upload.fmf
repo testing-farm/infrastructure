@@ -35,6 +35,12 @@ description: |
       QCOW2_FILE           ... Name of the qcow2 file (default artifacts-bootc.qcow2,
                                matching the qcow2 build).
 
+      FORCE_UPLOAD         ... When set, delete any existing IMAGE_NAME from the cloud
+                               before uploading, so the upload is not a no-op when the
+                               image already exists. Best effort: only the source
+                               region (us-east-1) copy is removed; the us-east-2 copy
+                               is not deleted yet (TFT-4650).
+
       TESTING_FARM_API_URL ... Testing Farm API holding the build request (defaults
                                to the public endpoint, which holds every request
                                regardless of ranch; the GET needs no token).
