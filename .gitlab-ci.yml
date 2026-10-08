@@ -554,8 +554,9 @@ renew/certs:
 #   QUAY_USERNAME / QUAY_PASSWORD  quay.io credentials for the container push
 #   VAULT_SECRET_ID                Vault secret id for the cloud credentials
 #
-# Manual jobs: the future trigger is still to be decided (it will be a GitLab
-# pipeline in this repo), so for now they are only offered on the default branch.
+# Trigger: the chain runs automatically whenever images/bootc-artifacts/ changes,
+# both on MRs (throwaway per-pipeline AMI) and on the default branch after merge
+# (forced refresh of the stable AMI).
 # ---------------------------------------------------------------------------
 .artifacts-bootc:
   stage: deploy
@@ -566,14 +567,18 @@ renew/certs:
   before_script:
     - export TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT
   rules:
-    # TEMPORARY (TFT-4795): auto-run the image build on the MR to validate it before
-    # merge. The container -> qcow2 -> ami 'needs' chain makes each job start only
-    # after the previous one succeeds. Revert this commit once merged.
+    # Run the build chain (container -> qcow2 -> ami, ordered by 'needs') whenever the
+    # image sources change - on MRs to validate before merge, and on the default branch
+    # after merge to refresh the stable AMI. The ami job picks the AMI name / force
+    # behaviour per context (see image/artifacts-bootc/ami).
     - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - images/bootc-artifacts/**/*
       when: on_success
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
-      allow_failure: true
+      changes:
+        - images/bootc-artifacts/**/*
+      when: on_success
 
 image/artifacts-bootc/container:
   extends: .artifacts-bootc
@@ -617,7 +622,6 @@ image/artifacts-bootc/ami:
       optional: true
       artifacts: true
   variables:
-    IMAGE_NAME: artifacts-bootc-x86_64
     QCOW2_ARCH: x86_64
   # QCOW2_REQUEST is inherited from the qcow2 job's dotenv artifact; the upload plan
   # derives the download URL from it inside Testing Farm (the runner cannot reach the
@@ -627,7 +631,19 @@ image/artifacts-bootc/ami:
   script:
     - |
       [ -n "${QCOW2_REQUEST:-}" ] || [ -n "${QCOW2_URL:-}" ] || { echo "[E] neither QCOW2_REQUEST nor QCOW2_URL is set - run the qcow2 job first or set one manually."; exit 1; }
+      # On MRs upload a throwaway AMI named per pipeline (never collides with the stable
+      # image, always a fresh upload). On the default branch refresh the stable AMI in
+      # place, forcing the upload (tft-admin no-ops when the name already exists).
+      if [ -n "${CI_MERGE_REQUEST_IID:-}" ]; then
+        IMAGE_NAME="artifacts-bootc-${QCOW2_ARCH}-${CI_PIPELINE_ID}"
+        FORCE_UPLOAD=""
+      else
+        IMAGE_NAME="artifacts-bootc-${QCOW2_ARCH}"
+        FORCE_UPLOAD="1"
+      fi
+      echo "[i] IMAGE_NAME=$IMAGE_NAME FORCE_UPLOAD=${FORCE_UPLOAD:-<unset>}"
       set -- --skip-summary -e IMAGE_NAME="$IMAGE_NAME" -e QCOW2_ARCH="$QCOW2_ARCH" -s VAULT_SECRET_ID="$VAULT_SECRET_ID" --plan /images/bootc-artifacts/upload
+      if [ -n "$FORCE_UPLOAD" ]; then set -- "$@" -e FORCE_UPLOAD="$FORCE_UPLOAD"; fi
       if [ -n "${QCOW2_REQUEST:-}" ]; then set -- "$@" -e QCOW2_REQUEST="$QCOW2_REQUEST"; fi
       if [ -n "${QCOW2_URL:-}" ]; then set -- "$@" -e QCOW2_URL="$QCOW2_URL"; fi
       testing-farm request "$@"

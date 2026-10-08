@@ -612,11 +612,13 @@ IMAGE_NAME ?= artifacts-bootc-$(QCOW2_ARCH)
 
 # The upload plan derives QCOW2_URL from QCOW2_REQUEST inside Testing Farm; pass one
 # or the other (a ready QCOW2_URL skips derivation). Only the set one is forwarded so
-# an empty value never shadows the derived URL.
+# an empty value never shadows the derived URL. Set FORCE_UPLOAD=1 to delete any
+# existing IMAGE_NAME first (tft-admin otherwise no-ops when it already exists).
 image/artifacts-bootc/ami: .FORCE  ## Upload artifact-server qcow2 to AWS as an AMI via Testing Farm (needs QCOW2_REQUEST or QCOW2_URL, and VAULT_SECRET_ID)
 	testing-farm request --skip-summary \
 		$(if $(QCOW2_REQUEST),-e QCOW2_REQUEST="$(QCOW2_REQUEST)") \
 		$(if $(QCOW2_URL),-e QCOW2_URL="$(QCOW2_URL)") \
+		$(if $(FORCE_UPLOAD),-e FORCE_UPLOAD="$(FORCE_UPLOAD)") \
 		-e IMAGE_NAME="$(IMAGE_NAME)" \
 		-e QCOW2_ARCH="$(QCOW2_ARCH)" \
 		-s VAULT_SECRET_ID="$(VAULT_SECRET_ID)" \
