@@ -56,7 +56,12 @@
         - '"pfmt" not in IMAGE_NAME|lower'
       ansible.builtin.include_role:
         name: testing_farm_profiles.repository.epel
-    - include_tasks: workaround-beakerlib.yaml
+    - name: testing_farm_profiles.library.beakerlib
+      when:
+        - '"auto-osbuild" not in IMAGE_NAME|lower'
+        - '"pfmt" not in IMAGE_NAME|lower'
+      ansible.builtin.include_role:
+        name: testing_farm_profiles.library.beakerlib
     - name: testing_farm_profiles.library.koji
       when:
         - '"auto-osbuild" not in IMAGE_NAME|lower'
