@@ -15,7 +15,15 @@ restricted `rrsync` forced command.
   `.txt.gz` / `.log.gz` / `.json.gz` served as `text/plain` with
   `Content-Encoding: gzip`.
 * `sshd` restricted `rrsync` forced command for the `artifacts` upload user
-  (key-auth, write-only into `/mnt/s3files`, no shell).
+  (key-auth, write-only into `/mnt/s3files`, no interactive shell). The forced
+  command (`config/rrsync-artifacts`) fails closed via a shared readiness check
+  (`config/check-artifacts-mount`) before handing off to the vendor `rrsync`.
+* S3 Files (NFS-over-S3) mount at `/var/mnt/s3files`: `amazon-efs-utils` (the AWS
+  mount helper) is installed from the AWS prebuilt RHEL repo (not built from
+  source — the FIPS `aws-lc` source build fails on RHEL 10), and the `/etc/fstab`
+  entry is rendered at build time from the non-secret `build-arg-linux-amd64`
+  inputs (filesystem id, mount-target IP, upload UID/GID). nginx start is gated on
+  the mount via a `BindsTo` / `ExecStartPre` drop-in (`config/nginx/10-storage.conf`).
 * Kernel/network tuning: BBR + fq, TCP buffers, `somaxconn`, `nofile`, sunrpc
   slots via `/usr/lib/sysctl.d/`, `/etc/security/limits.d/`, and
   `/usr/lib/bootc/kargs.d/`.
@@ -107,11 +115,6 @@ environment variable (consumed by
 
 == Open items (TFT-4795)
 
-* *S3 Files mount*: `amazon-efs-utils` (the AWS mount helper) is not installed
-  yet and the mount unit is a stub (`config/artifacts.mount`). nginx serves the
-  empty `/mnt/s3files` directory until this is wired up. Install
-  `amazon-efs-utils` from the *AWS prebuilt repo* — do NOT build from source on
-  RHEL 10 (the FIPS `aws-lc` build fails, confirmed in the TFT-4606 spike).
 * *TLS certs*: a throwaway *self-signed* cert is baked at
   `/etc/pki/nginx/artifacts.{crt,key}` to unblock testing. The real cert is a
   Let's Encrypt cert for `redhat.artifacts.testing.farm`, issued via the repo's

@@ -8,34 +8,61 @@
 ARG BASE_IMAGE=images.paas.redhat.com/testingfarm/rhel-bootc:10
 FROM $BASE_IMAGE
 
+# Supplied by build-arg-linux-amd64; these are configuration, not credentials.
+ARG AMAZON_EFS_UTILS_VERSION
+ARG ARTIFACTS_FILESYSTEM_ID
+ARG ARTIFACTS_MOUNT_TARGET_IP
+ARG ARTIFACTS_UID
+ARG ARTIFACTS_GID
+
+COPY config/efs-utils.repo /etc/yum.repos.d/efs-utils.repo
+COPY config/render-artifacts-fstab /usr/local/libexec/render-artifacts-fstab
+
 RUN <<EOF
 set -euo pipefail
 
-# Core packages.
-#   nginx          - autoindex artifact serving
-#   openssh-server - rrsync upload endpoint
-#   rsync          - rsync utility
-#   rsync-rrsync   - provides /usr/bin/rrsync (restricted rsync forced command)
-#   stunnel        - TLS tunnel for the S3 Files mount helper
-#   nfs-utils      - NFS client for the S3 Files mount
-#
-# NOTE (TFT-4795): amazon-efs-utils is intentionally NOT installed yet.
-# It is the AWS mount helper for S3 Files (NFS-over-S3); without it the
-# /mnt/s3files mount stays a stub (see config/artifacts.mount). To be solved
-# later - do NOT build from source on RHEL 10, the FIPS aws-lc build fails
-# (confirmed in the TFT-4606 spike POC). Install from the AWS prebuilt repo.
-dnf -y install nginx openssh-server rsync rsync-rrsync stunnel nfs-utils openssl
+: "${AMAZON_EFS_UTILS_VERSION:?Missing helper version}"
+: "${ARTIFACTS_UID:?Missing upload UID}"
+: "${ARTIFACTS_GID:?Missing upload GID}"
+if [[ ! "$ARTIFACTS_UID" =~ ^[1-9][0-9]{0,4}$ || ! "$ARTIFACTS_GID" =~ ^[1-9][0-9]{0,4}$ ]] || \
+    (( ARTIFACTS_UID > 65535 || ARTIFACTS_GID > 65535 )); then
+    echo 'Upload UID/GID must be integers in the range 1..65535' >&2
+    exit 1
+fi
+
+# Bootstrap curl from the base repositories before enabling AWS key checks.
+# A file capability accepts an existing curl-minimal without replacing it.
+dnf -y --disablerepo=efs-utils install nginx openssh-server rsync rsync-rrsync \
+    stunnel nfs-utils openssl /usr/bin/curl
+
+# Use AWS's signed prebuilt RHEL package, not the failing FIPS source build.
+curl --fail --silent --show-error --location \
+    https://amazon-efs-utils.aws.com/efs-utils-armored.gpg \
+    --output /etc/pki/rpm-gpg/RPM-GPG-KEY-efs-utils.gpg
+rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-efs-utils.gpg
+dnf -y install "amazon-efs-utils-${AMAZON_EFS_UTILS_VERSION}"
 dnf -y clean all
 
-# nginx serves the S3 Files mount root; create it so nginx starts even before
-# the mount is wired up. On bootc/ostree /mnt is a symlink (to /var/mnt) whose
-# target may not exist yet, so resolve it before mkdir.
-mkdir -p "$(readlink -f /mnt)/s3files"
+# The underlying local directory is never writable by the upload account.
+mkdir -p /var/mnt/s3files
+chmod 0755 /var/mnt/s3files
+chown root:root /var/mnt/s3files
 
-# Dedicated upload account: no password, no shell (access only via the rrsync
-# forced command in the authorized_keys file).
-useradd --system --create-home --home-dir /var/lib/artifacts \
-    --shell /usr/sbin/nologin artifacts
+# A usable shell is needed to execute OpenSSH's forced command. Key restrictions
+# deny shell access; an unusable login shell also prevents legitimate uploads.
+groupadd --system --gid "$ARTIFACTS_GID" artifacts
+useradd --system --uid "$ARTIFACTS_UID" --gid artifacts --create-home \
+    --home-dir /var/lib/artifacts --shell /bin/sh artifacts
+
+# Preserve root/boot/var entries, and fail rather than duplicating a data mount.
+if [ -f /etc/fstab ] && awk '$1 !~ /^#/ && ($2 == "/mnt/s3files" || $2 == "/var/mnt/s3files") { found = 1 }
+    END { exit !found }' /etc/fstab; then
+    echo 'Artifact mount is already configured in the base image' >&2
+    exit 1
+fi
+chmod 0755 /usr/local/libexec/render-artifacts-fstab
+/usr/local/libexec/render-artifacts-fstab \
+    "$ARTIFACTS_FILESYSTEM_ID" "$ARTIFACTS_MOUNT_TARGET_IP" >> /etc/fstab
 
 systemctl enable nginx sshd
 EOF
@@ -49,8 +76,10 @@ COPY config/nginx/artifacts.conf /etc/nginx/conf.d/artifacts.conf
 COPY config/ssh/sshd_artifacts.conf /etc/ssh/sshd_config.d/10-artifacts.conf
 COPY config/ssh/authorized_keys.artifacts /etc/ssh/artifacts_authorized_keys
 
-# S3 Files mount: intentionally NOT installed yet (stub), see config/artifacts.mount
-# and the amazon-efs-utils note above. TODO(TFT-4795).
+# Shared fail-closed mount check; administrator SSH has no storage dependency.
+COPY config/check-artifacts-mount /usr/local/libexec/check-artifacts-mount
+COPY config/rrsync-artifacts /usr/local/libexec/rrsync-artifacts
+COPY config/nginx/10-storage.conf /usr/lib/systemd/system/nginx.service.d/10-storage.conf
 
 # Kernel/network tuning.
 COPY config/sysctl-artifacts.conf /usr/lib/sysctl.d/90-artifacts.conf
@@ -60,8 +89,9 @@ COPY config/limits-artifacts.conf /etc/security/limits.d/90-artifacts.conf
 RUN <<EOF
 set -euo pipefail
 
-# Lock down the upload authorized_keys file for sshd AuthorizedKeysFile.
+# All forced commands and their configuration are root-owned.
 chmod 0644 /etc/ssh/artifacts_authorized_keys
+chmod 0755 /usr/local/libexec/check-artifacts-mount /usr/local/libexec/rrsync-artifacts
 
 # Self-signed TLS cert so nginx starts and testing is unblocked. The real
 # host-provisioned cert (TFT-4797) overrides these paths on deploy.
@@ -75,8 +105,5 @@ openssl req -x509 -nodes -newkey rsa:4096 -days 3650 \
 chmod 0600 /etc/pki/nginx/artifacts.key
 chmod 0644 /etc/pki/nginx/artifacts.crt
 
-# NOTE: no build-time `nginx -t`. Its config load opens the listen sockets, and
-# :80/:443 are privileged ports the (rootless) build step cannot bind
-# (EACCES). nginx binds fine at runtime, started by systemd as root. Config is
-# validated by goss.yaml and the TFT-4797 lifecheck tests instead.
+# Do not start services or mount production storage during the build.
 EOF

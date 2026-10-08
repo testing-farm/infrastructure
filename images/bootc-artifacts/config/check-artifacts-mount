@@ -1,0 +1,20 @@
+#!/bin/bash
+# Shared readiness check for nginx and the restricted uploader.
+set -euo pipefail
+
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 MOUNT_POINT" >&2
+    exit 2
+fi
+
+mount_point=$1
+if ! mount_info=$(findmnt --target "$mount_point" --noheadings --raw --output TARGET,FSTYPE); then
+    echo "Artifact storage is unavailable: $mount_point is not an NFS mount" >&2
+    exit 1
+fi
+
+read -r mounted_target filesystem_type <<< "$mount_info"
+if [[ "$mounted_target" != "$mount_point" || "$filesystem_type" != nfs4 || "$mount_info" == *$'\n'* ]]; then
+    echo "Artifact storage is unavailable: $mount_point is not an NFS mount" >&2
+    exit 1
+fi
