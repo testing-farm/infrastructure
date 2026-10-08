@@ -62,14 +62,28 @@ In GitLab CI the `qcow2` job records the build request id and hands it to the `a
 job via a dotenv artifact (`QCOW2_REQUEST`); set `QCOW2_REQUEST` or `QCOW2_URL`
 manually on the `ami` job to override.
 
+The AMI name and upload behaviour depend on the context. `tft-admin` no-ops when an
+AMI with the target name already exists, so:
+
+* on MRs the `ami` job uploads a throwaway AMI named per pipeline
+  (`artifacts-bootc-<arch>-<pipeline-id>`) - it never collides with the stable image
+  and always exercises the upload;
+* on the default branch (after merge) it refreshes the stable `artifacts-bootc-<arch>`
+  in place with `FORCE_UPLOAD=1`, which deletes the existing image before uploading.
+
+`FORCE_UPLOAD` only removes the source-region (us-east-1) copy; the us-east-2 copy is
+not deleted yet (TFT-4650). Set `FORCE_UPLOAD=1` on `make image/artifacts-bootc/ami`
+to force a refresh locally.
+
 The plans can also be run directly, e.g.
 `testing-farm request --plan /images/bootc-artifacts/container`.
 
-The same three steps run in GitLab CI as manual jobs (`image/artifacts-bootc/{container,qcow2,ami}`)
-- see `.gitlab-ci.yml`. They require the CI/CD variables `TESTING_FARM_API_TOKEN_REDHAT`
-(RH ranch token), `QUAY_USERNAME` / `QUAY_PASSWORD` (quay.io credentials for the
-push, from which the job builds `AUTH_JSON`), and `VAULT_SECRET_ID` (cloud
-credentials for the AMI upload).
+The three steps run in GitLab CI (`image/artifacts-bootc/{container,qcow2,ami}`) as a
+`needs`-ordered chain, triggered automatically whenever `images/bootc-artifacts/`
+changes - see `.gitlab-ci.yml`. They require the CI/CD variables
+`TESTING_FARM_API_TOKEN_REDHAT` (RH ranch token), `QUAY_USERNAME` / `QUAY_PASSWORD`
+(quay.io credentials for the push, from which the job builds `AUTH_JSON`), and
+`VAULT_SECRET_ID` (cloud credentials for the AMI upload).
 
 The base image is `images.paas.redhat.com/testingfarm/rhel-bootc:10`, a Testing
 Farm curated RHEL 10 bootc image on an internal Red Hat registry. The build must
