@@ -28,6 +28,7 @@ nomad_lockfile: /var/lock/subsys/nomad"
 nomad_run_dir: /var/run/nomad
 nomad_artifacts_dir: /var/ARTIFACTS
 nomad_containers_conf_path: /etc/citool.d/containers.conf
+nomad_selinux_policy_dir: /usr/local/share/selinux
 
 ### System user and group
 nomad_user: root

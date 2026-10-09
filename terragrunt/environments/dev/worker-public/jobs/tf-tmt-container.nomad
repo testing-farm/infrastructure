@@ -37,7 +37,7 @@ job "tf-tmt-container" {
         image        = "quay.io/testing-farm/worker-public:68d72a1b"
         network_mode = "host"
         init         = true
-        security_opt = ["label=disable"]
+        security_opt = ["label=type:tf_worker.process"]
 
         volumes = [
           # Config bundle is extracted at runtime by /bin/tf-tmt-container
