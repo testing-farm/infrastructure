@@ -351,6 +351,15 @@ resource "helm_release" "aws_load_balancer_controller" {
     name  = "clusterName"
     value = var.cluster_name
   }
+
+  # Leave `LoadBalancer` services to the in-tree cloud provider. With the webhook
+  # enabled, the controller claims every new `LoadBalancer` service by setting
+  # `loadBalancerClass: service.k8s.aws/nlb`, turning the artemis API classic ELB
+  # into an NLB the controller fails to provision.
+  set {
+    name  = "enableServiceMutatorWebhook"
+    value = "false"
+  }
 }
 
 resource "kubernetes_namespace" "kube-addons-ns" {
