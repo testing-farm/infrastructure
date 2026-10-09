@@ -209,6 +209,56 @@
         - _nomad_node_client | bool
         - nomad_user != "root"
 
+    - name: Install container-selinux, provides the udica policy templates
+      package:
+        name: container-selinux
+        state: present
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Create SELinux policy directory
+      file:
+        path: "{{ nomad_selinux_policy_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Copy SELinux policy for worker containers
+      copy:
+        src: tf_worker.cil
+        dest: "{{ nomad_selinux_policy_dir }}/tf_worker.cil"
+        owner: root
+        group: root
+        mode: 0644
+      register: tf_worker_policy
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: List loaded SELinux modules
+      command: semodule -l
+      register: selinux_modules
+      changed_when: false
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    # Jobs run their container with `security_opt = ["label=type:tf_worker.process"]`
+    - name: Load SELinux policy for worker containers
+      command: >-
+        semodule -i {{ nomad_selinux_policy_dir }}/tf_worker.cil
+        /usr/share/udica/templates/base_container.cil
+        /usr/share/udica/templates/net_container.cil
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+        - tf_worker_policy is changed or 'tf_worker' not in selinux_modules.stdout_lines
+
     - name: Create .ssh directory for nomad user
       file:
         path: "{{ nomad_home_dir }}/.ssh"

@@ -33,7 +33,7 @@ job "tf-sti" {
         image        = "quay.io/testing-farm/worker-public:latest"
         network_mode = "host"
         init         = true
-        security_opt = ["label=disable"]
+        security_opt = ["label=type:tf_worker.process"]
 
         volumes = [
           "/etc/citool.d:/etc/gluetool.d:O",
