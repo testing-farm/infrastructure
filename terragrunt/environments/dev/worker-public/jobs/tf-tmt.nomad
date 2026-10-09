@@ -4,6 +4,7 @@ job "tf-tmt" {
 
   parameterized {
     meta_required = ["REQUEST_ID"]
+    meta_optional = ["CITOOL_CONFIG_IMAGE", "REQUEST_TIMEOUT"]
   }
 
   group "tmt" {
@@ -51,13 +52,25 @@ job "tf-tmt" {
       }
 
       config {
-        image        = "quay.io/testing-farm/worker-public:latest"
+        # TODO: revert to latest once merged
+        image        = "quay.io/testing-farm/worker-public:68d72a1b"
         network_mode = "host"
         init         = true
         security_opt = ["label=type:tf_worker.process"]
 
         volumes = [
-          "/etc/citool.d:/etc/gluetool.d:O",
+          # The config bundle comes from the config image at runtime: extract_citool_config
+          # copies it into /CONFIG (/etc/citool.d) through the host podman.
+          # Artemis private key, layered in next to the config bundle.
+          # TODO: config/artemis reads `ssh-key = ${config_root}/id_rsa_artemis`, which this
+          # path does not match, and the rootless container cannot read the root-owned file.
+          "/etc/citool.d/id_rsa_artemis:/CONFIG_SECRETS/id_rsa_artemis:ro",
+          # environment.yaml: gluetool eval_context variables, must sit at the bundle root
+          "/etc/citool.d/environment.yaml:/CONFIG/environment.yaml:ro",
+          # Secrets config dir: the second --module-config-path entry (set_module_config_paths).
+          # Kept out of /CONFIG so the config-image extraction can't collide with it.
+          # Overrides the public config per key (e.g. api-key in testing-farm-request).
+          "/etc/citool.d/config:/CONFIG-SECRETS/config:ro",
           # Each request writes only to its own allocation directory, see the "artifacts-link" task
           "{{ nomad_data_dir }}/alloc/${NOMAD_ALLOC_ID}/alloc:/var/ARTIFACTS/${NOMAD_META_REQUEST_ID}:z",
           "{{ nomad_podman_socket_path }}:/run/podman/podman.sock",
@@ -78,6 +91,13 @@ job "tf-tmt" {
         ARTIFACTS_DIR  = "/var/ARTIFACTS"
         # TODO: ssh-agent disabled, see the nomad role tasks
         # SSH_AUTH_SOCK  = "/run/ssh-agent.sock"
+        API_URL        = "http://{{ api_hostname }}/v0.1"
+        ARTIFACTS_URL  = "http://{{ artifacts_hostname }}"
+
+        CITOOL_CONFIG_IMAGE         = "${NOMAD_META_CITOOL_CONFIG_IMAGE}"
+        CITOOL_CONFIG_IMAGE_DEFAULT = "quay.io/testing-farm/ranch-public:latest"
+
+        REQUEST_TIMEOUT = "${NOMAD_META_REQUEST_TIMEOUT}"
       }
 
       kill_timeout = "15m"

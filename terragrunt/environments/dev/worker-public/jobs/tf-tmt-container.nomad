@@ -61,16 +61,17 @@ job "tf-tmt-container" {
         security_opt = ["label=type:tf_worker.process"]
 
         volumes = [
-          # Config bundle is extracted at runtime by /bin/tf-tmt-container
-          # (extract_citool_config) into /etc/gluetool.d/config via the podma
-          # Artemis private key: host-only secret, layered in at the config-bundle root
-          # (${config_root}), so config/artemis's `ssh-key = ${config_root}/i
+          # The config bundle comes from the config image at runtime: extract_citool_config
+          # copies it into /CONFIG (/etc/citool.d) through the host podman.
+          # Artemis private key, layered in next to the config bundle.
+          # TODO: config/artemis reads `ssh-key = ${config_root}/id_rsa_artemis`, which this
+          # path does not match, and the rootless container cannot read the root-owned file.
           "/etc/citool.d/id_rsa_artemis:/CONFIG_SECRETS/id_rsa_artemis:ro",
-          # environment.yaml: gluetool eval_context vars, must sit at the bun
+          # environment.yaml: gluetool eval_context variables, must sit at the bundle root
           "/etc/citool.d/environment.yaml:/CONFIG/environment.yaml:ro",
-          # Secrets config dir: second --module-config-path entry (set_module
-          # Kept OUT of /etc/gluetool.d so the config-image extraction can't collide with it.
-          # Overrides the public config per-key (e.g. api-key in testing-farm
+          # Secrets config dir: the second --module-config-path entry (set_module_config_paths).
+          # Kept out of /CONFIG so the config-image extraction can't collide with it.
+          # Overrides the public config per key (e.g. api-key in testing-farm-request).
           "/etc/citool.d/config:/CONFIG-SECRETS/config:ro",
           # Each request writes only to its own allocation directory, see the "artifacts-link" task
           "{{ nomad_data_dir }}/alloc/${NOMAD_ALLOC_ID}/alloc:/var/ARTIFACTS/${NOMAD_META_REQUEST_ID}:z",
