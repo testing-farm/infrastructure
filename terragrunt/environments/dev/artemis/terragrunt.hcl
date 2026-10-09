@@ -76,7 +76,7 @@ inputs = {
   # Strip `testing-farm-` from the cluster name as use that to construct the artemis API domain name.
   # For example for `testing-farm-production` cluster that would be `artemis.production.testing-farm.io`
   # Due to terragrunt's internal parser limitations, dependencies cannot be referenced within locals block,
-  # hence the duplication bellow.
+  # hence the duplication below.
   api_domain = "artemis.${trimprefix(dependency.eks.outputs.cluster.cluster_name, "testing-farm-")}${local.domain_suffix}.${local.common.inputs.route53_zone}"
   metrics_domain = {
     postgresql = "postgresql.metrics.artemis.${trimprefix(dependency.eks.outputs.cluster.cluster_name, "testing-farm-")}${local.domain_suffix}.${local.common.inputs.route53_zone}"
