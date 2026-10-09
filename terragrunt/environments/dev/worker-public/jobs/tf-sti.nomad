@@ -61,10 +61,8 @@ job "tf-sti" {
         volumes = [
           # The config bundle comes from the config image at runtime: extract_citool_config
           # copies it into /CONFIG (/etc/citool.d) through the host podman.
-          # Artemis private key, layered in next to the config bundle.
-          # TODO: config/artemis reads `ssh-key = ${config_root}/id_rsa_artemis`, which this
-          # path does not match, and the rootless container cannot read the root-owned file.
-          "/etc/citool.d/id_rsa_artemis:/CONFIG_SECRETS/id_rsa_artemis:ro",
+          # Artemis guest key: the secrets config/artemis sets `ssh-key = ${config_root}/id_rsa_artemis`
+          "{{ nomad_home_dir }}/.ssh/id_artemis:/CONFIG-SECRETS/id_rsa_artemis:ro,z",
           # environment.yaml: gluetool eval_context variables, must sit at the bundle root
           "/etc/citool.d/environment.yaml:/CONFIG/environment.yaml:ro",
           # Secrets config dir: the second --module-config-path entry (set_module_config_paths).
