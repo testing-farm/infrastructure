@@ -21,6 +21,27 @@ job "tf-sti" {
       size = "5000"
     }
 
+    # The worker container sees the allocation directory as /var/ARTIFACTS/<request-id>.
+    # tmt hands that path to the host podman as a volume source, so the same path must
+    # exist on the host too. Link it there for the lifetime of the allocation.
+    task "artifacts-link" {
+      lifecycle {
+        hook = "prestart"
+      }
+
+      driver = "raw_exec"
+
+      config {
+        command = "/usr/bin/ln"
+        args    = ["-sfn", "${NOMAD_ALLOC_DIR}", "/var/ARTIFACTS/${NOMAD_META_REQUEST_ID}"]
+      }
+
+      resources {
+        cpu    = 50
+        memory = 32
+      }
+    }
+
     task "sti" {
       driver = "podman"
 
@@ -37,7 +58,8 @@ job "tf-sti" {
 
         volumes = [
           "/etc/citool.d:/etc/gluetool.d:O",
-          "/var/ARTIFACTS:/var/ARTIFACTS",
+          # Each request writes only to its own allocation directory, see the "artifacts-link" task
+          "{{ nomad_data_dir }}/alloc/${NOMAD_ALLOC_ID}/alloc:/var/ARTIFACTS/${NOMAD_META_REQUEST_ID}:z",
           "{{ nomad_podman_socket_path }}:/run/podman/podman.sock",
           "{{ nomad_home_dir }}/.ssh/agent.sock:/run/ssh-agent.sock",
 {% if nomad_user != "root" %}
@@ -55,6 +77,24 @@ job "tf-sti" {
       }
 
       kill_timeout = "15m"
+    }
+
+    task "artifacts-unlink" {
+      lifecycle {
+        hook = "poststop"
+      }
+
+      driver = "raw_exec"
+
+      config {
+        command = "/usr/bin/rm"
+        args    = ["-f", "/var/ARTIFACTS/${NOMAD_META_REQUEST_ID}"]
+      }
+
+      resources {
+        cpu    = 50
+        memory = 32
+      }
     }
   }
 }
