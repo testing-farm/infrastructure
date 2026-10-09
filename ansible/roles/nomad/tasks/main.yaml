@@ -285,6 +285,20 @@
         - nomad_user != "root"
         - artifacts_ssh_private_key is defined
 
+    # The worker containers mount this key as `${config_root}/id_rsa_artemis`, the guest key
+    # of the artemis module. The rootless containers cannot read root-owned files.
+    - name: Copy Artemis guest SSH key to nomad user
+      copy:
+        src: "{{ artemis_ssh_private_key }}"
+        dest: "{{ nomad_home_dir }}/.ssh/id_artemis"
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0600
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+        - artemis_ssh_private_key is defined
+
     # TODO: the ssh-agent for the worker containers is disabled until it is fixed:
     #
     # * The agent loaded `ssh_private_key`, the worker login key. Any user Ansible playbook
