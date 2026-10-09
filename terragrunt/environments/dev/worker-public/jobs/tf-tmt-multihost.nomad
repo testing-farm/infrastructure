@@ -61,7 +61,10 @@ job "tf-tmt-multihost" {
           # Each request writes only to its own allocation directory, see the "artifacts-link" task
           "{{ nomad_data_dir }}/alloc/${NOMAD_ALLOC_ID}/alloc:/var/ARTIFACTS/${NOMAD_META_REQUEST_ID}:z",
           "{{ nomad_podman_socket_path }}:/run/podman/podman.sock",
-          "{{ nomad_home_dir }}/.ssh/agent.sock:/run/ssh-agent.sock",
+          # TODO: ssh-agent disabled, see the nomad role tasks
+          # "{{ nomad_home_dir }}/.ssh/agent.sock:/run/ssh-agent.sock",
+          # Default ssh identity of the container root user, the archive module uploads with it
+          "{{ nomad_home_dir }}/.ssh/id_artifacts:/root/.ssh/id_ed25519:ro,z",
 {% if nomad_user != "root" %}
           "{{ nomad_containers_conf_path }}:/etc/containers/containers.conf",
 {% endif %}
@@ -73,7 +76,8 @@ job "tf-tmt-multihost" {
       env {
         CONTAINER_HOST = "unix:///run/podman/podman.sock"
         ARTIFACTS_DIR  = "/var/ARTIFACTS"
-        SSH_AUTH_SOCK  = "/run/ssh-agent.sock"
+        # TODO: ssh-agent disabled, see the nomad role tasks
+        # SSH_AUTH_SOCK  = "/run/ssh-agent.sock"
       }
 
       kill_timeout = "15m"

@@ -270,69 +270,85 @@
         - _nomad_node_client | bool
         - nomad_user != "root"
 
-    - name: Copy SSH key to nomad user
+    # The worker containers mount this key as the default ssh identity of their root user,
+    # the archive module uploads artifacts with it. Only the `artifacts` user of the
+    # artifacts host authorizes it.
+    - name: Copy artifacts upload SSH key to nomad user
       copy:
-        src: "{{ ssh_private_key }}"
-        dest: "{{ nomad_home_dir }}/.ssh/id_rsa"
+        src: "{{ artifacts_ssh_private_key }}"
+        dest: "{{ nomad_home_dir }}/.ssh/id_artifacts"
         owner: "{{ nomad_user }}"
         group: "{{ nomad_group }}"
         mode: 0600
       when:
         - _nomad_node_client | bool
         - nomad_user != "root"
-        - ssh_private_key is defined
+        - artifacts_ssh_private_key is defined
 
-    - name: Create ssh-agent systemd user service directory
-      file:
-        path: "{{ nomad_home_dir }}/.config/systemd/user"
-        state: directory
-        owner: "{{ nomad_user }}"
-        group: "{{ nomad_group }}"
-        mode: 0755
-      when:
-        - _nomad_node_client | bool
-        - nomad_user != "root"
-
-    - name: Deploy ssh-agent systemd user service
-      copy:
-        dest: "{{ nomad_home_dir }}/.config/systemd/user/nomad-ssh-agent.service"
-        owner: "{{ nomad_user }}"
-        group: "{{ nomad_group }}"
-        mode: 0644
-        content: |
-          [Unit]
-          Description=SSH Agent for {{ nomad_user }} user
-
-          [Service]
-          Type=simple
-          Environment=SSH_AUTH_SOCK={{ nomad_home_dir }}/.ssh/agent.sock
-          ExecStartPre=/bin/rm -f {{ nomad_home_dir }}/.ssh/agent.sock
-          ExecStart=/usr/bin/ssh-agent -D -a {{ nomad_home_dir }}/.ssh/agent.sock
-          ExecStartPost=/bin/sleep 1
-          ExecStartPost=/usr/bin/ssh-add {{ nomad_home_dir }}/.ssh/id_rsa
-          ExecStopPost=/bin/rm -f {{ nomad_home_dir }}/.ssh/agent.sock
-          Restart=on-failure
-
-          [Install]
-          WantedBy=default.target
-      when:
-        - _nomad_node_client | bool
-        - nomad_user != "root"
-
-    - name: Enable and start ssh-agent for nomad user
-      become_user: "{{ nomad_user }}"
-      environment:
-        XDG_RUNTIME_DIR: "/run/user/{{ nomad_uid.stdout }}"
-        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ nomad_uid.stdout }}/bus"
-      systemd:
-        name: nomad-ssh-agent.service
-        scope: user
-        enabled: true
-        state: started
-        daemon_reload: true
-      when:
-        - _nomad_node_client | bool
-        - nomad_user != "root"
+    # TODO: the ssh-agent for the worker containers is disabled until it is fixed:
+    #
+    # * The agent loaded `ssh_private_key`, the worker login key. Any user Ansible playbook
+    #   with `delegate_to: localhost` runs in the worker container and can use the agent.
+    #   Load only the Artemis guest key.
+    # * The agent runs as `unconfined_t` and its socket is `default_t`. Run it in its own
+    #   SELinux domain with its own socket type, under `RuntimeDirectory=`, and allow
+    #   `tf_worker` to connect only to that domain.
+    # * The jobs bind-mounted the socket file, so a restarted agent leaves running jobs with
+    #   a stale socket. Mount the socket directory instead.
+    # * gluetool-modules must pass the agent socket to tmt (`TMT_SSH_IDENTITY_AGENT`) and
+    #   stop passing `--key None` when no key file is configured.
+    #
+    # - name: Create ssh-agent systemd user service directory
+    #   file:
+    #     path: "{{ nomad_home_dir }}/.config/systemd/user"
+    #     state: directory
+    #     owner: "{{ nomad_user }}"
+    #     group: "{{ nomad_group }}"
+    #     mode: 0755
+    #   when:
+    #     - _nomad_node_client | bool
+    #     - nomad_user != "root"
+    #
+    # - name: Deploy ssh-agent systemd user service
+    #   copy:
+    #     dest: "{{ nomad_home_dir }}/.config/systemd/user/nomad-ssh-agent.service"
+    #     owner: "{{ nomad_user }}"
+    #     group: "{{ nomad_group }}"
+    #     mode: 0644
+    #     content: |
+    #       [Unit]
+    #       Description=SSH Agent for {{ nomad_user }} user
+    #
+    #       [Service]
+    #       Type=simple
+    #       Environment=SSH_AUTH_SOCK={{ nomad_home_dir }}/.ssh/agent.sock
+    #       ExecStartPre=/bin/rm -f {{ nomad_home_dir }}/.ssh/agent.sock
+    #       ExecStart=/usr/bin/ssh-agent -D -a {{ nomad_home_dir }}/.ssh/agent.sock
+    #       ExecStartPost=/bin/sleep 1
+    #       ExecStartPost=/usr/bin/ssh-add {{ nomad_home_dir }}/.ssh/id_rsa
+    #       ExecStopPost=/bin/rm -f {{ nomad_home_dir }}/.ssh/agent.sock
+    #       Restart=on-failure
+    #
+    #       [Install]
+    #       WantedBy=default.target
+    #   when:
+    #     - _nomad_node_client | bool
+    #     - nomad_user != "root"
+    #
+    # - name: Enable and start ssh-agent for nomad user
+    #   become_user: "{{ nomad_user }}"
+    #   environment:
+    #     XDG_RUNTIME_DIR: "/run/user/{{ nomad_uid.stdout }}"
+    #     DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ nomad_uid.stdout }}/bus"
+    #   systemd:
+    #     name: nomad-ssh-agent.service
+    #     scope: user
+    #     enabled: true
+    #     state: started
+    #     daemon_reload: true
+    #   when:
+    #     - _nomad_node_client | bool
+    #     - nomad_user != "root"
 
     - name: Set podman socket path
       set_fact:
