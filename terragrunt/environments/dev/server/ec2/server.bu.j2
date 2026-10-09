@@ -8,6 +8,7 @@ passwd:
     - name: artifacts
       ssh_authorized_keys_local:  # pragma: allowlist secret
         - ansible/secrets/ssh/id_rsa_public_worker.pub
+        - ansible/secrets/ssh/id_ed25519_public_artifacts.pub
 storage:
   files:
     # Disable auto-updates, we cannot currently do this now with a single server
