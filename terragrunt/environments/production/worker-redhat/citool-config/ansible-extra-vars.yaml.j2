@@ -35,3 +35,15 @@ python_bin_url:
   ppc64: "https://gitlab.com/api/v4/projects/75476709/jobs/artifacts/main/raw/dist/build-ppc64.tar.gz?job=build_cpython%3A%20%5Bppc64%5D"
 
 python_install_path: "/var/opt/standalone-python"
+
+# Keep the standalone interpreter across separate Ansible processes.
+{% if GUEST is defined %}
+{% set compose = GUEST.environment.compose | lower %}
+{% set pipeline = (GUEST.environment.settings or {}).get('pipeline') or {} %}
+{% if not pipeline.get('skip_guest_setup')
+      and 'auto-osbuild' not in compose
+      and 'pfmt' not in compose
+      and 'image-mode' not in compose %}
+ansible_python_interpreter: "{{ '{{ python_install_path }}/bin/python3' }}"
+{% endif %}
+{% endif %}
