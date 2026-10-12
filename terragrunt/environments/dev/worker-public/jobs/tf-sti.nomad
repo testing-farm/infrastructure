@@ -52,8 +52,7 @@ job "tf-sti" {
       }
 
       config {
-        # TODO: revert to latest once merged
-        image        = "quay.io/testing-farm/worker-public:68d72a1b"
+        image        = "quay.io/testing-farm/worker-public:latest"
         network_mode = "host"
         init         = true
         security_opt = ["label=type:tf_worker.process"]
