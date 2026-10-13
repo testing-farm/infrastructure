@@ -1,5 +1,7 @@
 #!/bin/bash
-# Render non-secret image build inputs; never mount storage during a build.
+# Render the var-mnt-s3files.mount unit from non-secret image build inputs.
+# bootc install replaces the active /etc/fstab, so the mount must be a baked
+# systemd unit rather than an fstab entry (TFT-4795). Never mount during a build.
 set -euo pipefail
 
 if [ "$#" -ne 2 ]; then
@@ -25,5 +27,18 @@ for octet in "${octets[@]}"; do
     fi
 done
 
-printf '%s:/ /var/mnt/s3files s3files _netdev,nofail,x-systemd.automount,mounttargetip=%s 0 0\n' \
-    "$filesystem_id" "$mount_target_ip"
+cat <<UNIT
+[Unit]
+Description=Testing Farm artifacts S3 Files storage
+After=network-online.target
+Wants=network-online.target
+
+[Mount]
+What=${filesystem_id}:/
+Where=/var/mnt/s3files
+Type=s3files
+Options=_netdev,nofail,mounttargetip=${mount_target_ip}
+
+[Install]
+WantedBy=remote-fs.target
+UNIT

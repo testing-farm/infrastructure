@@ -555,8 +555,8 @@ renew/certs:
 #   VAULT_SECRET_ID                Vault secret id for the cloud credentials
 #
 # Trigger: the chain runs automatically whenever images/bootc-artifacts/ changes,
-# both on MRs (throwaway per-pipeline AMI) and on the default branch after merge
-# (forced refresh of the stable AMI).
+# both on MRs (throwaway per-pipeline AMI, auto-removed) and on the default branch
+# after merge (an immutable per-commit AMI the deploy pins).
 # ---------------------------------------------------------------------------
 .artifacts-bootc:
   stage: deploy
@@ -568,31 +568,70 @@ renew/certs:
     - export TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT
   rules:
     # Run the build chain (container -> qcow2 -> ami, ordered by 'needs') whenever the
-    # image sources change - on MRs to validate before merge, and on the default branch
-    # after merge to refresh the stable AMI. The ami job picks the AMI name / force
-    # behaviour per context (see image/artifacts-bootc/ami).
+    # image *sources* change - on MRs to validate before merge, and on the default
+    # branch after merge to publish the per-commit AMI. Docs (README.adoc) are
+    # excluded so they do not trigger a ~30-min build and a kept AMI; the glob list is
+    # everything under the dir except docs (GitLab 'changes' has no exclusion syntax).
+    # The ami job picks the AMI name per context (see image/artifacts-bootc/ami).
     - if: $CI_MERGE_REQUEST_IID
-      changes:
-        - images/bootc-artifacts/**/*
+      changes: &artifacts-bootc-changes
+        - images/bootc-artifacts/Containerfile
+        - images/bootc-artifacts/*.sh
+        - images/bootc-artifacts/*.fmf
+        - images/bootc-artifacts/*.py
+        - images/bootc-artifacts/*.yaml
+        - images/bootc-artifacts/build-arg-*
+        - images/bootc-artifacts/config/**/*
+        - images/bootc-artifacts/upload-qcow2/**/*
       when: on_success
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      changes:
-        - images/bootc-artifacts/**/*
+      changes: *artifacts-bootc-changes
       when: on_success
 
 image/artifacts-bootc/container:
   extends: .artifacts-bootc
   needs: []
   script:
+    # Tag MR builds per pipeline so they never overwrite the production :latest and
+    # never race another pipeline; the default branch still publishes :latest. The
+    # tag is recorded in a dotenv artifact so the qcow2 job builds from this exact
+    # image.
+    # TODO(TFT-4795): per-pipeline MR tags accumulate in quay - add a tag-expiry
+    # policy or a prune step (same cleanup gap as the per-pipeline AMIs).
+    - |
+      if [ -n "${CI_MERGE_REQUEST_IID:-}" ]; then
+        IMAGE_REF="quay.io/testing-farm/artifacts-bootc:mr-${CI_MERGE_REQUEST_IID}-${CI_PIPELINE_ID}"
+      else
+        IMAGE_REF="quay.io/testing-farm/artifacts-bootc:latest"
+      fi
+      echo "[i] IMAGE_REF=$IMAGE_REF"
     # Build the base64 registry-auth file AUTH_JSON from QUAY_USERNAME / QUAY_PASSWORD.
     - export AUTH_JSON=$(printf '{"auths":{"quay.io":{"auth":"%s"}}}' "$(printf '%s:%s' "$QUAY_USERNAME" "$QUAY_PASSWORD" | base64 -w0)" | base64 -w0)
-    - make image/artifacts-bootc/container AUTH_JSON="$AUTH_JSON"
+    - make image/artifacts-bootc/container AUTH_JSON="$AUTH_JSON" TARGET_IMAGE="$IMAGE_REF"
+    - echo "IMAGE_REF=$IMAGE_REF" > image.env
+  artifacts:
+    reports:
+      dotenv: image.env
+
+image/artifacts-bootc/dgoss:
+  extends: .artifacts-bootc
+  needs:
+    - job: image/artifacts-bootc/container
+      optional: true
+      artifacts: true
+  script:
+    # dgoss fetches the goss file over HTTP, so pass a raw URL at this commit (so an
+    # MR tests its own goss) and the per-pipeline image the container job pushed.
+    - |
+      GOSS_YAML="${CI_PROJECT_URL}/-/raw/${CI_COMMIT_SHA}/images/bootc-artifacts/goss.yaml"
+      make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" GOSS_YAML="$GOSS_YAML"
 
 image/artifacts-bootc/qcow2:
   extends: .artifacts-bootc
   needs:
     - job: image/artifacts-bootc/container
       optional: true
+      artifacts: true
   script:
     - export AUTH_JSON=$(printf '{"auths":{"quay.io":{"auth":"%s"}}}' "$(printf '%s:%s' "$QUAY_USERNAME" "$QUAY_PASSWORD" | base64 -w0)" | base64 -w0)
     # Build the qcow2 and record the build request id for the ami job (handed on via
@@ -602,7 +641,7 @@ image/artifacts-bootc/qcow2:
     # precedence over building.
     - |
       if [ -z "${QCOW2_REQUEST:-}" ] && [ -z "${QCOW2_URL:-}" ]; then
-        make image/artifacts-bootc/qcow2 AUTH_JSON="$AUTH_JSON" | tee qcow2-build.log
+        make image/artifacts-bootc/qcow2 AUTH_JSON="$AUTH_JSON" IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" | tee qcow2-build.log
         QCOW2_REQUEST=$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}' qcow2-build.log | head -1)
         [ -n "$QCOW2_REQUEST" ] || { echo "[E] could not find the build request id in the qcow2 build output."; exit 1; }
       fi
@@ -621,6 +660,10 @@ image/artifacts-bootc/ami:
     - job: image/artifacts-bootc/qcow2
       optional: true
       artifacts: true
+    # Gate the publish on the container checks; dgoss runs parallel to qcow2 so this
+    # adds no wall-clock.
+    - job: image/artifacts-bootc/dgoss
+      optional: true
   variables:
     QCOW2_ARCH: x86_64
   # QCOW2_REQUEST is inherited from the qcow2 job's dotenv artifact; the upload plan
@@ -631,19 +674,25 @@ image/artifacts-bootc/ami:
   script:
     - |
       [ -n "${QCOW2_REQUEST:-}" ] || [ -n "${QCOW2_URL:-}" ] || { echo "[E] neither QCOW2_REQUEST nor QCOW2_URL is set - run the qcow2 job first or set one manually."; exit 1; }
-      # On MRs upload a throwaway AMI named per pipeline (never collides with the stable
-      # image, always a fresh upload). On the default branch refresh the stable AMI in
-      # place, forcing the upload (tft-admin no-ops when the name already exists).
+      # Always upload under a unique name (tft-admin no-ops on an existing name, so a
+      # reused name would keep a stale image). On MRs the upload is throwaway and is
+      # removed once verified; on the default branch it is an immutable per-commit AMI
+      # the deploy (TFT-4797) pins - never deleted or overwritten in place.
       if [ -n "${CI_MERGE_REQUEST_IID:-}" ]; then
-        IMAGE_NAME="artifacts-bootc-${QCOW2_ARCH}-${CI_PIPELINE_ID}"
-        FORCE_UPLOAD=""
+        IMAGE_NAME="artifacts-bootc-${QCOW2_ARCH}-mr-${CI_MERGE_REQUEST_IID}-${CI_PIPELINE_ID}"
+        REMOVE_AFTER_TEST="1"
       else
-        IMAGE_NAME="artifacts-bootc-${QCOW2_ARCH}"
-        FORCE_UPLOAD="1"
+        IMAGE_NAME="artifacts-bootc-${QCOW2_ARCH}-${CI_COMMIT_SHORT_SHA}"
+        REMOVE_AFTER_TEST=""
       fi
-      echo "[i] IMAGE_NAME=$IMAGE_NAME FORCE_UPLOAD=${FORCE_UPLOAD:-<unset>}"
+      echo "[i] IMAGE_NAME=$IMAGE_NAME REMOVE_AFTER_TEST=${REMOVE_AFTER_TEST:-<unset>}"
       set -- --skip-summary -e IMAGE_NAME="$IMAGE_NAME" -e QCOW2_ARCH="$QCOW2_ARCH" -s VAULT_SECRET_ID="$VAULT_SECRET_ID" --plan /images/bootc-artifacts/upload
-      if [ -n "$FORCE_UPLOAD" ]; then set -- "$@" -e FORCE_UPLOAD="$FORCE_UPLOAD"; fi
+      if [ -n "$REMOVE_AFTER_TEST" ]; then set -- "$@" -e REMOVE_AFTER_TEST="$REMOVE_AFTER_TEST"; fi
       if [ -n "${QCOW2_REQUEST:-}" ]; then set -- "$@" -e QCOW2_REQUEST="$QCOW2_REQUEST"; fi
       if [ -n "${QCOW2_URL:-}" ]; then set -- "$@" -e QCOW2_URL="$QCOW2_URL"; fi
       testing-farm request "$@"
+      # Surface the uploaded AMI name so the deploy (TFT-4797) can pin it.
+      echo "AMI_NAME=$IMAGE_NAME" > ami.env
+  artifacts:
+    reports:
+      dotenv: ami.env
