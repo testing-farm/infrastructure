@@ -589,19 +589,34 @@ test/terraform/modules:  ## Run terratest tests for Teraform modules
 	env -C terragrunt/modules/gitlab/project/test go test -v
 	env -C terragrunt/modules/gitlab/schedules/test go test -v
 
+# TARGET_IMAGE is the tag the container plan pushes; IMAGE is the tag the qcow2
+# plan pulls. They default to :latest for local builds; CI overrides TARGET_IMAGE
+# with a per-pipeline tag on MRs and threads the same value through as IMAGE so a
+# pipeline's qcow2 is always built from the image that same pipeline pushed.
+TARGET_IMAGE ?= quay.io/testing-farm/artifacts-bootc:latest
+IMAGE ?= $(TARGET_IMAGE)
+
 image/artifacts-bootc/container: .FORCE  ## Build & push RHEL 10 bootc artifact-server image | Testing Farm
 	testing-farm request --skip-summary \
-		-e ENABLE_PUSH=yes -s AUTH_JSON="$(AUTH_JSON)" \
+		-e ENABLE_PUSH=yes -e TARGET_IMAGE="$(TARGET_IMAGE)" -s AUTH_JSON="$$AUTH_JSON" \
 		--plan /images/bootc-artifacts/container
+
+image/artifacts-bootc/dgoss: .FORCE  ## Run dgoss checks against the built artifact-server container image | Testing Farm
+	# GOSS_YAML must be a URL (dgoss fetches it over HTTP); defaults to goss.yaml on
+	# main, CI overrides it with the merge request ref so the MR's own checks run.
+	testing-farm request --skip-summary \
+		-e IMAGE="$(IMAGE)" \
+		$(if $(GOSS_YAML),-e GOSS_YAML="$(GOSS_YAML)") \
+		--plan /images/bootc-artifacts/dgoss
 
 image/artifacts-bootc/qcow2: .FORCE  ## Build RHEL 10 bootc artifact-server qcow2 | Testing Farm
 	# Request the upstream qcow2 build plan directly - it only needs the pushed IMAGE,
 	# so no local wrapper plan is required. The guest is provisioned per --compose.
 	testing-farm request --skip-summary --arch x86_64 --compose RHEL-10-Nightly \
 		--git-url https://gitlab.com/testing-farm/tests --git-ref main \
-		-e IMAGE=quay.io/testing-farm/artifacts-bootc:latest \
+		-e IMAGE="$(IMAGE)" \
 		-e QCOW2_FILE=artifacts-bootc.qcow2 \
-		-s AUTH_JSON="$(AUTH_JSON)" \
+		-s AUTH_JSON="$$AUTH_JSON" \
 		--plan '/image-mode/qcow2/build'
 
 image/artifacts-bootc/qcow2-url: .FORCE  ## Derive the qcow2 download URL from a qcow2 build request (needs REQUEST)
@@ -612,16 +627,17 @@ IMAGE_NAME ?= artifacts-bootc-$(QCOW2_ARCH)
 
 # The upload plan derives QCOW2_URL from QCOW2_REQUEST inside Testing Farm; pass one
 # or the other (a ready QCOW2_URL skips derivation). Only the set one is forwarded so
-# an empty value never shadows the derived URL. Set FORCE_UPLOAD=1 to delete any
-# existing IMAGE_NAME first (tft-admin otherwise no-ops when it already exists).
+# an empty value never shadows the derived URL. IMAGE_NAME must be unique per upload
+# (tft-admin no-ops on an existing name); set REMOVE_AFTER_TEST=1 for a throwaway
+# upload that is deleted once verified.
 image/artifacts-bootc/ami: .FORCE  ## Upload artifact-server qcow2 to AWS as an AMI via Testing Farm (needs QCOW2_REQUEST or QCOW2_URL, and VAULT_SECRET_ID)
 	testing-farm request --skip-summary \
 		$(if $(QCOW2_REQUEST),-e QCOW2_REQUEST="$(QCOW2_REQUEST)") \
 		$(if $(QCOW2_URL),-e QCOW2_URL="$(QCOW2_URL)") \
-		$(if $(FORCE_UPLOAD),-e FORCE_UPLOAD="$(FORCE_UPLOAD)") \
+		$(if $(REMOVE_AFTER_TEST),-e REMOVE_AFTER_TEST="$(REMOVE_AFTER_TEST)") \
 		-e IMAGE_NAME="$(IMAGE_NAME)" \
 		-e QCOW2_ARCH="$(QCOW2_ARCH)" \
-		-s VAULT_SECRET_ID="$(VAULT_SECRET_ID)" \
+		-s VAULT_SECRET_ID="$$VAULT_SECRET_ID" \
 		--plan /images/bootc-artifacts/upload
 
 generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
