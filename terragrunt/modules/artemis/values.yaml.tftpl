@@ -112,6 +112,9 @@ postgresql:
       annotations:
         alb.ingress.kubernetes.io/group.name: artemis-metrics
         alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip
+
     resources: ${jsonencode(postgresql_exporter_resources)}
 
 adminer:
@@ -130,6 +133,8 @@ rabbitmq:
       annotations:
         alb.ingress.kubernetes.io/group.name: artemis-metrics
         alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip
 
 redis:
   install: true
@@ -143,3 +148,5 @@ redis:
       annotations:
         alb.ingress.kubernetes.io/group.name: artemis-metrics
         alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip
