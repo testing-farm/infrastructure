@@ -8,13 +8,20 @@ if [ "$#" -ne 1 ]; then
 fi
 
 mount_point=$1
+# findmnt --target resolves to the nearest enclosing mount, so a missing mount
+# returns a parent (e.g. /var or /). Succeeding only means *some* mount covers
+# the path, not that the path itself is mounted.
 if ! mount_info=$(findmnt --target "$mount_point" --noheadings --raw --output TARGET,FSTYPE); then
-    echo "Artifact storage is unavailable: $mount_point is not an NFS mount" >&2
+    echo "Artifact storage is unavailable: $mount_point is not a mount point" >&2
     exit 1
 fi
 
 read -r mounted_target filesystem_type <<< "$mount_info"
+# Fail closed unless the path itself is the mount (not a parent), it is the real
+# NFSv4 mount the s3files helper produces (the helper mounts NFSv4 under the
+# hood, so findmnt reports nfs4, not the s3files type from the unit), and findmnt
+# returned exactly one line (no ambiguous/nested mounts at the target).
 if [[ "$mounted_target" != "$mount_point" || "$filesystem_type" != nfs4 || "$mount_info" == *$'\n'* ]]; then
-    echo "Artifact storage is unavailable: $mount_point is not an NFS mount" >&2
+    echo "Artifact storage is unavailable: $mount_point is not a single NFSv4 mount" >&2
     exit 1
 fi

@@ -1,9 +1,8 @@
-# Upload key(s) for the Testing Farm Red Hat ranch artifacts uploader.
-# TFT-4795.
+# Upload key(s) for the Testing Farm Red Hat ranch artifacts uploader (TFT-4795).
 #
 # Each key is pinned to an rrsync forced command: write-only into /mnt/s3files,
-# no shell, no port forwarding. Confirm the matching worker identity before
-# live testing; this public key is unchanged by the storage-readiness fix.
+# no interactive shell, no port forwarding (the account is further restricted by
+# the Match block in config/ssh/sshd_artifacts.conf).
 #
 # Format:
 # command="/usr/local/libexec/rrsync-artifacts /var/mnt/s3files",restrict <key-type> <key> <comment>

@@ -16,56 +16,12 @@ ARG ARTIFACTS_UID
 ARG ARTIFACTS_GID
 
 COPY config/efs-utils.repo /etc/yum.repos.d/efs-utils.repo
-COPY config/render-artifacts-fstab /usr/local/libexec/render-artifacts-fstab
+COPY config/render-artifacts-mount /usr/local/libexec/render-artifacts-mount
 
-RUN <<EOF
-set -euo pipefail
-
-: "${AMAZON_EFS_UTILS_VERSION:?Missing helper version}"
-: "${ARTIFACTS_UID:?Missing upload UID}"
-: "${ARTIFACTS_GID:?Missing upload GID}"
-if [[ ! "$ARTIFACTS_UID" =~ ^[1-9][0-9]{0,4}$ || ! "$ARTIFACTS_GID" =~ ^[1-9][0-9]{0,4}$ ]] || \
-    (( ARTIFACTS_UID > 65535 || ARTIFACTS_GID > 65535 )); then
-    echo 'Upload UID/GID must be integers in the range 1..65535' >&2
-    exit 1
-fi
-
-# Bootstrap curl from the base repositories before enabling AWS key checks.
-# A file capability accepts an existing curl-minimal without replacing it.
-dnf -y --disablerepo=efs-utils install nginx openssh-server rsync rsync-rrsync \
-    stunnel nfs-utils openssl /usr/bin/curl
-
-# Use AWS's signed prebuilt RHEL package, not the failing FIPS source build.
-curl --fail --silent --show-error --location \
-    https://amazon-efs-utils.aws.com/efs-utils-armored.gpg \
-    --output /etc/pki/rpm-gpg/RPM-GPG-KEY-efs-utils.gpg
-rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-efs-utils.gpg
-dnf -y install "amazon-efs-utils-${AMAZON_EFS_UTILS_VERSION}"
-dnf -y clean all
-
-# The underlying local directory is never writable by the upload account.
-mkdir -p /var/mnt/s3files
-chmod 0755 /var/mnt/s3files
-chown root:root /var/mnt/s3files
-
-# A usable shell is needed to execute OpenSSH's forced command. Key restrictions
-# deny shell access; an unusable login shell also prevents legitimate uploads.
-groupadd --system --gid "$ARTIFACTS_GID" artifacts
-useradd --system --uid "$ARTIFACTS_UID" --gid artifacts --create-home \
-    --home-dir /var/lib/artifacts --shell /bin/sh artifacts
-
-# Preserve root/boot/var entries, and fail rather than duplicating a data mount.
-if [ -f /etc/fstab ] && awk '$1 !~ /^#/ && ($2 == "/mnt/s3files" || $2 == "/var/mnt/s3files") { found = 1 }
-    END { exit !found }' /etc/fstab; then
-    echo 'Artifact mount is already configured in the base image' >&2
-    exit 1
-fi
-chmod 0755 /usr/local/libexec/render-artifacts-fstab
-/usr/local/libexec/render-artifacts-fstab \
-    "$ARTIFACTS_FILESYSTEM_ID" "$ARTIFACTS_MOUNT_TARGET_IP" >> /etc/fstab
-
-systemctl enable nginx sshd
-EOF
+# Install the storage server, create the upload user, bake the mount unit.
+# Kept in a standalone script so it can be linted with shellcheck.
+COPY --chmod=0755 setup.sh /tmp/setup.sh
+RUN bash /tmp/setup.sh && rm -vf /tmp/setup.sh
 
 # nginx: take over the main config (drops the stock default server) plus our
 # autoindex / CORS / HTTP->HTTPS 301 / gzip server blocks.
@@ -86,24 +42,7 @@ COPY config/sysctl-artifacts.conf /usr/lib/sysctl.d/90-artifacts.conf
 COPY config/kargs-artifacts.toml /usr/lib/bootc/kargs.d/90-artifacts.toml
 COPY config/limits-artifacts.conf /etc/security/limits.d/90-artifacts.conf
 
-RUN <<EOF
-set -euo pipefail
-
-# All forced commands and their configuration are root-owned.
-chmod 0644 /etc/ssh/artifacts_authorized_keys
-chmod 0755 /usr/local/libexec/check-artifacts-mount /usr/local/libexec/rrsync-artifacts
-
-# Self-signed TLS cert so nginx starts and testing is unblocked. The real
-# host-provisioned cert (TFT-4797) overrides these paths on deploy.
-# TODO(TFT-4795): replace with the real certificate.
-mkdir -p /etc/pki/nginx
-openssl req -x509 -nodes -newkey rsa:4096 -days 3650 \
-    -keyout /etc/pki/nginx/artifacts.key \
-    -out /etc/pki/nginx/artifacts.crt \
-    -subj "/CN=redhat.artifacts.testing.farm" \
-    -addext "subjectAltName=DNS:redhat.artifacts.testing.farm"
-chmod 0600 /etc/pki/nginx/artifacts.key
-chmod 0644 /etc/pki/nginx/artifacts.crt
-
-# Do not start services or mount production storage during the build.
-EOF
+# Lock down the copied-in config and provide a throwaway TLS cert.
+# Kept in a standalone script so it can be linted with shellcheck.
+COPY --chmod=0755 finalize.sh /tmp/finalize.sh
+RUN bash /tmp/finalize.sh && rm -vf /tmp/finalize.sh

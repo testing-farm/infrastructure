@@ -70,18 +70,27 @@ In GitLab CI the `qcow2` job records the build request id and hands it to the `a
 job via a dotenv artifact (`QCOW2_REQUEST`); set `QCOW2_REQUEST` or `QCOW2_URL`
 manually on the `ami` job to override.
 
-The AMI name and upload behaviour depend on the context. `tft-admin` no-ops when an
-AMI with the target name already exists, so:
+The AMI is always uploaded under a *unique* name - `tft-admin` no-ops when an AMI
+with the target name already exists, so reusing a name would silently keep a stale
+image. The name and cleanup depend on the context:
 
 * on MRs the `ami` job uploads a throwaway AMI named per pipeline
-  (`artifacts-bootc-<arch>-<pipeline-id>`) - it never collides with the stable image
-  and always exercises the upload;
-* on the default branch (after merge) it refreshes the stable `artifacts-bootc-<arch>`
-  in place with `FORCE_UPLOAD=1`, which deletes the existing image before uploading.
+  (`artifacts-bootc-<arch>-mr-<iid>-<pipeline-id>`) with `REMOVE_AFTER_TEST=1`, so the
+  upload is exercised and then deleted;
+* on the default branch (after merge) it uploads an immutable per-commit AMI
+  (`artifacts-bootc-<arch>-<commit-sha>`), which is never deleted or overwritten in
+  place. The job records the name in a dotenv artifact (`AMI_NAME`) for the deploy to
+  pin.
 
-`FORCE_UPLOAD` only removes the source-region (us-east-1) copy; the us-east-2 copy is
-not deleted yet (TFT-4650). Set `FORCE_UPLOAD=1` on `make image/artifacts-bootc/ami`
-to force a refresh locally.
+`REMOVE_AFTER_TEST` only removes the source-region (us-east-1) copy; the us-east-2
+copy is not deleted yet (TFT-4650). The container image follows the same pattern:
+MRs push `quay.io/testing-farm/artifacts-bootc:mr-<iid>-<pipeline-id>` (so they never
+overwrite the production `:latest`), and the qcow2 build uses that exact tag; the
+default branch publishes `:latest`.
+
+Supply the per-commit AMI name to TFT-4797 as `ARTIFACTS_SERVER_AMI`. Set
+`REMOVE_AFTER_TEST=1` on `make image/artifacts-bootc/ami` for a throwaway upload
+locally.
 
 The plans can also be run directly, e.g.
 `testing-farm request --plan /images/bootc-artifacts/container`.

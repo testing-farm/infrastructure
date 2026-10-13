@@ -1,4 +1,7 @@
 ---
+# Container-scope checks: image contents only, run by the dgoss plan. dgoss
+# starts the image as a container, so it cannot verify running services, the real
+# NFS mount, listening ports or kargs - those live in goss-vm.yaml.
 package:
   nginx:
     installed: true
@@ -12,24 +15,68 @@ package:
     installed: true
   nfs-utils:
     installed: true
+  amazon-efs-utils:
+    installed: true
 
 file:
   /usr/bin/rrsync:
     exists: true
+  /usr/local/libexec/check-artifacts-mount:
+    exists: true
+    mode: "0755"
+  /usr/local/libexec/rrsync-artifacts:
+    exists: true
+    mode: "0755"
+  /usr/local/libexec/render-artifacts-mount:
+    exists: true
+    mode: "0755"
+  /etc/yum.repos.d/efs-utils.repo:
+    exists: true
+  /etc/nginx/nginx.conf:
+    exists: true
   /etc/nginx/conf.d/artifacts.conf:
     exists: true
+  /usr/lib/systemd/system/nginx.service.d/10-storage.conf:
+    exists: true
+  # The S3 Files mount is a baked unit (bootc install drops the container fstab).
+  /usr/lib/systemd/system/var-mnt-s3files.mount:
+    exists: true
+    contains:
+      - "Where=/var/mnt/s3files"
+      - "Type=s3files"
   /etc/ssh/sshd_config.d/10-artifacts.conf:
     exists: true
   /etc/ssh/artifacts_authorized_keys:
     exists: true
+    mode: "0644"
   /usr/lib/sysctl.d/90-artifacts.conf:
     exists: true
   /usr/lib/bootc/kargs.d/90-artifacts.toml:
     exists: true
-  /mnt/s3files:
+  /etc/security/limits.d/90-artifacts.conf:
+    exists: true
+  /etc/pki/nginx/artifacts.crt:
+    exists: true
+  /etc/pki/nginx/artifacts.key:
+    exists: true
+    mode: "0600"
+  /var/mnt/s3files:
     exists: true
     filetype: directory
+  # Enablement symlinks: systemd is not running under dgoss, so assert the
+  # symlinks `systemctl enable` wrote rather than service state.
+  /etc/systemd/system/multi-user.target.wants/nginx.service:
+    exists: true
+    filetype: symlink
+  /etc/systemd/system/multi-user.target.wants/sshd.service:
+    exists: true
+    filetype: symlink
+  /etc/systemd/system/remote-fs.target.wants/var-mnt-s3files.mount:
+    exists: true
+    filetype: symlink
 
 user:
   artifacts:
     exists: true
+    # A usable shell is required for the OpenSSH forced command (TFT-4795).
+    shell: /bin/sh

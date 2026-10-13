@@ -54,7 +54,9 @@ prepare:
   - name: Install Red Hat IT CA certificates
     how: shell
     script: |
-      curl -kLo /etc/pki/ca-trust/source/anchors/Current-IT-Root-CAs.pem https://certs.corp.redhat.com/certs/Current-IT-Root-CAs.pem
+      # No -k: certs.corp.redhat.com has a publicly-trusted (DigiCert) cert, so the
+      # default trust store verifies this download; -k would let a MITM swap the CA.
+      curl -Lo /etc/pki/ca-trust/source/anchors/Current-IT-Root-CAs.pem https://certs.corp.redhat.com/certs/Current-IT-Root-CAs.pem
       update-ca-trust
 
 provision:

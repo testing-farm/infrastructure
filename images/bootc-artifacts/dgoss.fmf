@@ -1,0 +1,46 @@
+summary: Run dgoss checks against the built artifact-server container image
+
+description: |
+    Run the upstream testing-farm/tests ``/dgoss/build`` test
+    (https://gitlab.com/testing-farm/tests/-/tree/main/dgoss) against the
+    container image produced by the ``container`` plan, using the container-scope
+    ``goss.yaml`` in this directory.
+
+    dgoss starts the image as a container, so it only verifies image *contents*
+    (packages, files, the baked mount unit, the upload user). The booted-VM
+    checks - services running, the real NFS mount, listening ports, kargs - live
+    in ``goss-vm.yaml`` and are run against a booted guest, not here.
+
+    Required variables:
+
+      IMAGE     ... Container image to test (the one the container plan pushed,
+                    e.g. quay.io/testing-farm/artifacts-bootc:latest).
+
+    Optional variables:
+
+      GOSS_YAML ... URL of the container goss file. dgoss fetches it over HTTP, so
+                    it must be a raw URL, not a local path. Defaults to goss.yaml
+                    on main; CI overrides it with the merge request ref so the
+                    MR's own checks run.
+
+      DOCKER_AUTH_CONFIG_BASE64 ... base64 of ~/.docker/config.json, when IMAGE is
+                    in a registry that needs authentication. Sensitive, pass as a
+                    Testing Farm secret (``-s``).
+
+environment:
+  USER: root
+  GOSS_VERSION: v0.3.21
+  IMAGE: quay.io/testing-farm/artifacts-bootc:latest
+  GOSS_YAML: https://gitlab.com/testing-farm/infrastructure/-/raw/main/images/bootc-artifacts/goss.yaml
+
+discover:
+  how: fmf
+  url: https://gitlab.com/testing-farm/tests
+  test:
+    - /dgoss/build
+
+provision:
+  how: container
+
+execute:
+  how: tmt
