@@ -36,7 +36,16 @@ python_bin_url:
 
 python_install_path: "/var/opt/standalone-python"
 
-# Keep the standalone interpreter across separate Ansible processes.
+#
+# Keep the standalone interpreter across separate Ansible processes (TFT-5204).
+#
+# Extra vars apply to every host, including `localhost` used by `local_action` and
+# `delegate_to: localhost`, and the worker has no standalone Python. Ansible templates
+# the interpreter with the original guest's variables even for delegated tasks, so
+# `inventory_hostname` cannot tell them apart. `ansible_connection` and `ansible_host`
+# can: Ansible fills them in from the delegated connection, giving `local` and
+# `localhost`.
+#
 {% if GUEST is defined %}
 {% set compose = GUEST.environment.compose | lower %}
 {% set pipeline = (GUEST.environment.settings or {}).get('pipeline') or {} %}
@@ -44,6 +53,14 @@ python_install_path: "/var/opt/standalone-python"
       and 'auto-osbuild' not in compose
       and 'pfmt' not in compose
       and 'image-mode' not in compose %}
-ansible_python_interpreter: "{{ '{{ python_install_path }}/bin/python3' }}"
+{% raw %}
+ansible_python_interpreter: >-
+  {{
+    ansible_playbook_python
+    if (ansible_connection | default('ssh')) == 'local'
+       or (ansible_host | default(inventory_hostname)) in ['localhost', '127.0.0.1', '::1']
+    else python_install_path ~ '/bin/python3'
+  }}
+{% endraw %}
 {% endif %}
 {% endif %}
