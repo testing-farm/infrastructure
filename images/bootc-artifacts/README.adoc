@@ -74,16 +74,17 @@ The AMI is always uploaded under a *unique* name - `tft-admin` no-ops when an AM
 with the target name already exists, so reusing a name would silently keep a stale
 image. The name and cleanup depend on the context:
 
-* on MRs the `ami` job uploads a throwaway AMI named per pipeline
-  (`artifacts-bootc-<arch>-mr-<iid>-<pipeline-id>`) with `REMOVE_AFTER_TEST=1`, so the
-  upload is exercised and then deleted;
+* on MRs the `ami` job uploads an AMI named per pipeline
+  (`artifacts-bootc-<arch>-mr-<iid>-<pipeline-id>`). It is *not* auto-removed for now
+  so reviewers can boot-test it; these MR AMIs accumulate until a cleanup step lands
+  (TFT-4795);
 * on the default branch (after merge) it uploads an immutable per-commit AMI
   (`artifacts-bootc-<arch>-<commit-sha>`), which is never deleted or overwritten in
   place. The job records the name in a dotenv artifact (`AMI_NAME`) for the deploy to
   pin.
 
-`REMOVE_AFTER_TEST` only removes the source-region (us-east-1) copy; the us-east-2
-copy is not deleted yet (TFT-4650). The container image follows the same pattern:
+`REMOVE_AFTER_TEST` (when set) only removes the source-region (us-east-1) copy; the
+us-east-2 copy is not deleted yet (TFT-4650). The container image follows the same pattern:
 MRs push `quay.io/testing-farm/artifacts-bootc:mr-<iid>-<pipeline-id>` (so they never
 overwrite the production `:latest`), and the qcow2 build uses that exact tag; the
 default branch publishes `:latest`.
