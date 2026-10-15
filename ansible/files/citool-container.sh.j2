@@ -17,6 +17,9 @@ if [ "$USER" != "root" ]; then
 fi
 
 CITOOL_IMAGE="${CITOOL_IMAGE:-citool:latest}"
+{% if citool_config_container_image is defined %}
+CITOOL_CONFIG_IMAGE="${CITOOL_CONFIG_IMAGE:-{[ citool_config_container_image ]}}"
+{% endif %}
 CITOOL_CONFIG_DIR="${CITOOL_CONFIG_DIR:-/etc/citool.d}"
 CITOOL_RUN_DIR="${CITOOL_RUN_DIR:-$PWD}"
 CITOOL_OPTIONS=()
@@ -58,16 +61,30 @@ echo "Known images:"
 podman images
 
 echo
+
 image_id=`podman inspect -f '{{.Id}}' $CITOOL_IMAGE`
-ctime=`podman inspect -f '{{.Created}}' $CITOOL_IMAGE`
-echo "Image is $image_id, created on $ctime"
+image_ctime=`podman inspect -f '{{.Created}}' $CITOOL_IMAGE`
+{% if citool_config_container_image is defined %}
+config_image_id=`podman inspect -f '{{.Id}}' $CITOOL_CONFIG_IMAGE`
+config_image_ctime=`podman inspect -f '{{.Created}}' $CITOOL_CONFIG_IMAGE`
+{% endif %}
+
+echo "Image is $image_id, created on $image_ctime"
+{% if citool_config_container_image is defined %}
+echo "Config image is $config_image_id, created on $config_image_ctime"
+{% endif %}
 
 echo
 
 # export image details into environment, so it gets to Sentry
 export CITOOL_IMAGE
 export CITOOL_IMAGE_ID="$image_id"
-export CITOOL_IMAGE_CTIME="$ctime"
+export CITOOL_IMAGE_CTIME="$image_ctime"
+{% if citool_config_container_image is defined %}
+export CITOOL_CONFIG_IMAGE_ID="$config_image_id"
+export CITOOL_CONFIG_IMAGE_CTIME="$config_image_ctime"
+{% endif %}
+
 WORKER_HOSTNAME="$(hostname)"
 WORKER_IP="$(curl -s ipv4.icanhazip.com)"
 
@@ -79,7 +96,11 @@ NOMAD_JOB_URL="${NOMAD_ADDR}/ui/jobs/${NOMAD_JOB_ID//\//%2F}"
 # SENTRY_TAG_MAP maps Sentry tag names to environment variable names.
 # The values are resolved inside the container by gluetool's Sentry integration.
 # Note: request_id and artifacts_url are set from code (testing-farm-request and coldstore modules).
-SENTRY_TAG_MAP="citool_image=CITOOL_IMAGE,citool_image_id=CITOOL_IMAGE_ID,citool_image_ctime=CITOOL_IMAGE_CTIME,citool_config_image=CITOOL_CONFIG_IMAGE,hostname=WORKER_HOSTNAME,ip=WORKER_IP,nomad_node=NOMAD_NODE_NAME,nomad_job_url=NOMAD_JOB_URL"
+{% if citool_config_container_image is defined %}
+SENTRY_TAG_MAP="citool_image=CITOOL_IMAGE,citool_image_id=CITOOL_IMAGE_ID,citool_image_ctime=CITOOL_IMAGE_CTIME,citool_config_image=CITOOL_CONFIG_IMAGE,citool_config_image_id=CITOOL_CONFIG_IMAGE_ID,citool_config_image_ctime=CITOOL_CONFIG_IMAGE_CTIME,hostname=WORKER_HOSTNAME,ip=WORKER_IP,nomad_node=NOMAD_NODE_NAME,nomad_job_url=NOMAD_JOB_URL"
+{% else %}
+SENTRY_TAG_MAP="citool_image=CITOOL_IMAGE,citool_image_id=CITOOL_IMAGE_ID,citool_image_ctime=CITOOL_IMAGE_CTIME,hostname=WORKER_HOSTNAME,ip=WORKER_IP,nomad_node=NOMAD_NODE_NAME,nomad_job_url=NOMAD_JOB_URL"
+{% endif %}
 
 # --init is required to collect zombies processes
 # --rm is required to cleanup the container after it has been run
@@ -109,6 +130,8 @@ exec podman run --init \
                 -e NOMAD_NODE_NAME="${NOMAD_NODE_NAME}" \
                 -e NOMAD_JOB_URL="${NOMAD_JOB_URL}" \
                 ${CITOOL_CONFIG_IMAGE:+-e CITOOL_CONFIG_IMAGE="${CITOOL_CONFIG_IMAGE}"} \
+                ${CITOOL_CONFIG_IMAGE_ID:+-e CITOOL_CONFIG_IMAGE_ID="${CITOOL_CONFIG_IMAGE_ID}"} \
+                ${CITOOL_CONFIG_IMAGE_CTIME:+-e CITOOL_CONFIG_IMAGE_CTIME="${CITOOL_CONFIG_IMAGE_CTIME}"} \
                 ${CITOOL_EXTRA_PODMAN_ARGS} \
                 ${DOCKER_CONFIG_MOUNT} \
                 "$CITOOL_IMAGE" "${CITOOL_OPTIONS[@]}" "${CITOOL_PIPELINE[@]}"
