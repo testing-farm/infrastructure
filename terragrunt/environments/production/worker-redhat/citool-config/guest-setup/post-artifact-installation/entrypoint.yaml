@@ -1,4 +1,15 @@
 ---
+# This task needs to be separated because gathering facts would try to use
+# a wrong python before we can set the standalone one.
+- hosts: all
+  gather_facts: false
+  tasks:
+    - include_tasks: set-python.yaml
+      when:
+        - '"auto-osbuild" not in IMAGE_NAME|lower'
+        - '"pfmt" not in IMAGE_NAME|lower'
+        - '"image-mode" not in IMAGE_NAME|lower'
+
 - hosts: all
   tasks:
     - include_tasks: update-from-artifacts.yaml
