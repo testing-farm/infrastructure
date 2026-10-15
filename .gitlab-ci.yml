@@ -588,6 +588,14 @@ renew/certs:
       changes: *artifacts-bootc-changes
       when: on_success
 
+image/artifacts-bootc/merge-guard:
+  extends: .artifacts-bootc
+  needs: []
+  script:
+    # Fails the pipeline while a temporary "do not merge" marker is present (e.g.
+    # the MR-AMI change in the ami job), so it cannot be merged unaddressed.
+    - bash images/bootc-artifacts/merge-guard.sh
+
 image/artifacts-bootc/container:
   extends: .artifacts-bootc
   needs: []
@@ -624,7 +632,17 @@ image/artifacts-bootc/dgoss:
     # MR tests its own goss) and the per-pipeline image the container job pushed.
     - |
       GOSS_YAML="${CI_PROJECT_URL}/-/raw/${CI_COMMIT_SHA}/images/bootc-artifacts/goss.yaml"
-      make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" GOSS_YAML="$GOSS_YAML"
+      make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" GOSS_YAML="$GOSS_YAML" | tee dgoss.log
+    # Guard: a request that discovers zero tests finishes "skipped" but the CLI
+    # still exits 0, so the gate would pass without running goss. Query the request
+    # result and fail unless it actually passed (also catches a future discovery
+    # regression).
+    - |
+      api_url=$(grep -oE 'https://[^ ]+/requests/[0-9a-f-]{36}' dgoss.log | head -1)
+      [ -n "$api_url" ] || { echo "[E] could not find the testing-farm request URL in the dgoss output"; exit 1; }
+      overall=$(curl -fsSL "$api_url" | python3 -c 'import sys, json; print(json.load(sys.stdin).get("result", {}).get("overall", ""))')
+      echo "[i] dgoss request overall result: ${overall:-<none>}"
+      [ "$overall" = "passed" ] || { echo "[E] dgoss did not pass (overall='${overall:-<none>}') - skipped / zero tests / failed"; exit 1; }
 
 image/artifacts-bootc/qcow2:
   extends: .artifacts-bootc
@@ -675,12 +693,17 @@ image/artifacts-bootc/ami:
     - |
       [ -n "${QCOW2_REQUEST:-}" ] || [ -n "${QCOW2_URL:-}" ] || { echo "[E] neither QCOW2_REQUEST nor QCOW2_URL is set - run the qcow2 job first or set one manually."; exit 1; }
       # Always upload under a unique name (tft-admin no-ops on an existing name, so a
-      # reused name would keep a stale image). On MRs the upload is throwaway and is
-      # removed once verified; on the default branch it is an immutable per-commit AMI
-      # the deploy (TFT-4797) pins - never deleted or overwritten in place.
+      # reused name would keep a stale image). MRs upload a throwaway per-pipeline AMI;
+      # the default branch uploads an immutable per-commit AMI the deploy (TFT-4797)
+      # pins - never deleted or overwritten in place.
+      # TODO(TFT-4795) MERGE-BLOCKER: REMOVE_AFTER_TEST is intentionally NOT set on
+      # MRs for now, so reviewers can boot-test the MR's AMI (it is deleted
+      # otherwise). These MR AMIs accumulate, so before merge either re-enable
+      # cleanup here or add a prune, then remove this marker. Enforced by the
+      # image/artifacts-bootc/merge-guard job.
       if [ -n "${CI_MERGE_REQUEST_IID:-}" ]; then
         IMAGE_NAME="artifacts-bootc-${QCOW2_ARCH}-mr-${CI_MERGE_REQUEST_IID}-${CI_PIPELINE_ID}"
-        REMOVE_AFTER_TEST="1"
+        REMOVE_AFTER_TEST=""
       else
         IMAGE_NAME="artifacts-bootc-${QCOW2_ARCH}-${CI_COMMIT_SHORT_SHA}"
         REMOVE_AFTER_TEST=""

@@ -1,7 +1,7 @@
 summary: Run dgoss checks against the built artifact-server container image
 
 description: |
-    Run the upstream testing-farm/tests ``/dgoss/build`` test
+    Run the upstream testing-farm/tests ``/dgoss/dgoss-tests`` test
     (https://gitlab.com/testing-farm/tests/-/tree/main/dgoss) against the
     container image produced by the ``container`` plan, using the container-scope
     ``goss.yaml`` in this directory.
@@ -37,7 +37,7 @@ discover:
   how: fmf
   url: https://gitlab.com/testing-farm/tests
   test:
-    - /dgoss/build
+    - /dgoss/dgoss-tests
 
 provision:
   how: container
