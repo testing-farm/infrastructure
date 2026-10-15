@@ -334,9 +334,11 @@ resource "helm_release" "aws_load_balancer_controller" {
   }
 
   # Leave `LoadBalancer` services to the in-tree cloud provider. With the webhook
-  # enabled, the controller claims every new `LoadBalancer` service by setting
-  # `loadBalancerClass: service.k8s.aws/nlb`, turning the artemis API classic ELB
-  # into an NLB the controller fails to provision.
+  # enabled, the controller claims every new `LoadBalancer` service.
+  # Currently we use statically-provisioned classic ELB for Artemis API, which
+  # results in a failure to provision an NLB.
+  # TODO: AWS recommends migrating away from the in-tree provider and legacy
+  # "EC2-classic" resources
   set {
     name  = "enableServiceMutatorWebhook"
     value = "false"
