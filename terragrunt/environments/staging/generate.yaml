@@ -11,7 +11,7 @@
     - name: Generate presign url for the latest production dump
       amazon.aws.s3_object:
         bucket: tft-backups-prod
-        object: testing-farm-backup-today-latest.sql.xz
+        object: testing-farm-backup-requests-latest.sql.xz
         mode: geturl
         profile: redhat_us_east_1_backups
         expiry: 600
