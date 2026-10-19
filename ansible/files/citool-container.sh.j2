@@ -43,18 +43,41 @@ if [ -n "$CITOOL_CONFIG_IMAGE" ]; then
       exit 1
   fi
 
+  mount_path=$(podman volume mount "$CONFIG_VOLUME") || { echo "ERROR: Failed to mount volume $CONFIG_VOLUME"; exit 1; }
+
   # Copy environment.yaml into the volume if it exists on the host, replacing the placeholder from the config image.
   if [ -f "${CITOOL_CONFIG_DIR}/environment.yaml" ]; then
-    mount_path=$(podman volume mount "$CONFIG_VOLUME") || { echo "ERROR: Failed to mount volume $CONFIG_VOLUME"; exit 1; }
     cp "${CITOOL_CONFIG_DIR}/environment.yaml" "${mount_path}/environment.yaml"
-    podman volume unmount "$CONFIG_VOLUME"
   fi
+
+  # Extract results.html (Oculus viewer) from config volume if available
+  if [ -f "${mount_path}/results.html" ]; then
+    cp "${mount_path}/results.html" "${CITOOL_RUN_DIR}/index.html"
+{% if api_hostname is defined %}
+    sed -i 's|https://api.testing-farm.io|http://{[ api_hostname ]}|' "${CITOOL_RUN_DIR}/index.html"
+{% endif %}
+  else
+    echo "WARNING: results.html not found in config volume"
+  fi
+
+  podman volume unmount "$CONFIG_VOLUME"
 
   CONFIG_MOUNT="-v ${CONFIG_VOLUME}:/CONFIG:O
                 {%- for s in citool_config_podman_secrets | default([]) %}
                 --secret {[ s.name ]},target={[ s.target ]}{%- if s.mode is defined %},mode={[ s.mode ]}{%- endif %}
                 {%- endfor %}"
   CITOOL_OPTIONS=(--module-config-path "/CONFIG/config,/CONFIG-SECRETS/config")
+fi
+
+# Fetch Oculus viewer from S3 if not already extracted from the config volume
+if [ ! -f "${CITOOL_RUN_DIR}/index.html" ]; then
+  if ! curl -s --fail --retry 10 --retry-max-time 300 --show-error -o "${CITOOL_RUN_DIR}/index.html" \
+    https://testing-farm-public.s3.amazonaws.com/oculus/results.html; then
+    echo "WARNING: Failed to fetch Oculus viewer from S3"
+  fi
+{% if api_hostname is defined %}
+  sed -i 's|https://api.testing-farm.io|http://{[ api_hostname ]}|' "${CITOOL_RUN_DIR}/index.html"
+{% endif %}
 fi
 
 echo "Known images:"
