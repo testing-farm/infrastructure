@@ -628,11 +628,14 @@ image/artifacts-bootc/dgoss:
       optional: true
       artifacts: true
   script:
-    # dgoss fetches the goss file over HTTP, so pass a raw URL at this commit (so an
-    # MR tests its own goss) and the per-pipeline image the container job pushed.
+    # The per-pipeline image lives in a private quay repo, so dgoss needs registry
+    # auth to pull it - build the same base64 docker-config AUTH_JSON the container
+    # job uses and pass it as a secret. dgoss fetches the goss file over HTTP, so
+    # also pass a raw URL at this commit (so an MR tests its own goss).
+    - export DOCKER_AUTH_CONFIG_BASE64=$(printf '{"auths":{"quay.io":{"auth":"%s"}}}' "$(printf '%s:%s' "$QUAY_USERNAME" "$QUAY_PASSWORD" | base64 -w0)" | base64 -w0)
     - |
       GOSS_YAML="${CI_PROJECT_URL}/-/raw/${CI_COMMIT_SHA}/images/bootc-artifacts/goss.yaml"
-      make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" GOSS_YAML="$GOSS_YAML" | tee dgoss.log
+      make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" GOSS_YAML="$GOSS_YAML" DOCKER_AUTH_CONFIG_BASE64="$DOCKER_AUTH_CONFIG_BASE64" | tee dgoss.log
     # Guard: a request that discovers zero tests finishes "skipped" but the CLI
     # still exits 0, so the gate would pass without running goss. Query the request
     # result and fail unless it actually passed (also catches a future discovery

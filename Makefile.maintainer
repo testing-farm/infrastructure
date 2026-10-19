@@ -612,6 +612,7 @@ image/artifacts-bootc/dgoss: .FORCE  ## Run dgoss checks against the built artif
 	testing-farm request --skip-summary --arch x86_64 --compose "$(DGOSS_COMPOSE)" \
 		-e IMAGE="$(IMAGE)" \
 		$(if $(GOSS_YAML),-e GOSS_YAML="$(GOSS_YAML)") \
+		$(if $(DOCKER_AUTH_CONFIG_BASE64),-s DOCKER_AUTH_CONFIG_BASE64="$$DOCKER_AUTH_CONFIG_BASE64") \
 		--plan /images/bootc-artifacts/dgoss
 
 image/artifacts-bootc/qcow2: .FORCE  ## Build RHEL 10 bootc artifact-server qcow2 | Testing Farm
