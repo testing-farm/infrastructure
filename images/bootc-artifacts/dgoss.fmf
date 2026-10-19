@@ -39,6 +39,9 @@ discover:
   test:
     - /dgoss/dgoss-tests
 
+# dgoss-tests starts a Docker daemon, so this must run on a VM. The Makefile / CI
+# request it with --compose, which overrides this provision with a virtual guest;
+# the container provision here is only a fallback and will not work for dgoss.
 provision:
   how: container
 
