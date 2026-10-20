@@ -4,7 +4,7 @@ job "tf-tmt-multihost" {
 
   parameterized {
     meta_required = ["REQUEST_ID"]
-    meta_optional = ["CITOOL_IMAGE", "CITOOL_CONFIG_IMAGE", "REQUEST_TIMEOUT"]
+    meta_optional = ["CITOOL_IMAGE", "CITOOL_CONFIG_IMAGE", "PROFILES_IMAGE", "REQUEST_TIMEOUT"]
   }
 
   group "tmt" {
@@ -25,6 +25,7 @@ job "tf-tmt-multihost" {
     meta {
       CITOOL_IMAGE        = "{{ citool_container_image }}"
       CITOOL_CONFIG_IMAGE = "{{ citool_config_container_image }}"
+      PROFILES_IMAGE      = "{{ profiles_container_image }}"
     }
 
     # The worker container sees the allocation directory as /var/ARTIFACTS/<request-id>.
@@ -87,6 +88,8 @@ job "tf-tmt-multihost" {
         DEPLOYMENT = "staging"
 
         CITOOL_CONFIG_IMAGE = "${NOMAD_META_CITOOL_CONFIG_IMAGE}"
+
+        PROFILES_IMAGE = "${NOMAD_META_PROFILES_IMAGE}"
 
         REQUEST_TIMEOUT = "${NOMAD_META_REQUEST_TIMEOUT}"
       }
