@@ -1995,8 +1995,8 @@ development = ["gluetool-modules-framework @ git+https://gitlab.com/testing-farm
 [package.source]
 type = "git"
 url = "https://gitlab.com/testing-farm/pytest-gluetool.git"
-reference = "main"
-resolved_reference = "b745ff0a487e1719491553f0922a678d9b773d24"
+reference = "add-support-for-profiles-image"
+resolved_reference = "37bd65d96ad2b29b900edbee0f0902f5095a04df"
 
 [[package]]
 name = "pytest-html"
@@ -3173,4 +3173,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "7a6861c5694b8d6f5b7dd16297ea7b77936609df53514b4908d9b2a3ae706f8e"
+content-hash = "4f5a29a20701005593d4f88164913a571cb710266ba43b9e4d9a992dbacf0720"

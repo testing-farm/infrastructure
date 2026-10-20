@@ -4,7 +4,7 @@ job "tf-tmt-container" {
 
   parameterized {
     meta_required = ["REQUEST_ID"]
-    meta_optional = ["CITOOL_IMAGE", "CITOOL_CONFIG_IMAGE", "REQUEST_TIMEOUT"]
+    meta_optional = ["CITOOL_IMAGE", "CITOOL_CONFIG_IMAGE", "PROFILES_IMAGE", "REQUEST_TIMEOUT"]
   }
 
   group "tmt" {
@@ -54,7 +54,8 @@ job "tf-tmt-container" {
       }
 
       config {
-        image        = "quay.io/testing-farm/worker-public:latest"
+        image        = "quay.io/testing-farm/worker-public:jhavlin"
+        force_pull   = true
         network_mode = "host"
         init         = true
         security_opt = ["label=type:tf_worker.process"]
@@ -94,7 +95,10 @@ job "tf-tmt-container" {
         ARTIFACTS_URL  = "http://{{ artifacts_hostname }}"
 
         CITOOL_CONFIG_IMAGE         = "${NOMAD_META_CITOOL_CONFIG_IMAGE}"
-        CITOOL_CONFIG_IMAGE_DEFAULT = "quay.io/testing-farm/ranch-public:latest"
+        CITOOL_CONFIG_IMAGE_DEFAULT = "quay.io/testing-farm/ranch-public:bf8a51f2"
+
+        PROFILES_IMAGE         = "${NOMAD_META_PROFILES_IMAGE}"
+        PROFILES_IMAGE_DEFAULT = "quay.io/testing-farm/profiles:6d032cbf"
 
         REQUEST_TIMEOUT = "${NOMAD_META_REQUEST_TIMEOUT}"
       }
