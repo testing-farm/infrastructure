@@ -64,5 +64,13 @@ citool_config_podman_secrets:
     target: /CONFIG-SECRETS/id_rsa_artemis
     mode: "600"
 
+  - name: archive
+    content: |
+      [default]
+      aws-access-key-id = {{ credentials.aws.profiles.redhat_us_east_1_storage.secret_key }}
+      aws-secret-access-key = {{ credentials.aws.profiles.redhat_us_east_1_storage.access_key }}
+      aws-region = {{ credentials.aws.profiles.redhat_us_east_1_storage.region }}
+    target: /CONFIG-SECRETS/config/archive
+
 sentry_base_url: "{{ credentials.sentry.redhat.base_url }}"
 sentry_dsn: "{{ credentials.sentry.redhat.dsn }}"
