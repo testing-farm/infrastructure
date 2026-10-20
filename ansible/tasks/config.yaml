@@ -1,5 +1,12 @@
 ---
-- name: Copy citool configuration
+- name: Create citool configuration directory
+  become: true
+  file:
+    path: /etc/citool.d
+    state: directory
+    mode: 0755
+
+- name: Copy citool configuration (dev, staging)
   become: true
   synchronize:
     # ending `/` is required to copy only contents over
@@ -8,8 +15,9 @@
     archive: false
     recursive: true
     use_ssh_args: true
+  when: deployment is not regex('production')
 
-- name: Render config templates
+- name: Render config templates (dev, staging)
   become: true
   template:
     src: "{{ item }}"
@@ -17,17 +25,7 @@
     mode: 0644
   with_fileglob:
     - "{{ worker_deployment_data }}/citool-config/config/*.j2"
-
-- name: Render config templates (root)
-  become: true
-  template:
-    src: "{{ item }}"
-    dest: "/etc/citool.d/{{ item | basename | regex_replace('.j2','') }}"
-    mode: 0644
-  with_fileglob:
-    - "{{ worker_deployment_data }}/citool-config/*.j2"
-  # TODO: this needs revisit once we unify staging and development config
-  when: deployment is regex('production')
+  when: deployment is not regex('production')
 
 - name: Copy Artemis Private Key
   become: true
