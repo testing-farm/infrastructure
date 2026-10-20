@@ -20,6 +20,9 @@ CITOOL_IMAGE="${CITOOL_IMAGE:-citool:latest}"
 {% if citool_config_container_image is defined %}
 CITOOL_CONFIG_IMAGE="${CITOOL_CONFIG_IMAGE:-{[ citool_config_container_image ]}}"
 {% endif %}
+{% if profiles_container_image is defined %}
+PROFILES_IMAGE="${PROFILES_IMAGE:-{[ profiles_container_image ]}}"
+{% endif %}
 CITOOL_CONFIG_DIR="${CITOOL_CONFIG_DIR:-/etc/citool.d}"
 CITOOL_RUN_DIR="${CITOOL_RUN_DIR:-$PWD}"
 CITOOL_OPTIONS=()
@@ -57,6 +60,18 @@ if [ -n "$CITOOL_CONFIG_IMAGE" ]; then
   CITOOL_OPTIONS=(--module-config-path "/CONFIG/config,/CONFIG-SECRETS/config")
 fi
 
+PROFILES_MOUNT=""
+if [ -n "$PROFILES_IMAGE" ]; then
+  PROFILES_VOLUME="citool-profiles-${REQUEST_ID:-$$}"
+  podman volume create "$PROFILES_VOLUME"
+  if ! podman run --rm --pull=newer -v "$PROFILES_VOLUME:/profiles" "$PROFILES_IMAGE"; then
+      echo "ERROR: Failed to pull/run profiles image: $PROFILES_IMAGE"
+      podman volume rm "$PROFILES_VOLUME" 2>/dev/null || true
+      exit 1
+  fi
+  PROFILES_MOUNT="-v ${PROFILES_VOLUME}:/PROFILES:O"
+fi
+
 echo "Known images:"
 podman images
 
@@ -68,10 +83,17 @@ image_ctime=`podman inspect -f '{{.Created}}' $CITOOL_IMAGE`
 config_image_id=`podman inspect -f '{{.Id}}' $CITOOL_CONFIG_IMAGE`
 config_image_ctime=`podman inspect -f '{{.Created}}' $CITOOL_CONFIG_IMAGE`
 {% endif %}
+{% if profiles_container_image is defined %}
+profiles_image_id=`podman inspect -f '{{.Id}}' $PROFILES_IMAGE`
+profiles_image_ctime=`podman inspect -f '{{.Created}}' $PROFILES_IMAGE`
+{% endif %}
 
 echo "Image is $image_id, created on $image_ctime"
 {% if citool_config_container_image is defined %}
 echo "Config image is $config_image_id, created on $config_image_ctime"
+{% endif %}
+{% if profiles_container_image is defined %}
+echo "Profiles image is $profiles_image_id, created on $profiles_image_ctime"
 {% endif %}
 
 echo
@@ -132,6 +154,9 @@ exec podman run --init \
                 ${CITOOL_CONFIG_IMAGE:+-e CITOOL_CONFIG_IMAGE="${CITOOL_CONFIG_IMAGE}"} \
                 ${CITOOL_CONFIG_IMAGE_ID:+-e CITOOL_CONFIG_IMAGE_ID="${CITOOL_CONFIG_IMAGE_ID}"} \
                 ${CITOOL_CONFIG_IMAGE_CTIME:+-e CITOOL_CONFIG_IMAGE_CTIME="${CITOOL_CONFIG_IMAGE_CTIME}"} \
+                ${PROFILES_MOUNT} \
+                ${PROFILES_IMAGE:+-e ANSIBLE_COLLECTIONS_PATH="/PROFILES:/root/.ansible/collections:/usr/share/ansible/collections"} \
+                ${PROFILES_IMAGE:+-e TMT_POLICY_ROOT="/PROFILES/policies"} \
                 ${CITOOL_EXTRA_PODMAN_ARGS} \
                 ${DOCKER_CONFIG_MOUNT} \
                 "$CITOOL_IMAGE" "${CITOOL_OPTIONS[@]}" "${CITOOL_PIPELINE[@]}"
