@@ -111,7 +111,7 @@ postgresql:
       ingressClassName: alb
       hostname: "${artemis_postgresql_exporter_hostname}"
       annotations:
-        alb.ingress.kubernetes.io/group.name: artemis-metrics
+        alb.ingress.kubernetes.io/group.name: ${artemis_postgresql_exporter_alb_group}
         alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/target-type: ip
@@ -133,7 +133,7 @@ rabbitmq:
       ingressClassName: alb
       hostname: "${artemis_rabbitmq_exporter_hostname}"
       annotations:
-        alb.ingress.kubernetes.io/group.name: artemis-metrics
+        alb.ingress.kubernetes.io/group.name: ${artemis_rabbitmq_exporter_alb_group}
         alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/target-type: ip
@@ -149,7 +149,7 @@ redis:
       ingressClassName: alb
       hostname: "${artemis_redis_exporter_hostname}"
       annotations:
-        alb.ingress.kubernetes.io/group.name: artemis-metrics
+        alb.ingress.kubernetes.io/group.name: ${artemis_redis_exporter_alb_group}
         alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/target-type: ip
