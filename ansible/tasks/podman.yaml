@@ -45,8 +45,10 @@
       cron:
         name: cleanup podman daily
         state: present
+        # Skip citool-config volumes, the prune would remove those of runs not yet started.
+        # `citool-container.sh` removes stale citool-config volumes itself.
         job: >
-          podman system prune --force --volumes
+          podman system prune --force --volumes --filter label!=testing-farm.citool-config
         special_time: daily
 
     - name: "Install podman bridge reaper script"
