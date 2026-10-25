@@ -108,6 +108,7 @@ postgresql:
     enabled: true
     ingress:
       enabled: true
+      ingressClassName: alb
       hostname: "${artemis_postgresql_exporter_hostname}"
       annotations:
         alb.ingress.kubernetes.io/group.name: artemis-metrics
@@ -129,6 +130,7 @@ rabbitmq:
     enabled: true
     ingress:
       enabled: true
+      ingressClassName: alb
       hostname: "${artemis_rabbitmq_exporter_hostname}"
       annotations:
         alb.ingress.kubernetes.io/group.name: artemis-metrics
@@ -144,6 +146,7 @@ redis:
     resources: ${jsonencode(redis_exporter_resources)}
     ingress:
       enabled: true
+      ingressClassName: alb
       hostname: "${artemis_redis_exporter_hostname}"
       annotations:
         alb.ingress.kubernetes.io/group.name: artemis-metrics
