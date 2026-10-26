@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Derive the qcow2 download URL from a /images/bootc-artifacts/qcow2 build request
+# Derive the qcow2 download URL from a /image-mode/qcow2/build request
 # and upload it to the cloud by reusing the testing-farm/tests upload-qcow2 run.sh.
 #
 # Derivation and upload run in this one script because the cnc container runs as a

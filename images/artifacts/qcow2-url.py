@@ -2,7 +2,7 @@
 
 """
 Derive the download URL of the qcow2 produced by a Testing Farm
-/images/bootc-artifacts/qcow2 build request.
+/image-mode/qcow2/build request.
 
 Usage: qcow2-url.py <request-id-or-string-containing-it>
 
