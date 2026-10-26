@@ -1,5 +1,6 @@
 #!/bin/bash
-# Image build: install the storage server and enable the services.
+# Image build: install the storage server, add a placeholder TLS cert and
+# enable the services.
 # Run from the Containerfile; build ARGs arrive as env vars.
 # No storage is mounted and no service is started during the build.
 set -euo pipefail
@@ -29,6 +30,19 @@ setsebool -P httpd_use_nfs 1
 mkdir -p /var/mnt/s3files
 chmod 0755 /var/mnt/s3files
 chown root:root /var/mnt/s3files
+
+# Placeholder cert so nginx starts. The server is private, so Let's Encrypt can't
+# reach it for HTTP-01: setup/renew_certs.sh issues the real cert for
+# redhat.artifacts.testing.farm with DNS-01, and the deploy (TFT-4797) installs it
+# over these paths.
+mkdir -p /etc/pki/nginx
+openssl req -x509 -nodes -newkey rsa:4096 -days 3650 \
+    -keyout /etc/pki/nginx/artifacts.key \
+    -out /etc/pki/nginx/artifacts.crt \
+    -subj "/CN=redhat.artifacts.testing.farm" \
+    -addext "subjectAltName=DNS:redhat.artifacts.testing.farm"
+chmod 0600 /etc/pki/nginx/artifacts.key
+chmod 0644 /etc/pki/nginx/artifacts.crt
 
 # artifacts-storage.service mounts the storage at boot from EC2 user data, see
 # /usr/local/libexec/mount-artifacts-storage.

@@ -17,7 +17,7 @@ COPY config/efs-utils.repo /etc/yum.repos.d/efs-utils.repo
 COPY --chmod=0755 config/mount-artifacts-storage /usr/local/libexec/mount-artifacts-storage
 COPY config/artifacts-storage.service /usr/lib/systemd/system/artifacts-storage.service
 
-# Install the storage server and enable the services.
+# Install the storage server, add a placeholder TLS cert, enable the services.
 # Kept in a standalone script so it can be linted with shellcheck.
 COPY --chmod=0755 setup.sh /tmp/setup.sh
 RUN bash /tmp/setup.sh && rm -vf /tmp/setup.sh
@@ -28,14 +28,9 @@ COPY config/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY config/nginx/artifacts.conf /etc/nginx/conf.d/artifacts.conf
 
 # Fail-closed mount check for nginx; administrator SSH has no storage dependency.
-COPY config/check-artifacts-mount /usr/local/libexec/check-artifacts-mount
+COPY --chmod=0755 config/check-artifacts-mount /usr/local/libexec/check-artifacts-mount
 COPY config/nginx/10-storage.conf /usr/lib/systemd/system/nginx.service.d/10-storage.conf
 
 # Kernel/network tuning.
 COPY config/sysctl-artifacts.conf /usr/lib/sysctl.d/90-artifacts.conf
 COPY config/kargs-artifacts.toml /usr/lib/bootc/kargs.d/90-artifacts.toml
-
-# Lock down the copied-in config and provide a throwaway TLS cert.
-# Kept in a standalone script so it can be linted with shellcheck.
-COPY --chmod=0755 finalize.sh /tmp/finalize.sh
-RUN bash /tmp/finalize.sh && rm -vf /tmp/finalize.sh
