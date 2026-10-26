@@ -1,5 +1,5 @@
 #!/bin/bash
-# Shared readiness check for nginx and the restricted uploader.
+# Readiness check nginx runs before it starts: storage must be mounted.
 set -euo pipefail
 
 if [ "$#" -ne 1 ]; then

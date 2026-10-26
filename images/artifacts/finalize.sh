@@ -4,9 +4,8 @@
 # production storage is mounted during the build.
 set -euo pipefail
 
-# All forced commands and their configuration are root-owned.
-chmod 0644 /etc/ssh/artifacts_authorized_keys
-chmod 0755 /usr/local/libexec/check-artifacts-mount /usr/local/libexec/rrsync-artifacts
+# nginx runs the mount check as ExecStartPre.
+chmod 0755 /usr/local/libexec/check-artifacts-mount
 
 # Self-signed TLS cert so nginx starts and testing is unblocked. The real
 # host-provisioned cert (TFT-4797) overrides these paths on deploy.

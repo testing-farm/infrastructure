@@ -7,10 +7,6 @@ package:
     installed: true
   openssh-server:
     installed: true
-  rsync:
-    installed: true
-  rsync-rrsync:
-    installed: true
   stunnel:
     installed: true
   nfs-utils:
@@ -19,12 +15,7 @@ package:
     installed: true
 
 file:
-  /usr/bin/rrsync:
-    exists: true
   /usr/local/libexec/check-artifacts-mount:
-    exists: true
-    mode: "0755"
-  /usr/local/libexec/rrsync-artifacts:
     exists: true
     mode: "0755"
   /usr/local/libexec/render-artifacts-mount:
@@ -44,16 +35,9 @@ file:
     contains:
       - "Where=/var/mnt/s3files"
       - "Type=s3files"
-  /etc/ssh/sshd_config.d/10-artifacts.conf:
-    exists: true
-  /etc/ssh/artifacts_authorized_keys:
-    exists: true
-    mode: "0644"
   /usr/lib/sysctl.d/90-artifacts.conf:
     exists: true
   /usr/lib/bootc/kargs.d/90-artifacts.toml:
-    exists: true
-  /etc/security/limits.d/90-artifacts.conf:
     exists: true
   /etc/pki/nginx/artifacts.crt:
     exists: true
@@ -74,9 +58,3 @@ file:
   /etc/systemd/system/remote-fs.target.wants/var-mnt-s3files.mount:
     exists: true
     filetype: symlink
-
-user:
-  artifacts:
-    exists: true
-    # A usable shell is required for the OpenSSH forced command (TFT-4795).
-    shell: /bin/sh
