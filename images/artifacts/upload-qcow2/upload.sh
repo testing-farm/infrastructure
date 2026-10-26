@@ -38,4 +38,5 @@ git clone --quiet --depth 1 --branch "$tests_ref" "$tests_url" "$workdir/tests"
 # run.sh relies on its own `#!/bin/bash -e`; invoking it with `bash` drops that
 # shebang and our set -e does not carry into the new interpreter, so pass -e
 # explicitly or a failed sync/import/cache-update would exit 0 (false success).
-exec bash -e "$workdir/tests/testing-farm/upload-qcow2/run.sh"
+# No exec, so the EXIT trap still removes the clone; set -e keeps run.sh's status.
+bash -e "$workdir/tests/testing-farm/upload-qcow2/run.sh"
