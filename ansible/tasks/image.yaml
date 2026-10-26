@@ -19,6 +19,13 @@
         variable_start_string: "{["
         variable_end_string: "]}"
 
+    # The config image workflow mounts git credentials as a podman secret, remove the leftover from the host config.
+    - name: Remove host git credentials
+      file:
+        path: /etc/citool.d/git-credentials
+        state: absent
+      when: citool_config_container_image is defined
+
     - name: Pull the required image
       command: "podman pull {{ citool_container_image }}"
       register: result
