@@ -7,7 +7,7 @@ description: |
     ``goss.yaml`` in this directory.
 
     dgoss starts the image as a container, so it only verifies image *contents*
-    (packages, files, the baked mount unit). The booted-VM
+    (packages, files, the storage mount service). The booted-VM
     checks - services running, the real NFS mount, listening ports, kargs - live
     in ``goss-vm.yaml`` and are run against a booted guest, not here.
 
