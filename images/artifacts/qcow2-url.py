@@ -10,10 +10,10 @@ Prints the qcow2 URL to stdout (and nothing else there, so callers can capture
 it directly); progress and diagnostics go to stderr. TESTING_FARM_API_URL selects
 the Testing Farm API (defaults to the public endpoint, which holds every request
 regardless of ranch; the GET needs no token). QCOW2_FILE overrides the file name
-(default: artifacts-bootc.qcow2, matching qcow2.fmf).
+(default: artifacts-bootc.qcow2, matching the QCOW2_FILE the qcow2 job passes).
 
-Pure stdlib (no curl/jq): the Testing Farm cli image is Alpine with python3 but
-no curl/jq.
+Pure stdlib (no curl/jq), so it runs in minimal images such as cnc and the
+Testing Farm cli image.
 """
 
 import json

@@ -61,6 +61,10 @@ The container image and the qcow2 are built *on Testing Farm*:
   image, so no local wrapper plan is kept. `make image/artifacts-bootc/qcow2` passes
   it `IMAGE` and `QCOW2_FILE`; builds a qcow2 from that image with `bootc-image-builder`.
 
+`dgoss.fmf` runs the upstream `/dgoss/dgoss-tests` test against the pushed image
+on a VM with the container-scope `goss.yaml`. `goss-vm.yaml` holds the checks for
+a booted instance (services, the read-only mount, ports, kargs).
+
 [source,bash]
 ----
 # Build and push the container image (AUTH_JSON = base64 registry auth)
@@ -109,7 +113,8 @@ MRs push `quay.io/testing-farm/artifacts-bootc:mr-<iid>-<pipeline-id>` (so they 
 overwrite the production `:latest`), and the qcow2 build uses that exact tag; the
 default branch publishes `:latest`.
 
-Supply the per-commit AMI name to TFT-4797 as `ARTIFACTS_SERVER_AMI`. Set
+TFT-4797 deploys the newest AMI whose name matches
+`^artifacts-bootc-x86_64-[0-9a-f]{8}$`, so keep that prefix. Set
 `REMOVE_AFTER_TEST=1` on `make image/artifacts-bootc/ami` for a throwaway upload
 locally.
 
@@ -140,12 +145,16 @@ the testing-farm/tests `/testing-farm/upload-qcow2` orchestration in the same sh
 That orchestration uses `tft-admin` to upload the qcow2 to AWS (`cloud compose sync
 --from-url`, plus a cross-region `cloud compose import`). Running it through Testing
 Farm keeps the GitLab runner off the private `cnc` image and off the internal
-artifact server. Supply the resulting AMI to TFT-4797 as the `ARTIFACTS_SERVER_AMI`
-environment variable (consumed by
-`terragrunt/environments/production/artifacts-redhat/ec2/terragrunt.hcl`).
+artifact server. TFT-4797
+(`terragrunt/environments/production/artifacts-redhat/ec2/terragrunt.hcl`) picks
+up the resulting per-commit AMI by name.
 
 == Open items (TFT-4795)
 
+* *Storage user data*: the `artifacts-server` module in TFT-4797 does not pass
+  `user_data` yet. Until it writes `/etc/sysconfig/artifacts-storage` (see
+  <<storage-backend>>), a deployed instance keeps storage unmounted and nginx
+  down.
 * *TLS certs*: a throwaway *self-signed* cert is baked at
   `/etc/pki/nginx/artifacts.{crt,key}` to unblock testing. The real cert is a
   Let's Encrypt cert for `redhat.artifacts.testing.farm`, issued via the repo's
