@@ -35,8 +35,21 @@ fi
 # and mount it at /CONFIG instead of the host directory.
 CONFIG_MOUNT="-v ${CITOOL_CONFIG_DIR}:/CONFIG:O"
 if [ -n "$CITOOL_CONFIG_IMAGE" ]; then
+  # The volume outlives the run, `exec` below leaves no place to remove it and `--rm` removes only
+  # anonymous volumes. Remove leftovers of previous runs, each volume holds a libpod lock and
+  # the default limit of 2048 locks gets exhausted on busy workers. `podman volume rm` refuses
+  # volumes mounted by running containers, the age check protects volumes of runs still pulling
+  # the config image. Do not use `podman volume prune` here, it ORs the `label` and `until` filters.
+  now=$(date +%s)
+  podman volume ls --filter label=testing-farm.citool-config --format '{{.Name}} {{.CreatedAt.Unix}}' |
+    while read -r volume created; do
+      if [ $((now - created)) -gt 3600 ]; then
+        podman volume rm "$volume" >/dev/null 2>&1 || true
+      fi
+    done
+
   CONFIG_VOLUME="citool-config-${REQUEST_ID:-$$}"
-  podman volume create "$CONFIG_VOLUME"
+  podman volume create --label testing-farm.citool-config "$CONFIG_VOLUME"
   if ! podman run --rm --pull=newer -v "$CONFIG_VOLUME:/worker/{[ deployment ]}/citool-config" "$CITOOL_CONFIG_IMAGE"; then
       echo "ERROR: Failed to pull/run config image: $CITOOL_CONFIG_IMAGE"
       podman volume rm "$CONFIG_VOLUME" 2>/dev/null || true
@@ -45,7 +58,11 @@ if [ -n "$CITOOL_CONFIG_IMAGE" ]; then
 
   # Copy environment.yaml into the volume if it exists on the host, replacing the placeholder from the config image.
   if [ -f "${CITOOL_CONFIG_DIR}/environment.yaml" ]; then
-    mount_path=$(podman volume mount "$CONFIG_VOLUME") || { echo "ERROR: Failed to mount volume $CONFIG_VOLUME"; exit 1; }
+    mount_path=$(podman volume mount "$CONFIG_VOLUME") || {
+      echo "ERROR: Failed to mount volume $CONFIG_VOLUME"
+      podman volume rm "$CONFIG_VOLUME" 2>/dev/null || true
+      exit 1
+    }
     cp "${CITOOL_CONFIG_DIR}/environment.yaml" "${mount_path}/environment.yaml"
     podman volume unmount "$CONFIG_VOLUME"
   fi
