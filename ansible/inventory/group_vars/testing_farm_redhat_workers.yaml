@@ -81,5 +81,12 @@ citool_config_podman_secrets:
       aws-region = {{ credentials.aws.profiles.redhat_us_east_1_storage.region }}
     target: /CONFIG-SECRETS/config/archive
 
+  # The citool image links `/root/.git-credentials` to `/CONFIG/git-credentials`, the config image does not ship it.
+  - name: git-credentials
+    content: |
+      https://{{ credentials.gitlab.redhat.user }}:{{ credentials.gitlab.redhat.token }}@gitlab.com
+    target: /CONFIG/git-credentials
+    mode: "600"
+
 sentry_base_url: "{{ credentials.sentry.redhat.base_url }}"
 sentry_dsn: "{{ credentials.sentry.redhat.dsn }}"
