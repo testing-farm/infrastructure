@@ -150,6 +150,8 @@ environment variable (consumed by
   Let's Encrypt cert for `redhat.artifacts.testing.farm`, issued via the repo's
   existing certbot *DNS-01 / Route53* flow (see `setup/renew_certs.sh`, certs
   stored under `ansible/secrets/certs/*.vault`) and dropped onto the host by the
-  deploy (TFT-4797), overriding these paths. LE is not baked into the image:
-  DNS-01 only needs the Route53 zone (from TFT-4796), so it can be issued before
-  the box is up, but it belongs to the deploy, not the image build.
+  deploy (TFT-4797), overriding these paths. The server is private (no public
+  IP), so Let's Encrypt can't reach it for the HTTP-01 challenge that certbot's
+  nginx plugin uses. DNS-01 only needs the Route53 zone (from TFT-4796), so the
+  cert can be issued before the box is up; it belongs to the deploy, not the
+  image build.
