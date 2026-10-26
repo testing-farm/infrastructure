@@ -1,5 +1,5 @@
 #!/bin/bash
-# Image build: install the storage server and bake the S3 Files mount unit.
+# Image build: install the storage server and enable the services.
 # Run from the Containerfile; build ARGs arrive as env vars.
 # No storage is mounted and no service is started during the build.
 set -euo pipefail
@@ -30,11 +30,6 @@ mkdir -p /var/mnt/s3files
 chmod 0755 /var/mnt/s3files
 chown root:root /var/mnt/s3files
 
-# bootc install replaces the active /etc/fstab with only the boot entry, so the
-# artifact mount is baked as a systemd unit rather than an fstab line (TFT-4795).
-chmod 0755 /usr/local/libexec/render-artifacts-mount
-/usr/local/libexec/render-artifacts-mount \
-    "$ARTIFACTS_FILESYSTEM_ID" "$ARTIFACTS_MOUNT_TARGET_IP" \
-    > /usr/lib/systemd/system/var-mnt-s3files.mount
-
-systemctl enable nginx sshd var-mnt-s3files.mount
+# artifacts-storage.service mounts the storage at boot from EC2 user data, see
+# /usr/local/libexec/mount-artifacts-storage.
+systemctl enable nginx sshd artifacts-storage.service

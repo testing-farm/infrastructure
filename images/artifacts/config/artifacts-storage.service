@@ -1,0 +1,16 @@
+# Mount the artifact storage read-only from the backend settings cloud-init
+# writes out of EC2 user data. See /usr/local/libexec/mount-artifacts-storage.
+[Unit]
+Description=Testing Farm artifacts S3 Files storage
+Wants=network-online.target
+After=network-online.target cloud-config.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/sysconfig/artifacts-storage
+ExecStart=/usr/local/libexec/mount-artifacts-storage
+ExecStop=/usr/bin/umount /var/mnt/s3files
+
+[Install]
+WantedBy=multi-user.target

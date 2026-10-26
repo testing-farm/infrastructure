@@ -19,7 +19,7 @@ fi
 read -r mounted_target filesystem_type <<< "$mount_info"
 # Fail closed unless the path itself is the mount (not a parent), it is the real
 # NFSv4 mount the s3files helper produces (the helper mounts NFSv4 under the
-# hood, so findmnt reports nfs4, not the s3files type from the unit), and findmnt
+# hood, so findmnt reports nfs4, not the requested s3files type), and findmnt
 # returned exactly one line (no ambiguous/nested mounts at the target).
 if [[ "$mounted_target" != "$mount_point" || "$filesystem_type" != nfs4 || "$mount_info" == *$'\n'* ]]; then
     echo "Artifact storage is unavailable: $mount_point is not a single NFSv4 mount" >&2

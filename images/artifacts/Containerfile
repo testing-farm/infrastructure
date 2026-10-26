@@ -8,15 +8,16 @@
 ARG BASE_IMAGE=images.paas.redhat.com/testingfarm/rhel-bootc:10
 FROM $BASE_IMAGE
 
-# Supplied by build-arg-linux-amd64; these are configuration, not credentials.
+# Supplied by build-arg-linux-amd64; configuration, not a credential.
 ARG AMAZON_EFS_UTILS_VERSION
-ARG ARTIFACTS_FILESYSTEM_ID
-ARG ARTIFACTS_MOUNT_TARGET_IP
 
 COPY config/efs-utils.repo /etc/yum.repos.d/efs-utils.repo
-COPY config/render-artifacts-mount /usr/local/libexec/render-artifacts-mount
 
-# Install the storage server and bake the mount unit.
+# Storage is mounted at boot from EC2 user data, not baked in.
+COPY --chmod=0755 config/mount-artifacts-storage /usr/local/libexec/mount-artifacts-storage
+COPY config/artifacts-storage.service /usr/lib/systemd/system/artifacts-storage.service
+
+# Install the storage server and enable the services.
 # Kept in a standalone script so it can be linted with shellcheck.
 COPY --chmod=0755 setup.sh /tmp/setup.sh
 RUN bash /tmp/setup.sh && rm -vf /tmp/setup.sh

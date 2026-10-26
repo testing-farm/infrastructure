@@ -1,12 +1,6 @@
-# Non-secret configuration for the retained Red Hat production backend. These
-# describe a pre-existing AWS resource provisioned outside this repo (the ranch
-# account), not credentials.
+# Non-secret build configuration. The storage backend (filesystem ID, mount
+# target) is not baked in: terragrunt supplies it through EC2 user data at boot,
+# see config/mount-artifacts-storage.
 #
 #   AMAZON_EFS_UTILS_VERSION  Pinned amazon-efs-utils RPM from the AWS repo.
-#   ARTIFACTS_FILESYSTEM_ID   S3 Files (NFS-over-S3) filesystem backing the mount.
-#   ARTIFACTS_MOUNT_TARGET_IP Private VPC address of that filesystem's NFS mount
-#                             target; used as mounttargetip= so the helper mounts
-#                             by IP instead of DNS.
 AMAZON_EFS_UTILS_VERSION=3.3.1-1.el10
-ARTIFACTS_FILESYSTEM_ID=fs-0963344dcd0f605ed
-ARTIFACTS_MOUNT_TARGET_IP=10.31.10.250

@@ -14,15 +14,39 @@ the server only reads.
 * `nginx` autoindex, `root /mnt/s3files`, CORS `*`, HTTP->HTTPS 301, and
   `.txt.gz` / `.log.gz` / `.json.gz` served as `text/plain` with
   `Content-Encoding: gzip`.
-* S3 Files (NFS-over-S3) mount at `/var/mnt/s3files`: `amazon-efs-utils` (the AWS
-  mount helper) is installed from the AWS prebuilt RHEL repo (not built from
-  source — the FIPS `aws-lc` source build fails on RHEL 10), and the `/etc/fstab`
-  entry is rendered at build time from the non-secret `build-arg-linux-amd64`
-  inputs (filesystem id, mount-target IP). nginx start is gated on
-  the mount via a `BindsTo` / `ExecStartPre` drop-in (`config/nginx/10-storage.conf`).
+* Read-only S3 Files (NFS-over-S3) mount at `/var/mnt/s3files`: `amazon-efs-utils`
+  (the AWS mount helper) is installed from the AWS prebuilt RHEL repo (not built
+  from source — the FIPS `aws-lc` source build fails on RHEL 10).
+  `artifacts-storage.service` mounts it at boot from settings in EC2 user data
+  (see <<storage-backend>>). nginx binds to that service and checks the mount
+  before it starts (`config/nginx/10-storage.conf`), so it never serves the empty
+  local directory.
 * Kernel/network tuning: BBR + fq, TCP buffers, `somaxconn`, sunrpc slots via
   `/usr/lib/sysctl.d/` and `/usr/lib/bootc/kargs.d/`; nginx raises its own
   `worker_rlimit_nofile`.
+
+[[storage-backend]]
+== Storage backend
+
+The S3 Files filesystem ID and mount-target IP are outputs of
+`terragrunt/modules/artifacts-storage` (`file_system_id` and
+`mount_target_ipv4_address`). The image does not bake them in. The deploy
+(TFT-4797) passes them as EC2 user data, and cloud-init, enabled in the base
+image, writes them for `artifacts-storage.service`:
+
+[source,yaml]
+----
+#cloud-config
+write_files:
+  - path: /etc/sysconfig/artifacts-storage
+    permissions: "0644"
+    content: |
+      ARTIFACTS_FILESYSTEM_ID=<file_system_id>
+      ARTIFACTS_MOUNT_TARGET_IP=<mount_target_ipv4_address>
+----
+
+Without that file the service fails and nginx stays down. Launch MR AMIs with
+the same user data to boot-test them.
 
 == Build
 

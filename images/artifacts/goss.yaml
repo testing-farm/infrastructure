@@ -18,7 +18,7 @@ file:
   /usr/local/libexec/check-artifacts-mount:
     exists: true
     mode: "0755"
-  /usr/local/libexec/render-artifacts-mount:
+  /usr/local/libexec/mount-artifacts-storage:
     exists: true
     mode: "0755"
   /etc/yum.repos.d/efs-utils.repo:
@@ -29,12 +29,12 @@ file:
     exists: true
   /usr/lib/systemd/system/nginx.service.d/10-storage.conf:
     exists: true
-  # The S3 Files mount is a baked unit (bootc install drops the container fstab).
-  /usr/lib/systemd/system/var-mnt-s3files.mount:
+  # Storage is mounted at boot from EC2 user data, not baked into the image.
+  /usr/lib/systemd/system/artifacts-storage.service:
     exists: true
     contains:
-      - "Where=/var/mnt/s3files"
-      - "Type=s3files"
+      - "EnvironmentFile=/etc/sysconfig/artifacts-storage"
+      - "ExecStart=/usr/local/libexec/mount-artifacts-storage"
   /usr/lib/sysctl.d/90-artifacts.conf:
     exists: true
   /usr/lib/bootc/kargs.d/90-artifacts.toml:
@@ -55,6 +55,6 @@ file:
   /etc/systemd/system/multi-user.target.wants/sshd.service:
     exists: true
     filetype: symlink
-  /etc/systemd/system/remote-fs.target.wants/var-mnt-s3files.mount:
+  /etc/systemd/system/multi-user.target.wants/artifacts-storage.service:
     exists: true
     filetype: symlink
