@@ -2,8 +2,8 @@
 
 Image-mode (bootc) RHEL 10 image for the Testing Farm Red Hat ranch artifact
 storage server. Serves artifacts from an S3 Files (NFS-over-S3) mount at
-`/mnt/s3files` via nginx autoindex, and accepts uploads over SSH using a
-restricted `rrsync` forced command.
+`/mnt/s3files` via nginx autoindex. Workers upload to the S3 bucket directly, so
+the server only reads.
 
 * Plan: https://redhat.atlassian.net/browse/TFT-4606[TFT-4606]
 * Build (this image): https://redhat.atlassian.net/browse/TFT-4795[TFT-4795]
@@ -14,19 +14,15 @@ restricted `rrsync` forced command.
 * `nginx` autoindex, `root /mnt/s3files`, CORS `*`, HTTP->HTTPS 301, and
   `.txt.gz` / `.log.gz` / `.json.gz` served as `text/plain` with
   `Content-Encoding: gzip`.
-* `sshd` restricted `rrsync` forced command for the `artifacts` upload user
-  (key-auth, write-only into `/mnt/s3files`, no interactive shell). The forced
-  command (`config/rrsync-artifacts`) fails closed via a shared readiness check
-  (`config/check-artifacts-mount`) before handing off to the vendor `rrsync`.
 * S3 Files (NFS-over-S3) mount at `/var/mnt/s3files`: `amazon-efs-utils` (the AWS
   mount helper) is installed from the AWS prebuilt RHEL repo (not built from
   source — the FIPS `aws-lc` source build fails on RHEL 10), and the `/etc/fstab`
   entry is rendered at build time from the non-secret `build-arg-linux-amd64`
-  inputs (filesystem id, mount-target IP, upload UID/GID). nginx start is gated on
+  inputs (filesystem id, mount-target IP). nginx start is gated on
   the mount via a `BindsTo` / `ExecStartPre` drop-in (`config/nginx/10-storage.conf`).
-* Kernel/network tuning: BBR + fq, TCP buffers, `somaxconn`, `nofile`, sunrpc
-  slots via `/usr/lib/sysctl.d/`, `/etc/security/limits.d/`, and
-  `/usr/lib/bootc/kargs.d/`.
+* Kernel/network tuning: BBR + fq, TCP buffers, `somaxconn`, sunrpc slots via
+  `/usr/lib/sysctl.d/` and `/usr/lib/bootc/kargs.d/`; nginx raises its own
+  `worker_rlimit_nofile`.
 
 == Build
 

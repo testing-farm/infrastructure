@@ -1,21 +1,14 @@
 #!/bin/bash
-# Image build: install the storage server, create the upload user, and bake the
-# S3 Files mount unit. Run from the Containerfile; build ARGs arrive as env vars.
+# Image build: install the storage server and bake the S3 Files mount unit.
+# Run from the Containerfile; build ARGs arrive as env vars.
 # No storage is mounted and no service is started during the build.
 set -euo pipefail
 
 : "${AMAZON_EFS_UTILS_VERSION:?Missing helper version}"
-: "${ARTIFACTS_UID:?Missing upload UID}"
-: "${ARTIFACTS_GID:?Missing upload GID}"
-if [[ ! "$ARTIFACTS_UID" =~ ^[1-9][0-9]{0,4}$ || ! "$ARTIFACTS_GID" =~ ^[1-9][0-9]{0,4}$ ]] || \
-    (( ARTIFACTS_UID > 65535 || ARTIFACTS_GID > 65535 )); then
-    echo 'Upload UID/GID must be integers in the range 1..65535' >&2
-    exit 1
-fi
 
 # Bootstrap curl from the base repositories before enabling AWS key checks.
 # A file capability accepts an existing curl-minimal without replacing it.
-dnf -y --disablerepo=efs-utils install nginx openssh-server rsync rsync-rrsync \
+dnf -y --disablerepo=efs-utils install nginx openssh-server \
     stunnel nfs-utils openssl /usr/bin/curl
 
 # Use AWS's signed prebuilt RHEL package, not the failing FIPS source build.
@@ -31,16 +24,11 @@ dnf -y clean all
 # setsebool comes from policycoreutils, expected present on the bootc base.
 setsebool -P httpd_use_nfs 1
 
-# The underlying local directory is never writable by the upload account.
+# The local mount point stays root-owned; nginx refuses to start until storage
+# is mounted over it.
 mkdir -p /var/mnt/s3files
 chmod 0755 /var/mnt/s3files
 chown root:root /var/mnt/s3files
-
-# A usable shell is needed to execute OpenSSH's forced command. Key restrictions
-# deny shell access; an unusable login shell also prevents legitimate uploads.
-groupadd --system --gid "$ARTIFACTS_GID" artifacts
-useradd --system --uid "$ARTIFACTS_UID" --gid artifacts --create-home \
-    --home-dir /var/lib/artifacts --shell /bin/sh artifacts
 
 # bootc install replaces the active /etc/fstab with only the boot entry, so the
 # artifact mount is baked as a systemd unit rather than an fstab line (TFT-4795).

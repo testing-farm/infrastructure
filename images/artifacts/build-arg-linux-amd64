@@ -7,9 +7,6 @@
 #   ARTIFACTS_MOUNT_TARGET_IP Private VPC address of that filesystem's NFS mount
 #                             target; used as mounttargetip= so the helper mounts
 #                             by IP instead of DNS.
-#   ARTIFACTS_UID/GID         Owner of the upload account inside the image.
 AMAZON_EFS_UTILS_VERSION=3.3.1-1.el10
 ARTIFACTS_FILESYSTEM_ID=fs-0963344dcd0f605ed
 ARTIFACTS_MOUNT_TARGET_IP=10.31.10.250
-ARTIFACTS_UID=982
-ARTIFACTS_GID=976
