@@ -31,7 +31,7 @@ environment:
   USER: root
   GOSS_VERSION: v0.3.21
   IMAGE: quay.io/testing-farm/artifacts-bootc:latest
-  GOSS_YAML: https://gitlab.com/testing-farm/infrastructure/-/raw/main/images/bootc-artifacts/goss.yaml
+  GOSS_YAML: https://gitlab.com/testing-farm/infrastructure/-/raw/main/images/artifacts/goss.yaml
 
 discover:
   how: fmf

@@ -2,7 +2,7 @@ summary: Derive the qcow2 download URL and upload it to the cloud
 
 description: |
     Wrapper around the testing-farm/tests /testing-farm/upload-qcow2 test, used by
-    the /images/bootc-artifacts/upload plan.
+    the /images/artifacts/upload plan.
 
     It derives QCOW2_URL from QCOW2_REQUEST (reusing ../qcow2-url.py) and then runs
     the upstream run.sh in the same shell, so the derived URL never has to cross a

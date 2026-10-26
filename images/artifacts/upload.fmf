@@ -6,7 +6,7 @@ description: |
     orchestration (``tft-admin``, inside the cnc image).
 
     Unlike running ``/testing-farm/upload-qcow2/aws`` directly, QCOW2_URL does not
-    have to be supplied. The wrapper test /images/bootc-artifacts/upload-qcow2
+    have to be supplied. The wrapper test /images/artifacts/upload-qcow2
     derives it from the build request *inside Testing Farm*, where the Red Hat ranch
     artifact server (``artifacts.osci.redhat.com``) is reachable, and then runs the
     upstream run.sh in the same shell. This lets the GitLab runner drive the upload
@@ -57,7 +57,7 @@ environment:
 discover:
   how: fmf
   test:
-    - /images/bootc-artifacts/upload-qcow2
+    - /images/artifacts/upload-qcow2
 
 provision:
   how: container

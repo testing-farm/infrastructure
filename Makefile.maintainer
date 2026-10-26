@@ -599,7 +599,7 @@ IMAGE ?= $(TARGET_IMAGE)
 image/artifacts-bootc/container: .FORCE  ## Build & push RHEL 10 bootc artifact-server image | Testing Farm
 	testing-farm request --skip-summary \
 		-e ENABLE_PUSH=yes -e TARGET_IMAGE="$(TARGET_IMAGE)" -s AUTH_JSON="$$AUTH_JSON" \
-		--plan /images/bootc-artifacts/container
+		--plan /images/artifacts/container
 
 # dgoss-tests starts a Docker daemon (systemctl start docker, docker pull), so it
 # must run on a VM - --compose provisions one, overriding the plan's container
@@ -613,7 +613,7 @@ image/artifacts-bootc/dgoss: .FORCE  ## Run dgoss checks against the built artif
 		-e IMAGE="$(IMAGE)" \
 		$(if $(GOSS_YAML),-e GOSS_YAML="$(GOSS_YAML)") \
 		$(if $(DOCKER_AUTH_CONFIG_BASE64),-s DOCKER_AUTH_CONFIG_BASE64="$$DOCKER_AUTH_CONFIG_BASE64") \
-		--plan /images/bootc-artifacts/dgoss
+		--plan /images/artifacts/dgoss
 
 image/artifacts-bootc/qcow2: .FORCE  ## Build RHEL 10 bootc artifact-server qcow2 | Testing Farm
 	# Request the upstream qcow2 build plan directly - it only needs the pushed IMAGE,
@@ -626,7 +626,7 @@ image/artifacts-bootc/qcow2: .FORCE  ## Build RHEL 10 bootc artifact-server qcow
 		--plan '/image-mode/qcow2/build'
 
 image/artifacts-bootc/qcow2-url: .FORCE  ## Derive the qcow2 download URL from a qcow2 build request (needs REQUEST)
-	images/bootc-artifacts/qcow2-url.py "$(REQUEST)"
+	images/artifacts/qcow2-url.py "$(REQUEST)"
 
 QCOW2_ARCH ?= x86_64
 IMAGE_NAME ?= artifacts-bootc-$(QCOW2_ARCH)
@@ -644,7 +644,7 @@ image/artifacts-bootc/ami: .FORCE  ## Upload artifact-server qcow2 to AWS as an 
 		-e IMAGE_NAME="$(IMAGE_NAME)" \
 		-e QCOW2_ARCH="$(QCOW2_ARCH)" \
 		-s VAULT_SECRET_ID="$$VAULT_SECRET_ID" \
-		--plan /images/bootc-artifacts/upload
+		--plan /images/artifacts/upload
 
 generate/dev/citool-config/local: .FORCE  ## Generate citool-config | dev
 	WORKER=worker-local poetry run python setup/generate_environment.py dev

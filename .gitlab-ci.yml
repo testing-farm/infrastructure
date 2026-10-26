@@ -547,14 +547,14 @@ renew/certs:
 #   - the AMI upload runs testing-farm/tests /testing-farm/upload-qcow2/aws,
 #     which provisions the cnc image (tft-admin) *inside* Testing Farm - so the
 #     GitLab runner never has to pull the private cnc image.
-# See images/bootc-artifacts/README.adoc.
+# See images/artifacts/README.adoc.
 #
 # Required CI/CD variables:
 #   TESTING_FARM_API_TOKEN_REDHAT  RH ranch token (entitled RHEL bootc base)
 #   QUAY_USERNAME / QUAY_PASSWORD  quay.io credentials for the container push
 #   VAULT_SECRET_ID                Vault secret id for the cloud credentials
 #
-# Trigger: the chain runs automatically whenever images/bootc-artifacts/ changes,
+# Trigger: the chain runs automatically whenever images/artifacts/ changes,
 # both on MRs (throwaway per-pipeline AMI, auto-removed) and on the default branch
 # after merge (an immutable per-commit AMI the deploy pins).
 # ---------------------------------------------------------------------------
@@ -575,14 +575,14 @@ renew/certs:
     # The ami job picks the AMI name per context (see image/artifacts-bootc/ami).
     - if: $CI_MERGE_REQUEST_IID
       changes: &artifacts-bootc-changes
-        - images/bootc-artifacts/Containerfile
-        - images/bootc-artifacts/*.sh
-        - images/bootc-artifacts/*.fmf
-        - images/bootc-artifacts/*.py
-        - images/bootc-artifacts/*.yaml
-        - images/bootc-artifacts/build-arg-*
-        - images/bootc-artifacts/config/**/*
-        - images/bootc-artifacts/upload-qcow2/**/*
+        - images/artifacts/Containerfile
+        - images/artifacts/*.sh
+        - images/artifacts/*.fmf
+        - images/artifacts/*.py
+        - images/artifacts/*.yaml
+        - images/artifacts/build-arg-*
+        - images/artifacts/config/**/*
+        - images/artifacts/upload-qcow2/**/*
       when: on_success
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes: *artifacts-bootc-changes
@@ -594,7 +594,7 @@ image/artifacts-bootc/merge-guard:
   script:
     # Fails the pipeline while a temporary "do not merge" marker is present (e.g.
     # the MR-AMI change in the ami job), so it cannot be merged unaddressed.
-    - bash images/bootc-artifacts/merge-guard.sh
+    - bash images/artifacts/merge-guard.sh
 
 image/artifacts-bootc/container:
   extends: .artifacts-bootc
@@ -634,7 +634,7 @@ image/artifacts-bootc/dgoss:
     # also pass a raw URL at this commit (so an MR tests its own goss).
     - export DOCKER_AUTH_CONFIG_BASE64=$(printf '{"auths":{"quay.io":{"auth":"%s"}}}' "$(printf '%s:%s' "$QUAY_USERNAME" "$QUAY_PASSWORD" | base64 -w0)" | base64 -w0)
     - |
-      GOSS_YAML="${CI_PROJECT_URL}/-/raw/${CI_COMMIT_SHA}/images/bootc-artifacts/goss.yaml"
+      GOSS_YAML="${CI_PROJECT_URL}/-/raw/${CI_COMMIT_SHA}/images/artifacts/goss.yaml"
       make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" GOSS_YAML="$GOSS_YAML" DOCKER_AUTH_CONFIG_BASE64="$DOCKER_AUTH_CONFIG_BASE64" | tee dgoss.log
     # Guard: a request that discovers zero tests finishes "skipped" but the CLI
     # still exits 0, so the gate would pass without running goss. Query the request
@@ -713,7 +713,7 @@ image/artifacts-bootc/ami:
         REMOVE_AFTER_TEST=""
       fi
       echo "[i] IMAGE_NAME=$IMAGE_NAME REMOVE_AFTER_TEST=${REMOVE_AFTER_TEST:-<unset>}"
-      set -- --skip-summary -e IMAGE_NAME="$IMAGE_NAME" -e QCOW2_ARCH="$QCOW2_ARCH" -s VAULT_SECRET_ID="$VAULT_SECRET_ID" --plan /images/bootc-artifacts/upload
+      set -- --skip-summary -e IMAGE_NAME="$IMAGE_NAME" -e QCOW2_ARCH="$QCOW2_ARCH" -s VAULT_SECRET_ID="$VAULT_SECRET_ID" --plan /images/artifacts/upload
       if [ -n "$REMOVE_AFTER_TEST" ]; then set -- "$@" -e REMOVE_AFTER_TEST="$REMOVE_AFTER_TEST"; fi
       if [ -n "${QCOW2_REQUEST:-}" ]; then set -- "$@" -e QCOW2_REQUEST="$QCOW2_REQUEST"; fi
       if [ -n "${QCOW2_URL:-}" ]; then set -- "$@" -e QCOW2_URL="$QCOW2_URL"; fi
