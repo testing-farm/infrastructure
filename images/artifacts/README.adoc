@@ -116,12 +116,13 @@ locally.
 The plans can also be run directly, e.g.
 `testing-farm request --plan /images/artifacts/container`.
 
-The three steps run in GitLab CI (`image/artifacts-bootc/{container,qcow2,ami}`) as a
-`needs`-ordered chain, triggered automatically whenever `images/artifacts/`
-changes - see `.gitlab-ci.yml`. They require the CI/CD variables
-`TESTING_FARM_API_TOKEN_REDHAT` (RH ranch token), `QUAY_USERNAME` / `QUAY_PASSWORD`
-(quay.io credentials for the push, from which the job builds `AUTH_JSON`), and
-`VAULT_SECRET_ID` (cloud credentials for the AMI upload).
+GitLab CI runs the steps as a `needs`-ordered chain of jobs
+(`image/artifacts-bootc/{container,dgoss,qcow2,ami}`, plus `merge-guard`) whenever
+the image sources under `images/artifacts/` change, on MRs and on pushes to the
+default branch - see `.gitlab-ci.yml`. They require the CI/CD variables
+`TESTING_FARM_API_TOKEN_REDHAT` (RH ranch token), `AUTH_JSON` (masked, base64
+docker config with quay.io push access, used for the push and the dgoss pull),
+and `VAULT_SECRET_ID` (cloud credentials for the AMI upload).
 
 The base image is `images.paas.redhat.com/testingfarm/rhel-bootc:10`, a Testing
 Farm curated RHEL 10 bootc image on an internal Red Hat registry. The build must

@@ -542,21 +542,14 @@ renew/certs:
 # ---------------------------------------------------------------------------
 # RHEL 10 bootc artifact-server image (TFT-4795)
 #
-# All three steps run on Testing Farm, driven from the public cli image:
-#   - container + qcow2 are built by this repo's tmt plans;
-#   - the AMI upload runs testing-farm/tests /testing-farm/upload-qcow2/aws,
-#     which provisions the cnc image (tft-admin) *inside* Testing Farm - so the
-#     GitLab runner never has to pull the private cnc image.
-# See images/artifacts/README.adoc.
+# A 'needs'-ordered chain run on Testing Farm from the public cli image:
+# container -> dgoss + qcow2 -> ami, plus merge-guard. Each job documents its
+# step; see images/artifacts/README.adoc for the whole flow.
 #
 # Required CI/CD variables:
 #   TESTING_FARM_API_TOKEN_REDHAT  RH ranch token (entitled RHEL bootc base)
-#   QUAY_USERNAME / QUAY_PASSWORD  quay.io credentials for the container push
+#   AUTH_JSON                      masked, base64 docker config with quay.io push access
 #   VAULT_SECRET_ID                Vault secret id for the cloud credentials
-#
-# Trigger: the chain runs automatically whenever images/artifacts/ changes,
-# both on MRs (throwaway per-pipeline AMI, auto-removed) and on the default branch
-# after merge (an immutable per-commit AMI the deploy pins).
 # ---------------------------------------------------------------------------
 .artifacts-bootc:
   stage: deploy
@@ -572,7 +565,10 @@ renew/certs:
     # branch after merge to publish the per-commit AMI. Docs (README.adoc) are
     # excluded so they do not trigger a ~30-min build and a kept AMI; the glob list is
     # everything under the dir except docs (GitLab 'changes' has no exclusion syntax).
-    # The ami job picks the AMI name per context (see image/artifacts-bootc/ami).
+    # The default branch rule is push-only: 'changes' is always true for pipelines
+    # without a push event (schedules, "Run pipeline"), which would publish an AMI
+    # on every scheduled run. The ami job picks the AMI name per context (see
+    # image/artifacts-bootc/ami).
     - if: $CI_MERGE_REQUEST_IID
       changes: &artifacts-bootc-changes
         - images/artifacts/Containerfile
@@ -584,7 +580,7 @@ renew/certs:
         - images/artifacts/config/**/*
         - images/artifacts/upload-qcow2/**/*
       when: on_success
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
       changes: *artifacts-bootc-changes
       when: on_success
 
@@ -613,9 +609,8 @@ image/artifacts-bootc/container:
         IMAGE_REF="quay.io/testing-farm/artifacts-bootc:latest"
       fi
       echo "[i] IMAGE_REF=$IMAGE_REF"
-    # Build the base64 registry-auth file AUTH_JSON from QUAY_USERNAME / QUAY_PASSWORD.
-    - export AUTH_JSON=$(printf '{"auths":{"quay.io":{"auth":"%s"}}}' "$(printf '%s:%s' "$QUAY_USERNAME" "$QUAY_PASSWORD" | base64 -w0)" | base64 -w0)
-    - make image/artifacts-bootc/container AUTH_JSON="$AUTH_JSON" TARGET_IMAGE="$IMAGE_REF"
+    # The make target passes AUTH_JSON (masked CI/CD variable) as a Testing Farm secret.
+    - make image/artifacts-bootc/container TARGET_IMAGE="$IMAGE_REF"
     - echo "IMAGE_REF=$IMAGE_REF" > image.env
   artifacts:
     reports:
@@ -628,20 +623,20 @@ image/artifacts-bootc/dgoss:
       optional: true
       artifacts: true
   script:
-    # The per-pipeline image lives in a private quay repo, so dgoss needs registry
-    # auth to pull it - build the same base64 docker-config AUTH_JSON the container
-    # job uses and pass it as a secret. dgoss fetches the goss file over HTTP, so
-    # also pass a raw URL at this commit (so an MR tests its own goss).
-    - export DOCKER_AUTH_CONFIG_BASE64=$(printf '{"auths":{"quay.io":{"auth":"%s"}}}' "$(printf '%s:%s' "$QUAY_USERNAME" "$QUAY_PASSWORD" | base64 -w0)" | base64 -w0)
+    # The per-pipeline image lives in a private quay repo, so dgoss pulls it with
+    # AUTH_JSON (the make target passes it as a secret). dgoss fetches the goss file
+    # over HTTP, so also pass a raw URL at this commit (so an MR tests its own goss).
     - |
       GOSS_YAML="${CI_PROJECT_URL}/-/raw/${CI_COMMIT_SHA}/images/artifacts/goss.yaml"
-      make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" GOSS_YAML="$GOSS_YAML" DOCKER_AUTH_CONFIG_BASE64="$DOCKER_AUTH_CONFIG_BASE64" | tee dgoss.log
+      make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" GOSS_YAML="$GOSS_YAML" | tee dgoss.log
     # Guard: a request that discovers zero tests finishes "skipped" but the CLI
     # still exits 0, so the gate would pass without running goss. Query the request
     # result and fail unless it actually passed (also catches a future discovery
     # regression).
     - |
-      api_url=$(grep -oE 'https://[^ ]+/requests/[0-9a-f-]{36}' dgoss.log | head -1)
+      # grep -m1, not '| head -1': busybox grep writes each match separately, so
+      # head exiting early can SIGPIPE grep and fail the job under pipefail.
+      api_url=$(grep -m1 -oE 'https://[^ ]+/requests/[0-9a-f-]{36}' dgoss.log || true)
       [ -n "$api_url" ] || { echo "[E] could not find the testing-farm request URL in the dgoss output"; exit 1; }
       # Use urllib, not curl (the cli image has python3 but no curl).
       overall=$(python3 -c 'import sys, json, urllib.request; print((json.load(urllib.request.urlopen(sys.argv[1], timeout=30)).get("result") or {}).get("overall", ""))' "$api_url")
@@ -655,7 +650,6 @@ image/artifacts-bootc/qcow2:
       optional: true
       artifacts: true
   script:
-    - export AUTH_JSON=$(printf '{"auths":{"quay.io":{"auth":"%s"}}}' "$(printf '%s:%s' "$QUAY_USERNAME" "$QUAY_PASSWORD" | base64 -w0)" | base64 -w0)
     # Build the qcow2 and record the build request id for the ami job (handed on via
     # the dotenv artifact below). The download URL is NOT derived here: the runner
     # cannot reach the Red Hat ranch artifact server; the ami job's upload plan
@@ -663,8 +657,10 @@ image/artifacts-bootc/qcow2:
     # precedence over building.
     - |
       if [ -z "${QCOW2_REQUEST:-}" ] && [ -z "${QCOW2_URL:-}" ]; then
-        make image/artifacts-bootc/qcow2 AUTH_JSON="$AUTH_JSON" IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" | tee qcow2-build.log
-        QCOW2_REQUEST=$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}' qcow2-build.log | head -1)
+        make image/artifacts-bootc/qcow2 IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" | tee qcow2-build.log
+        # The log has the request id twice; grep -m1 avoids the '| head -1' SIGPIPE
+        # race (see the dgoss job), and '|| true' lets the [E] check below report it.
+        QCOW2_REQUEST=$(grep -m1 -oE '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}' qcow2-build.log || true)
         [ -n "$QCOW2_REQUEST" ] || { echo "[E] could not find the build request id in the qcow2 build output."; exit 1; }
       fi
     - |

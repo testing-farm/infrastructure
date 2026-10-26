@@ -603,7 +603,9 @@ image/artifacts-bootc/container: .FORCE  ## Build & push RHEL 10 bootc artifact-
 
 # dgoss-tests starts a Docker daemon (systemctl start docker, docker pull), so it
 # must run on a VM - --compose provisions one, overriding the plan's container
-# provision. Fedora is used because it ships a usable docker package.
+# provision. Fedora is used because it ships a usable docker package. dgoss reads
+# its registry auth from DOCKER_AUTH_CONFIG_BASE64, the same base64 docker config
+# as AUTH_JSON, so a set AUTH_JSON lets it pull private images.
 DGOSS_COMPOSE ?= Fedora-latest
 
 image/artifacts-bootc/dgoss: .FORCE  ## Run dgoss checks against the built artifact-server container image | Testing Farm
@@ -612,7 +614,7 @@ image/artifacts-bootc/dgoss: .FORCE  ## Run dgoss checks against the built artif
 	testing-farm request --skip-summary --arch x86_64 --compose "$(DGOSS_COMPOSE)" \
 		-e IMAGE="$(IMAGE)" \
 		$(if $(GOSS_YAML),-e GOSS_YAML="$(GOSS_YAML)") \
-		$(if $(DOCKER_AUTH_CONFIG_BASE64),-s DOCKER_AUTH_CONFIG_BASE64="$$DOCKER_AUTH_CONFIG_BASE64") \
+		$(if $(AUTH_JSON),-s DOCKER_AUTH_CONFIG_BASE64="$$AUTH_JSON") \
 		--plan /images/artifacts/dgoss
 
 image/artifacts-bootc/qcow2: .FORCE  ## Build RHEL 10 bootc artifact-server qcow2 | Testing Farm
