@@ -322,6 +322,29 @@ resource "kubernetes_storage_class" "gp3" {
   }
 }
 
+resource "helm_release" "aws_load_balancer_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  version    = "3.5.0"
+
+  set {
+    name  = "clusterName"
+    value = var.cluster_name
+  }
+
+  # Leave `LoadBalancer` services to the in-tree cloud provider. With the webhook
+  # enabled, the controller claims every new `LoadBalancer` service.
+  # Currently we use statically-provisioned classic ELB for Artemis API, which
+  # results in a failure to provision an NLB.
+  # TODO: AWS recommends migrating away from the in-tree provider and legacy
+  # "EC2-classic" resources
+  set {
+    name  = "enableServiceMutatorWebhook"
+    value = "false"
+  }
+}
+
 resource "kubernetes_namespace" "kube-addons-ns" {
   depends_on = [null_resource.wait_for_cluster_endpoint]
 
@@ -350,7 +373,8 @@ EOF
 resource "helm_release" "external-dns" {
   depends_on = [
     kubernetes_namespace.kube-addons-ns,
-    kubernetes_secret.aws-credentials-secret
+    kubernetes_secret.aws-credentials-secret,
+    helm_release.aws_load_balancer_controller,
   ]
 
   name       = "external-dns"
