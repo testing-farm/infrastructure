@@ -183,6 +183,15 @@ variable "sentry_tracing_sample_rate" {
   default     = 0.1
 }
 
+variable "metrics_domain" {
+  description = "Hostnames to expose internal services endpoints on"
+  type = object({
+    postgresql = string
+    rabbitmq   = string
+    redis      = string
+  })
+}
+
 variable "resources" {
   description = "Configure resources for pods"
   type        = map(map(map(string)))

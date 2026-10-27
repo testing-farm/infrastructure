@@ -106,6 +106,16 @@ postgresql:
   resources: ${jsonencode(postgresql_resources)}
   metrics:
     enabled: true
+    ingress:
+      enabled: true
+      ingressClassName: alb
+      hostname: "${artemis_postgresql_exporter_hostname}"
+      annotations:
+        alb.ingress.kubernetes.io/group.name: ${artemis_postgresql_exporter_alb_group}
+        alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip
+
     resources: ${jsonencode(postgresql_exporter_resources)}
 
 adminer:
@@ -118,6 +128,15 @@ rabbitmq:
   resources: ${jsonencode(rabbitmq_resources)}
   metrics:
     enabled: true
+    ingress:
+      enabled: true
+      ingressClassName: alb
+      hostname: "${artemis_rabbitmq_exporter_hostname}"
+      annotations:
+        alb.ingress.kubernetes.io/group.name: ${artemis_rabbitmq_exporter_alb_group}
+        alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip
 
 redis:
   install: true
@@ -125,3 +144,12 @@ redis:
   metrics:
     enabled: true
     resources: ${jsonencode(redis_exporter_resources)}
+    ingress:
+      enabled: true
+      ingressClassName: alb
+      hostname: "${artemis_redis_exporter_hostname}"
+      annotations:
+        alb.ingress.kubernetes.io/group.name: ${artemis_redis_exporter_alb_group}
+        alb.ingress.kubernetes.io/security-groups: ${artemis_api_lb_security_group_id}
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip

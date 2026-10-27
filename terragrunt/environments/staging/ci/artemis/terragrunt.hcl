@@ -64,6 +64,11 @@ inputs = {
   # Strip `testing-farm-` from the cluster name as use that to construct the artemis API domain name.
   # For example for `testing-farm-production` cluster that would be `artemis.production.testing-farm.io`
   api_domain = "artemis.${trimprefix(dependency.eks.outputs.cluster.cluster_name, "testing-farm-")}-${local.namespace}.${local.common.inputs.route53_zone}"
+  metrics_domain = {
+    postgresql = "postgresql.metrics.artemis.${trimprefix(dependency.eks.outputs.cluster.cluster_name, "testing-farm-")}-${local.namespace}.${local.common.inputs.route53_zone}"
+    rabbitmq   = "rabbitmq.metrics.artemis.${trimprefix(dependency.eks.outputs.cluster.cluster_name, "testing-farm-")}-${local.namespace}.${local.common.inputs.route53_zone}"
+    redis      = "redis.metrics.artemis.${trimprefix(dependency.eks.outputs.cluster.cluster_name, "testing-farm-")}-${local.namespace}.${local.common.inputs.route53_zone}"
+  }
 
   release_name = local.artemis.inputs.release_name
   namespace    = local.namespace

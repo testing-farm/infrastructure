@@ -43,6 +43,8 @@ locals {
     length(regexall("/[0-9]+", ip)) > 0 ? ip : "${ip}/32"
     if ip != null
   ]))
+
+  metrics_alb_group = "${var.cluster_name}-artemis-metrics"
 }
 
 provider "ansiblevault" {
@@ -299,6 +301,13 @@ resource "helm_release" "artemis" {
         artemis_sentry_integrations        = var.sentry_integrations
         artemis_sentry_issues_sample_rate  = var.sentry_issues_sample_rate
         artemis_sentry_tracing_sample_rate = var.sentry_tracing_sample_rate
+
+        artemis_postgresql_exporter_hostname  = var.metrics_domain.postgresql
+        artemis_postgresql_exporter_alb_group = local.metrics_alb_group
+        artemis_rabbitmq_exporter_hostname    = var.metrics_domain.rabbitmq
+        artemis_rabbitmq_exporter_alb_group   = local.metrics_alb_group
+        artemis_redis_exporter_hostname       = var.metrics_domain.redis
+        artemis_redis_exporter_alb_group      = local.metrics_alb_group
 
         artemis_api_resources             = try(var.resources.artemis_api, {})
         artemis_dispatcher_resources      = try(var.resources.artemis_dispatcher, {})
