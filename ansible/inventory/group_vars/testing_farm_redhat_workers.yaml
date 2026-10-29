@@ -4,8 +4,11 @@ release: 2026-09.2
 # container image with citool and modules
 citool_container_image: "quay.io/testing-farm/worker-redhat:{{ release }}"
 
+# release of the citool-config image, follows the worker release for now
+citool_config_release: "{{ release }}"
+
 # container image with citool-config
-citool_config_container_image: "quay.io/testing-farm/ranch-redhat:latest"
+citool_config_container_image: "quay.io/testing-farm/ranch-redhat:{{ citool_config_release }}"
 
 root_dir: "{{ ansible_config_file | dirname }}"
 
