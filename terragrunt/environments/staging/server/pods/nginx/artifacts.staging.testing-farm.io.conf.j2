@@ -1,3 +1,9 @@
+# Skip the artifact viewer when clients request a directory listing.
+map $arg_list $artifacts_index {
+    default index.html;
+    true __directory_listing__;
+}
+
 server {
     listen 80;
     server_name  artifacts{{ staging_ci_suffix | default('') }}.{{ 'staging-ci' if staging_ci_suffix is defined else 'staging' }}.testing-farm.io;
@@ -25,6 +31,7 @@ server {
     }
 
     location ~ "^/.*/" {
+        index $artifacts_index;
         autoindex on;
     }
 }

@@ -1,0 +1,30 @@
+---
+summary: Run public ranch integration tests through the Testing Farm CLI
+
+description: |
+  The suite runs on public production.
+
+provision:
+  how: container
+  image: quay.io/testing-farm/python-ci-image:latest
+
+discover:
+  how: shell
+  tests:
+    - name: pytest-gluetool-public
+      duration: 2h
+      test: |
+        set -x
+        poetry env use python3.12 && poetry install
+        poetry run pytest $PYTEST_OPTIONS -n 16 -vvv --basetemp $PWD/.pytest tests/testing-farm/test_public.py --html report.html --variables tests/common.yaml --variables tests/testing-farm/staging.yaml --extra-testing-farm-args "$EXTRA_TESTING_FARM_ARGS" || RC=$?
+        # tmt-file-submit does not support storing into subdirectories - workaround
+        mkdir -p "$TMT_TEST_DATA/assets"
+        cp -f assets/style.css "$TMT_TEST_DATA/assets/"
+        tmt-file-submit -l report.html
+        exit $RC
+
+environment:
+  TESTING_FARM_API_URL: https://api.staging.testing-farm.io/v0.1
+
+execute:
+  how: tmt
