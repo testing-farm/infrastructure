@@ -167,6 +167,16 @@ module "eks" {
         }
       } : {}
 
+      # Same as the upstream module default, set explicitly because tfsec
+      # cannot resolve the module's `try()` fallback and reports
+      # `aws-ec2-enforce-launch-config-http-token-imds`. Hop limit 2 keeps
+      # IMDS reachable from pods.
+      metadata_options = {
+        http_endpoint               = "enabled"
+        http_tokens                 = "required"
+        http_put_response_hop_limit = 2
+      }
+
       # NOTE: IPv6 is disabled at the gitlab-runner level via `pre_build_script`
       # rather than here because the EKS module v19.x doesn't support custom
       # userdata with AL2023 (which uses `nodeadm` instead of `bootstrap.sh`).
@@ -342,6 +352,8 @@ resource "kubernetes_storage_class" "gp3" {
 }
 
 resource "helm_release" "aws_load_balancer_controller" {
+  depends_on = [null_resource.wait_for_cluster_endpoint]
+
   name       = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
@@ -402,6 +414,14 @@ resource "helm_release" "external-dns" {
   version    = "1.20.0"
 
   namespace = local.kube_addons_namespace
+
+  # Addons roll out concurrently on a freshly-provisioned node, so give the
+  # release more room than the 300s default `wait`. On failure, roll back and
+  # clean up so a retry (see `retryable_errors` in the env terragrunt.hcl)
+  # starts from a clean state instead of a leftover "failed" release.
+  timeout         = 600
+  atomic          = true
+  cleanup_on_fail = true
 
   set {
     name  = "provider"
