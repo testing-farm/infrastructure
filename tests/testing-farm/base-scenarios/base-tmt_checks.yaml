@@ -25,8 +25,8 @@ checks:
     - "[test-schedule-report] results saved into results-junit.xml"
 
   literal-patterns:
-    - "[testing-farm-request] Connected to Testing Farm Service 'https://api.dev.testing-farm.io', 'https://internal.api.dev.testing-farm.io'"
-    - "[coldstore] For the pipeline artifacts, see {{ artifacts_redhat_url_pattern }}/{{ REQUEST_ID }}"
+    - "[testing-farm-request] Connected to Testing Farm Service '{{ testing_farm_public_api_url }}', '{{ testing_farm_internal_api_url }}'"
+    - "[coldstore] For the pipeline artifacts, see {{ artifacts_url_pattern }}/{{ REQUEST_ID }}"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest is being provisioned"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest is ready"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest has become alive"

@@ -15,4 +15,5 @@ def test_testing_farm(
     scenario: Scenario,
     scenario_name: str,
 ) -> None:
+    variables = {**variables, 'artifacts_url_pattern': variables['artifacts_redhat_url_pattern']}
     run_testing_farm_scenario(variables, scenario, scenario_name, extra_testing_farm_args)

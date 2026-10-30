@@ -4,7 +4,10 @@
 # Common variables to make writing of complicated checks easier
 #
 
-artemis_guestname_pattern: "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
+artemis_guestname_pattern: &uuid_pattern "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
+REQUEST_ID: *uuid_pattern
+testing_farm_public_api_url: https://api.dev.testing-farm.io
+testing_farm_internal_api_url: https://internal.api.dev.testing-farm.io
 artifacts_url_pattern: "https?:\\/\\/artifacts\\..+\\.testing-farm\\.io"
 artifacts_redhat_url_pattern: "https?:\\/\\/artifacts\\..+\\.redhat\\.com/testing-farm"
 console_log_pattern: "console-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\\.log"
