@@ -63,7 +63,7 @@ set_citool_image
 set_citool_config_image
 
 # run citool via container with a timeout
-timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
+timeout --preserve-status --foreground --signal=SIGUSR1 --kill-after=1h $REQUEST_TIMEOUT \
 citool-container.sh rules-engine \
                     hide-secrets \
                     oom \
@@ -87,6 +87,10 @@ citool-container.sh rules-engine \
                     test-scheduler-testing-farm \
                     test-schedule-report \
                     test-schedule-runner
+
+# `timeout --foreground` kills only `podman run` after `--kill-after`, make sure the citool
+# container does not outlive the pipeline. With `--rm` the container is already gone on a clean exit.
+podman rm --force --time 10 "$REQUEST_ID" >/dev/null 2>&1 || true
 
 # create pipeline error if no results.xml available
 if [ ! -e "results.xml" ]; then
