@@ -13,7 +13,6 @@ variables:
 
 checks:
   literal-strings:
-    - "[testing-farm-request] Initialized with {{ REQUEST_ID }}:"
     - "[static-guest] added guest 'localhost' with architecture "
     - "[git] <RemoteGitRepository(clone_url={{ GIT_CLONE_URL }}, branch=not specified, ref={{ GIT_REF }})>"
     - "[test-schedule-tmt] cloning repo {{ GIT_CLONE_URL }} (branch not specified, ref {{ GIT_REF }})"
@@ -27,8 +26,9 @@ checks:
     - "[test-schedule-report] results saved into results-junit.xml"
 
   literal-patterns:
+    - "[testing-farm-request] Initialized with {{ REQUEST_ID }}:"
     - "[testing-farm-request] Connected to Testing Farm Service 'https://api.dev.testing-farm.io', 'https://internal.api.dev.testing-farm.io'"
-    - "[coldstore] For the pipeline artifacts, see {{ artifacts_redhat_url_pattern }}/{{ REQUEST_ID }}"
+    - "[coldstore] For the pipeline artifacts, see {{ artifacts_url_pattern }}/{{ REQUEST_ID }}"
     - table:
         -
           - "None:{{ ARCH }}:{{ PLAN }}"

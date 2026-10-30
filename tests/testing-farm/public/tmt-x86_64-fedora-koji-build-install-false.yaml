@@ -1,0 +1,53 @@
+---
+
+extends:
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  COMPOSE: Fedora-Rawhide
+  ARCH: x86_64
+  ARCH_32: i686
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/sanity
+  SCHEDULE_ENTRIES: 1
+
+testing-farm: |
+  testing-farm request \
+      --git-url {{ GIT_CLONE_URL }} \
+      --git-ref {{ GIT_REF }} \
+      --plan {{ PLAN }} \
+      --compose {{ COMPOSE }} \
+      --arch {{ ARCH }} \
+      --fedora-koji-build vim-9.1.825-1.fc42 \
+      --fedora-koji-build id=tmt-1.46.0-1.fc42,install=false \
+      --skip-summary
+
+checks:
+  literal-patterns:
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] installing the artifact"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download task id vim-9.1.825-1.fc42"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download task id tmt-1.46.0-1.fc42"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Get package list"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Reinstall packages"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Install packages"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Verify all packages installed"
+
+  literal-patterns[citool-debug.txt]:
+    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src vim-9.1.825-1.fc42 || koji download-task --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src vim-9.1.825-1.fc42"
+    - "koji download-build --debuginfo --task-id --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src tmt-1.46.0-1.fc42 || koji download-task --arch noarch --arch {{ ARCH }} --arch {{ ARCH_32 }} --arch src tmt-1.46.0-1.fc42"
+    - "[archive] syncing {{ '.+' }}citool-config to /tmp/{{ REQUEST_ID }}/."
+
+  literal-strings:
+    - "[testing-farm-request-state-reporter] pipeline complete"
+
+  artifacts:
+    - "guest-setup-{{ artemis_guestname_pattern }}"
+    - "guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-pre-artifact-installation.txt"
+    - "guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-post-artifact-installation.txt"
+    - "work-[a-zA-Z0-9_-]+\\/tmt-reproducer\\.sh"

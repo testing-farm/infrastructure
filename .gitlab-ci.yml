@@ -124,13 +124,16 @@ workflow:
 
   public_compose_tests:
     - changes:
-        - tests/worker/public/compose*
+        - tests/testing-farm/public/compose*
+        - setup/generate_compose_tests.py
 
   public_pipeline_tests:
     - changes:
-        - tests/worker/base-scenarios/*
-        - tests/worker/public/tmt*
-        - tests/worker/public/sti*
+        - tests/testing-farm/base-scenarios/**/*
+        - tests/testing-farm/public/**/*
+        - tests/testing-farm/test_testing_farm_public.py
+        - tests/testing-farm/pytest-gluetool-public.fmf
+        - tests/common.yaml
 
   redhat_pipeline_tests:
     - changes:
@@ -256,97 +259,33 @@ test/dev:
     - !reference [.rules, ansible]
     - !reference [.rules, terragrunt_dev]
 
-test/staging/pipeline:
-  extends: [.direnv, .archive_tests]
+test/staging/infrastructure:
+  extends: .direnv
   stage: test
   script:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
     SCRIPT: >-
-      git clone https://gitlab.com/testing-farm/profiles &&
-      ANSIBLE_COLLECTIONS_PATH=/etc/testing-farm/profiles make -C profiles install/local &&
-      make staging/apply/ci &&
-      PYTEST_OPTIONS="--profiles /etc/testing-farm/profiles" make test/staging/pipeline/ci
-    ERROR_SCRIPT: >-
-      make staging/kubeconfig &&
-      NAMESPACE="$(env -C terragrunt/environments/staging/ci/artemis terragrunt output --raw namespace)" &&
-      echo &&
-      echo "==============================================" &&
-      echo "==   Kubernetes Container Logs" &&
-      echo "==============================================" &&
-      echo &&
-      kubectl stern --no-follow --tail 100 -n "$NAMESPACE" .
-      echo &&
-      echo "==============================================" &&
-      echo "==   Kubernetes Event Logs" &&
-      echo "==============================================" &&
-      echo &&
-      kubectl get events -n "$NAMESPACE" -o wide
+      mkdir -p .direnv/staging-infrastructure &&
+      make test/staging/infrastructure/ci > .direnv/staging-infrastructure/validate.log 2>&1
+    ERROR_SCRIPT: |
+      tail -n 100 .direnv/staging-infrastructure/validate.log
+      if make staging/kubeconfig && NAMESPACE="$(env -C terragrunt/environments/staging/ci/artemis terragrunt output --raw namespace)"; then
+        kubectl stern --no-follow --tail=-1 -n "$NAMESPACE" . > .direnv/staging-infrastructure/containers.log 2>&1
+        kubectl get events -n "$NAMESPACE" -o wide > .direnv/staging-infrastructure/events.log 2>&1
+      fi
     AFTER_SCRIPT: >-
-      make staging/destroy/ci > /dev/null &&
-      make test/pytest/oculus
+      make staging/destroy/ci > .direnv/staging-infrastructure/cleanup.log 2>&1
+  artifacts:
+    paths:
+      - .direnv/envrc.log
+      - .direnv/staging-infrastructure/
+    when: always
   rules:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging_ci]
-    - !reference [.rules, public_pipeline_tests]
-
-test/staging/pipeline/container:
-  extends: [.direnv, .archive_tests]
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    PYTEST_PARALLEL_RUNS: 1
-    SCRIPT: >-
-      git clone https://gitlab.com/testing-farm/profiles &&
-      ANSIBLE_COLLECTIONS_PATH=/etc/testing-farm/profiles make -C profiles install/local &&
-      PYTEST_OPTIONS="--profiles /etc/testing-farm/profiles" make test/staging/pipeline/container/ci
-    AFTER_SCRIPT: >-
-      make test/pytest/oculus
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, not_schedule]
-    - !reference [.rules, terragrunt_staging_ci]
-    - !reference [.rules, public_pipeline_tests]
-
-test/staging/compose:
-  extends: [.direnv, .archive_tests]
-  stage: test
-  script:
-    - !reference [.direnv, script]
-    - !reference [.script_with_cleanup, script]
-  variables:
-    SCRIPT: >-
-      git clone https://gitlab.com/testing-farm/profiles &&
-      ANSIBLE_COLLECTIONS_PATH=/etc/testing-farm/profiles make -C profiles install/local &&
-      make staging/apply/ci &&
-      PYTEST_OPTIONS="--profiles /etc/testing-farm/profiles" make test/staging/compose/ci
-    ERROR_SCRIPT: >-
-      make staging/kubeconfig &&
-      NAMESPACE="$(env -C terragrunt/environments/staging/ci/artemis terragrunt output --raw namespace)" &&
-      echo &&
-      echo "==============================================" &&
-      echo "==   Kubernetes Container Logs" &&
-      echo "==============================================" &&
-      echo &&
-      kubectl stern --no-follow --tail 100 -n "$NAMESPACE" .
-      echo &&
-      echo "==============================================" &&
-      echo "==   Kubernetes Event Logs" &&
-      echo "==============================================" &&
-      echo &&
-      kubectl get events -n "$NAMESPACE" -o wide
-    AFTER_SCRIPT: >-
-      make staging/destroy/ci > /dev/null &&
-      make test/pytest/oculus
-  rules:
-    - !reference [.rules, not_default_branch]
-    - !reference [.rules, not_schedule]
-    - !reference [.rules, terragrunt_staging_ci]
-    - !reference [.rules, public_compose_tests]
 
 test/terraform/modules:
   extends: [.direnv]
@@ -404,6 +343,24 @@ test/production:
     - !reference [.rules, not_default_branch]
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_production]
+
+test/testing-farm/ranch-public:
+  stage: test
+  image: quay.io/testing-farm/cli:latest
+  script:
+    - >
+      TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_PUBLIC testing-farm request \
+        --git-ref $CI_MERGE_REQUEST_REF_PATH \
+        --git-url $CI_MERGE_REQUEST_PROJECT_URL \
+        --plan /tests/testing-farm/pytest-gluetool-public \
+        --secret TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_PUBLIC_STAGING_ADMIN \
+        --environment "EXTRA_TESTING_FARM_ARGS='--worker-config-image quay.io/testing-farm/ranch-public:latest'" \
+        --skip-summary
+  rules:
+    - !reference [.rules, not_default_branch]
+    - !reference [.rules, not_schedule]
+    - !reference [.rules, public_compose_tests]
+    - !reference [.rules, public_pipeline_tests]
 
 test/testing-farm/ranch-redhat:
   stage: test

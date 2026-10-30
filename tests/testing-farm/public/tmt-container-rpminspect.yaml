@@ -1,0 +1,105 @@
+---
+
+extends:
+  - base-tmt-container_checks
+
+marks:
+  - public
+  - pipeline
+  - container
+
+variables:
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://github.com/fedora-ci/rpminspect-pipeline.git
+  GIT_REF: 8cfb6f75de5dd1a08dec538ecdafeb7041d93209  # pragma: allowlist secret  # this is commit hash
+  PLAN: /rpminspect
+
+testing-farm: |
+  testing-farm request \
+      --git-url {{ GIT_CLONE_URL }} \
+      --git-ref {{ GIT_REF }} \
+      --arch {{ ARCH }} \
+      --environment 'CONFIG_BRANCHES="rawhide"' \
+      --environment 'DEBUG="off"' \
+      --environment 'DEFAULT_RELEASE_STRING="fc40"' \
+      --environment 'GIT_COMMIT="0671b728866d5636ce2b236269998d1b81ec717a"' \
+      --environment 'PREVIOUS_TAG="f40-updates"' \
+      --environment 'REPOSITORY_URL="https://src.fedoraproject.org/rpms/python-click"' \
+      --environment 'RPMINSPECT_PROFILE_NAME="rawhide"' \
+      --environment 'TASK_ID="108005577"' \
+      --skip-summary
+
+checks:
+  literal-patterns[results.xml]:
+    - |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <testsuites overall-result="passed">
+       <properties>
+        <property name="baseosci.overall-result" value="passed"/>
+       </properties>
+       <testsuite name="{{ PLAN }}" result="passed" tests="1" stage="complete">
+        <logs>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/data" name="data"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}/tmt-run.log" name="tmt-log"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}/log.txt" name="tmt-verbose-log"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}" name="workdir"/>
+        </logs>
+        <properties>
+         <property name="baseosci.result" value="passed"/>
+         <property name="id" value="work-rpminspect{{ '.+' }}_rpminspect"/>
+        </properties>
+        <testcase name="/rpminspect/rpminspect" result="passed" serial-number="1">
+         <properties>
+          <property name="baseosci.arch" value="{{ ARCH }}"/>
+          <property name="baseosci.connectable_host" value="localhost"/>
+          <property name="baseosci.distro" value="container"/>
+          <property name="baseosci.status" value="Complete"/>
+          <property name="baseosci.testcase.source.url" value=""/>
+          <property name="baseosci.variant" value=""/>
+          <property name="id" value="work-rpminspect{{ '.+' }}_rpminspect_1_default-0"/>
+          <property name="web-link" value=""/>
+         </properties>
+         <logs>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data/result.json" name="data/result.json" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data/results.yaml" name="data/results.yaml" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data/verbose.log" name="data/verbose.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/data/viewer.html" name="data/viewer.html" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1" name="log_dir" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-rpminspect{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/rpminspect-1/output.txt" name="testout.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <testing-environment name="requested">
+          <property name="arch" value="{{ ARCH }}"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+         <testing-environment name="provisioned">
+          <property name="arch" value="{{ ARCH }}"/>
+          <property name="compose" value="container"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+         <guest name="default-0"/>
+        </testcase>
+        <testing-environment name="requested">
+         <property name="arch" value="{{ ARCH }}"/>
+         <property name="snapshots" value="False"/>
+        </testing-environment>
+        <testing-environment name="provisioned">
+         <property name="arch" value="{{ ARCH }}"/>
+         <property name="compose" value="container"/>
+         <property name="snapshots" value="False"/>
+        </testing-environment>
+       </testsuite>
+      </testsuites>
+
+  literal-strings:
+    - "[testing-farm-request-state-reporter] pipeline complete"
+
+  artifacts:
+    - "citool-debug\\.txt"
+    - "git-{{ GIT_REF }}[a-z0-9_]+"
+    - "work-[a-zA-Z0-9_-]+\\/tmt-reproducer\\.sh"
+
+  literal-patterns[citool-debug.txt]:
+    - "[archive] syncing {{ '.+' }}citool-config to /tmp/{{ REQUEST_ID }}/."

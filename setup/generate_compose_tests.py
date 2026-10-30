@@ -1,17 +1,13 @@
 #!/usr/bin/env python
 import os
 import jinja2
-import requests
 from gluetool.utils import load_yaml, Command
 from gluetool.glue import GlueCommandError
 
-GUEST_SETUP_PATH = "tests/worker/public"
+GUEST_SETUP_PATH = "tests/testing-farm/public"
 TEMPLATE_FILENAME = "compose-test-template.yaml.j2"
 COMPOSES_FILEPATH = "terragrunt/environments/dev/artemis/config/variables_images.yaml"
 TEST_FILENAME = "compose-{}-{}.yaml"
-PLAN = "/testing-farm/sanity"
-GIT_REF = "main"
-GIT_URL = "https://gitlab.com/testing-farm/tests"
 ARCHES = ['x86_64', 'aarch64']
 
 def check_test_exists(compose: str, arch: str) -> bool:
@@ -22,10 +18,9 @@ def check_test_exists(compose: str, arch: str) -> bool:
     return os.path.isfile(test_filepath)
 
 
-def generate_file(request_id: str, compose: str, arch: str) -> None:
+def generate_file(compose: str, arch: str) -> None:
     test_filepath = os.path.join(GUEST_SETUP_PATH, TEST_FILENAME.format(compose, arch))
     variables = {
-        'REQUEST_ID': request_id,
         'COMPOSE': compose,
         'ARCH': arch,
     }
@@ -39,36 +34,6 @@ def generate_file(request_id: str, compose: str, arch: str) -> None:
         print(template.render(variables), file=test_file)
 
 
-def create_request(arch: str, compose: str) -> str:
-    data = {
-        'api_key': os.environ['TESTING_FARM_API_TOKEN'],
-        'test': {
-            'fmf': {
-                'name': PLAN,
-                'ref': GIT_REF,
-                'url': GIT_URL
-            }
-        },
-        'environments': [{
-            'arch': arch,
-            'os': {
-                'compose': compose
-            }
-        }]
-    }
-    url = "{}/requests".format(os.environ['TESTING_FARM_API_URL'])
-    try:
-        response = requests.post(url, json=data)
-    except requests.RequestException as exc:
-        raise exc
-
-    if response.status_code != 200:
-        print('Failed to create request: {}'.format(response.text))
-        exit(1)
-
-    return response.json()['id']
-
-
 def main() -> None:
     composes = load_yaml(COMPOSES_FILEPATH)['composes']
     for _, value in composes.items():
@@ -78,16 +43,11 @@ def main() -> None:
 
             if not check_test_exists(value['compose'], arch):
                 print("Generating a new {} test".format(TEST_FILENAME.format(value['compose'], arch)))
-                request_id = create_request(arch, value['compose'])
-                generate_file(request_id, value['compose'], arch)
+                generate_file(value['compose'], arch)
 
             else:
                 print("The {} test exists, skipping".format(TEST_FILENAME.format(value['compose'], arch)))
 
 
 if __name__ == '__main__':
-    for envvar in ['TESTING_FARM_API_URL', 'TESTING_FARM_API_TOKEN']:
-        if not envvar in os.environ:
-            print('The {} environment variable was not been found'.format(envvar))
-            exit(1)
     main()

@@ -1,0 +1,38 @@
+---
+
+extends:
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  COMPOSE: Fedora-Rawhide
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/filter
+
+testing-farm: |
+  testing-farm request \
+      --git-url {{ GIT_CLONE_URL }} \
+      --git-ref {{ GIT_REF }} \
+      --plan-filter 'tag: plan-filter' \
+      --compose {{ COMPOSE }} \
+      --arch {{ ARCH }} \
+      --skip-summary
+
+checks:
+  literal-strings:
+    - "[testing-farm-request-state-reporter] pipeline complete"
+
+  artifacts:
+    - "guest-setup-{{ artemis_guestname_pattern }}"
+    - "guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-pre-artifact-installation.txt"
+    - "guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-post-artifact-installation.txt"
+    - "work-[a-zA-Z0-9_-]+\\/tmt-reproducer\\.sh"
+
+  literal-patterns[citool-debug.txt]:
+    - "[archive] syncing {{ '.+' }}citool-config to /tmp/{{ REQUEST_ID }}/."

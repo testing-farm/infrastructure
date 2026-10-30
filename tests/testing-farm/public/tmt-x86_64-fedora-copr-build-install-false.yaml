@@ -1,0 +1,54 @@
+---
+
+extends:
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+
+variables:
+  COMPOSE: Fedora-Rawhide
+  ARCH: x86_64
+  RESULT: PASSED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/sanity
+  SCHEDULE_ENTRIES: 1
+
+testing-farm: |
+  testing-farm request \
+      --git-url {{ GIT_CLONE_URL }} \
+      --git-ref {{ GIT_REF }} \
+      --plan {{ PLAN }} \
+      --compose {{ COMPOSE }} \
+      --arch {{ ARCH }} \
+      --timeout 720 \
+      --fedora-copr-build 3070068:fedora-rawhide-x86_64 \
+      --fedora-copr-build id=686410:fedora-rawhide-x86_64,install=false \
+      --skip-summary
+
+checks:
+  literal-patterns:
+    - "[{{ COMPOSE }}:{{ ARCH }}:{{ PLAN }}] installing the artifact"
+    - "[fedora-copr] Initialized with 3070068:fedora-rawhide-x86_64: package 'pycho' build '3070068' target 'fedora-rawhide-x86_64'"
+    - "[fedora-copr] Initialized with 686410:fedora-rawhide-x86_64: package 'beakerlib' build '686410' target 'fedora-rawhide-x86_64'"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Create artifacts directory"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download copr repository"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Download rpms from copr"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Reinstall packages"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Install packages"
+    - "[artemis] [{{ artemis_guestname_pattern }}] Verify packages installed"
+
+  literal-patterns[citool-debug.txt]:
+    - "Install  165 Packages"
+    - "[archive] syncing {{ '.+' }}citool-config to /tmp/{{ REQUEST_ID }}/."
+
+  literal-strings:
+    - "[testing-farm-request-state-reporter] pipeline complete"
+
+  artifacts:
+    - "guest-setup-{{ artemis_guestname_pattern }}"
+    - "guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-pre-artifact-installation.txt"
+    - "guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-post-artifact-installation.txt"
+    - "work-[a-zA-Z0-9_-]+\\/tmt-reproducer\\.sh"

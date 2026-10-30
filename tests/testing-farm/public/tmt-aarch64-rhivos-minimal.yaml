@@ -1,0 +1,44 @@
+---
+
+extends:
+  - base-tmt_checks
+
+marks:
+  - public
+  - pipeline
+  - rhivos
+
+variables:
+  COMPOSE: auto-osbuild-qemu-autosd9-minimal-ostree-aarch64-1358288888.6ace1ca7
+  ARCH: aarch64
+  RESULT: (PASSED|FAILED)
+  GIT_CLONE_URL: https://gitlab.com/redhat/edge/tests/base-image.git
+  GIT_REF: main
+  PLAN: /smoke/plans/core
+  # We do not care if the tests failed
+  TMT_EXIT_CODE: "[01]"
+
+testing-farm: |
+  sh -c 'testing-farm "$@"; status=$?; [ "$status" -eq 0 ] || [ "$status" -eq 1 ]' testing-farm request \
+      --git-url {{ GIT_CLONE_URL }} \
+      --git-ref {{ GIT_REF }} \
+      --plan {{ PLAN }} \
+      --compose {{ COMPOSE }} \
+      --arch {{ ARCH }} \
+      --environment 'DISTRO_NAME="Automotive Stream Distribution 9"' \
+      --environment 'IMAGE_NAME="minimal"' \
+      --environment 'IMAGE_TYPE="ostree"' \
+      --skip-summary
+
+checks:
+  literal-strings:
+    - "[testing-farm-request-state-reporter] pipeline complete"
+
+  artifacts:
+    - "guest-setup-{{ artemis_guestname_pattern }}"
+    - "guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-pre-artifact-installation.txt"
+    - "guest-setup-{{ artemis_guestname_pattern }}/guest-setup-output-post-artifact-installation.txt"
+    - "work-[a-zA-Z0-9_-]+\\/tmt-reproducer\\.sh"
+
+  literal-patterns[citool-debug.txt]:
+    - "[archive] syncing {{ '.+' }}citool-config to /tmp/{{ REQUEST_ID }}/."

@@ -1,0 +1,137 @@
+---
+
+extends:
+  - base-tmt-container_checks
+
+marks:
+  - public
+  - pipeline
+  - container
+
+variables:
+  ARCH: x86_64
+  RESULT: FAILED
+  GIT_CLONE_URL: https://gitlab.com/testing-farm/tests
+  GIT_REF: main
+  PLAN: /testing-farm/failure
+
+testing-farm: |
+  ! testing-farm request \
+      --git-url {{ GIT_CLONE_URL }} \
+      --git-ref {{ GIT_REF }} \
+      --plan {{ PLAN }} \
+      --arch {{ ARCH }} \
+      --timeout 720 \
+      --skip-summary
+
+checks:
+  # TODO: Re-enable when the CLI supports configuring request webhooks.
+  # literal-strings:
+  #   - "[W] [testing-farm-request] failed to post to webhook: Condition 'posting update to webhook https://example.com/invalid-webhook' failed to pass within given time"
+
+  literal-patterns[results.xml]:
+    - |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <testsuites overall-result="failed">
+       <properties>
+        <property name="baseosci.overall-result" value="failed"/>
+       </properties>
+       <testsuite name="{{ PLAN }}" result="failed" tests="1" stage="complete">
+        <logs>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/data" name="data"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}/tmt-run.log" name="tmt-log"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}/tmt-reproducer.sh" name="tmt-reproducer"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}/log.txt" name="tmt-verbose-log"/>
+         <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}" name="workdir"/>
+        </logs>
+        <properties>
+         <property name="baseosci.result" value="failed"/>
+         <property name="id" value="work-failure{{ '.+' }}_testing-farm-failure"/>
+        </properties>
+        <testcase name="/testing-farm/failure" result="failed" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}" serial-number="1">
+         <properties>
+          <property name="baseosci.arch" value="{{ ARCH }}"/>
+          <property name="baseosci.connectable_host" value="localhost"/>
+          <property name="baseosci.distro" value="container"/>
+          <property name="baseosci.status" value="Complete"/>
+          <property name="baseosci.testcase.source.url" value=""/>
+          <property name="baseosci.variant" value=""/>
+          <property name="contact" value="Testing Farm Contact &lt;tft@redhat.com&gt;"/>
+          <property name="id" value="work-failure{{ '.+' }}_testing-farm-failure_1_default-0"/>
+          <property name="web-link" value="https://gitlab.com/testing-farm/tests/tree/gluetool/main/testing-farm/failure/main.fmf"/>
+         </properties>
+         <fmf-id url="{{ GIT_CLONE_URL }}" ref="{{ GIT_REF }}" name="/testing-farm/failure"/>
+         <logs>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/data" name="data" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/failures.yaml" name="failures.yaml" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1" name="log_dir" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+          <log href="{{ artifacts_url_pattern }}/{{ REQUEST_ID }}/work-failure{{ '.+' }}{{ PLAN }}/execute/data/guest/default-0/testing-farm/failure-1/output.txt" name="testout.log" schedule-entry="None:{{ ARCH }}:{{ PLAN }}" schedule-stage="running"/>
+         </logs>
+         <failure/>
+         <testing-environment name="requested">
+          <property name="arch" value="{{ ARCH }}"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+         <testing-environment name="provisioned">
+          <property name="arch" value="{{ ARCH }}"/>
+          <property name="compose" value="container"/>
+          <property name="snapshots" value="False"/>
+         </testing-environment>
+         <guest name="default-0"/>
+        </testcase>
+        <testing-environment name="requested">
+         <property name="arch" value="{{ ARCH }}"/>
+         <property name="snapshots" value="False"/>
+        </testing-environment>
+        <testing-environment name="provisioned">
+         <property name="arch" value="{{ ARCH }}"/>
+         <property name="compose" value="container"/>
+         <property name="snapshots" value="False"/>
+        </testing-environment>
+       </testsuite>
+      </testsuites>
+
+  literal-patterns[results-junit.xml]:
+    - |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <testsuites>
+       <testsuite name="{{ PLAN }}" tests="1" failures="1" errors="0" skipped="0">
+        <testcase name="/testing-farm/failure" classname="tests" time="{{ '\d+' }}" start-time="{{ timestamp_pattern }}" end-time="{{ timestamp_pattern }}">
+         <system-out>NAME=&amp;quot;Fedora Linux&amp;quot;
+      VERSION=&amp;quot;{{ '\d+' }} (Container Image)&amp;quot;
+      RELEASE_TYPE=stable
+      ID=fedora
+      VERSION_ID={{ '\d+' }}
+      VERSION_CODENAME=&amp;quot;&amp;quot;
+      PRETTY_NAME=&amp;quot;Fedora Linux {{ '\d+' }} (Container Image)&amp;quot;
+      ANSI_COLOR=&amp;quot;0;38;2;60;110;180&amp;quot;
+      LOGO=fedora-logo-icon
+      CPE_NAME=&amp;quot;cpe:/o:fedoraproject:fedora:{{ '\d+' }}&amp;quot;
+      DEFAULT_HOSTNAME=&amp;quot;fedora&amp;quot;
+      HOME_URL=&amp;quot;https://fedoraproject.org/&amp;quot;
+      DOCUMENTATION_URL=&amp;quot;https://docs.fedoraproject.org/en-US/fedora/f{{ '\d+' }}/&amp;quot;
+      SUPPORT_URL=&amp;quot;https://ask.fedoraproject.org/&amp;quot;
+      BUG_REPORT_URL=&amp;quot;https://bugzilla.redhat.com/&amp;quot;
+      REDHAT_BUGZILLA_PRODUCT=&amp;quot;Fedora&amp;quot;
+      REDHAT_BUGZILLA_PRODUCT_VERSION={{ '\d+' }}
+      REDHAT_SUPPORT_PRODUCT=&amp;quot;Fedora&amp;quot;
+      REDHAT_SUPPORT_PRODUCT_VERSION={{ '\d+' }}
+      SUPPORT_END={{ '\d+' }}-{{ '\d+' }}-{{ '\d+' }}
+      VARIANT=&amp;quot;Container Image&amp;quot;
+      VARIANT_ID=container
+      </system-out>
+         <failure type="FAIL" message='Test "/testing-farm/failure" failed.'/>
+        </testcase>
+       </testsuite>
+      </testsuites>
+
+  literal-strings:
+    - "[testing-farm-request-state-reporter] pipeline complete"
+
+  artifacts:
+    - "citool-debug\\.txt"
+    - "git-{{ GIT_REF }}[a-z0-9_]+"
+    - "work-[a-zA-Z0-9_-]+\\/tmt-reproducer\\.sh"
+
+  literal-patterns[citool-debug.txt]:
+    - "[archive] syncing {{ '.+' }}citool-config to /tmp/{{ REQUEST_ID }}/."

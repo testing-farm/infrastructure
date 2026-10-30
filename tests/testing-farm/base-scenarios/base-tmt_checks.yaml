@@ -26,7 +26,7 @@ checks:
 
   literal-patterns:
     - "[testing-farm-request] Connected to Testing Farm Service 'https://api.dev.testing-farm.io', 'https://internal.api.dev.testing-farm.io'"
-    - "[coldstore] For the pipeline artifacts, see {{ artifacts_redhat_url_pattern }}/{{ REQUEST_ID }}"
+    - "[coldstore] For the pipeline artifacts, see {{ artifacts_url_pattern }}/{{ REQUEST_ID }}"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest is being provisioned"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest is ready"
     - "[artemis] [{{ artemis_guestname_pattern }}] Guest has become alive"
