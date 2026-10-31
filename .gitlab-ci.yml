@@ -548,7 +548,7 @@ renew/certs:
 #
 # Required CI/CD variables:
 #   TESTING_FARM_API_TOKEN_REDHAT  RH ranch token (entitled RHEL bootc base)
-#   AUTH_JSON                      masked, base64 auth file with push access to
+#   AUTH_JSON_IMAGES_PAAS          masked, base64 auth file with push access to
 #                                  images.paas.redhat.com/testingfarm
 #   VAULT_SECRET_ID                Vault secret id for the cloud credentials
 # ---------------------------------------------------------------------------
@@ -612,7 +612,8 @@ image/artifacts-bootc/container:
         IMAGE_REF="${ARTIFACTS_IMAGE_REPO}:latest"
       fi
       echo "[i] IMAGE_REF=$IMAGE_REF"
-    # The make target passes AUTH_JSON (masked CI/CD variable) as a Testing Farm secret.
+    # The make target passes AUTH_JSON_IMAGES_PAAS (masked CI/CD variable) as a
+    # Testing Farm secret.
     - make image/artifacts-bootc/container TARGET_IMAGE="$IMAGE_REF"
     - echo "IMAGE_REF=$IMAGE_REF" > image.env
   artifacts:
@@ -627,8 +628,9 @@ image/artifacts-bootc/dgoss:
       artifacts: true
   script:
     # The per-pipeline image lives in a private repository, so dgoss pulls it with
-    # AUTH_JSON (the make target passes it as a secret). dgoss fetches the goss file
-    # over HTTP, so also pass a raw URL at this commit (so an MR tests its own goss).
+    # AUTH_JSON_IMAGES_PAAS (the make target passes it as a secret). dgoss fetches the
+    # goss file over HTTP, so also pass a raw URL at this commit (so an MR tests
+    # its own goss).
     - |
       GOSS_YAML="${CI_PROJECT_URL}/-/raw/${CI_COMMIT_SHA}/images/artifacts/goss.yaml"
       make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-$ARTIFACTS_IMAGE_REPO:latest}" GOSS_YAML="$GOSS_YAML" | tee dgoss.log

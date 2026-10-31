@@ -67,11 +67,11 @@ a booted instance (services, the read-only mount, ports, kargs).
 
 [source,bash]
 ----
-# Build and push the container image. AUTH_JSON goes to Testing Farm as a secret,
-# so give it an auth file that holds only the images.paas.redhat.com login. Keep
-# the file out of the repository.
+# Build and push the container image. AUTH_JSON_IMAGES_PAAS goes to Testing Farm
+# as a secret, so give it an auth file that holds only the images.paas.redhat.com
+# login. Keep the file out of the repository.
 podman login --authfile "$XDG_RUNTIME_DIR/paas-auth.json" images.paas.redhat.com
-AUTH_JSON=$(base64 -w0 "$XDG_RUNTIME_DIR/paas-auth.json") make image/artifacts-bootc/container
+AUTH_JSON_IMAGES_PAAS=$(base64 -w0 "$XDG_RUNTIME_DIR/paas-auth.json") make image/artifacts-bootc/container
 
 # Build the qcow2 from the pushed image; it is stored in the request artifacts
 make image/artifacts-bootc/qcow2
@@ -128,10 +128,10 @@ GitLab CI runs the steps as a `needs`-ordered chain of jobs
 (`image/artifacts-bootc/{container,dgoss,qcow2,ami}`, plus `merge-guard`) whenever
 the image sources under `images/artifacts/` change, on MRs and on pushes to the
 default branch - see `.gitlab-ci.yml`. They require the CI/CD variables
-`TESTING_FARM_API_TOKEN_REDHAT` (RH ranch token), `AUTH_JSON` (masked, base64
-auth file with push access to `images.paas.redhat.com/testingfarm`, used for the
-push and for the dgoss and qcow2 pulls),
-and `VAULT_SECRET_ID` (cloud credentials for the AMI upload).
+`TESTING_FARM_API_TOKEN_REDHAT` (RH ranch token), `AUTH_JSON_IMAGES_PAAS` (masked,
+base64 auth file with push access to `images.paas.redhat.com/testingfarm`, used
+for the push and for the dgoss and qcow2 pulls), and `VAULT_SECRET_ID` (cloud
+credentials for the AMI upload).
 
 The base image is `images.paas.redhat.com/testingfarm/rhel-bootc:10`, a Testing
 Farm curated RHEL 10 bootc image on an internal Red Hat registry. The build must
