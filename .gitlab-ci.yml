@@ -548,7 +548,8 @@ renew/certs:
 #
 # Required CI/CD variables:
 #   TESTING_FARM_API_TOKEN_REDHAT  RH ranch token (entitled RHEL bootc base)
-#   AUTH_JSON                      masked, base64 docker config with quay.io push access
+#   AUTH_JSON                      masked, base64 auth file with push access to
+#                                  images.paas.redhat.com/testingfarm
 #   VAULT_SECRET_ID                Vault secret id for the cloud credentials
 # ---------------------------------------------------------------------------
 .artifacts-bootc:
@@ -557,6 +558,8 @@ renew/certs:
   variables:
     # image/artifacts-bootc/* targets live in Makefile.maintainer
     IS_MAINTAINER: "1"
+    # Same internal registry as the rhel-bootc base image
+    ARTIFACTS_IMAGE_REPO: images.paas.redhat.com/testingfarm/artifacts-bootc
   before_script:
     - export TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT
   rules:
@@ -600,13 +603,13 @@ image/artifacts-bootc/container:
     # never race another pipeline; the default branch still publishes :latest. The
     # tag is recorded in a dotenv artifact so the qcow2 job builds from this exact
     # image.
-    # TODO(TFT-4795): per-pipeline MR tags accumulate in quay - add a tag-expiry
+    # TODO(TFT-4795): per-pipeline MR tags accumulate in the registry - add a tag-expiry
     # policy or a prune step (same cleanup gap as the per-pipeline AMIs).
     - |
       if [ -n "${CI_MERGE_REQUEST_IID:-}" ]; then
-        IMAGE_REF="quay.io/testing-farm/artifacts-bootc:mr-${CI_MERGE_REQUEST_IID}-${CI_PIPELINE_ID}"
+        IMAGE_REF="${ARTIFACTS_IMAGE_REPO}:mr-${CI_MERGE_REQUEST_IID}-${CI_PIPELINE_ID}"
       else
-        IMAGE_REF="quay.io/testing-farm/artifacts-bootc:latest"
+        IMAGE_REF="${ARTIFACTS_IMAGE_REPO}:latest"
       fi
       echo "[i] IMAGE_REF=$IMAGE_REF"
     # The make target passes AUTH_JSON (masked CI/CD variable) as a Testing Farm secret.
@@ -623,12 +626,12 @@ image/artifacts-bootc/dgoss:
       optional: true
       artifacts: true
   script:
-    # The per-pipeline image lives in a private quay repo, so dgoss pulls it with
+    # The per-pipeline image lives in a private repository, so dgoss pulls it with
     # AUTH_JSON (the make target passes it as a secret). dgoss fetches the goss file
     # over HTTP, so also pass a raw URL at this commit (so an MR tests its own goss).
     - |
       GOSS_YAML="${CI_PROJECT_URL}/-/raw/${CI_COMMIT_SHA}/images/artifacts/goss.yaml"
-      make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" GOSS_YAML="$GOSS_YAML" | tee dgoss.log
+      make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-$ARTIFACTS_IMAGE_REPO:latest}" GOSS_YAML="$GOSS_YAML" | tee dgoss.log
     # Guard: a request that discovers zero tests finishes "skipped" but the CLI
     # still exits 0, so the gate would pass without running goss. Query the request
     # result and fail unless it actually passed (also catches a future discovery
@@ -657,7 +660,7 @@ image/artifacts-bootc/qcow2:
     # precedence over building.
     - |
       if [ -z "${QCOW2_REQUEST:-}" ] && [ -z "${QCOW2_URL:-}" ]; then
-        make image/artifacts-bootc/qcow2 IMAGE="${IMAGE_REF:-quay.io/testing-farm/artifacts-bootc:latest}" | tee qcow2-build.log
+        make image/artifacts-bootc/qcow2 IMAGE="${IMAGE_REF:-$ARTIFACTS_IMAGE_REPO:latest}" | tee qcow2-build.log
         # The log has the request id twice; grep -m1 avoids the '| head -1' SIGPIPE
         # race (see the dgoss job), and '|| true' lets the [E] check below report it.
         QCOW2_REQUEST=$(grep -m1 -oE '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}' qcow2-build.log || true)

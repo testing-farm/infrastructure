@@ -67,8 +67,11 @@ a booted instance (services, the read-only mount, ports, kargs).
 
 [source,bash]
 ----
-# Build and push the container image (AUTH_JSON = base64 registry auth)
-AUTH_JSON=$(base64 -w0 ~/.docker/config.json) make image/artifacts-bootc/container
+# Build and push the container image. AUTH_JSON goes to Testing Farm as a secret,
+# so give it an auth file that holds only the images.paas.redhat.com login. Keep
+# the file out of the repository.
+podman login --authfile "$XDG_RUNTIME_DIR/paas-auth.json" images.paas.redhat.com
+AUTH_JSON=$(base64 -w0 "$XDG_RUNTIME_DIR/paas-auth.json") make image/artifacts-bootc/container
 
 # Build the qcow2 from the pushed image; it is stored in the request artifacts
 make image/artifacts-bootc/qcow2
@@ -109,7 +112,7 @@ image. The name and cleanup depend on the context:
 
 `REMOVE_AFTER_TEST` (when set) only removes the source-region (us-east-1) copy; the
 us-east-2 copy is not deleted yet (TFT-4650). The container image follows the same pattern:
-MRs push `quay.io/testing-farm/artifacts-bootc:mr-<iid>-<pipeline-id>` (so they never
+MRs push `images.paas.redhat.com/testingfarm/artifacts-bootc:mr-<iid>-<pipeline-id>` (so they never
 overwrite the production `:latest`), and the qcow2 build uses that exact tag; the
 default branch publishes `:latest`.
 
@@ -126,7 +129,8 @@ GitLab CI runs the steps as a `needs`-ordered chain of jobs
 the image sources under `images/artifacts/` change, on MRs and on pushes to the
 default branch - see `.gitlab-ci.yml`. They require the CI/CD variables
 `TESTING_FARM_API_TOKEN_REDHAT` (RH ranch token), `AUTH_JSON` (masked, base64
-docker config with quay.io push access, used for the push and the dgoss pull),
+auth file with push access to `images.paas.redhat.com/testingfarm`, used for the
+push and for the dgoss and qcow2 pulls),
 and `VAULT_SECRET_ID` (cloud credentials for the AMI upload).
 
 The base image is `images.paas.redhat.com/testingfarm/rhel-bootc:10`, a Testing
