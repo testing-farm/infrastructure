@@ -13,7 +13,7 @@ inputs = {
   schedules = [
     {
       description   = "Redeploy staging environment"
-      git_ref       = "main"
+      git_ref       = "refs/heads/main"
       cron_schedule = "0 0 * * sat"
       variables = {
         "SCHEDULED_JOB" : "redeploy/staging"
@@ -21,7 +21,7 @@ inputs = {
     },
     {
       description   = "Run make cleanup/ci"
-      git_ref       = "main"
+      git_ref       = "refs/heads/main"
       cron_schedule = "0 5 * * *"
       variables = {
         "SCHEDULED_JOB" : "cleanup/ci"
@@ -29,7 +29,7 @@ inputs = {
     },
     {
       description   = "Public Ranch compose update"
-      git_ref       = "main"
+      git_ref       = "refs/heads/main"
       cron_schedule = "0 7 * * mon-fri"
       variables = {
         "SCHEDULED_JOB" : "compose/update/public"
@@ -37,7 +37,7 @@ inputs = {
     },
     {
       description   = "Cleanup dev environments"
-      git_ref       = "main"
+      git_ref       = "refs/heads/main"
       cron_schedule = "0 6 * * sat"
       variables = {
         "SCHEDULED_JOB" : "cleanup/dev"
@@ -45,7 +45,7 @@ inputs = {
     },
     {
       description   = "Renew staging Let's Encrypt certificates"
-      git_ref       = "main"
+      git_ref       = "refs/heads/main"
       cron_schedule = "0 4 1 * *"
       variables = {
         "SCHEDULED_JOB" : "renew/certs"
