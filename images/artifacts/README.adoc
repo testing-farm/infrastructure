@@ -112,7 +112,7 @@ image. The name and cleanup depend on the context:
 
 `REMOVE_AFTER_TEST` (when set) only removes the source-region (us-east-1) copy; the
 us-east-2 copy is not deleted yet (TFT-4650). The container image follows the same pattern:
-MRs push `images.paas.redhat.com/testingfarm/artifacts-bootc:mr-<iid>-<pipeline-id>` (so they never
+MRs push `images.paas.redhat.com/testingfarm/artifacts:mr-<iid>-<pipeline-id>` (so they never
 overwrite the production `:latest`), and the qcow2 build uses that exact tag; the
 default branch publishes `:latest`.
 

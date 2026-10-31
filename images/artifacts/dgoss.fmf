@@ -14,7 +14,7 @@ description: |
     Required variables:
 
       IMAGE     ... Container image to test (the one the container plan pushed,
-                    e.g. images.paas.redhat.com/testingfarm/artifacts-bootc:latest).
+                    e.g. images.paas.redhat.com/testingfarm/artifacts:latest).
 
     Optional variables:
 
@@ -30,7 +30,7 @@ description: |
 environment:
   USER: root
   GOSS_VERSION: v0.3.21
-  IMAGE: images.paas.redhat.com/testingfarm/artifacts-bootc:latest
+  IMAGE: images.paas.redhat.com/testingfarm/artifacts:latest
   GOSS_YAML: https://gitlab.com/testing-farm/infrastructure/-/raw/main/images/artifacts/goss.yaml
 
 discover:

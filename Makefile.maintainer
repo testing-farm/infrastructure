@@ -593,7 +593,7 @@ test/terraform/modules:  ## Run terratest tests for Teraform modules
 # plan pulls. They default to :latest for local builds; CI overrides TARGET_IMAGE
 # with a per-pipeline tag on MRs and threads the same value through as IMAGE so a
 # pipeline's qcow2 is always built from the image that same pipeline pushed.
-TARGET_IMAGE ?= images.paas.redhat.com/testingfarm/artifacts-bootc:latest
+TARGET_IMAGE ?= images.paas.redhat.com/testingfarm/artifacts:latest
 IMAGE ?= $(TARGET_IMAGE)
 
 image/artifacts-bootc/container: .FORCE  ## Build & push RHEL 10 bootc artifact-server image | Testing Farm

@@ -559,7 +559,7 @@ renew/certs:
     # image/artifacts-bootc/* targets live in Makefile.maintainer
     IS_MAINTAINER: "1"
     # Same internal registry as the rhel-bootc base image
-    ARTIFACTS_IMAGE_REPO: images.paas.redhat.com/testingfarm/artifacts-bootc
+    ARTIFACTS_IMAGE_REPO: images.paas.redhat.com/testingfarm/artifacts
   before_script:
     - export TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT
   rules:
