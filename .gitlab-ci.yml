@@ -363,6 +363,8 @@ test/terraform/modules:
 test/infra:
   extends: .direnv
   stage: test
+  # NOTE: run one infra plan or apply at a time, they lock the same Terraform state
+  resource_group: infra
   script:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
@@ -379,6 +381,8 @@ test/infra:
 test/staging:
   extends: .direnv
   stage: test
+  # NOTE: run one staging plan or apply at a time, they lock the same Terraform state
+  resource_group: staging
   script:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
@@ -393,6 +397,8 @@ test/staging:
 test/production:
   extends: .direnv
   stage: test
+  # NOTE: run one production plan or apply at a time, they lock the same Terraform state
+  resource_group: production
   script:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
@@ -425,6 +431,8 @@ test/testing-farm/ranch-redhat:
 redeploy/staging:
   extends: .direnv
   stage: deploy
+  # NOTE: run one staging plan or apply at a time, they lock the same Terraform state
+  resource_group: staging
   script:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
@@ -469,10 +477,13 @@ cleanup/dev:
 deploy/infra:
   extends: .direnv
   stage: deploy
+  # NOTE: run one infra plan or apply at a time, they lock the same Terraform state
+  resource_group: infra
   script:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
   variables:
+    TERRAGRUNT_PARALLELISM: 3
     SCRIPT: >-
       make infra/init &&
       make infra/apply
@@ -484,6 +495,8 @@ deploy/infra:
 deploy/staging:
   extends: .direnv
   stage: deploy
+  # NOTE: run one staging plan or apply at a time, they lock the same Terraform state
+  resource_group: staging
   script:
     - !reference [.direnv, script]
     - !reference [.script_with_cleanup, script]
@@ -498,6 +511,8 @@ deploy/staging:
 deploy/production:
   extends: .direnv
   stage: deploy
+  # NOTE: run one production plan or apply at a time, they lock the same Terraform state
+  resource_group: production
   needs:
     # NOTE: prevent artifacts to be copied from dependant jobs, we want a fresh direnv setup here
     - job: deploy/staging
