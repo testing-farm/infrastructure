@@ -12,6 +12,9 @@ archive-mode = ssh
 #   `--exclude`, rsync takes the first matching rule, and the exclude has to name the
 #   contents, `discover/**`. Excluding `discover/` prunes the directory without
 #   descending into it and the include never gets a chance to match.
-rsync-options = --links,--times,--verbose,--compress,--exclude=work-*/**/tree/,--include=work-*/**/discover/tests.yaml,--exclude=work-*/**/discover/**
+# * work-*/import/plans/ - git clones of plans imported from a remote repository,
+#   one full clone per plan, often over a thousand files each. RHEL tier testing
+#   imports plans this way. Results and logs live elsewhere in the workdir.
+rsync-options = --links,--times,--verbose,--compress,--exclude=work-*/**/tree/,--include=work-*/**/discover/tests.yaml,--exclude=work-*/**/discover/**,--exclude=work-*/import/plans/
 enable-parallel-archiving = yes
 rsync-timeout = 600
