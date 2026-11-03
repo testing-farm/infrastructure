@@ -76,6 +76,7 @@ citool-container.sh rules-engine \
                     git \
                     test-schedule-tmt-multihost \
                     test-scheduler-testing-farm \
+                    log-detective \
                     test-schedule-report \
                     test-schedule-runner-multihost
 
