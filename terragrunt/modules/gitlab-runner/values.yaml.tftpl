@@ -4,6 +4,12 @@ concurrent: ${concurrent}
 ## How often to check for new jobs (seconds)
 checkInterval: ${check_interval}
 
+## On chart/config changes the runner pod is terminated with a graceful stop:
+## it stops claiming new jobs and waits for running ones to finish. Pinned to the
+## chart default so a future chart bump cannot shorten it below our longest job
+## (~25 min) and kill jobs mid-run.
+terminationGracePeriodSeconds: 3600
+
 ## Prometheus metrics exporter
 metrics:
   enabled: true

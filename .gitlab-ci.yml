@@ -1,6 +1,16 @@
 ---
 default:
   image: quay.io/testing-farm/python-ci-image:latest
+  # Auto-retry infrastructure-side failures only (never `script_failure`), so a
+  # runner/pod hiccup — e.g. `Job failed (system failure): couldn't get pod
+  # details: Unauthorized` when the runner is redeployed mid-job — does not turn
+  # the pipeline red. Real lint/terragrunt failures are NOT retried.
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - scheduler_failure
+      - api_failure
 
 variables:
   # GitLab CI runs in world writable directory, we need to explicitely set ANSIBLE_CONFIG
@@ -532,6 +542,8 @@ deploy/production:
 update/composes/public:
   extends: .direnv
   stage: deploy
+  # Not idempotent: a retry opens a second MR on a new timestamped branch.
+  retry: 0
   script:
     - !reference [.direnv, script]
     - make compose/update/public
@@ -544,6 +556,9 @@ update/composes/public:
 renew/certs:
   extends: .direnv
   stage: deploy
+  # Not idempotent: a retry requests the certificates again (Let's Encrypt
+  # duplicate-certificate limit) and fails to push the existing branch.
+  retry: 0
   script:
     - !reference [.direnv, script]
     # Renews the staging and staging-ci Let's Encrypt wildcard certs via DNS-01
