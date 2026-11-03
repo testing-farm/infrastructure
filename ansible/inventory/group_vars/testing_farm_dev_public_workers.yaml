@@ -117,5 +117,11 @@ citool_config_podman_secrets:
       ssh-key = ${config_root}/id_rsa_artemis
     target: /CONFIG-SECRETS/config/artemis-multihost
 
+  - name: log-detective
+    content: |
+      [default]
+      api-token = {{ credentials.logdetective.public.token }}
+    target: /CONFIG-SECRETS/config/log-detective
+
 sentry_base_url: "{{ credentials.sentry.public.base_url }}"
 sentry_dsn: "{{ credentials.sentry.public.dsn }}"
