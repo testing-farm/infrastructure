@@ -22,6 +22,7 @@ pipeline: |
   test-schedule-tmt-connect:test-schedule-tmt
   test-scheduler-testing-farm
   test-schedule-runner
+  log-detective
   test-schedule-report
 
 checks:
