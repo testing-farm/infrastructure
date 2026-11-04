@@ -131,7 +131,7 @@ terraform {
     organization = "testing-farm"
 
     workspaces {
-      name = "production-${path_relative_to_include()}"
+      name = "production-${replace(path_relative_to_include(), "/", "-")}"
     }
   }
 }

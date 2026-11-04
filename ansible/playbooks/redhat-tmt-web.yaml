@@ -1,0 +1,76 @@
+---
+#
+# Deploy tmt-web for the Red Hat ranch, served at https://tmt.redhat.testing.farm
+# through the nginx-s3-gateway container on the Red Hat ranch server.
+#
+- name: Deploy tmt-web to the Red Hat ranch server
+  hosts: testing_farm_redhat_servers
+  become: true
+  vars_files:
+    - ../secrets/credentials.yaml
+    - ../vars/common.yaml
+  vars:
+    tmt_web_hostname: tmt.redhat.testing.farm
+    tmt_web_cert_domain: redhat.testing.farm
+    tmt_web_image: quay.io/testing-farm/tmt-web:latest
+    tmt_web_valkey_image: docker.io/valkey/valkey:alpine
+    tmt_web_port: 8100
+    tmt_web_config_dir: /etc/testing-farm/tmt-web
+    tmt_web_pod_file: /etc/testing-farm/pods/tmt-web.yaml
+    tmt_web_clone_dir: /data/tmt-web/clones
+    tmt_web_gateway_dir: /etc/nginx-s3-gateway/tmt-web
+    # The VPC resolver offered by DHCP, it resolves both internal and public names
+    tmt_web_dns_servers:
+      - 10.29.162.2
+    # The original hand-made command plus the two tmt-web mounts at the end.
+    # The recreate task compares this to the running container's CreateCommand.
+    tmt_web_gateway_run:
+      - podman
+      - run
+      - -d
+      - --name
+      - nginx-s3-gateway
+      - --restart=always
+      - -p
+      - "80:80"
+      - -p
+      - "443:443"
+      - --env-file
+      - /etc/nginx-s3-gateway/gateway.env
+      - -v
+      - /etc/nginx-s3-gateway/tls:/etc/nginx/tls:ro,Z
+      - -v
+      - /etc/nginx-s3-gateway/tpl/10-content-type-map.conf.template:/etc/nginx/templates/10-content-type-map.conf.template:ro,Z
+      - -v
+      - /etc/nginx-s3-gateway/tpl/s3_location.conf.template:/etc/nginx/templates/gateway/s3_location.conf.template:ro,Z
+      - -v
+      - /etc/nginx-s3-gateway/tpl/server_variables.conf.template:/etc/nginx/templates/gateway/server_variables.conf.template:ro,Z
+      - -v
+      - /etc/nginx-s3-gateway/tmt-web:/etc/nginx/tmt-web:ro,z
+      # Sorts after the image's default.conf, so the S3 gateway stays the default server
+      - -v
+      - /etc/nginx-s3-gateway/tmt-web.include.conf:/etc/nginx/conf.d/tmt-web.conf:ro,z
+      - docker.io/nginxinc/nginx-s3-gateway:latest
+  pre_tasks:
+    # The RH CA is needed in the host bundle copied into the tmt-web pod
+    - name: Check RH CA certificates are installed
+      ansible.builtin.command:
+        argv: [rpm, -q, redhat-internal-cert-install]
+      register: rh_certs_installed
+      changed_when: false
+      check_mode: false
+      failed_when: false
+
+    - name: Install RH CA certificates
+      ansible.builtin.import_tasks: ../tasks/rh-certs.yaml
+      when: rh_certs_installed.rc != 0
+  tasks:
+    - name: Deploy tmt-web
+      ansible.builtin.import_tasks: ../tasks/tmt-web.yaml
+  handlers:
+    - name: Reload nginx-s3-gateway
+      ansible.builtin.shell: |
+        set -e
+        podman exec nginx-s3-gateway nginx -t
+        podman exec nginx-s3-gateway nginx -s reload
+      changed_when: true

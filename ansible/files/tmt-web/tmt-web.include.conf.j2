@@ -1,0 +1,3 @@
+# Managed by ansible, mounted into the nginx-s3-gateway container as /etc/nginx/conf.d/tmt-web.conf.
+# The vhost and its certificate live in a mounted directory, so updating them needs only a reload.
+include /etc/nginx/tmt-web/*.conf;
