@@ -561,9 +561,11 @@ renew/certs:
   retry: 0
   script:
     - !reference [.direnv, script]
-    # Renews the staging and staging-ci Let's Encrypt wildcard certs via DNS-01
-    # (Route53) and opens an MR with the re-encrypted vault files. Merge then
-    # redeploy staging to bake the new certs into the server ignition.
+    # Renews the staging, staging-ci and redhat.testing.farm Let's Encrypt
+    # wildcard certs via DNS-01 (Route53) and opens an MR with the re-encrypted
+    # vault files. Merge then redeploy staging to bake the new certs into the
+    # server ignition, and run `make production/redhat/tmt-web` from the Red Hat
+    # network to deploy the Red Hat ranch server cert.
     - setup/renew_certs.sh
   rules:
     - !reference [.rules, only_schedule]

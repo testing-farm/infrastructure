@@ -61,6 +61,8 @@ report.html
 ansible/secrets/credentials.yaml*
 ansible/secrets/**/*.vault*
 ansible/secrets/**/*.pem
+# ...but keep the vault-encrypted certificates committed
+!ansible/secrets/certs/**/*.pem.vault
 
 # generic editor/backup leftovers
 *.bak

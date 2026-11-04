@@ -1,0 +1,19 @@
+[Unit]
+Description=tmt-web pod
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+TimeoutStartSec=600
+ExecStartPre=/usr/bin/podman pull {{ tmt_web_image }}
+ExecStartPre=/usr/bin/podman pull {{ tmt_web_valkey_image }}
+# podman 3.3 has no `play kube --down`, remove the pod by name.
+# Also removes a pod left behind by an unclean stop.
+ExecStartPre=-/usr/bin/podman pod rm --force --ignore tmt-web
+ExecStart=/usr/bin/podman play kube {{ tmt_web_pod_file }}
+ExecStop=/usr/bin/podman pod rm --force --ignore tmt-web
+
+[Install]
+WantedBy=multi-user.target

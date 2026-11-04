@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: tmt-web
+  name: tmt-web
+spec:
+  containers:
+  # Uvicorn
+  - image: {{ tmt_web_image }}
+    args:
+    - uvicorn
+    name: uvicorn
+    ports:
+    - containerPort: 8000
+      hostPort: {{ tmt_web_port }}
+    env:
+    # Containers in a pod share localhost
+    - name: VALKEY_URL
+      value: valkey://localhost:6379
+    - name: API_HOSTNAME
+      value: https://{{ tmt_web_hostname }}
+    - name: CLONE_DIR_PATH
+      value: /clones
+    # Trust the Red Hat internal CA when cloning from internal Git hosts
+    - name: GIT_SSL_CAINFO
+      value: /etc/tmt-web/tls-ca-bundle.pem
+    - name: SSL_CERT_FILE
+      value: /etc/tmt-web/tls-ca-bundle.pem
+    - name: REQUESTS_CA_BUNDLE
+      value: /etc/tmt-web/tls-ca-bundle.pem
+    resources:
+      limits:
+        memory: 512Mi
+    volumeMounts:
+    - name: clones
+      mountPath: /clones
+    - name: ca-bundle
+      mountPath: /etc/tmt-web/tls-ca-bundle.pem
+      readOnly: true
+    - name: gitconfig
+      mountPath: /etc/gitconfig
+      readOnly: true
+  # Valkey, reachable only from inside the pod
+  - image: {{ tmt_web_valkey_image }}
+    name: valkey
+    resources:
+      limits:
+        memory: 256Mi
+  # The host resolv.conf has only public resolvers, which cannot resolve internal Git hosts
+  dnsConfig:
+    nameservers:
+{% for server in tmt_web_dns_servers %}
+    - {{ server }}
+{% endfor %}
+  volumes:
+  - name: clones
+    hostPath:
+      path: {{ tmt_web_clone_dir }}
+      type: Directory
+  - name: ca-bundle
+    hostPath:
+      path: {{ tmt_web_config_dir }}/tls-ca-bundle.pem
+      type: File
+  - name: gitconfig
+    hostPath:
+      path: {{ tmt_web_config_dir }}/gitconfig
+      type: File

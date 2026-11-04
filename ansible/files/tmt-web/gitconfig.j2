@@ -1,0 +1,5 @@
+# Managed by ansible, mounted into the tmt-web container as /etc/gitconfig.
+# tmt runs some git commands with an empty environment, which drops GIT_SSL_CAINFO,
+# so the CA bundle trusting internal Git hosts is set here as well.
+[http]
+	sslCAInfo = /etc/tmt-web/tls-ca-bundle.pem
