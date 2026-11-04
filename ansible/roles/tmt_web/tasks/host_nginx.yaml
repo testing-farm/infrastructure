@@ -1,0 +1,53 @@
+---
+#
+# Host nginx vhosts
+#
+# The certificates keep the default label of /etc/nginx, which nginx can read
+- name: Create tmt-web certificate directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ tmt_web_host_nginx_cert_dir }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ [tmt_web_cert_domain] + tmt_web_redirect_hostnames }}"
+
+- name: Copy tmt-web TLS certificate chains
+  become: true
+  ansible.builtin.copy:
+    src: "{{ ansible_dir }}/secrets/certs/{{ item }}/fullchain.pem.vault"
+    dest: "{{ tmt_web_host_nginx_cert_dir }}/{{ item }}/fullchain.pem"
+    mode: "0644"
+  loop: "{{ [tmt_web_cert_domain] + tmt_web_redirect_hostnames }}"
+  notify: Reload tmt-web nginx
+
+- name: Copy tmt-web TLS private keys
+  become: true
+  ansible.builtin.copy:
+    src: "{{ ansible_dir }}/secrets/certs/{{ item }}/privkey.pem.vault"
+    dest: "{{ tmt_web_host_nginx_cert_dir }}/{{ item }}/privkey.pem"
+    mode: "0600"
+  loop: "{{ [tmt_web_cert_domain] + tmt_web_redirect_hostnames }}"
+  no_log: true
+  notify: Reload tmt-web nginx
+
+- name: Template tmt-web vhost
+  become: true
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: /etc/nginx/conf.d/{{ tmt_web_hostname }}.conf
+    mode: "0644"
+  vars:
+    tmt_web_tls_dir: "{{ tmt_web_host_nginx_cert_dir }}/{{ tmt_web_cert_domain }}"
+  notify: Reload tmt-web nginx
+
+- name: Template tmt-web redirect vhosts
+  become: true
+  ansible.builtin.template:
+    src: redirect.conf.j2
+    dest: /etc/nginx/conf.d/{{ item }}.conf
+    mode: "0644"
+  vars:
+    tmt_web_redirect_hostname: "{{ item }}"
+    tmt_web_tls_dir: "{{ tmt_web_host_nginx_cert_dir }}/{{ item }}"
+  loop: "{{ tmt_web_redirect_hostnames }}"
+  notify: Reload tmt-web nginx

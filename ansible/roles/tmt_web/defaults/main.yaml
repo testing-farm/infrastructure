@@ -1,0 +1,34 @@
+---
+## Pod
+tmt_web_image: quay.io/testing-farm/tmt-web:latest
+tmt_web_valkey_image: docker.io/valkey/valkey:alpine
+tmt_web_port: 8100
+tmt_web_config_dir: /etc/testing-farm/tmt-web
+tmt_web_pod_file: /etc/testing-farm/pods/tmt-web.yaml
+tmt_web_clone_dir: /data/tmt-web/clones
+
+# Name servers for the pod, the host resolv.conf is used when empty
+tmt_web_dns_servers: []
+
+# CA certificate from the role files/ appended to the host CA bundle for cloning.
+# When empty, the pod uses the CA store shipped in the image.
+tmt_web_extra_ca_file: ""
+
+## Front end
+# Required: the public name of tmt-web, and the directory under ansible/secrets/certs with its certificate
+# tmt_web_hostname: tmt.example.com
+# tmt_web_cert_domain: example.com
+
+# `gateway` adds the vhost to the hand-made nginx-s3-gateway container (Red Hat ranch),
+# `host_nginx` adds it to the nginx running on the host (Public ranch)
+tmt_web_frontend: gateway
+
+# gateway: the vhost directory on the host, mounted into the container as /etc/nginx/tmt-web
+tmt_web_gateway_dir: /etc/nginx-s3-gateway/tmt-web
+
+# host_nginx: certificates live in subdirectories named after their domain
+tmt_web_host_nginx_cert_dir: /etc/nginx/tmt-web
+
+# host_nginx: old names answering with a permanent redirect to `tmt_web_hostname`.
+# Each needs its own certificate in ansible/secrets/certs/<name>.
+tmt_web_redirect_hostnames: []

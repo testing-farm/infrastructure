@@ -1,0 +1,17 @@
+# Managed by ansible, {{ tmt_web_redirect_hostname }} is an old name of {{ tmt_web_hostname }}.
+# $request_uri keeps the query string, so old links keep working.
+server {
+    listen 80;
+    server_name  {{ tmt_web_redirect_hostname }};
+    return 301 https://{{ tmt_web_hostname }}$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name  {{ tmt_web_redirect_hostname }};
+
+    ssl_certificate {{ tmt_web_tls_dir }}/fullchain.pem;
+    ssl_certificate_key {{ tmt_web_tls_dir }}/privkey.pem;
+
+    return 301 https://{{ tmt_web_hostname }}$request_uri;
+}

@@ -4,12 +4,14 @@ set -eo pipefail
 
 #
 # Renew Let's Encrypt certificates for staging environments and the
-# Red Hat ranch server using DNS-01 challenge via Route53.
+# Red Hat and Public ranch servers using DNS-01 challenge via Route53.
 #
 # Certificates renewed:
 #   - *.staging.testing-farm.io + staging.testing-farm.io (staging)
 #   - *.staging-ci.testing-farm.io (staging CI)
 #   - *.redhat.testing.farm (Red Hat ranch server, e.g. tmt.redhat.testing.farm)
+#   - *.public.testing.farm (Public ranch server, e.g. tmt.public.testing.farm)
+#   - tmt.testing-farm.io (Public ranch server, redirects to tmt.public.testing.farm)
 #
 # Requires:
 #   - certbot and certbot-dns-route53 installed (via pyproject.toml)
@@ -96,6 +98,12 @@ renew_cert "staging-ci.testing-farm.io" -d "*.staging-ci.testing-farm.io"
 
 # Red Hat ranch server: wildcard only, deploy with `make production/redhat/tmt-web`
 renew_cert "redhat.testing.farm" -d "*.redhat.testing.farm"
+
+# Public ranch server: wildcard only, deploy with `make production/public/tmt-web`
+renew_cert "public.testing.farm" -d "*.public.testing.farm"
+
+# Public ranch server: the old tmt-web name, now a redirect, deployed with the same target
+renew_cert "tmt.testing-farm.io" -d "tmt.testing-farm.io"
 
 if [ -z "$CI" ]; then
     info "Not running in GitLab CI, skipping MR creation"

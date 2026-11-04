@@ -1,0 +1,74 @@
+---
+#
+# Deploy tmt-web for the Public ranch, served at https://tmt.public.testing.farm
+# through the host nginx on the Public ranch server. The old name, tmt.testing-farm.io,
+# redirects to it.
+#
+- name: Deploy tmt-web to the Public ranch server
+  hosts: testing_farm_public_servers
+  become: true
+  vars_files:
+    - ../secrets/credentials.yaml
+    - ../vars/common.yaml
+  vars:
+    tmt_web_hostname: tmt.public.testing.farm
+    tmt_web_cert_domain: public.testing.farm
+    tmt_web_redirect_hostnames:
+      - tmt.testing-farm.io
+    tmt_web_frontend: host_nginx
+    tmt_web_image: quay.io/testing-farm/tmt-web:latest
+    tmt_web_valkey_image: docker.io/valkey/valkey:alpine
+    tmt_web_port: 8100
+    tmt_web_config_dir: /etc/testing-farm/tmt-web
+    tmt_web_pod_file: /etc/testing-farm/pods/tmt-web.yaml
+    # /data is on the root filesystem
+    tmt_web_clone_dir: /data/tmt-web/clones
+    # The hand-made stack: a hatch checkout in /opt/tmt-web run by tft-tmt-web.service,
+    # and a valkey container on :6379 used only by it
+    tmt_web_old_unit: tft-tmt-web
+    tmt_web_old_valkey_container: youthful_lewin
+  pre_tasks:
+    # The new pod publishes the same port as the old service, stop the old stack first.
+    # /opt/tmt-web and the old unit file stay for rollback.
+    - name: Check the hand-made tmt-web unit
+      ansible.builtin.stat:
+        path: /etc/systemd/system/{{ tmt_web_old_unit }}.service
+      register: tmt_web_old_unit_file
+
+    - name: Stop the hand-made tmt-web stack
+      when: tmt_web_old_unit_file.stat.exists
+      block:
+        - name: Back up the hand-made tmt-web vhost
+          ansible.builtin.copy:
+            src: /etc/nginx/conf.d/{{ tmt_web_redirect_hostnames[0] }}.conf
+            dest: /root/{{ tmt_web_redirect_hostnames[0] }}.conf.orig
+            remote_src: true
+            force: false
+            mode: "0600"
+
+        - name: Stop and disable the hand-made tmt-web service
+          ansible.builtin.systemd:
+            name: "{{ tmt_web_old_unit }}"
+            state: stopped
+            enabled: false
+
+    - name: Remove the hand-made valkey container
+      ansible.builtin.command:
+        argv: [podman, rm, --force, "{{ tmt_web_old_valkey_container }}"]
+      register: tmt_web_old_valkey
+      changed_when: tmt_web_old_valkey.rc == 0
+      failed_when: tmt_web_old_valkey.rc != 0 and 'no such container' not in tmt_web_old_valkey.stderr
+  roles:
+    - tmt_web
+  post_tasks:
+    # The redirect vhost now uses the certificate from the repo
+    - name: Check the certbot certificate of the old name
+      ansible.builtin.stat:
+        path: /etc/letsencrypt/renewal/{{ tmt_web_redirect_hostnames[0] }}.conf
+      register: tmt_web_old_certbot_cert
+
+    - name: Delete the certbot certificate of the old name
+      ansible.builtin.command:
+        argv: [certbot, delete, --non-interactive, --cert-name, "{{ tmt_web_redirect_hostnames[0] }}"]
+      when: tmt_web_old_certbot_cert.stat.exists
+      changed_when: true
