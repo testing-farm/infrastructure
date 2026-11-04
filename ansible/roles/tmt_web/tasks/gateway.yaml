@@ -1,79 +1,5 @@
 ---
 #
-# tmt-web pod
-#
-- name: Create pods directory
-  become: true
-  ansible.builtin.file:
-    path: "{{ tmt_web_pod_file | dirname }}"
-    state: directory
-    mode: "0755"
-
-- name: Create tmt-web directories
-  become: true
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    mode: "0755"
-    setype: container_file_t
-    selevel: s0
-  loop:
-    - "{{ tmt_web_config_dir }}"
-    - "{{ tmt_web_clone_dir }}"
-
-- name: Read host CA bundle
-  become: true
-  ansible.builtin.slurp:
-    src: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
-  register: tmt_web_host_ca_bundle
-
-# The host bundle predates the Red Hat IT Internal Root CA that internal Git hosts chain to.
-# play kube does not relabel hostPath volumes, so the bundle is labeled explicitly.
-- name: Create CA bundle for tmt-web
-  become: true
-  ansible.builtin.copy:
-    content: |
-      {{ tmt_web_host_ca_bundle.content | b64decode | trim }}
-      {{ lookup('ansible.builtin.file', ansible_dir + '/files/tmt-web/redhat-it-root-ca.pem') }}
-    dest: "{{ tmt_web_config_dir }}/tls-ca-bundle.pem"
-    mode: "0644"
-    setype: container_file_t
-    selevel: s0
-
-- name: Template tmt-web git config
-  become: true
-  ansible.builtin.template:
-    src: "{{ ansible_dir }}/files/tmt-web/gitconfig.j2"
-    dest: "{{ tmt_web_config_dir }}/gitconfig"
-    mode: "0644"
-    setype: container_file_t
-    selevel: s0
-
-- name: Template tmt-web pod definition
-  become: true
-  ansible.builtin.template:
-    src: "{{ ansible_dir }}/files/tmt-web/tmt-web.yaml.j2"
-    dest: "{{ tmt_web_pod_file }}"
-    mode: "0644"
-
-- name: Template tmt-web systemd unit
-  become: true
-  ansible.builtin.template:
-    src: "{{ ansible_dir }}/files/tmt-web/tmt-web.service.j2"
-    dest: /etc/systemd/system/tmt-web.service
-    mode: "0644"
-
-# Always restart, the unit pulls the newest images on start
-- name: Enable and restart tmt-web
-  become: true
-  ansible.builtin.systemd:
-    name: tmt-web
-    enabled: true
-    state: restarted
-    daemon_reload: true
-  tags: update_tmt_web
-
-#
 # nginx-s3-gateway vhost
 #
 - name: Create tmt-web gateway directories
@@ -96,7 +22,7 @@
     mode: "0644"
     setype: container_file_t
     selevel: s0
-  notify: Reload nginx-s3-gateway
+  notify: Reload tmt-web nginx
 
 - name: Copy tmt-web TLS private key
   become: true
@@ -107,23 +33,26 @@
     setype: container_file_t
     selevel: s0
   no_log: true
-  notify: Reload nginx-s3-gateway
+  notify: Reload tmt-web nginx
 
 - name: Template tmt-web vhost
   become: true
   ansible.builtin.template:
-    src: "{{ ansible_dir }}/files/tmt-web/tmt.redhat.testing.farm.conf.j2"
+    src: vhost.conf.j2
     dest: "{{ tmt_web_gateway_dir }}/{{ tmt_web_hostname }}.conf"
     mode: "0644"
     setype: container_file_t
     selevel: s0
-  notify: Reload nginx-s3-gateway
+  vars:
+    # The path inside the gateway container
+    tmt_web_tls_dir: /etc/nginx/tmt-web/tls
+  notify: Reload tmt-web nginx
 
 # Static stub, never changes after the first run, so a single file bind mount is fine
 - name: Template tmt-web gateway include
   become: true
   ansible.builtin.template:
-    src: "{{ ansible_dir }}/files/tmt-web/tmt-web.include.conf.j2"
+    src: tmt-web.include.conf.j2
     dest: /etc/nginx-s3-gateway/tmt-web.include.conf
     mode: "0644"
     setype: container_file_t
@@ -167,6 +96,3 @@
       ansible.builtin.command:
         argv: "{{ tmt_web_gateway_run }}"
       changed_when: true
-
-- name: Flush handlers
-  ansible.builtin.meta: flush_handlers

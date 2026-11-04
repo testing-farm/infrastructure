@@ -22,6 +22,7 @@ spec:
       value: https://{{ tmt_web_hostname }}
     - name: CLONE_DIR_PATH
       value: /clones
+{% if tmt_web_extra_ca_file %}
     # Trust the Red Hat internal CA when cloning from internal Git hosts
     - name: GIT_SSL_CAINFO
       value: /etc/tmt-web/tls-ca-bundle.pem
@@ -29,35 +30,41 @@ spec:
       value: /etc/tmt-web/tls-ca-bundle.pem
     - name: REQUESTS_CA_BUNDLE
       value: /etc/tmt-web/tls-ca-bundle.pem
+{% endif %}
     resources:
       limits:
         memory: 512Mi
     volumeMounts:
     - name: clones
       mountPath: /clones
+{% if tmt_web_extra_ca_file %}
     - name: ca-bundle
       mountPath: /etc/tmt-web/tls-ca-bundle.pem
       readOnly: true
     - name: gitconfig
       mountPath: /etc/gitconfig
       readOnly: true
+{% endif %}
   # Valkey, reachable only from inside the pod
   - image: {{ tmt_web_valkey_image }}
     name: valkey
     resources:
       limits:
         memory: 256Mi
+{% if tmt_web_dns_servers %}
   # The host resolv.conf has only public resolvers, which cannot resolve internal Git hosts
   dnsConfig:
     nameservers:
 {% for server in tmt_web_dns_servers %}
     - {{ server }}
 {% endfor %}
+{% endif %}
   volumes:
   - name: clones
     hostPath:
       path: {{ tmt_web_clone_dir }}
       type: Directory
+{% if tmt_web_extra_ca_file %}
   - name: ca-bundle
     hostPath:
       path: {{ tmt_web_config_dir }}/tls-ca-bundle.pem
@@ -66,3 +73,4 @@ spec:
     hostPath:
       path: {{ tmt_web_config_dir }}/gitconfig
       type: File
+{% endif %}

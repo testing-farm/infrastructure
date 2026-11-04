@@ -406,6 +406,9 @@ production/plan/artemis: .FORCE  ## Plan deployment | production | artemis
 production/plan/redhat-server: .FORCE  ## Plan deployment | production | redhat-server
 	$(call run_terragrunt,production/redhat-server,plan)
 
+production/plan/public-server: .FORCE  ## Plan deployment | production | public-server
+	$(call run_terragrunt,production/public-server,plan)
+
 production/apply: .FORCE  ## Deploy | production | all
 	$(call run_terragrunt,production,apply)
 
@@ -417,6 +420,9 @@ production/apply/artemis: .FORCE  ## Deploy | production | artemis
 
 production/apply/redhat-server: .FORCE  ## Deploy | production | redhat-server
 	$(call run_terragrunt,production/redhat-server,apply)
+
+production/apply/public-server: .FORCE  ## Deploy | production | public-server
+	$(call run_terragrunt,production/public-server,apply)
 
 update/api/settings: .FORCE  ## Deploy API settings to production (graceful reload)
 	$(call check_deployment_branch)
@@ -444,6 +450,11 @@ production/redhat/tmt-web: .FORCE  ## Deploy tmt-web to the Red Hat ranch server
 	$(call check_deployment_branch)
 	@echo -e "🚀 \033[0;32mdeploying tmt-web to the Red Hat ranch server\033[0m"
 	ansible-playbook -v ansible/playbooks/redhat-tmt-web.yaml
+
+production/public/tmt-web: .FORCE  ## Deploy tmt-web to the Public ranch server, also refreshes its TLS certificates
+	$(call check_deployment_branch)
+	@echo -e "🚀 \033[0;32mdeploying tmt-web to the Public ranch server\033[0m"
+	ansible-playbook -v ansible/playbooks/public-tmt-web.yaml
 
 production/redhat/request/shell:  ## Connect to shell of a running Red Hat ranch request
 	@NOMAD_SSH="ssh fedora@testing-farm-server-01.osci.redhat.com" \

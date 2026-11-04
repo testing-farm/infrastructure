@@ -1,0 +1,20 @@
+---
+- name: Reload nginx-s3-gateway
+  ansible.builtin.shell: |
+    set -e
+    podman exec nginx-s3-gateway nginx -t
+    podman exec nginx-s3-gateway nginx -s reload
+  become: true
+  changed_when: true
+  when: tmt_web_frontend == 'gateway'
+  listen: Reload tmt-web nginx
+
+- name: Reload host nginx
+  ansible.builtin.shell: |
+    set -e
+    nginx -t
+    systemctl reload nginx
+  become: true
+  changed_when: true
+  when: tmt_web_frontend == 'host_nginx'
+  listen: Reload tmt-web nginx

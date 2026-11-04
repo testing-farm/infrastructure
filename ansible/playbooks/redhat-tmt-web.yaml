@@ -18,7 +18,10 @@
     tmt_web_config_dir: /etc/testing-farm/tmt-web
     tmt_web_pod_file: /etc/testing-farm/pods/tmt-web.yaml
     tmt_web_clone_dir: /data/tmt-web/clones
+    tmt_web_frontend: gateway
     tmt_web_gateway_dir: /etc/nginx-s3-gateway/tmt-web
+    # Internal Git hosts chain to the Red Hat IT Internal Root CA
+    tmt_web_extra_ca_file: redhat-it-root-ca.pem
     # The VPC resolver offered by DHCP, it resolves both internal and public names
     tmt_web_dns_servers:
       - 10.29.162.2
@@ -64,13 +67,5 @@
     - name: Install RH CA certificates
       ansible.builtin.import_tasks: ../tasks/rh-certs.yaml
       when: rh_certs_installed.rc != 0
-  tasks:
-    - name: Deploy tmt-web
-      ansible.builtin.import_tasks: ../tasks/tmt-web.yaml
-  handlers:
-    - name: Reload nginx-s3-gateway
-      ansible.builtin.shell: |
-        set -e
-        podman exec nginx-s3-gateway nginx -t
-        podman exec nginx-s3-gateway nginx -s reload
-      changed_when: true
+  roles:
+    - tmt_web
