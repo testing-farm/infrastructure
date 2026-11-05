@@ -8,18 +8,32 @@ nomad_version: "0.12.5"
 nomad_architecture: "amd64"
 nomad_pkg: "nomad_{{ nomad_version }}_linux_{{nomad_architecture}}.zip"
 nomad_zip_url: "https://releases.hashicorp.com/nomad/{{ nomad_version }}/nomad_{{ nomad_version }}_linux_{{nomad_architecture}}.zip"
+# NOTE: currently not used
 nomad_checksum_file_url: "https://releases.hashicorp.com/nomad/{{ nomad_version }}/nomad_{{ nomad_version}}_SHA256SUMS"
 
+### Nomad plugin
+nomad_driver_podman_version: "0.6.4"
+nomad_driver_podman_architecture: "amd64"
+nomad_driver_podman_pkg: "nomad-driver-podman_{{ nomad_driver_podman_version }}_linux_{{nomad_driver_podman_architecture}}.zip"
+nomad_driver_podman_zip_url: "https://releases.hashicorp.com/nomad-driver-podman/{{ nomad_driver_podman_version }}/nomad-driver-podman_{{ nomad_driver_podman_version }}_linux_{{ nomad_driver_podman_architecture }}.zip"
+# NOTE: currently not used
+nomad_driver_podman_checksum_file_url: "https://releases.hashicorp.com/nomad-driver-podman/{{ nomad_driver_podman_version }}/nomad-driver-podman_{{ nomad_driver_podman_version }}_SHA256SUMS"
+
 ### Paths
+nomad_plugin_dir: /opt/nomad/plugins
 nomad_bin_dir: /usr/bin
 nomad_config_dir: /etc/nomad.d
 nomad_data_dir: /data
 nomad_lockfile: /var/lock/subsys/nomad"
 nomad_run_dir: /var/run/nomad
+nomad_artifacts_dir: /var/ARTIFACTS
+nomad_containers_conf_path: /etc/citool.d/containers.conf
+nomad_selinux_policy_dir: /usr/local/share/selinux
 
 ### System user and group
 nomad_user: root
 nomad_group: root
+nomad_home_dir: /data/nomad-home
 
 ### Nomad settings
 nomad_log_level: INFO
@@ -28,6 +42,11 @@ nomad_syslog_enable: true
 nomad_gc_interval: 168h
 nomad_gc_disk_usage_threshold: 80
 nomad_gc_max_allocs: 20000
+
+# Maximum allowed task kill_timeout. Job kill_timeout is capped at this value
+# Must be >= the job kill_timeout (15m) so citool has time to release its
+# Artemis guests on request cancellation before receiving SIGKILL.
+nomad_max_kill_timeout: "15m"
 # Server garbage collection settings
 nomad_node_gc_threshold: 24h
 nomad_eval_gc_threshold: 168h

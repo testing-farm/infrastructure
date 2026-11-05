@@ -8,6 +8,16 @@
   include_tasks: install.yaml
 
 - block:
+    - name: Get nomad user UID
+      command: "id -u {{ nomad_user }}"
+      register: nomad_uid
+      changed_when: false
+      # Also needed by the update_jobs run, which renders job templates that
+      # depend on nomad_podman_socket_path (computed from nomad_uid below).
+      tags: update_jobs
+      when:
+        - nomad_user != "root"
+
     - name: Create directories
       become: true
       file:
@@ -19,20 +29,31 @@
       with_items:
         - "{{ nomad_data_dir }}"
 
+    - name: Set plugin directory ownership
+      file:
+        path: "{{ nomad_plugin_dir }}"
+        state: directory
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0755
+        recurse: true
+      when:
+        - nomad_user != "root"
+
     - name: Create config directory
       file:
         dest: "{{ nomad_config_dir }}"
         state: directory
-        owner: root
-        group: root
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
         mode: 0755
 
     - name: Base configuration
       template:
         src: base.hcl.j2
         dest: "{{ nomad_config_dir }}/base.hcl"
-        owner: root
-        group: root
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
         mode: 0644
       notify:
         - Restart Nomad
@@ -41,8 +62,8 @@
       template:
         src: server.hcl.j2
         dest: "{{ nomad_config_dir }}/server.hcl"
-        owner: root
-        group: root
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
         mode: 0644
       when:
         - _nomad_node_server | bool
@@ -53,8 +74,8 @@
       template:
         src: client.hcl.j2
         dest: "{{ nomad_config_dir }}/client.hcl"
-        owner: root
-        group: root
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
         mode: 0644
       when:
         - _nomad_node_client | bool
@@ -72,6 +93,297 @@
     - name: reload systemd daemon
       systemd:
         daemon_reload: true
+
+    - name: Load fuse and tun kernel modules for rootless podman
+      modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - fuse
+        - tun
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Persist fuse and tun modules across reboots
+      copy:
+        dest: /etc/modules-load.d/rootless-podman.conf
+        content: |
+          fuse
+          tun
+        mode: 0644
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Ensure /dev/fuse and /dev/net/tun are world-accessible
+      file:
+        path: "{{ item }}"
+        mode: "0666"
+      loop:
+        - /dev/fuse
+        - /dev/net/tun
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Delegate cgroups v2 to user sessions
+      file:
+        path: /etc/systemd/system/user@.service.d
+        state: directory
+        mode: 0755
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Configure cgroups v2 delegation
+      copy:
+        dest: /etc/systemd/system/user@.service.d/delegate.conf
+        content: |
+          [Service]
+          Delegate=cpu cpuset io memory pids
+        mode: 0644
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Set up subordinate UID ranges for rootless podman
+      command: "usermod --add-subuids 100000-165535 {{ nomad_user }}"
+      register: subuid_result
+      changed_when: subuid_result.rc == 0
+      failed_when: subuid_result.rc != 0 and 'already exists' not in (subuid_result.stderr | default(''))
+      when:
+        - nomad_user != "root"
+
+    - name: Set up subordinate GID ranges for rootless podman
+      command: "usermod --add-subgids 100000-165535 {{ nomad_user }}"
+      register: subgid_result
+      changed_when: subgid_result.rc == 0
+      failed_when: subgid_result.rc != 0 and 'already exists' not in (subgid_result.stderr | default(''))
+      when:
+        - nomad_user != "root"
+
+    - name: Enable linger for nomad user
+      command: "loginctl enable-linger {{ nomad_user }}"
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Wait for user runtime directory
+      wait_for:
+        path: "/run/user/{{ nomad_uid.stdout }}"
+        state: present
+        timeout: 10
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Enable and start rootless podman socket
+      become_user: "{{ nomad_user }}"
+      environment:
+        XDG_RUNTIME_DIR: "/run/user/{{ nomad_uid.stdout }}"
+        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ nomad_uid.stdout }}/bus"
+      systemd:
+        name: podman.socket
+        scope: user
+        enabled: true
+        state: started
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Deploy containers.conf for rootless podman remote client
+      copy:
+        dest: "{{ nomad_containers_conf_path }}"
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0644
+        content: |
+          [engine]
+          remote = true
+          active_service = "host"
+
+          [engine.service_destinations.host]
+          uri = "unix:///run/podman/podman.sock"
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Install container-selinux, provides the udica policy templates
+      package:
+        name: container-selinux
+        state: present
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Create SELinux policy directory
+      file:
+        path: "{{ nomad_selinux_policy_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Copy SELinux policy for worker containers
+      copy:
+        src: tf_worker.cil
+        dest: "{{ nomad_selinux_policy_dir }}/tf_worker.cil"
+        owner: root
+        group: root
+        mode: 0644
+      register: tf_worker_policy
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: List loaded SELinux modules
+      command: semodule -l
+      register: selinux_modules
+      changed_when: false
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    # Jobs run their container with `security_opt = ["label=type:tf_worker.process"]`
+    - name: Load SELinux policy for worker containers
+      command: >-
+        semodule -i {{ nomad_selinux_policy_dir }}/tf_worker.cil
+        /usr/share/udica/templates/base_container.cil
+        /usr/share/udica/templates/net_container.cil
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+        - tf_worker_policy is changed or 'tf_worker' not in selinux_modules.stdout_lines
+
+    - name: Create .ssh directory for nomad user
+      file:
+        path: "{{ nomad_home_dir }}/.ssh"
+        state: directory
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0700
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    # The worker containers mount this key as the default ssh identity of their root user,
+    # the archive module uploads artifacts with it. Only the `artifacts` user of the
+    # artifacts host authorizes it.
+    - name: Copy artifacts upload SSH key to nomad user
+      copy:
+        src: "{{ artifacts_ssh_private_key }}"
+        dest: "{{ nomad_home_dir }}/.ssh/id_artifacts"
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0600
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+        - artifacts_ssh_private_key is defined
+
+    # The worker containers mount this key as `${config_root}/id_rsa_artemis`, the guest key
+    # of the artemis module. The rootless containers cannot read root-owned files.
+    - name: Copy Artemis guest SSH key to nomad user
+      copy:
+        src: "{{ artemis_ssh_private_key }}"
+        dest: "{{ nomad_home_dir }}/.ssh/id_artemis"
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0600
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+        - artemis_ssh_private_key is defined
+
+    # TODO: the ssh-agent for the worker containers is disabled until it is fixed:
+    #
+    # * The agent loaded `ssh_private_key`, the worker login key. Any user Ansible playbook
+    #   with `delegate_to: localhost` runs in the worker container and can use the agent.
+    #   Load only the Artemis guest key.
+    # * The agent runs as `unconfined_t` and its socket is `default_t`. Run it in its own
+    #   SELinux domain with its own socket type, under `RuntimeDirectory=`, and allow
+    #   `tf_worker` to connect only to that domain.
+    # * The jobs bind-mounted the socket file, so a restarted agent leaves running jobs with
+    #   a stale socket. Mount the socket directory instead.
+    # * gluetool-modules must pass the agent socket to tmt (`TMT_SSH_IDENTITY_AGENT`) and
+    #   stop passing `--key None` when no key file is configured.
+    #
+    # - name: Create ssh-agent systemd user service directory
+    #   file:
+    #     path: "{{ nomad_home_dir }}/.config/systemd/user"
+    #     state: directory
+    #     owner: "{{ nomad_user }}"
+    #     group: "{{ nomad_group }}"
+    #     mode: 0755
+    #   when:
+    #     - _nomad_node_client | bool
+    #     - nomad_user != "root"
+    #
+    # - name: Deploy ssh-agent systemd user service
+    #   copy:
+    #     dest: "{{ nomad_home_dir }}/.config/systemd/user/nomad-ssh-agent.service"
+    #     owner: "{{ nomad_user }}"
+    #     group: "{{ nomad_group }}"
+    #     mode: 0644
+    #     content: |
+    #       [Unit]
+    #       Description=SSH Agent for {{ nomad_user }} user
+    #
+    #       [Service]
+    #       Type=simple
+    #       Environment=SSH_AUTH_SOCK={{ nomad_home_dir }}/.ssh/agent.sock
+    #       ExecStartPre=/bin/rm -f {{ nomad_home_dir }}/.ssh/agent.sock
+    #       ExecStart=/usr/bin/ssh-agent -D -a {{ nomad_home_dir }}/.ssh/agent.sock
+    #       ExecStartPost=/bin/sleep 1
+    #       ExecStartPost=/usr/bin/ssh-add {{ nomad_home_dir }}/.ssh/id_rsa
+    #       ExecStopPost=/bin/rm -f {{ nomad_home_dir }}/.ssh/agent.sock
+    #       Restart=on-failure
+    #
+    #       [Install]
+    #       WantedBy=default.target
+    #   when:
+    #     - _nomad_node_client | bool
+    #     - nomad_user != "root"
+    #
+    # - name: Enable and start ssh-agent for nomad user
+    #   become_user: "{{ nomad_user }}"
+    #   environment:
+    #     XDG_RUNTIME_DIR: "/run/user/{{ nomad_uid.stdout }}"
+    #     DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ nomad_uid.stdout }}/bus"
+    #   systemd:
+    #     name: nomad-ssh-agent.service
+    #     scope: user
+    #     enabled: true
+    #     state: started
+    #     daemon_reload: true
+    #   when:
+    #     - _nomad_node_client | bool
+    #     - nomad_user != "root"
+
+    - name: Set podman socket path
+      set_fact:
+        nomad_podman_socket_path: "/run/user/{{ nomad_uid.stdout }}/podman/podman.sock"
+      # Also needed by the update_jobs run, which renders job templates that
+      # reference nomad_podman_socket_path.
+      tags: update_jobs
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
+
+    - name: Create artifacts directory for podman-based worker jobs
+      file:
+        path: "{{ nomad_artifacts_dir }}"
+        state: directory
+        owner: "{{ nomad_user }}"
+        group: "{{ nomad_group }}"
+        mode: 0755
+      when:
+        - _nomad_node_client | bool
+        - nomad_user != "root"
 
     - name: Start Nomad
       service:
