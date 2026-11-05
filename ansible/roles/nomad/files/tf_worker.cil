@@ -1,0 +1,16 @@
+; SELinux domain for the Testing Farm worker container (tf-* Nomad jobs).
+;
+; Based on the container-selinux udica templates, loaded together with this file:
+;   * base_container - the confined container_t rules
+;   * net_container - network access, needed with `network_mode = "host"`
+;
+; On top of those, the worker container drives the rootless podman of the Nomad
+; user over its API socket, /run/user/<uid>/podman/podman.sock.
+(block tf_worker
+    (blockinherit container)
+    (blockinherit net_container)
+
+    ; rootless podman API socket
+    (allow process user_tmp_t (sock_file (getattr write)))
+    (allow process container_runtime_t (unix_stream_socket (connectto)))
+)
