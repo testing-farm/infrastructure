@@ -25,5 +25,6 @@ pipeline: |
   git
   test-schedule-tmt
   test-scheduler-testing-farm
+  log-detective
   test-schedule-report
   test-schedule-runner
