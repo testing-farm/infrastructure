@@ -518,6 +518,27 @@ deploy/staging:
     - !reference [.rules, not_schedule]
     - !reference [.rules, terragrunt_staging]
 
+deploy/staging/workers:
+  extends: .direnv
+  stage: deploy
+  resource_group: staging
+  # Worker availability must not block production deployment.
+  allow_failure: true
+  needs:
+    - job: deploy/staging
+      artifacts: false
+  script:
+    - !reference [.direnv, script]
+    - !reference [.script_with_cleanup, script]
+  variables:
+    SCRIPT: >-
+      make staging/update/public/pipeline/config &&
+      make staging/update/public/pipeline/jobs
+  rules:
+    - !reference [.rules, only_default_branch]
+    - !reference [.rules, not_schedule]
+    - !reference [.rules, terragrunt_staging]
+
 deploy/production:
   extends: .direnv
   stage: deploy

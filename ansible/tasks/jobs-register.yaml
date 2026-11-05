@@ -1,4 +1,14 @@
 ---
+# Re-resolve the configured DNS names after replacing the staging server.
+- name: Refresh staging Nomad client server list
+  command: "nomad node config -update-servers {{ nomad_servers | join(' ') }}"
+  register: nomad_servers_updated
+  changed_when: false
+  until: nomad_servers_updated.rc == 0
+  retries: 10
+  delay: 10
+  when: deployment | default('production') == 'staging'
+
 - block:
     - name: Create directory with nomad job definitions
       file:
