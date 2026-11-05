@@ -42,8 +42,8 @@ nomad_servers: "{{ groups['testing_farm_public_servers'] | map('extract', hostva
 
 # nomad role
 nomad_version: 0.12.1
-nomad_user: root
-nomad_group: root
+nomad_user: nomad
+nomad_group: nomad
 nomad_disable_update_check: true
 nomad_enabled_schedulers: batch
 nomad_node_role: client
@@ -73,6 +73,7 @@ jobs:
   - tf-sti
 
 # artifacts
+artifacts_ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_ed25519_public_artifacts"
 artifacts_hostname: artifacts.dev.testing-farm.io
 
 # worker instance details
@@ -104,16 +105,12 @@ citool_config_podman_secrets:
       ssh-key = ${config_root}/id_rsa_artemis
     target: /CONFIG-SECRETS/config/artemis
 
+  # `artemis-multihost:artemis` reads its own config file
   - name: artemis-multihost
     content: |
       [default]
       ssh-key = ${config_root}/id_rsa_artemis
     target: /CONFIG-SECRETS/config/artemis-multihost
-
-  - name: id_rsa_artemis
-    file: /etc/citool.d/id_rsa_artemis
-    target: /CONFIG-SECRETS/id_rsa_artemis
-    mode: "600"
 
 sentry_base_url: "{{ credentials.sentry.public.base_url }}"
 sentry_dsn: "{{ credentials.sentry.public.dsn }}"

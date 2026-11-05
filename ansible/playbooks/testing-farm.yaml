@@ -16,8 +16,6 @@
     - import_tasks: ../tasks/artifacts.yaml
     - import_tasks: ../tasks/podman.yaml
       tags: update_podman
-    - import_tasks: ../tasks/jobs.yaml
-      tags: update_jobs
     - import_tasks: ../tasks/config.yaml
       tags: update_config
     - import_tasks: ../tasks/secrets.yaml

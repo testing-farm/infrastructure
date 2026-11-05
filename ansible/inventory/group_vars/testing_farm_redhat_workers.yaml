@@ -17,8 +17,8 @@ worker_deployment_data: "{{ root_dir }}/terragrunt/environments/production/worke
 
 # nomad
 nomad_version: 1.0.4
-nomad_user: root
-nomad_group: root
+nomad_user: nomad
+nomad_group: nomad
 nomad_disable_update_check: true
 nomad_enabled_schedulers: batch
 nomad_node_role: client
@@ -65,16 +65,12 @@ citool_config_podman_secrets:
       ssh-key = ${config_root}/id_rsa_artemis
     target: /CONFIG-SECRETS/config/artemis
 
+  # `artemis-multihost:artemis` reads its own config file
   - name: artemis-multihost
     content: |
       [default]
       ssh-key = ${config_root}/id_rsa_artemis
     target: /CONFIG-SECRETS/config/artemis-multihost
-
-  - name: id_rsa_artemis
-    file: /etc/citool.d/id_rsa_artemis
-    target: /CONFIG-SECRETS/id_rsa_artemis
-    mode: "600"
 
   - name: archive
     content: |
@@ -85,6 +81,7 @@ citool_config_podman_secrets:
     target: /CONFIG-SECRETS/config/archive
 
   # The citool image links `/root/.git-credentials` to `/CONFIG/git-credentials`, the config image does not ship it.
+  # The podman jobs bind-mount `/etc/citool.d/config/git-credentials` there.
   - name: git-credentials
     content: |
       https://{{ credentials.gitlab.redhat.user }}:{{ credentials.gitlab.redhat.token }}@gitlab.com

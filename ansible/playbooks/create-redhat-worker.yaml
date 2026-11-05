@@ -100,7 +100,6 @@
     - import_tasks: ../tasks/dns.yaml
     - import_tasks: ../tasks/ssh-key.yaml
     - import_tasks: ../tasks/podman.yaml
-    - import_tasks: ../tasks/jobs.yaml
     - import_tasks: ../tasks/config.yaml
     - import_tasks: ../tasks/secrets.yaml
     - import_tasks: ../tasks/image.yaml
