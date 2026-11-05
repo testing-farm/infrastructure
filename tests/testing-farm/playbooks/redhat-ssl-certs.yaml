@@ -1,0 +1,9 @@
+---
+
+# The role comes from the `testing_farm_profiles` collection installed on the worker image.
+- name: Apply testing_farm_profiles.library.redhat_ssl_certs role
+  hosts: all
+  gather_facts: false
+
+  roles:
+    - role: testing_farm_profiles.library.redhat_ssl_certs

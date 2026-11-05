@@ -33,7 +33,7 @@ prepare:
     script: echo "foo" > .vault_pass
   - how: ansible
     name: install certs
-    playbook: https://gitlab.com/testing-farm/profiles/-/raw/main/library/roles/redhat_ssl_certs/playbooks/apply.yml
+    playbook: tests/testing-farm/playbooks/redhat-ssl-certs.yaml
 
 execute:
   how: tmt
