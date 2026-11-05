@@ -145,7 +145,10 @@ workflow:
   redhat_pipeline_tests:
     - changes:
         - tests/testing-farm/base-scenarios/**/*
+        - tests/testing-farm/playbooks/redhat-ssl-certs.yaml
+        - tests/testing-farm/pytest-gluetool-redhat.fmf
         - tests/testing-farm/redhat/**/*
+        - tests/testing-farm/test_testing_farm.py
 
 direnv:
   stage: test
