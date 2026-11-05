@@ -4,7 +4,7 @@ job "tf-sti" {
 
   parameterized {
     meta_required = ["REQUEST_ID"]
-    meta_optional = ["CITOOL_CONFIG_IMAGE", "REQUEST_TIMEOUT"]
+    meta_optional = ["CITOOL_IMAGE", "CITOOL_CONFIG_IMAGE", "REQUEST_TIMEOUT"]
   }
 
   group "sti" {
