@@ -14,4 +14,8 @@ exclude_paths:
 
   - tests/worker
 
+  # playbooks using roles from the `testing_farm_profiles` collection,
+  # which is installed only on the worker image
+  - tests/testing-farm/playbooks
+
   - terragrunt/environments
