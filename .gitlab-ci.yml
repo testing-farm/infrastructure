@@ -144,6 +144,7 @@ workflow:
 
   redhat_pipeline_tests:
     - changes:
+        - ansible/inventory/group_vars/testing_farm_redhat_workers.yaml
         - tests/testing-farm/base-scenarios/**/*
         - tests/testing-farm/playbooks/redhat-ssl-certs.yaml
         - tests/testing-farm/pytest-gluetool-redhat.fmf
@@ -428,13 +429,21 @@ test/testing-farm/ranch-redhat:
   stage: test
   image: quay.io/testing-farm/cli:latest
   script:
+    # test the worker and citool-config images of the release this branch deploys, never `latest`,
+    # `citool_config_release` defaults to the `{{ release }}` template
+    - |
+      GROUP_VARS=ansible/inventory/group_vars/testing_farm_redhat_workers.yaml
+      RELEASE=$(sed -n 's/^release: *//p' $GROUP_VARS | tr -d '"')
+      CONFIG_RELEASE=$(sed -n 's/^citool_config_release: *//p' $GROUP_VARS | tr -d '"')
+      case "$CONFIG_RELEASE" in ""|*"{{"*) CONFIG_RELEASE=$RELEASE;; esac
+      echo "Testing worker-redhat:$RELEASE with ranch-redhat:$CONFIG_RELEASE"
     - >
       TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT_ADMIN testing-farm request \
         --git-ref $CI_MERGE_REQUEST_REF_PATH \
         --git-url $CI_MERGE_REQUEST_PROJECT_URL \
         --plan /tests/testing-farm/pytest-gluetool-redhat \
         --secret TESTING_FARM_API_TOKEN=$TESTING_FARM_API_TOKEN_REDHAT_ADMIN \
-        --environment "EXTRA_TESTING_FARM_ARGS='--worker-config-image quay.io/testing-farm/ranch-redhat:latest'" \
+        --environment "EXTRA_TESTING_FARM_ARGS='--worker-image quay.io/testing-farm/worker-redhat:$RELEASE --worker-config-image quay.io/testing-farm/ranch-redhat:$CONFIG_RELEASE'" \
         --skip-summary
   rules:
     - !reference [.rules, not_default_branch]
