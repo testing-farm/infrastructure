@@ -310,7 +310,10 @@ staging/apply/artemis: .FORCE  ## Deploy | staging | artemis
 
 staging/apply/ci: staging/generate/ci .FORCE  ## Deploy | staging | artemis | CI
 	$(call check_staging_ci_env)
-	$(call run_terragrunt,staging/ci,apply)
+	# NOTE: do not pull in external dependencies, `ci/artemis` would apply the shared EKS cluster and hold its
+	# state lock, failing other pipelines deploying at the same time. Its outputs are still read from the state.
+	TERRAGRUNT_INCLUDE_EXTERNAL_DEPENDENCIES=false \
+		$(call run_terragrunt,staging/ci,apply)
 
 staging/apply/server: staging/generate .FORCE  ## Deploy | staging | server
 	$(call run_terragrunt,staging/server,apply)
