@@ -16,14 +16,14 @@
     - import_tasks: ../tasks/artifacts.yaml
     - import_tasks: ../tasks/podman.yaml
       tags: update_podman
+    - import_tasks: ../tasks/image.yaml
+      tags: update_image
     - import_tasks: ../tasks/jobs.yaml
       tags: update_jobs
     - import_tasks: ../tasks/config.yaml
       tags: update_config
     - import_tasks: ../tasks/secrets.yaml
       tags: update_config
-    - import_tasks: ../tasks/image.yaml
-      tags: update_image
     - import_tasks: ../tasks/terragrunt.yaml
       when: "'testing_farm_public_workers' in group_names"
   roles:
