@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Testing Farm Result</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Styled after Oculus (https://gitlab.com/testing-farm/oculus), the results viewer. -->
+  <style>
+    header {
+        display: flex;
+        align-items: center;
+        gap: 2ex;
+        flex-wrap: wrap;
+    }
+    .stretch { flex: auto; }
+
+    .block {
+        padding: 1ex 1.5em;
+        margin: 3ex;
+        background-color: #F2F2F2;
+        box-shadow: 2px 2px 2px lightgrey;
+        border-left: 6px solid lightblue;
+    }
+    .block pre {
+        padding: 0.5em;
+        background-color: white;
+        border: 1px solid lightgray;
+        overflow-x: auto;
+    }
+
+    /* the state block border follows the request state */
+    .result-pass { border-left-color: lightgreen; }
+    .result-skip { border-left-color: lightgrey; }
+    .result-error { border-left-color: darkorange; }
+    .result-running { border-left-color: paleturquoise; }
+    .footer { color: #929292; }
+
+    dl {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 0.3em 2ex;
+        font-family: monospace;
+    }
+    dt { color: #555; }
+    dd { margin: 0; overflow-wrap: anywhere; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="https://gitlab.com/uploads/-/system/group/avatar/5515434/tft-logo.png"
+        width="64" height="64" alt="Testing Farm Logo"/>
+    <h1 id="overall-result">pending</h1>
+    <div class="stretch"></div>
+    <a href="https://docs.testing-farm.io/Testing%20Farm/0.1/index.html">Docs</a>
+    <span>|</span>
+    <a id="api-request" href="{{ artifacts_api_url }}">API request</a>
+  </header>
+
+  <main id="main">
+    <section class="block" id="state">
+      <p id="message">Checking the request state…</p>
+      <dl id="details" hidden></dl>
+    </section>
+
+    <section class="block">
+      <p>Watch the request with the Testing Farm CLI:</p>
+      <pre id="cli-watch">testing-farm watch --id REQUEST_ID</pre>
+      <p>Or query the API directly:</p>
+      <pre id="cli-curl">curl {{ artifacts_api_url }}REQUEST_ID</pre>
+    </section>
+  </main>
+
+  <footer>
+    <hr>
+    <div class="footer">Artifacts for this request are not available yet. Results are rendered by <a href="https://gitlab.com/testing-farm/oculus">Oculus</a> once the request runs.</div>
+    <div class="footer" id="refresh">This page checks the request state every 30 seconds and reloads once the artifacts are available.</div>
+  </footer>
+
+<script>
+(function () {
+  var API = "{{ artifacts_api_url }}";
+  var POLL_MS = 30000;
+  var match = window.location.pathname.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+  if (!match) return;
+  var id = match[0];
+
+  document.getElementById("cli-watch").textContent = "testing-farm watch --id " + id;
+  document.getElementById("cli-curl").textContent = "curl " + API + id;
+  document.getElementById("api-request").href = API + id;
+
+  // state: [headline, message, block class]
+  var STATES = {
+    "new": ["new", "The request was accepted and waits to be queued.", "result-running"],
+    "queued": ["queued", "The request waits for a free worker. The artifacts appear here once it starts running. Depending on the load this can take some time.", "result-running"],
+    "running": ["in progress", "The request started. The artifacts directory should appear shortly.", "result-running"],
+    "complete": ["complete", "The request finished, but its artifacts are not on this server. They may have expired.", "result-pass"],
+    "error": ["error", "The request failed before any artifacts were stored. See the request details in the API.", "result-error"],
+    "canceled": ["canceled", "The request was canceled before any artifacts were stored.", "result-skip"],
+    "cancel-requested": ["canceled", "The request is being canceled.", "result-skip"],
+    "not-found": ["not found", "Testing Farm has no request with this ID. Check the URL.", "result-error"]
+  };
+
+  function ago(iso) {
+    var sec = Math.max(0, (Date.now() - new Date(iso + (/[zZ]|[+-]\d\d:?\d\d$/.test(iso) ? "" : "Z"))) / 1000);
+    if (sec < 90) return Math.round(sec) + " seconds ago";
+    if (sec < 5400) return Math.round(sec / 60) + " minutes ago";
+    if (sec < 129600) return Math.round(sec / 3600) + " hours ago";
+    return Math.round(sec / 86400) + " days ago";
+  }
+
+  function row(dl, key, value) {
+    if (!value) return;
+    var dt = document.createElement("dt"); dt.textContent = key;
+    var dd = document.createElement("dd"); dd.textContent = value;
+    dl.appendChild(dt); dl.appendChild(dd);
+  }
+
+  function render(req) {
+    var info = STATES[req.state] || [req.state, "", ""];
+    document.getElementById("overall-result").textContent = info[0];
+    if (info[1]) document.getElementById("message").textContent = info[1];
+    document.getElementById("state").className = "block " + info[2];
+
+    var dl = document.getElementById("details");
+    dl.textContent = "";
+    if (req.created) row(dl, "Created", ago(req.created));
+    var fmf = req.test && req.test.fmf;
+    if (fmf) {
+      row(dl, "Git", fmf.url + (fmf.ref ? " (" + fmf.ref + ")" : ""));
+      row(dl, "Plan", fmf.name);
+    }
+    (req.environments_requested || []).forEach(function (env) {
+      var os = env.os && env.os.compose;
+      row(dl, "Environment", [env.arch, os].filter(Boolean).join(" / "));
+    });
+    dl.hidden = !dl.children.length;
+
+    var final = ["complete", "error", "canceled", "not-found"].indexOf(req.state) !== -1;
+    var artifacts = req.run && req.run.artifacts;
+    var here = window.location.origin + window.location.pathname.replace(/\/$/, "");
+    if (artifacts && artifacts.replace(/\/$/, "") !== here) {
+      // Artifacts live on another server, e.g. the Red Hat ranch.
+      window.location.replace(artifacts);
+      return false;
+    }
+    if (artifacts && !final) {
+      // The request runs on this server, reload until nginx serves the directory.
+      setTimeout(function () { window.location.reload(); }, 10000);
+      return false;
+    }
+    if (final) document.getElementById("refresh").hidden = true;
+    return !final;
+  }
+
+  function poll() {
+    fetch(API + id, { cache: "no-store" })
+      .then(function (r) {
+        if (r.status === 404) return { state: "not-found" };
+        if (!r.ok) throw new Error(r.status);
+        return r.json();
+      })
+      .then(function (req) { if (render(req)) setTimeout(poll, POLL_MS); })
+      .catch(function () { setTimeout(poll, POLL_MS); });
+  }
+
+  poll();
+})();
+</script>
+</body>
+</html>

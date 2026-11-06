@@ -24,6 +24,52 @@ server {
         rewrite "^(.*)$" $1 break;
     }
 
+    # Request root directory, e.g. `/<uuid>/`. Until a worker picks up the request the directory
+    # does not exist. Instead of a bare 404, show a page explaining the request is queued, but only
+    # if the API knows the request. The status code stays 404, so tooling sees no difference.
+    location ~ "^/(?<artifacts_request_id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/?$" {
+        autoindex on;
+        # The first `error_page` decides whether the ones in the named locations below apply.
+        recursive_error_pages on;
+        error_page 404 = @artifacts_request_pending;
+    }
+
+    location @artifacts_request_pending {
+        auth_request /_artifacts_request_exists;
+        error_page 403 = @artifacts_request_unknown;
+        # Not `return 404`, it would run before `auth_request` and skip the API check.
+        error_page 404 /_artifacts_request_pending.html;
+        try_files $uri =404;
+    }
+
+    location @artifacts_request_unknown {
+        return 404;
+    }
+
+    location = /_artifacts_request_pending.html {
+        internal;
+        root /usr/share/nginx/artifacts;
+        add_header Access-Control-Allow-Origin * always;
+        add_header Cache-Control "no-store" always;
+    }
+
+    # `auth_request` allows on 2xx and denies on 403. The API returns 404 for unknown requests,
+    # and any API failure must fall back to the plain 404 as well.
+    location = /_artifacts_request_exists {
+        internal;
+        proxy_pass http://127.0.0.1:8001/v0.1/requests/$artifacts_request_id;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_connect_timeout 2s;
+        proxy_read_timeout 5s;
+        proxy_intercept_errors on;
+        error_page 400 404 405 500 502 503 504 = @artifacts_request_deny;
+    }
+
+    location @artifacts_request_deny {
+        return 403;
+    }
+
     location ~ "^/.*/" {
         autoindex on;
     }

@@ -52,6 +52,13 @@
         src: "{{ server_pods_dir }}/nginx/artifacts.staging.testing-farm.io.conf.j2"
         dest: "{{ server_pods_dir }}/nginx/artifacts.staging.testing-farm.io.conf"
 
+    - name: Render artifacts request pending page
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/_artifacts_request_pending.html.j2"
+        dest: "{{ server_pods_dir }}/nginx/_artifacts_request_pending.html"
+      vars:
+        artifacts_api_url: "https://api{{ staging_ci_suffix | default('') }}.{{ 'staging-ci' if staging_ci_suffix is defined else 'staging' }}.testing-farm.io/v0.1/requests/"
+
     - name: Render server kube yaml
       ansible.builtin.template:
         src: "{{ server_pods_dir }}/server.yaml.j2"

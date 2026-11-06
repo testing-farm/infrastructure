@@ -86,6 +86,10 @@ storage:
       mode: 0644
       contents:
         local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/artifacts.staging.testing-farm.io.conf
+    - path: /etc/nginx/artifacts/_artifacts_request_pending.html
+      mode: 0644
+      contents:
+        local: terragrunt/environments/{{ staging_environment }}/server/pods/nginx/_artifacts_request_pending.html
     - path: /etc/nginx/conf.d/server.conf
       mode: 0644
       contents:

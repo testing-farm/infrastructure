@@ -42,6 +42,13 @@
         src: "{{ server_pods_dir }}/nginx/artifacts.dev-USER.testing-farm.io.conf.j2"
         dest: "{{ server_pods_dir }}/nginx/artifacts.dev-{{ ansible_env.USER }}.testing-farm.io.conf"
 
+    - name: Render artifacts request pending page
+      ansible.builtin.template:
+        src: "{{ server_pods_dir }}/nginx/_artifacts_request_pending.html.j2"
+        dest: "{{ server_pods_dir }}/nginx/_artifacts_request_pending.html"
+      vars:
+        artifacts_api_url: "http://api.dev-{{ ansible_env.USER }}.testing-farm.io/v0.1/requests/"
+
     - name: Render server kube yaml
       ansible.builtin.template:
         src: "{{ server_pods_dir }}/server.yaml.j2"
