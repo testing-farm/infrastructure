@@ -51,6 +51,10 @@ dependency "eks" {
     }
     vpc_id = "vpc-mock"
   }
+
+  # CI never applies the shared EKS cluster, so a missing output must fail the deployment instead of
+  # deploying Artemis against the mocked cluster.
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
 }
 
 inputs = {
