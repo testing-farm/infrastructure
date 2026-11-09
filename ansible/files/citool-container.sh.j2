@@ -16,6 +16,15 @@ if [ "$USER" != "root" ]; then
     exit 1
 fi
 
+# A worker image set by the request may use a mutable tag like `latest`. Pull it before each run,
+# the copy cached on a long-lived worker can be days old. The default `citool:latest` is a local
+# tag created during the worker setup, it cannot be pulled.
+if [ -n "$CITOOL_IMAGE" ]; then
+  if ! podman pull "$CITOOL_IMAGE"; then
+      echo "WARNING: Failed to pull image $CITOOL_IMAGE, using the cached one if available"
+  fi
+fi
+
 CITOOL_IMAGE="${CITOOL_IMAGE:-citool:latest}"
 {% if citool_config_container_image is defined %}
 CITOOL_CONFIG_IMAGE="${CITOOL_CONFIG_IMAGE:-{[ citool_config_container_image ]}}"
