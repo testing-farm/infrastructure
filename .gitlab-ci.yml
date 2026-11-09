@@ -628,12 +628,11 @@ image/artifacts-bootc/dgoss:
       artifacts: true
   script:
     # The per-pipeline image lives in a private repository, so dgoss pulls it with
-    # AUTH_JSON_IMAGES_PAAS (the make target passes it as a secret). dgoss fetches the
-    # goss file over HTTP, so also pass a raw URL at this commit (so an MR tests
-    # its own goss).
+    # AUTH_JSON_IMAGES_PAAS (the make target passes it as a secret). The plan
+    # git-fetches goss.yaml at GOSS_REF, so pass this commit (an MR tests its own
+    # goss).
     - |
-      GOSS_YAML="${CI_PROJECT_URL}/-/raw/${CI_COMMIT_SHA}/images/artifacts/goss.yaml"
-      make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-$ARTIFACTS_IMAGE_REPO:latest}" GOSS_YAML="$GOSS_YAML" | tee dgoss.log
+      make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-$ARTIFACTS_IMAGE_REPO:latest}" GOSS_REF="$CI_COMMIT_SHA" | tee dgoss.log
     # Guard: a request that discovers zero tests finishes "skipped" but the CLI
     # still exits 0, so the gate would pass without running goss. Query the request
     # result and fail unless it actually passed (also catches a future discovery

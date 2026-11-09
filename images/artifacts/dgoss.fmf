@@ -18,10 +18,17 @@ description: |
 
     Optional variables:
 
-      GOSS_YAML ... URL of the container goss file. dgoss fetches it over HTTP, so
-                    it must be a raw URL, not a local path. Defaults to goss.yaml
-                    on main; CI overrides it with the merge request ref so the
-                    MR's own checks run.
+      GOSS_REF  ... Branch or commit of GOSS_REPO to take ``goss.yaml`` from.
+                    Defaults to main; CI passes the pipeline commit so an MR
+                    runs its own checks.
+
+      GOSS_REPO ... Git repository holding ``images/artifacts/goss.yaml``.
+                    Defaults to this repository.
+
+      GOSS_YAML ... URL of the goss file, which the upstream test downloads with
+                    ``curl``. Defaults to the ``file://`` path of the copy the
+                    prepare step clones. The prepare step uses ``git`` because
+                    gitlab.com rate limits anonymous raw-file requests.
 
       DOCKER_AUTH_CONFIG_BASE64 ... base64 of ~/.docker/config.json, when IMAGE is
                     in a registry that needs authentication. Sensitive, pass as a
@@ -31,7 +38,10 @@ environment:
   USER: root
   GOSS_VERSION: v0.3.21
   IMAGE: images.paas.redhat.com/testingfarm/artifacts:latest
-  GOSS_YAML: https://gitlab.com/testing-farm/infrastructure/-/raw/main/images/artifacts/goss.yaml
+  GOSS_REPO: https://gitlab.com/testing-farm/infrastructure.git
+  GOSS_REF: main
+  GOSS_DIR: /var/tmp/goss-infrastructure
+  GOSS_YAML: file:///var/tmp/goss-infrastructure/images/artifacts/goss.yaml
 
 discover:
   how: fmf
@@ -44,6 +54,26 @@ discover:
 # the container provision here is only a fallback and will not work for dgoss.
 provision:
   how: container
+
+# Fetch only goss.yaml at GOSS_REF. A fetch by name accepts a branch or a commit
+# SHA, which a plain `git clone --branch` does not.
+prepare:
+  - name: Install git
+    how: install
+    package: git
+
+  - name: Fetch goss.yaml
+    how: shell
+    script: |
+      set -euxo pipefail
+      rm -rf "$GOSS_DIR"
+      git init -q "$GOSS_DIR"
+      cd "$GOSS_DIR"
+      git remote add origin "$GOSS_REPO"
+      git sparse-checkout set --no-cone images/artifacts/goss.yaml
+      git fetch -q --depth 1 --filter=blob:none origin "$GOSS_REF"
+      git checkout -q FETCH_HEAD
+      test -s images/artifacts/goss.yaml
 
 execute:
   how: tmt
