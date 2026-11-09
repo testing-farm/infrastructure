@@ -612,3 +612,32 @@ renew/certs/artifacts:
     # Renews the cert of the production Red Hat artifact storage server and
     # opens an MR with the re-encrypted vault files (TFT-4795, TFT-4797).
     - setup/renew_certs.sh artifacts.redhat.testing.farm
+
+# Publish goss binaries and dgoss to s3 bucket
+# Change GOSS_VERSION below or in the gitlab webUI.
+publish/goss:
+  stage: deploy
+  needs: []
+  allow_failure: true
+  image:
+    name: public.ecr.aws/aws-cli/aws-cli:2.38.3
+    entrypoint: [""]
+  # anonymous pulls from public.ecr.aws get rate limited per IP on shared runners.
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - runner_external_dependency_failure
+  rules:
+    - !reference [.rules, only_default_branch]
+    - when: manual
+  id_tokens:
+    AWS_ID_TOKEN:
+      aud: https://gitlab.com
+  variables:
+    GOSS_VERSION: v0.4.10
+    AWS_ROLE_ARN: arn:aws:iam::727920394381:role/testing-farm-goss-publisher
+    AWS_ROLE_SESSION_NAME: goss-publish-$CI_PIPELINE_ID
+    AWS_DEFAULT_REGION: us-east-1
+  script:
+    - setup/publish_goss.sh
