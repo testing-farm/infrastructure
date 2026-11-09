@@ -615,11 +615,11 @@ image/artifacts-bootc/container: .FORCE  ## Build & push RHEL 10 bootc artifact-
 DGOSS_COMPOSE ?= Fedora-latest
 
 image/artifacts-bootc/dgoss: .FORCE  ## Run dgoss checks against the built artifact-server container image | Testing Farm
-	# GOSS_YAML must be a URL (dgoss fetches it over HTTP); defaults to goss.yaml on
-	# main, CI overrides it with the merge request ref so the MR's own checks run.
+	# The plan git-fetches goss.yaml at GOSS_REF (default main); CI passes the
+	# pipeline commit so the MR's own checks run.
 	testing-farm request --skip-summary --arch x86_64 --compose "$(DGOSS_COMPOSE)" \
 		-e IMAGE="$(IMAGE)" \
-		$(if $(GOSS_YAML),-e GOSS_YAML="$(GOSS_YAML)") \
+		$(if $(GOSS_REF),-e GOSS_REF="$(GOSS_REF)") \
 		$(if $(AUTH_JSON_IMAGES_PAAS),-s DOCKER_AUTH_CONFIG_BASE64="$$AUTH_JSON_IMAGES_PAAS") \
 		--plan /images/artifacts/dgoss
 
