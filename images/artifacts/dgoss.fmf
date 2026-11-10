@@ -1,4 +1,4 @@
-summary: Run dgoss checks against the built artifact-server container image
+summary: Run dgoss checks on the artifact-server image
 
 description: |
     Run the upstream testing-farm/tests ``/dgoss/dgoss-tests`` test
@@ -34,9 +34,9 @@ discover:
     - /dgoss/dgoss-tests
 
 # dgoss-tests starts a Docker daemon, so this must run on a VM. The Makefile / CI
-# request it with --compose, which overrides this container provision.
+# request it with --compose, which replaces this provision.
 provision:
-  how: container
+  how: virtual
 
 # The upstream test downloads GOSS_YAML with curl; point it at the goss.yaml of
 # the plan's own tree, so a request tests the checks of the commit it runs from.

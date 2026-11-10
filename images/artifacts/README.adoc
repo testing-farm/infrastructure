@@ -50,9 +50,9 @@ Every step runs on the Testing Farm *Red Hat ranch*, because the base image
 * `container.fmf` runs the upstream
   https://gitlab.com/testing-farm/tests/-/tree/main/container[`/container/build`] test,
   which builds the `Containerfile` with `buildah` and pushes it.
-* The upstream
+* `qcow2.fmf` imports the upstream
   https://gitlab.com/testing-farm/tests/-/tree/main/image-mode/qcow2[`/image-mode/qcow2/build`]
-  plan, requested directly, builds a qcow2 from the pushed image with `bootc-image-builder`.
+  plan, which builds a qcow2 from the pushed image with `bootc-image-builder`.
 * The `upload.fmf` plan runs the upstream `/testing-farm/upload-qcow2` test, which
   uploads the qcow2 to AWS with `tft-admin`. Its prepare step derives the qcow2 URL
   from the build request with `qcow2-url.py`, inside Testing Farm, because the GitLab

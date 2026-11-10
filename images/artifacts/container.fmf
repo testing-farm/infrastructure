@@ -1,4 +1,4 @@
-summary: Build the RHEL 10 bootc artifact-server container image
+summary: Build the artifact-server bootc container image
 
 description: |
     Build the RHEL 10 image-mode (bootc) artifact storage server container image
@@ -21,6 +21,8 @@ description: |
       AUTH_JSON    ... base64 encoded registry authentication file. Sensitive,
                        pass as a Testing Farm secret (``-s``). Required for ENABLE_PUSH.
 
+      IMAGE_TAGS   ... Additional tags to apply to TARGET_IMAGE, space delimited.
+
       PLATFORMS    ... Platforms to build for, space delimited. By default only
                        ``linux/amd64`` - the artifact server is a single x86_64 host.
 
@@ -40,14 +42,6 @@ discover:
       because: Building can take a long time, especially if emulating other arches.
 
 prepare:
-  - name: Check for required variables
-    how: shell
-    script: |
-      if [ -z "$TARGET_IMAGE" ]; then
-        echo "[E] Error: no TARGET_IMAGE specified, cannot continue."
-        exit 1
-      fi
-
   # The base image (images.paas.redhat.com/testingfarm/rhel-bootc:10) lives on an
   # internal Red Hat registry - trust the Red Hat IT CA so buildah can pull it.
   - name: Install Red Hat IT CA certificates

@@ -1,0 +1,26 @@
+summary: Build the artifact-server qcow2 image
+
+description: |
+    Import the upstream testing-farm/tests ``/image-mode/qcow2/build`` plan
+    (https://gitlab.com/testing-farm/tests/-/tree/main/image-mode/qcow2), which
+    converts a container image to a qcow2 with ``bootc-image-builder``. The qcow2
+    is stored in the plan data as QCOW2_FILE, where ``qcow2-url.py`` and the
+    ``upload`` plan find it.
+
+    Required variables:
+
+      IMAGE     ... The container image to convert, the tag the container plan pushed.
+
+    Secret variables:
+
+      AUTH_JSON ... base64 encoded registry authentication file for pulling IMAGE.
+                    Pass as a Testing Farm secret (``-s``).
+
+environment:
+  QCOW2_FILE: artifacts-bootc.qcow2
+
+plan:
+  import:
+    url: https://gitlab.com/testing-farm/tests
+    ref: main
+    name: /image-mode/qcow2/build

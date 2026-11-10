@@ -617,11 +617,9 @@ image/artifacts-bootc/dgoss: .FORCE  ## Run dgoss checks against the built artif
 
 image/artifacts-bootc/qcow2: .FORCE  ## Build RHEL 10 bootc artifact-server qcow2 | Testing Farm
 	testing-farm request --skip-summary --arch x86_64 --compose RHEL-10-Nightly \
-		--git-url https://gitlab.com/testing-farm/tests --git-ref main \
 		-e IMAGE="$(IMAGE)" \
-		-e QCOW2_FILE=artifacts-bootc.qcow2 \
 		-s AUTH_JSON="$$AUTH_JSON_IMAGES_PAAS" \
-		--plan '/image-mode/qcow2/build'
+		--plan /images/artifacts/qcow2
 
 image/artifacts-bootc/qcow2-url: .FORCE  ## Derive the qcow2 download URL from a qcow2 build request (needs REQUEST)
 	images/artifacts/qcow2-url.py "$(REQUEST)"
