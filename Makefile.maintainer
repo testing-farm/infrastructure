@@ -592,40 +592,30 @@ test/terraform/modules:  ## Run terratest tests for Teraform modules
 	env -C terragrunt/modules/gitlab/project/test go test -v
 	env -C terragrunt/modules/gitlab/schedules/test go test -v
 
-# TARGET_IMAGE is the tag the container plan pushes; IMAGE is the tag the qcow2
-# plan pulls. They default to :latest for local builds; CI overrides TARGET_IMAGE
-# with a per-pipeline tag on MRs and threads the same value through as IMAGE so a
-# pipeline's qcow2 is always built from the image that same pipeline pushed.
-# AUTH_JSON_IMAGES_PAAS is the base64 auth file for images.paas.redhat.com. The
-# upstream container and qcow2 tests read it as the AUTH_JSON secret.
+# TARGET_IMAGE is the tag the container plan pushes, IMAGE_TAGS optional extra
+# tags, IMAGE the tag the dgoss and qcow2 plans pull. CI sets a per-pipeline tag.
+# AUTH_JSON_IMAGES_PAAS is the base64 auth file for images.paas.redhat.com.
 TARGET_IMAGE ?= images.paas.redhat.com/testingfarm/artifacts:latest
 IMAGE ?= $(TARGET_IMAGE)
 
 image/artifacts-bootc/container: .FORCE  ## Build & push RHEL 10 bootc artifact-server image | Testing Farm
 	testing-farm request --skip-summary \
-		-e ENABLE_PUSH=yes -e TARGET_IMAGE="$(TARGET_IMAGE)" -s AUTH_JSON="$$AUTH_JSON_IMAGES_PAAS" \
+		-e ENABLE_PUSH=yes -e TARGET_IMAGE="$(TARGET_IMAGE)" \
+		$(if $(IMAGE_TAGS),-e IMAGE_TAGS="$(IMAGE_TAGS)") \
+		-s AUTH_JSON="$$AUTH_JSON_IMAGES_PAAS" \
 		--plan /images/artifacts/container
 
-# dgoss-tests starts a Docker daemon (systemctl start docker, docker pull), so it
-# must run on a VM - --compose provisions one, overriding the plan's container
-# provision. Fedora is used because it ships a usable docker package. dgoss reads
-# its registry auth from DOCKER_AUTH_CONFIG_BASE64, the same base64 auth file as
-# AUTH_JSON_IMAGES_PAAS, so a set AUTH_JSON_IMAGES_PAAS lets it pull private
-# images.
+# dgoss-tests starts a Docker daemon, so it needs a VM: --compose provisions one.
+# Fedora ships a usable docker package.
 DGOSS_COMPOSE ?= Fedora-latest
 
 image/artifacts-bootc/dgoss: .FORCE  ## Run dgoss checks against the built artifact-server container image | Testing Farm
-	# The plan git-fetches goss.yaml at GOSS_REF (default main); CI passes the
-	# pipeline commit so the MR's own checks run.
 	testing-farm request --skip-summary --arch x86_64 --compose "$(DGOSS_COMPOSE)" \
 		-e IMAGE="$(IMAGE)" \
-		$(if $(GOSS_REF),-e GOSS_REF="$(GOSS_REF)") \
 		$(if $(AUTH_JSON_IMAGES_PAAS),-s DOCKER_AUTH_CONFIG_BASE64="$$AUTH_JSON_IMAGES_PAAS") \
 		--plan /images/artifacts/dgoss
 
 image/artifacts-bootc/qcow2: .FORCE  ## Build RHEL 10 bootc artifact-server qcow2 | Testing Farm
-	# Request the upstream qcow2 build plan directly - it only needs the pushed IMAGE,
-	# so no local wrapper plan is required. The guest is provisioned per --compose.
 	testing-farm request --skip-summary --arch x86_64 --compose RHEL-10-Nightly \
 		--git-url https://gitlab.com/testing-farm/tests --git-ref main \
 		-e IMAGE="$(IMAGE)" \
@@ -639,11 +629,8 @@ image/artifacts-bootc/qcow2-url: .FORCE  ## Derive the qcow2 download URL from a
 QCOW2_ARCH ?= x86_64
 IMAGE_NAME ?= artifacts-bootc-$(QCOW2_ARCH)
 
-# The upload plan derives QCOW2_URL from QCOW2_REQUEST inside Testing Farm; pass one
-# or the other (a ready QCOW2_URL skips derivation). Only the set one is forwarded so
-# an empty value never shadows the derived URL. IMAGE_NAME must be unique per upload
-# (tft-admin no-ops on an existing name); set REMOVE_AFTER_TEST=1 for a throwaway
-# upload that is deleted once verified.
+# Pass QCOW2_REQUEST or a ready QCOW2_URL. IMAGE_NAME must be unique per upload
+# (tft-admin no-ops on an existing name). REMOVE_AFTER_TEST=1 deletes the upload.
 image/artifacts-bootc/ami: .FORCE  ## Upload artifact-server qcow2 to AWS as an AMI via Testing Farm (needs QCOW2_REQUEST or QCOW2_URL, and VAULT_SECRET_ID)
 	testing-farm request --skip-summary \
 		$(if $(QCOW2_REQUEST),-e QCOW2_REQUEST="$(QCOW2_REQUEST)") \

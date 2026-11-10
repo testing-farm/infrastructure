@@ -27,7 +27,6 @@ description: |
 environment:
   CONTAINER_FILE: Containerfile
   BUILD_DIR: images/artifacts
-  CONTEXT_DIR: .
   TARGET_IMAGE: images.paas.redhat.com/testingfarm/artifacts:latest
   PLATFORMS: linux/amd64
 

@@ -18,18 +18,6 @@ description: |
 
     Optional variables:
 
-      GOSS_REF  ... Branch or commit of GOSS_REPO to take ``goss.yaml`` from.
-                    Defaults to main; CI passes the pipeline commit so an MR
-                    runs its own checks.
-
-      GOSS_REPO ... Git repository holding ``images/artifacts/goss.yaml``.
-                    Defaults to this repository.
-
-      GOSS_YAML ... URL of the goss file, which the upstream test downloads with
-                    ``curl``. Defaults to the ``file://`` path of the copy the
-                    prepare step clones. The prepare step uses ``git`` because
-                    gitlab.com rate limits anonymous raw-file requests.
-
       DOCKER_AUTH_CONFIG_BASE64 ... base64 of ~/.docker/config.json, when IMAGE is
                     in a registry that needs authentication. Sensitive, pass as a
                     Testing Farm secret (``-s``).
@@ -38,10 +26,6 @@ environment:
   USER: root
   GOSS_VERSION: v0.3.21
   IMAGE: images.paas.redhat.com/testingfarm/artifacts:latest
-  GOSS_REPO: https://gitlab.com/testing-farm/infrastructure.git
-  GOSS_REF: main
-  GOSS_DIR: /var/tmp/goss-infrastructure
-  GOSS_YAML: file:///var/tmp/goss-infrastructure/images/artifacts/goss.yaml
 
 discover:
   how: fmf
@@ -50,30 +34,18 @@ discover:
     - /dgoss/dgoss-tests
 
 # dgoss-tests starts a Docker daemon, so this must run on a VM. The Makefile / CI
-# request it with --compose, which overrides this provision with a virtual guest;
-# the container provision here is only a fallback and will not work for dgoss.
+# request it with --compose, which overrides this container provision.
 provision:
   how: container
 
-# Fetch only goss.yaml at GOSS_REF. A fetch by name accepts a branch or a commit
-# SHA, which a plain `git clone --branch` does not.
+# The upstream test downloads GOSS_YAML with curl; point it at the goss.yaml of
+# the plan's own tree, so a request tests the checks of the commit it runs from.
 prepare:
-  - name: Install git
-    how: install
-    package: git
-
-  - name: Fetch goss.yaml
+  - name: Use goss.yaml from the plan tree
     how: shell
     script: |
-      set -euxo pipefail
-      rm -rf "$GOSS_DIR"
-      git init -q "$GOSS_DIR"
-      cd "$GOSS_DIR"
-      git remote add origin "$GOSS_REPO"
-      git sparse-checkout set --no-cone images/artifacts/goss.yaml
-      git fetch -q --depth 1 --filter=blob:none origin "$GOSS_REF"
-      git checkout -q FETCH_HEAD
-      test -s images/artifacts/goss.yaml
+      test -s "$TMT_TREE/images/artifacts/goss.yaml"
+      echo "GOSS_YAML=file://$TMT_TREE/images/artifacts/goss.yaml" >> "$TMT_PLAN_ENVIRONMENT_FILE"
 
 execute:
   how: tmt

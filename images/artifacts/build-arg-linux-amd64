@@ -1,6 +1,6 @@
 # Non-secret build configuration. The storage backend (filesystem ID, mount
 # target) is not baked in: terragrunt supplies it through EC2 user data at boot,
-# see config/mount-artifacts-storage.
+# see config/mount-artifacts.
 #
 #   AMAZON_EFS_UTILS_VERSION  Pinned amazon-efs-utils RPM from the AWS repo.
 AMAZON_EFS_UTILS_VERSION=3.3.1-1.el10

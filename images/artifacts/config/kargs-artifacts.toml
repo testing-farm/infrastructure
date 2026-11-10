@@ -1,4 +1,4 @@
-# bootc kernel arguments for the artifact storage server. TFT-4795.
+# bootc kernel arguments for the artifact storage server.
 # Applied at boot via /usr/lib/bootc/kargs.d/.
 kargs = [
     # Reduce THP stalls under heavy page-cache pressure from artifact serving.

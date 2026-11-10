@@ -1,27 +1,18 @@
-summary: Upload the artifact-server qcow2 to AWS, deriving the URL inside Testing Farm
+summary: Upload the artifact-server qcow2 to AWS as an AMI
 
 description: |
-    Upload the qcow2 produced by a /image-mode/qcow2/build request to AWS as an
-    AMI, reusing the testing-farm/tests ``/testing-farm/upload-qcow2``
-    orchestration (``tft-admin``, inside the cnc image).
+    Run the upstream testing-farm/tests ``/testing-farm/upload-qcow2`` test
+    (``tft-admin``, inside the cnc image) on the qcow2 produced by a
+    ``/image-mode/qcow2/build`` request.
 
-    Unlike running ``/testing-farm/upload-qcow2/aws`` directly, QCOW2_URL does not
-    have to be supplied. The wrapper test /images/artifacts/upload-qcow2
-    derives it from the build request *inside Testing Farm*, where the Red Hat ranch
-    artifact server (``artifacts.osci.redhat.com``) is reachable, and then runs the
-    upstream run.sh in the same shell. This lets the GitLab runner drive the upload
-    with only the build request id, because the runner cannot resolve that host
-    itself.
-
-    Derivation and upload share one shell on purpose: the cnc container runs as a
-    non-root user that cannot write tmt's work directory, so QCOW2_URL cannot be
-    handed between tmt steps via $TMT_PLAN_ENVIRONMENT_FILE / $TMT_PLAN_SOURCE_SCRIPT
-    (both live there). See upload-qcow2/upload.sh and README.adoc.
+    The prepare step derives QCOW2_URL from QCOW2_REQUEST inside Testing Farm,
+    where the Red Hat ranch artifact server is reachable (the GitLab runner cannot
+    resolve it), and hands it to the test through the plan environment.
 
     Required variables:
 
-      QCOW2_REQUEST ... The /image-mode/qcow2/build request id (or any string
-                        containing it). Ignored if QCOW2_URL is set.
+      QCOW2_REQUEST ... The /image-mode/qcow2/build request id. Ignored if
+                        QCOW2_URL is set.
 
       IMAGE_NAME    ... Image name under which it is stored in the cloud.
 
@@ -29,21 +20,12 @@ description: |
 
     Optional variables:
 
-      QCOW2_URL            ... Download URL of the qcow2. If set, it is used directly
-                               and QCOW2_REQUEST is ignored.
+      QCOW2_URL         ... Download URL of the qcow2, skips the derivation.
 
-      QCOW2_FILE           ... Name of the qcow2 file (default artifacts-bootc.qcow2,
-                               matching the qcow2 build).
+      QCOW2_FILE        ... Name of the qcow2 file, default artifacts-bootc.qcow2.
 
-      REMOVE_AFTER_TEST    ... When set, the upstream run.sh deletes the uploaded image
-                               after the upload is verified. Used for throwaway MR
-                               uploads so they do not accumulate. Best effort: only the
-                               source region (us-east-1) copy is removed; the us-east-2
-                               copy is not deleted yet (TFT-4650).
-
-      TESTING_FARM_API_URL ... Testing Farm API holding the build request (defaults
-                               to the public endpoint, which holds every request
-                               regardless of ranch; the GET needs no token).
+      REMOVE_AFTER_TEST ... When set, delete the uploaded image after the upload.
+                            Only the us-east-1 copy is removed.
 
     Secret variables:
 
@@ -56,13 +38,24 @@ environment:
 
 discover:
   how: fmf
+  url: https://gitlab.com/testing-farm/tests
   test:
-    - /images/artifacts/upload-qcow2
+    - /testing-farm/upload-qcow2
 
 provision:
   how: container
   image: quay.io/testing-farm/cnc:latest
   user: cnc
+
+prepare:
+  - name: Derive the qcow2 URL
+    how: shell
+    script: |
+      set -euo pipefail
+      if [ -z "${QCOW2_URL:-}" ]; then
+        url=$(python3 "$TMT_TREE/images/artifacts/qcow2-url.py" "${QCOW2_REQUEST:?QCOW2_REQUEST or QCOW2_URL must be set}")
+        echo "QCOW2_URL=$url" >> "$TMT_PLAN_ENVIRONMENT_FILE"
+      fi
 
 execute:
   how: tmt

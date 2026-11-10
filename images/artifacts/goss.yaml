@@ -18,7 +18,7 @@ file:
   /usr/local/libexec/check-artifacts-mount:
     exists: true
     mode: "0755"
-  /usr/local/libexec/mount-artifacts-storage:
+  /usr/local/libexec/mount-artifacts:
     exists: true
     mode: "0755"
   /etc/yum.repos.d/efs-utils.repo:
@@ -27,14 +27,14 @@ file:
     exists: true
   /etc/nginx/conf.d/artifacts.conf:
     exists: true
-  /usr/lib/systemd/system/nginx.service.d/10-storage.conf:
+  /usr/lib/systemd/system/nginx.service.d/10-artifacts.conf:
     exists: true
   # Storage is mounted at boot from EC2 user data, not baked into the image.
-  /usr/lib/systemd/system/artifacts-storage.service:
+  /usr/lib/systemd/system/artifacts.service:
     exists: true
     contains:
-      - "EnvironmentFile=/etc/sysconfig/artifacts-storage"
-      - "ExecStart=/usr/local/libexec/mount-artifacts-storage"
+      - "EnvironmentFile=/etc/sysconfig/artifacts"
+      - "ExecStart=/usr/local/libexec/mount-artifacts"
   /usr/lib/sysctl.d/90-artifacts.conf:
     exists: true
   /usr/lib/bootc/kargs.d/90-artifacts.toml:
@@ -44,9 +44,10 @@ file:
   /etc/pki/nginx/artifacts.key:
     exists: true
     mode: "0600"
-  /var/mnt/s3files:
+  /usr/lib/tmpfiles.d/artifacts.conf:
     exists: true
-    filetype: directory
+    contains:
+      - "d /var/mnt/artifacts 0755 root root -"
   # Enablement symlinks: systemd is not running under dgoss, so assert the
   # symlinks `systemctl enable` wrote rather than service state.
   /etc/systemd/system/multi-user.target.wants/nginx.service:
@@ -55,6 +56,6 @@ file:
   /etc/systemd/system/multi-user.target.wants/sshd.service:
     exists: true
     filetype: symlink
-  /etc/systemd/system/multi-user.target.wants/artifacts-storage.service:
+  /etc/systemd/system/multi-user.target.wants/artifacts.service:
     exists: true
     filetype: symlink

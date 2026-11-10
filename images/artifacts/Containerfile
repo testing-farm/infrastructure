@@ -1,35 +1,31 @@
 # RHEL 10 image-mode (bootc) artifact storage server.
 #
-# Serves Testing Farm Red Hat ranch artifacts from an S3 Files (NFS-over-S3)
-# mount at /mnt/s3files via nginx autoindex. Workers upload to the S3 bucket
-# directly, so the server only reads.
-#
-# Plan: TFT-4606. Build: TFT-4795. Deployed by: TFT-4797.
+# Serves Testing Farm Red Hat ranch artifacts with nginx from a read-only
+# S3 Files (NFS-over-S3) mount at /var/mnt/artifacts. Workers upload to the S3
+# bucket directly, so the server only reads.
 ARG BASE_IMAGE=images.paas.redhat.com/testingfarm/rhel-bootc:10
 FROM $BASE_IMAGE
 
-# Supplied by build-arg-linux-amd64; configuration, not a credential.
+# Supplied by build-arg-linux-amd64.
 ARG AMAZON_EFS_UTILS_VERSION
 
 COPY config/efs-utils.repo /etc/yum.repos.d/efs-utils.repo
 
 # Storage is mounted at boot from EC2 user data, not baked in.
-COPY --chmod=0755 config/mount-artifacts-storage /usr/local/libexec/mount-artifacts-storage
-COPY config/artifacts-storage.service /usr/lib/systemd/system/artifacts-storage.service
+COPY --chmod=0755 config/mount-artifacts /usr/local/libexec/mount-artifacts
+COPY --chmod=0755 config/check-artifacts-mount /usr/local/libexec/check-artifacts-mount
+COPY config/artifacts.service /usr/lib/systemd/system/artifacts.service
+COPY config/tmpfiles-artifacts.conf /usr/lib/tmpfiles.d/artifacts.conf
 
-# Install the storage server, add a placeholder TLS cert, enable the services.
+# Install the packages, add a placeholder TLS cert, enable the services.
 # Kept in a standalone script so it can be linted with shellcheck.
 COPY --chmod=0755 setup.sh /tmp/setup.sh
 RUN bash /tmp/setup.sh && rm -vf /tmp/setup.sh
 
-# nginx: take over the main config (drops the stock default server) plus our
-# autoindex / CORS / HTTP->HTTPS 301 / gzip server blocks.
+# nginx: replace the main config (drops the stock default server) and add ours.
 COPY config/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY config/nginx/artifacts.conf /etc/nginx/conf.d/artifacts.conf
-
-# Fail-closed mount check for nginx; administrator SSH has no storage dependency.
-COPY --chmod=0755 config/check-artifacts-mount /usr/local/libexec/check-artifacts-mount
-COPY config/nginx/10-storage.conf /usr/lib/systemd/system/nginx.service.d/10-storage.conf
+COPY config/nginx/10-artifacts.conf /usr/lib/systemd/system/nginx.service.d/10-artifacts.conf
 
 # Kernel/network tuning.
 COPY config/sysctl-artifacts.conf /usr/lib/sysctl.d/90-artifacts.conf

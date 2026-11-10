@@ -1,0 +1,16 @@
+# Mounts the artifacts storage read-only, using the settings cloud-init writes
+# from EC2 user data.
+[Unit]
+Description=Testing Farm artifacts storage
+Wants=network-online.target
+After=network-online.target cloud-config.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/sysconfig/artifacts
+ExecStart=/usr/local/libexec/mount-artifacts
+ExecStop=/usr/bin/umount /var/mnt/artifacts
+
+[Install]
+WantedBy=multi-user.target

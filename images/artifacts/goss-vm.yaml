@@ -1,7 +1,7 @@
 ---
 # Booted-VM checks: runtime behaviour on the installed qcow2/AMI, run against a
 # booted guest (not dgoss). Verifies storage is actually mounted and the server
-# is live and fail-closed - the things the container-scope goss.yaml cannot see.
+# is live - the things the container-scope goss.yaml cannot see.
 service:
   nginx:
     enabled: true
@@ -9,12 +9,12 @@ service:
   sshd:
     enabled: true
     running: true
-  artifacts-storage:
+  artifacts:
     enabled: true
     running: true
 
 mount:
-  /var/mnt/s3files:
+  /var/mnt/artifacts:
     exists: true
     filesystem: nfs4
     opts:
@@ -39,8 +39,8 @@ kernel-param:
     value: "128"
 
 command:
-  # Fail-closed mount guard succeeds only when storage is a single NFSv4 mount.
-  /usr/local/libexec/check-artifacts-mount /var/mnt/s3files:
+  # Succeeds only when the storage is mounted.
+  /usr/local/libexec/check-artifacts-mount /var/mnt/artifacts:
     exit-status: 0
   # kargs from /usr/lib/bootc/kargs.d/ are applied at boot.
   cat /proc/cmdline:
@@ -49,8 +49,8 @@ command:
       - transparent_hugepage=madvise
 
 http:
-  # Self-signed cert until the host-provisioned cert lands (TFT-4797); autoindex
-  # of the mounted directory returns 200.
+  # Self-signed placeholder cert until the deploy installs the real one. The
+  # storage root has no index.html, so nginx lists it.
   https://localhost/:
     status: 200
     allow-insecure: true

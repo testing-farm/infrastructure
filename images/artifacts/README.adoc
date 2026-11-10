@@ -1,26 +1,21 @@
 = RHEL 10 bootc artifact storage server image
 
 Image-mode (bootc) RHEL 10 image for the Testing Farm Red Hat ranch artifact
-storage server. Serves artifacts from an S3 Files (NFS-over-S3) mount at
-`/mnt/s3files` via nginx autoindex. Workers upload to the S3 bucket directly, so
-the server only reads.
-
-* Plan: https://redhat.atlassian.net/browse/TFT-4606[TFT-4606]
-* Build (this image): https://redhat.atlassian.net/browse/TFT-4795[TFT-4795]
-* Deploy: https://redhat.atlassian.net/browse/TFT-4797[TFT-4797]
+storage server. Serves artifacts with `nginx` from a read-only S3 Files
+(NFS-over-S3) mount at `/var/mnt/artifacts`. Workers upload to the S3 bucket
+directly, so the server only reads.
 
 == What is baked in
 
-* `nginx` autoindex, `root /mnt/s3files`, CORS `*`, HTTP->HTTPS 301, and
-  `.txt.gz` / `.log.gz` / `.json.gz` served as `text/plain` with
-  `Content-Encoding: gzip`.
-* Read-only S3 Files (NFS-over-S3) mount at `/var/mnt/s3files`: `amazon-efs-utils`
-  (the AWS mount helper) is installed from the AWS prebuilt RHEL repo (not built
-  from source — the FIPS `aws-lc` source build fails on RHEL 10).
-  `artifacts-storage.service` mounts it at boot from settings in EC2 user data
-  (see <<storage-backend>>). nginx binds to that service and checks the mount
-  before it starts (`config/nginx/10-storage.conf`), so it never serves the empty
-  local directory.
+* `nginx`, `root /var/mnt/artifacts`, CORS `*`, HTTP->HTTPS 301. A directory
+  serves its `index.html`; `?list=true` shows the directory listing instead.
+  `.txt.gz` / `.log.gz` / `.json.gz` / `.xml.gz` / `.yaml.gz` are served as
+  `text/plain` with `Content-Encoding: gzip`.
+* Read-only S3 Files (NFS-over-S3) mount at `/var/mnt/artifacts`: `amazon-efs-utils`
+  (the AWS mount helper) is installed from the AWS prebuilt RHEL repo. The
+  `artifacts.service` mounts it at boot from settings in EC2 user data
+  (see <<storage-backend>>). The nginx binds to that service and checks the mount
+  before it starts (`config/nginx/10-artifacts.conf`).
 * Kernel/network tuning: BBR + fq, TCP buffers, `somaxconn`, sunrpc slots via
   `/usr/lib/sysctl.d/` and `/usr/lib/bootc/kargs.d/`; nginx raises its own
   `worker_rlimit_nofile`.
@@ -31,141 +26,71 @@ the server only reads.
 The S3 Files filesystem ID and mount-target IP are outputs of
 `terragrunt/modules/artifacts-storage` (`file_system_id` and
 `mount_target_ipv4_address`). The image does not bake them in. The deploy
-(TFT-4797) passes them as EC2 user data, and cloud-init, enabled in the base
-image, writes them for `artifacts-storage.service`:
+passes them as EC2 user data, and cloud-init, enabled in the base
+image, writes them for `artifacts.service`:
 
 [source,yaml]
 ----
 #cloud-config
 write_files:
-  - path: /etc/sysconfig/artifacts-storage
+  - path: /etc/sysconfig/artifacts
     permissions: "0644"
     content: |
       ARTIFACTS_FILESYSTEM_ID=<file_system_id>
       ARTIFACTS_MOUNT_TARGET_IP=<mount_target_ipv4_address>
 ----
 
-Without that file the service fails and nginx stays down. Launch MR AMIs with
-the same user data to boot-test them.
+Without that file the service fails and nginx stays down.
 
 == Build
 
-The container image and the qcow2 are built *on Testing Farm*:
+Every step runs on the Testing Farm *Red Hat ranch*, because the base image
+`images.paas.redhat.com/testingfarm/rhel-bootc:10` lives on an internal registry.
 
-* `container.fmf` -> https://gitlab.com/testing-farm/tests/-/tree/main/container[`/container/build`]
-  -- a local plan in this directory (it needs this repo's `Containerfile` and installs
-  the Red Hat IT CA so `buildah` can pull the internal base image); builds and pushes
-  the container image with `buildah`.
-* the upstream https://gitlab.com/testing-farm/tests/-/tree/main/image-mode/qcow2[`/image-mode/qcow2/build`]
-  plan, requested *directly* (via `--git-url`) -- it only needs the pushed container
-  image, so no local wrapper plan is kept. `make image/artifacts-bootc/qcow2` passes
-  it `IMAGE` and `QCOW2_FILE`; builds a qcow2 from that image with `bootc-image-builder`.
+* `container.fmf` runs the upstream
+  https://gitlab.com/testing-farm/tests/-/tree/main/container[`/container/build`] test,
+  which builds the `Containerfile` with `buildah` and pushes it.
+* The upstream
+  https://gitlab.com/testing-farm/tests/-/tree/main/image-mode/qcow2[`/image-mode/qcow2/build`]
+  plan, requested directly, builds a qcow2 from the pushed image with `bootc-image-builder`.
+* The `upload.fmf` plan runs the upstream `/testing-farm/upload-qcow2` test, which
+  uploads the qcow2 to AWS with `tft-admin`. Its prepare step derives the qcow2 URL
+  from the build request with `qcow2-url.py`, inside Testing Farm, because the GitLab
+  runner cannot reach the Red Hat ranch artifact server.
 
-`dgoss.fmf` runs the upstream `/dgoss/dgoss-tests` test against the pushed image
-on a VM with the container-scope `goss.yaml`. `goss-vm.yaml` holds the checks for
-a booted instance (services, the read-only mount, ports, kargs).
+The `dgoss.fmf` plan runs the upstream `/dgoss/dgoss-tests` test against the pushed image.
+The `goss.yaml` holds the checks for the container image, `goss-vm.yaml` holds the checks for
+the booted instance (e.g. services, the read-only mount, ports, kargs, etc.).
 
 [source,bash]
 ----
-# Build and push the container image. AUTH_JSON_IMAGES_PAAS goes to Testing Farm
-# as a secret, so give it an auth file that holds only the images.paas.redhat.com
-# login. Keep the file out of the repository.
+# AUTH_JSON_IMAGES_PAAS goes to Testing Farm as a secret, so use an auth file that
+# holds only the images.paas.redhat.com login.
 podman login --authfile "$XDG_RUNTIME_DIR/paas-auth.json" images.paas.redhat.com
-AUTH_JSON_IMAGES_PAAS=$(base64 -w0 "$XDG_RUNTIME_DIR/paas-auth.json") make image/artifacts-bootc/container
+export AUTH_JSON_IMAGES_PAAS=$(base64 -w0 "$XDG_RUNTIME_DIR/paas-auth.json")
 
-# Build the qcow2 from the pushed image; it is stored in the request artifacts
+make image/artifacts-bootc/container
 make image/artifacts-bootc/qcow2
-
-# Upload the qcow2 to AWS as an AMI. QCOW2_REQUEST is the qcow2 build's request id;
-# the upload plan derives the download URL from it inside Testing Farm.
-QCOW2_REQUEST=<qcow2-request-id> VAULT_SECRET_ID=<id> make image/artifacts-bootc/ami
+QCOW2_REQUEST=<qcow2-request-id> VAULT_SECRET_ID=<id> REMOVE_AFTER_TEST=1 make image/artifacts-bootc/ami
 ----
 
-The qcow2 download URL lives on the Red Hat ranch artifact server
-(`artifacts.osci.redhat.com`), which the GitLab runner cannot resolve. Rather than
-reach it from the runner, the `ami` step runs the `images/artifacts/upload`
-plan, whose wrapper test `images/artifacts/upload-qcow2` derives `QCOW2_URL`
-from `QCOW2_REQUEST` *inside Testing Farm* (in the `cnc` container, which can reach
-that host) and then performs the upload in the same shell. Derivation and upload
-share one shell because the `cnc` container runs as a non-root user that cannot
-write tmt's work directory, so `QCOW2_URL` cannot be handed between tmt steps. Pass
-`QCOW2_URL=<url>` instead of `QCOW2_REQUEST` to skip derivation with a ready URL
-(`images/artifacts/qcow2-url.py <request-id>` prints it when run from the Red
-Hat network, e.g. for debugging).
+== CI
 
-In GitLab CI the `qcow2` job records the build request id and hands it to the `ami`
-job via a dotenv artifact (`QCOW2_REQUEST`); set `QCOW2_REQUEST` or `QCOW2_URL`
-manually on the `ami` job to override.
+GitLab CI runs `image/artifacts-bootc/{container,dgoss,qcow2,ami}` when the image
+sources change, on MRs and on pushes to the default branch. See `.gitlab-ci.yml` for
+the required CI/CD variables.
 
-The AMI is always uploaded under a *unique* name - `tft-admin` no-ops when an AMI
-with the target name already exists, so reusing a name would silently keep a stale
-image. The name and cleanup depend on the context:
+* Each pipeline pushes its own image tag (`:mr-<iid>-<pipeline-id>` on MRs,
+  `:<commit-sha>` plus `:latest` on the default branch), and builds the qcow2 from it.
+* MRs upload `artifacts-bootc-x86_64-mr-<iid>-<pipeline-id>` with `REMOVE_AFTER_TEST`,
+  which removes only the us-east-1 copy; the us-east-2 copy stays.
+* The default branch uploads an immutable `artifacts-bootc-x86_64-<commit-sha>`. The
+  deploy picks the newest AMI matching `^artifacts-bootc-x86_64-[0-9a-f]{8}$`, so keep
+  that name.
 
-* on MRs the `ami` job uploads an AMI named per pipeline
-  (`artifacts-bootc-<arch>-mr-<iid>-<pipeline-id>`). It is *not* auto-removed for now
-  so reviewers can boot-test it; these MR AMIs accumulate until a cleanup step lands
-  (TFT-4795);
-* on the default branch (after merge) it uploads an immutable per-commit AMI
-  (`artifacts-bootc-<arch>-<commit-sha>`), which is never deleted or overwritten in
-  place. The job records the name in a dotenv artifact (`AMI_NAME`) for the deploy to
-  pin.
+== TLS certificate
 
-`REMOVE_AFTER_TEST` (when set) only removes the source-region (us-east-1) copy; the
-us-east-2 copy is not deleted yet (TFT-4650). The container image follows the same pattern:
-MRs push `images.paas.redhat.com/testingfarm/artifacts:mr-<iid>-<pipeline-id>` (so they never
-overwrite the production `:latest`), and the qcow2 build uses that exact tag; the
-default branch publishes `:latest`.
-
-TFT-4797 deploys the newest AMI whose name matches
-`^artifacts-bootc-x86_64-[0-9a-f]{8}$`, so keep that prefix. Set
-`REMOVE_AFTER_TEST=1` on `make image/artifacts-bootc/ami` for a throwaway upload
-locally.
-
-The plans can also be run directly, e.g.
-`testing-farm request --plan /images/artifacts/container`.
-
-GitLab CI runs the steps as a `needs`-ordered chain of jobs
-(`image/artifacts-bootc/{container,dgoss,qcow2,ami}`, plus `merge-guard`) whenever
-the image sources under `images/artifacts/` change, on MRs and on pushes to the
-default branch - see `.gitlab-ci.yml`. They require the CI/CD variables
-`TESTING_FARM_API_TOKEN_REDHAT` (RH ranch token), `AUTH_JSON_IMAGES_PAAS` (masked,
-base64 auth file with push access to `images.paas.redhat.com/testingfarm`, used
-for the push and for the dgoss and qcow2 pulls), and `VAULT_SECRET_ID` (cloud
-credentials for the AMI upload).
-
-The base image is `images.paas.redhat.com/testingfarm/rhel-bootc:10`, a Testing
-Farm curated RHEL 10 bootc image on an internal Red Hat registry. The build must
-therefore run on the *Red Hat ranch* (select it via `TESTING_FARM_API_URL` /
-`TESTING_FARM_API_TOKEN`); the container plan installs the Red Hat IT CA so
-`buildah` can pull the base.
-
-== Handoff
-
-Testing Farm's build tests cover container + qcow2 but not AMIs, so the AMI step
-runs the local `images/artifacts/upload` plan. It provisions the `cnc` image
-inside Testing Farm and runs the wrapper test `images/artifacts/upload-qcow2`,
-which derives the qcow2 URL from the build request (see Build above) and then reuses
-the testing-farm/tests `/testing-farm/upload-qcow2` orchestration in the same shell.
-That orchestration uses `tft-admin` to upload the qcow2 to AWS (`cloud compose sync
---from-url`, plus a cross-region `cloud compose import`). Running it through Testing
-Farm keeps the GitLab runner off the private `cnc` image and off the internal
-artifact server. TFT-4797
-(`terragrunt/environments/production/artifacts-redhat/ec2/terragrunt.hcl`) picks
-up the resulting per-commit AMI by name.
-
-== Open items (TFT-4795)
-
-* *Storage user data*: the `artifacts-server` module in TFT-4797 does not pass
-  `user_data` yet. Until it writes `/etc/sysconfig/artifacts-storage` (see
-  <<storage-backend>>), a deployed instance keeps storage unmounted and nginx
-  down.
-* *TLS certs*: a throwaway *self-signed* cert is baked at
-  `/etc/pki/nginx/artifacts.{crt,key}` to unblock testing. The real cert is a
-  Let's Encrypt cert for `redhat.artifacts.testing.farm`, issued via the repo's
-  existing certbot *DNS-01 / Route53* flow (see `setup/renew_certs.sh`, certs
-  stored under `ansible/secrets/certs/*.vault`) and dropped onto the host by the
-  deploy (TFT-4797), overriding these paths. The server is private (no public
-  IP), so Let's Encrypt can't reach it for the HTTP-01 challenge that certbot's
-  nginx plugin uses. DNS-01 only needs the Route53 zone (from TFT-4796), so the
-  cert can be issued before the box is up; it belongs to the deploy, not the
-  image build.
+The image ships a self-signed placeholder at `/etc/pki/nginx/artifacts.{crt,key}` so
+nginx starts. The server is private, so the Let's Encrypt cert for
+`redhat.artifacts.testing.farm` comes from the DNS-01 / Route53 flow in
+`setup/renew_certs.sh`, and the deploy installs it over these paths.

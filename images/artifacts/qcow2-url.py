@@ -19,11 +19,10 @@ Testing Farm cli image.
 import json
 import os
 import re
-import socket
 import sys
 import urllib.error
 import urllib.request
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import urljoin
 
 API_URL = os.environ.get("TESTING_FARM_API_URL") or "https://api.dev.testing-farm.io/v0.1"
 QCOW2_FILE = os.environ.get("QCOW2_FILE") or "artifacts-bootc.qcow2"
@@ -37,28 +36,9 @@ def info(msg):
     print("\033[0;34m[i] {}\033[0m".format(msg), file=sys.stderr)
 
 
-def warn(msg):
-    print("\033[0;33m[W] {}\033[0m".format(msg), file=sys.stderr)
-
-
 def error(msg):
     print("\033[0;31m[E] {}\033[0m".format(msg), file=sys.stderr)
     sys.exit(1)
-
-
-def diagnose(url, exc):
-    """Dump network context for a failed fetch (so CI logs reveal the cause)."""
-    reason = getattr(exc, "reason", exc)
-    warn("fetch of {} failed: {!r}".format(url, exc))
-    warn("  reason: {!r} (errno={})".format(reason, getattr(reason, "errno", None)))
-    warn("  detected proxies: {}".format(urllib.request.getproxies() or "none"))
-    hosts = [h for h in (urlsplit(url).hostname, urlsplit(API_URL).hostname) if h]
-    for host in dict.fromkeys(hosts):  # de-dupe, keep order
-        try:
-            addrs = sorted({ai[4][0] for ai in socket.getaddrinfo(host, 443)})
-            warn("  DNS {} -> {}".format(host, ", ".join(addrs)))
-        except OSError as dns_exc:
-            warn("  DNS {} -> FAILED: {!r}".format(host, dns_exc))
 
 
 def http(url, method="GET"):
@@ -79,7 +59,6 @@ def main():
         with http(request_url) as resp:
             request = json.load(resp)
     except (urllib.error.URLError, ValueError) as exc:
-        diagnose(request_url, exc)
         error("Could not query request '{}': {}".format(request_id, exc))
 
     artifacts = (request.get("run") or {}).get("artifacts")
@@ -92,7 +71,6 @@ def main():
         with http(results_url) as resp:
             results = resp.read().decode("utf-8", "replace")
     except urllib.error.URLError as exc:
-        diagnose(results_url, exc)
         error("Could not fetch results.xml from '{}': {}".format(artifacts, exc))
 
     # The plan-data directory holding the qcow2 is the 'data' log in results.xml.
@@ -114,9 +92,8 @@ def main():
     qcow2_url = "{}/{}".format(plan_data_url.rstrip("/"), QCOW2_FILE)
 
     try:
-        http(qcow2_url, method="HEAD")
+        http(qcow2_url, method="HEAD").close()
     except urllib.error.URLError as exc:
-        diagnose(qcow2_url, exc)
         error("qcow2 not reachable at '{}': {}".format(qcow2_url, exc))
 
     info("resolved qcow2 url ok")
