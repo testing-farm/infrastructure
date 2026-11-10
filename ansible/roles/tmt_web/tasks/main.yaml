@@ -52,6 +52,29 @@
         setype: container_file_t
         selevel: s0
 
+- name: Allow threads under an old seccomp profile
+  when: tmt_web_seccomp_clone3_enosys
+  block:
+    - name: Read host seccomp profile
+      become: true
+      ansible.builtin.slurp:
+        src: /usr/share/containers/seccomp.json
+      register: tmt_web_host_seccomp
+
+    - name: Create seccomp profile for tmt-web
+      become: true
+      ansible.builtin.copy:
+        content: "{{ profile | combine({'syscalls': profile.syscalls + [clone3]}) | to_nice_json }}\n"
+        dest: "{{ tmt_web_config_dir }}/seccomp.json"
+        mode: "0644"
+      vars:
+        profile: "{{ tmt_web_host_seccomp.content | b64decode | from_json }}"
+        clone3:
+          names: [clone3]
+          action: SCMP_ACT_ERRNO
+          # ENOSYS
+          errnoRet: 38
+
 - name: Template tmt-web pod definition
   become: true
   ansible.builtin.template:

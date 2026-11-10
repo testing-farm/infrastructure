@@ -10,6 +10,11 @@ tmt_web_clone_dir: /data/tmt-web/clones
 # Name servers for the pod, the host resolv.conf is used when empty
 tmt_web_dns_servers: []
 
+# Make clone3 fail with ENOSYS instead of EPERM, so glibc falls back to clone.
+# Old seccomp profiles (podman 2.x) do not know clone3, and threads fail to start
+# in images with glibc 2.34 or newer.
+tmt_web_seccomp_clone3_enosys: false
+
 # CA certificate from the role files/ appended to the host CA bundle for cloning.
 # When empty, the pod uses the CA store shipped in the image.
 tmt_web_extra_ca_file: ""

@@ -4,6 +4,11 @@ metadata:
   labels:
     app: tmt-web
   name: tmt-web
+{% if tmt_web_seccomp_clone3_enosys %}
+  annotations:
+    # Relative to `--seccomp-profile-root` of `play kube`
+    seccomp.security.alpha.kubernetes.io/pod: localhost/seccomp.json
+{% endif %}
 spec:
   containers:
   # Uvicorn
@@ -47,6 +52,9 @@ spec:
 {% endif %}
   # Valkey, reachable only from inside the pod
   - image: {{ tmt_web_valkey_image }}
+    # podman 2.x drops the image CMD when args are missing, and the entrypoint exits right away
+    args:
+    - valkey-server
     name: valkey
     resources:
       limits:

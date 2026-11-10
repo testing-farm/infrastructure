@@ -23,10 +23,13 @@
     tmt_web_pod_file: /etc/testing-farm/pods/tmt-web.yaml
     # /data is on the root filesystem
     tmt_web_clone_dir: /data/tmt-web/clones
+    # The podman 2.2 seccomp profile denies clone3 with EPERM
+    tmt_web_seccomp_clone3_enosys: true
     # The hand-made stack: a hatch checkout in /opt/tmt-web run by tft-tmt-web.service,
     # and a valkey container on :6379 used only by it
     tmt_web_old_unit: tft-tmt-web
-    tmt_web_old_valkey_container: youthful_lewin
+    # Recreated by hand under this name for a rollback, the original was youthful_lewin
+    tmt_web_old_valkey_container: tmt-web-old-valkey
   pre_tasks:
     # The new pod publishes the same port as the old service, stop the old stack first.
     # /opt/tmt-web and the old unit file stay for rollback.
