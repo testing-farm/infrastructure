@@ -69,14 +69,14 @@ the booted instance (e.g. services, the read-only mount, ports, kargs, etc.).
 podman login --authfile "$XDG_RUNTIME_DIR/paas-auth.json" images.paas.redhat.com
 export AUTH_JSON_IMAGES_PAAS=$(base64 -w0 "$XDG_RUNTIME_DIR/paas-auth.json")
 
-make image/artifacts-bootc/container
-make image/artifacts-bootc/qcow2
-QCOW2_REQUEST=<qcow2-request-id> VAULT_SECRET_ID=<id> REMOVE_AFTER_TEST=1 make image/artifacts-bootc/ami
+make image/artifacts/container
+make image/artifacts/qcow2
+QCOW2_REQUEST=<qcow2-request-id> VAULT_SECRET_ID=<id> REMOVE_AFTER_TEST=1 make image/artifacts/ami
 ----
 
 == CI
 
-GitLab CI runs `image/artifacts-bootc/{container,dgoss,qcow2,ami}` when the image
+GitLab CI runs `image/artifacts/{container,dgoss,qcow2,ami}` when the image
 sources change, on MRs and on pushes to the default branch. See `.gitlab-ci.yml` for
 the required CI/CD variables.
 

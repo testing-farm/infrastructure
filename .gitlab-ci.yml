@@ -612,11 +612,11 @@ renew/certs:
 #                                  images.paas.redhat.com/testingfarm
 #   VAULT_SECRET_ID                Vault secret id for the cloud credentials
 # ---------------------------------------------------------------------------
-.artifacts-bootc:
+.artifacts:
   stage: deploy
   image: quay.io/testing-farm/cli:latest
   variables:
-    # image/artifacts-bootc/* targets live in Makefile.maintainer
+    # image/artifacts/* targets live in Makefile.maintainer
     IS_MAINTAINER: "1"
     ARTIFACTS_IMAGE_REPO: images.paas.redhat.com/testingfarm/artifacts
   before_script:
@@ -625,7 +625,7 @@ renew/certs:
     # Run when the image sources change (docs excluded). On the default branch
     # only for pushes: 'changes' is always true for schedules and manual runs.
     - if: $CI_MERGE_REQUEST_IID
-      changes: &artifacts-bootc-changes
+      changes: &artifacts-changes
         - images/artifacts/Containerfile
         - images/artifacts/*.sh
         - images/artifacts/*.fmf
@@ -635,11 +635,11 @@ renew/certs:
         - images/artifacts/config/**/*
       when: on_success
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
-      changes: *artifacts-bootc-changes
+      changes: *artifacts-changes
       when: on_success
 
-image/artifacts-bootc/container:
-  extends: .artifacts-bootc
+image/artifacts/container:
+  extends: .artifacts
   needs: []
   script:
     # Every pipeline builds its own tag, so a later pipeline can't swap the image
@@ -654,20 +654,20 @@ image/artifacts-bootc/container:
         IMAGE_TAGS="latest"
       fi
       echo "[i] IMAGE_REF=$IMAGE_REF IMAGE_TAGS=${IMAGE_TAGS:-<none>}"
-    - make image/artifacts-bootc/container TARGET_IMAGE="$IMAGE_REF" IMAGE_TAGS="$IMAGE_TAGS"
+    - make image/artifacts/container TARGET_IMAGE="$IMAGE_REF" IMAGE_TAGS="$IMAGE_TAGS"
     - echo "IMAGE_REF=$IMAGE_REF" > image.env
   artifacts:
     reports:
       dotenv: image.env
 
-image/artifacts-bootc/dgoss:
-  extends: .artifacts-bootc
+image/artifacts/dgoss:
+  extends: .artifacts
   needs:
-    - job: image/artifacts-bootc/container
+    - job: image/artifacts/container
       optional: true
       artifacts: true
   script:
-    - make image/artifacts-bootc/dgoss IMAGE="${IMAGE_REF:-$ARTIFACTS_IMAGE_REPO:latest}" | tee dgoss.log
+    - make image/artifacts/dgoss IMAGE="${IMAGE_REF:-$ARTIFACTS_IMAGE_REPO:latest}" | tee dgoss.log
     # A request that discovers zero tests ends "skipped" and the CLI still exits 0,
     # so fail unless the request result is "passed".
     - |
@@ -679,10 +679,10 @@ image/artifacts-bootc/dgoss:
       echo "[i] dgoss request overall result: ${overall:-<none>}"
       [ "$overall" = "passed" ] || { echo "[E] dgoss did not pass (overall='${overall:-<none>}')"; exit 1; }
 
-image/artifacts-bootc/qcow2:
-  extends: .artifacts-bootc
+image/artifacts/qcow2:
+  extends: .artifacts
   needs:
-    - job: image/artifacts-bootc/container
+    - job: image/artifacts/container
       optional: true
       artifacts: true
   script:
@@ -690,7 +690,7 @@ image/artifacts-bootc/qcow2:
     # QCOW2_URL skips the build.
     - |
       if [ -z "${QCOW2_REQUEST:-}" ] && [ -z "${QCOW2_URL:-}" ]; then
-        make image/artifacts-bootc/qcow2 IMAGE="${IMAGE_REF:-$ARTIFACTS_IMAGE_REPO:latest}" | tee qcow2-build.log
+        make image/artifacts/qcow2 IMAGE="${IMAGE_REF:-$ARTIFACTS_IMAGE_REPO:latest}" | tee qcow2-build.log
         QCOW2_REQUEST=$(grep -m1 -oE '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}' qcow2-build.log || true)
         [ -n "$QCOW2_REQUEST" ] || { echo "[E] could not find the build request id in the qcow2 build output."; exit 1; }
       fi
@@ -703,14 +703,14 @@ image/artifacts-bootc/qcow2:
     reports:
       dotenv: qcow2.env
 
-image/artifacts-bootc/ami:
-  extends: .artifacts-bootc
+image/artifacts/ami:
+  extends: .artifacts
   needs:
-    - job: image/artifacts-bootc/qcow2
+    - job: image/artifacts/qcow2
       optional: true
       artifacts: true
     # Publish only images that passed the container checks.
-    - job: image/artifacts-bootc/dgoss
+    - job: image/artifacts/dgoss
       optional: true
   variables:
     QCOW2_ARCH: x86_64
@@ -727,4 +727,4 @@ image/artifacts-bootc/ami:
         IMAGE_NAME="artifacts-bootc-${QCOW2_ARCH}-${CI_COMMIT_SHORT_SHA}"
         REMOVE_AFTER_TEST=""
       fi
-      make image/artifacts-bootc/ami IMAGE_NAME="$IMAGE_NAME" REMOVE_AFTER_TEST="$REMOVE_AFTER_TEST"
+      make image/artifacts/ami IMAGE_NAME="$IMAGE_NAME" REMOVE_AFTER_TEST="$REMOVE_AFTER_TEST"
