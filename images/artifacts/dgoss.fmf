@@ -26,6 +26,7 @@ environment:
   USER: root
   GOSS_VERSION: v0.3.21
   IMAGE: images.paas.redhat.com/testingfarm/artifacts:latest
+  GOSS_YAML: file:///var/tmp/goss.yaml
 
 discover:
   how: fmf
@@ -38,14 +39,12 @@ discover:
 provision:
   how: virtual
 
-# The upstream test downloads GOSS_YAML with curl; point it at the goss.yaml of
-# the plan's own tree, so a request tests the checks of the commit it runs from.
+# The upstream test downloads GOSS_YAML with curl. Copy the goss.yaml of the
+# plan's own tree to that path, so a request tests the checks of its commit.
 prepare:
-  - name: Use goss.yaml from the plan tree
+  - name: Copy goss.yaml from the plan tree
     how: shell
-    script: |
-      test -s "$TMT_TREE/images/artifacts/goss.yaml"
-      echo "GOSS_YAML=file://$TMT_TREE/images/artifacts/goss.yaml" >> "$TMT_PLAN_ENVIRONMENT_FILE"
+    script: install -m 0644 "$TMT_TREE/images/artifacts/goss.yaml" /var/tmp/goss.yaml
 
 execute:
   how: tmt
