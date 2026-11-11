@@ -3,12 +3,19 @@
 set -eo pipefail
 
 #
-# Renew Let's Encrypt certificates for staging environments
+# Renew Let's Encrypt certificates for Testing Farm environments
 # using DNS-01 challenge via Route53.
 #
-# Certificates renewed:
-#   - *.staging.testing-farm.io + staging.testing-farm.io (staging)
-#   - *.staging-ci.testing-farm.io (staging CI)
+# Usage: renew_certs.sh CERT [CERT...]
+#
+# Each CERT is a comma-separated list of domains issued as one certificate.
+# The first domain, without a leading `*.`, names the certificate and its
+# directory under ansible/secrets/certs. For example:
+#
+#   renew_certs.sh '*.staging.testing-farm.io,staging.testing-farm.io' '*.staging-ci.testing-farm.io'
+#   renew_certs.sh artifacts.redhat.testing.farm
+#
+# All certificates of one run must live in Route53 zones of the same AWS account.
 #
 # Requires:
 #   - certbot and certbot-dns-route53 installed (via pyproject.toml)
@@ -34,6 +41,7 @@ info() {
     echo -e "\033[0;32m[+] $*\033[0m"
 }
 
+[ $# -eq 0 ] && error "Usage: $0 CERT [CERT...], CERT is a comma-separated list of domains"
 [ -z "$PROJECT_ROOT" ] && error "PROJECT_ROOT not set"
 command -v poetry >/dev/null 2>&1 || error "poetry not found, please setup the development environment (direnv allow)"
 poetry run certbot --version >/dev/null 2>&1 || error "certbot not found, please run: poetry install"
@@ -53,17 +61,24 @@ export AWS_DEFAULT_REGION=$(aws configure get region --profile "$AWS_PROFILE")
 [ -z "$AWS_ACCESS_KEY_ID" ] && error "Failed to get AWS credentials from profile '$AWS_PROFILE'"
 
 renew_cert() {
-    local domain="$1"
-    shift
+    local domains=()
+    IFS=',' read -r -a domains <<< "$1"
+    local domain="${domains[0]#\*.}"
     local cert_dir="$CERTS_DIR/$domain"
+    local args=()
+    local d
+    for d in "${domains[@]}"; do
+        args+=(-d "$d")
+    done
 
-    info "Requesting certificate for $domain"
+    info "Requesting certificate for $domain (${domains[*]})"
     poetry run certbot certonly \
         --non-interactive \
         --agree-tos \
         --email tft@redhat.com \
         --dns-route53 \
-        "$@" \
+        --cert-name "$domain" \
+        "${args[@]}" \
         --config-dir "$CERTBOT_DIR" \
         --work-dir "$CERTBOT_DIR/work" \
         --logs-dir "$CERTBOT_DIR/logs"
@@ -83,11 +98,9 @@ renew_cert() {
     CERTBOT_DIR=$(mktemp -d)
 }
 
-# Staging: wildcard + bare domain (wildcard doesn't cover bare domain)
-renew_cert "staging.testing-farm.io" -d "*.staging.testing-farm.io" -d "staging.testing-farm.io"
-
-# Staging CI: wildcard only
-renew_cert "staging-ci.testing-farm.io" -d "*.staging-ci.testing-farm.io"
+for cert in "$@"; do
+    renew_cert "$cert"
+done
 
 if [ -z "$CI" ]; then
     info "Not running in GitLab CI, skipping MR creation"
@@ -97,13 +110,16 @@ fi
 
 info "Committing updated certificates"
 TODAY=$(date +%Y-%m-%d)
-BRANCH="update-certs-$TODAY"
+# Name the branch after the first certificate, so jobs renewing different
+# certificates on the same day do not push to the same branch.
+FIRST_CERT="${1%%,*}"
+BRANCH="update-certs-${FIRST_CERT#\*.}-$TODAY"
 git config user.name "TFT Automation"
 git config user.email "tft@redhat.com"
 git checkout -b "$BRANCH"
 git add "$CERTS_DIR/"
 git diff --cached --quiet && { info "No certificate changes"; exit 0; }
-git commit -m "Renew letsencrypt certificates $TODAY"
+git commit -m "Renew letsencrypt certificates for ${FIRST_CERT#\*.} $TODAY"
 git push \
     -o merge_request.create \
     -o merge_request.merge_when_pipeline_succeeds \
