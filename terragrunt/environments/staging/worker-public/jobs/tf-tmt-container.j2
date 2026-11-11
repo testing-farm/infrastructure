@@ -65,17 +65,24 @@ set_citool_config_image
 cleanup_host_podman() {
     for workdir in work-*/; do
         [ -d "$workdir" ] || continue
-        podman network ls --quiet --filter "name=^tmt-${workdir%/}-" | xargs -r podman network rm --force
+        podman network ls --quiet --filter "name=^tmt-${workdir%/}-" | xargs -r podman network rm --force --time 0
     done
     rm -f "/var/ARTIFACTS/$REQUEST_ID"
 }
 trap cleanup_host_podman EXIT
 
+# Nomad sends `kill_signal` to this script only and SIGKILLs it after `kill_timeout`. Stop the citool
+# container right away, so the script gets to the cleanup before that.
+stop_citool() {
+    podman stop --time 10 "$REQUEST_ID" >/dev/null 2>&1 || true
+}
+trap stop_citool INT TERM
+
 # tmt drives the podman of the host
 export CITOOL_HOST_PODMAN=1
 
 # run citool via container with a timeout
-timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
+timeout --preserve-status --foreground --signal=SIGUSR1 --kill-after=1h $REQUEST_TIMEOUT \
 citool-container.sh rules-engine \
                     hide-secrets \
                     oom \
@@ -94,7 +101,18 @@ citool-container.sh rules-engine \
                     test-scheduler-testing-farm \
                     log-detective \
                     test-schedule-report \
-                    test-schedule-runner
+                    test-schedule-runner &
+
+# Bash runs a trap only after a foreground command finishes, run the pipeline in the background and
+# wait for it. A trapped signal interrupts `wait`, so wait again until the pipeline exits.
+citool_pid=$!
+while kill -0 "$citool_pid" 2>/dev/null; do
+    wait "$citool_pid"
+done
+
+# `timeout --foreground` kills only `podman run` after `--kill-after`, make sure the citool
+# container does not outlive the pipeline. With `--rm` the container is already gone on a clean exit.
+podman rm --force --time 10 "$REQUEST_ID" >/dev/null 2>&1 || true
 
 # create pipeline error if no results.xml available
 if [ ! -e "results.xml" ]; then

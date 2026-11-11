@@ -100,6 +100,11 @@ fi
 # podman instance then owns all networks, so concurrent jobs cannot pick the same subnet or bridge.
 # The host resolves the volume sources passed by tmt, so the run directory has to be reachable
 # at the same path on the host, link it to /var/ARTIFACTS/<request-id>.
+#
+# `test-schedule-tmt` runs tmt with only the environment variables from its config, so
+# `CONTAINER_HOST` would not reach it. A containers.conf drop-in switches every podman call in the
+# container to the host instead. Mount /run/podman rather than the socket, a restart of
+# `podman.socket` recreates the socket and a bind mount of the file would keep the stale one.
 RUN_DIR_MOUNT=(-v "${CITOOL_RUN_DIR}:/var/ARTIFACTS:Z")
 HOST_PODMAN_ARGS=()
 if [ -n "$CITOOL_HOST_PODMAN" ]; then
@@ -113,8 +118,8 @@ if [ -n "$CITOOL_HOST_PODMAN" ]; then
 
   RUN_DIR_MOUNT=(-v "${CITOOL_RUN_DIR}:/var/ARTIFACTS/${REQUEST_ID}:Z")
   HOST_PODMAN_ARGS=(--workdir "/var/ARTIFACTS/${REQUEST_ID}"
-                    -v /run/podman/podman.sock:/run/podman/podman.sock
-                    -e CONTAINER_HOST=unix:///run/podman/podman.sock)
+                    -v /run/podman:/run/podman
+                    -v /etc/citool-host-podman.conf:/etc/containers/containers.conf.d/50-host-podman.conf:ro)
 fi
 
 echo "Known images:"

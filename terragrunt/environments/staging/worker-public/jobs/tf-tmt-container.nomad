@@ -27,6 +27,11 @@ job "tf-tmt-container" {
     task "tmt" {
       driver = "raw_exec"
 
+      # The job script stops the citool container and removes the tmt containers and networks on
+      # the host podman when it gets the signal. 30s is the default `max_kill_timeout` of the client.
+      kill_signal  = "SIGTERM"
+      kill_timeout = "30s"
+
       resources {
         cpu    = 2000
         memory = 8192

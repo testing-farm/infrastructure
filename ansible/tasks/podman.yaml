@@ -51,6 +51,18 @@
           podman system prune --force --volumes --filter label!=testing-farm.citool-config
         special_time: daily
 
+    # tmt container guests pull their images into the host storage, and tmt pulls only missing images.
+    # Remove unused images hourly, so tests do not run against stale mutable tags like `fedora:rawhide`
+    # and the storage does not fill up. Keep the worker images, `citool:latest` is a local tag and
+    # cannot be pulled again.
+    - name: "Add crontab for removing unused podman images"
+      cron:
+        name: remove unused podman images hourly
+        state: present
+        job: >
+          podman image prune --all --force --filter label!=maintainer=tft@redhat.com
+        special_time: hourly
+
     - name: "Install podman bridge reaper script"
       copy:
         src: "{{ ansible_dir }}/files/podman-bridge-reaper.sh"

@@ -19,6 +19,14 @@
         variable_start_string: "{["
         variable_end_string: "]}"
 
+    - name: Install host podman config for the wrapper script
+      copy:
+        src: "{{ ansible_dir }}/files/citool-host-podman.conf"
+        dest: /etc/citool-host-podman.conf
+        owner: root
+        group: root
+        mode: 0644
+
     # The config image workflow mounts git credentials as a podman secret, remove the leftover from the host config.
     - name: Remove host git credentials
       file:
