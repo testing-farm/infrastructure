@@ -1,0 +1,16 @@
+---
+# Read-only image store on the root EBS disk, it survives a stop/start of the instance, `/data` does not.
+- name: "Add the read-only image store to the containers storage configuration"
+  replace:
+    path: /etc/containers/storage.conf
+    regexp: '^additionalimagestores = \[\s*\]'
+    replace: 'additionalimagestores = ["{{ podman_ro_store_path }}"]'
+  when: worker_stop_start | default(false)
+
+- name: "Make sure the read-only image store is set in the containers storage configuration"
+  lineinfile:
+    path: /etc/containers/storage.conf
+    insertafter: '^\[storage.options\]'
+    regexp: '^additionalimagestores = \["{{ podman_ro_store_path }}"\]$'
+    line: 'additionalimagestores = ["{{ podman_ro_store_path }}"]'
+  when: worker_stop_start | default(false)

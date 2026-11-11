@@ -37,6 +37,13 @@ ansible_ssh_private_key_file: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_worke
 # podman container storage
 container_storage_path: /data/containers
 
+# The workers are stopped and started by the worker scaler, the instance store behind `/data` is wiped by that.
+# Keeps the worker image in a read-only store on the root disk and rebuilds `/data` on boot.
+worker_stop_start: true
+podman_ro_store_path: /var/lib/containers/storage
+# the read-only store needs its own runroot, the default one belongs to the main store
+podman_ro_runroot: /run/containers/storage-ro
+
 # ssh key for connecting to Artemis instance
 artemis_ssh_private_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_artemis"
 artemis_ssh_public_key: "{{ ansible_dir }}/secrets/ssh/id_rsa_redhat_artemis.pub"

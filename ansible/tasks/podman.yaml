@@ -30,6 +30,8 @@
         regexp: "^graphroot = .*"
         line: 'graphroot = "{{ container_storage_path }}"'
 
+    - import_tasks: podman-ro-store.yaml
+
     - name: "Set semanage context correctly"
       command: "semanage fcontext -a -e /var/lib/containers/storage {{ container_storage_path }}"
       ignore_errors: true
@@ -50,6 +52,23 @@
         job: >
           podman system prune --force --volumes --filter label!=testing-farm.citool-config
         special_time: daily
+
+    - name: "Install read-only image store cleanup script"
+      copy:
+        src: "{{ ansible_dir }}/files/podman-ro-store-cleanup.sh"
+        dest: /usr/local/bin/podman-ro-store-cleanup.sh
+        owner: root
+        group: root
+        mode: 0755
+      when: worker_stop_start | default(false)
+
+    - name: "Add crontab for cleaning up the read-only image store"
+      cron:
+        name: cleanup podman read-only store daily
+        state: present
+        job: /usr/local/bin/podman-ro-store-cleanup.sh
+        special_time: daily
+      when: worker_stop_start | default(false)
 
     - name: "Install podman bridge reaper script"
       copy:

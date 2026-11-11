@@ -11,6 +11,13 @@
             - jq
         state: present
 
+    - name: Create /etc/testing-farm directory
+      file:
+        path: /etc/testing-farm
+        state: directory
+        mode: "0755"
+      when: worker_stop_start | default(false)
+
     - name: Install wrapper script
       template:
         src: "{{ ansible_dir }}/files/citool-container.sh.j2"
@@ -32,9 +39,50 @@
       until: result.rc == 0
       retries: "{{ retries }}"
       delay: "{{ retries_delay }}"
+      when: not worker_stop_start | default(false)
 
     - name: Tag the required image to `citool:latest`
       command: "podman tag {{ citool_container_image }} citool:latest"
+      when: not worker_stop_start | default(false)
+
+    # `-t update_image` runs alone, set up the read-only store before the main store copies are removed.
+    - import_tasks: podman-ro-store.yaml
+
+    # The image lives in the read-only store on the root disk, it survives a stop of the instance.
+    # The empty `--storage-opt` keeps that store from listing itself as an additional store.
+    - name: Pull the required image to the read-only store
+      command: "podman --root {{ podman_ro_store_path }} --runroot {{ podman_ro_runroot }} --storage-opt '' pull {{ citool_container_image }}"
+      register: result
+      until: result.rc == 0
+      retries: "{{ retries }}"
+      delay: "{{ retries_delay }}"
+      when: worker_stop_start | default(false)
+
+    - name: Tag the required image to `citool:latest` in the read-only store
+      command: "podman --root {{ podman_ro_store_path }} --runroot {{ podman_ro_runroot }} --storage-opt '' tag {{ citool_container_image }} citool:latest"
+      when: worker_stop_start | default(false)
+
+    # Remove copies in the main store on `/data`, so the read-only copy is the one used.
+    # A copy in use by a container stays, the cleanup cron removes it later.
+    - name: Remove the old copies of the image from the main store
+      shell: |
+        for ref in citool:latest {{ citool_container_image }}; do
+          if podman images --filter "reference=$ref" --format '{{ '{{' }}.ReadOnly{{ '}}' }}' | grep -q false; then
+            podman rmi --ignore "$ref"
+          fi
+        done
+      changed_when: false
+      failed_when: false
+      when: worker_stop_start | default(false)
+
+    - name: Record the current image for the read-only store cleanup
+      copy:
+        content: "{{ citool_container_image }}\n"
+        dest: /etc/testing-farm/citool-image
+        owner: root
+        group: root
+        mode: "0644"
+      when: worker_stop_start | default(false)
 
     - name: Report available images
       command: "podman images"

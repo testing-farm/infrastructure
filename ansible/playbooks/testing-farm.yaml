@@ -18,6 +18,8 @@
       tags: update_podman
     - import_tasks: ../tasks/image.yaml
       tags: update_image
+    - import_tasks: ../tasks/instance-store.yaml
+      tags: update_instance_store
     - import_tasks: ../tasks/jobs.yaml
       tags: update_jobs
     - import_tasks: ../tasks/config.yaml
