@@ -47,3 +47,13 @@ repos:
         files: \.yml$
         entry: "bash -c 'find . -ina'"
         exclude: .gitlab-ci.yml
+
+  # Ensure secrets are ansible-vault encrypted (public SSH keys are exempt)
+  - repo: local
+    hooks:
+      - id: check-vault-encrypted
+        name: check-vault-encrypted
+        entry: setup/check_vault_encrypted.sh
+        language: script
+        files: ^ansible/secrets/
+        exclude: \.pub$

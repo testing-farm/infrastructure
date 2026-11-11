@@ -58,8 +58,8 @@ report.html
 **/*.decrypted
 
 # secrets: ignore backups and any suffixed/plaintext variants (defense in depth)
-ansible/secrets/credentials.yaml*
-ansible/secrets/**/*.vault*
+ansible/secrets/credentials.yaml?*
+ansible/secrets/**/*.vault?*
 ansible/secrets/**/*.pem
 
 # generic editor/backup leftovers
