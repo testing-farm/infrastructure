@@ -1,0 +1,24 @@
+---
+# Read-only image store on the root EBS disk, it survives a stop/start of the instance, `/data` does not.
+# Initialize the store first, podman fails while an additional image store is not initialized yet.
+- name: "Initialize the read-only image store"
+  command: "podman --root {{ podman_ro_store_path }} --runroot {{ podman_ro_runroot }} --storage-opt '' images"
+  changed_when: false
+  when: worker_stop_start | default(false)
+
+# The stock file may already list other stores, e.g. `/usr/lib/containers/storage` on Fedora 39, podman uses the last
+# `additionalimagestores` key, remove all but ours.
+- name: "Remove other read-only image stores from the containers storage configuration"
+  replace:
+    path: /etc/containers/storage.conf
+    regexp: '^additionalimagestores = (?!\["{{ podman_ro_store_path }}"\]$)\[[^\]]*\]\n'
+    replace: ''
+  when: worker_stop_start | default(false)
+
+- name: "Make sure the read-only image store is set in the containers storage configuration"
+  lineinfile:
+    path: /etc/containers/storage.conf
+    insertafter: '^\[storage.options\]'
+    regexp: '^additionalimagestores = \["{{ podman_ro_store_path }}"\]$'
+    line: 'additionalimagestores = ["{{ podman_ro_store_path }}"]'
+  when: worker_stop_start | default(false)

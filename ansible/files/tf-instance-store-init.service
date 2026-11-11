@@ -1,0 +1,14 @@
+[Unit]
+Description=Rebuild /data on the instance store after a stop/start
+Documentation=https://gitlab.com/testing-farm/infrastructure
+# `nofail` drops the ordering of `/data` before `local-fs.target`, wait for the mount attempt explicitly
+After=local-fs.target data.mount
+Before=nomad.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/local/bin/tf-instance-store-init.sh
+
+[Install]
+WantedBy=multi-user.target
