@@ -95,6 +95,28 @@ if [ -n "$CITOOL_CONFIG_IMAGE" ]; then
   CITOOL_OPTIONS=(--module-config-path "/CONFIG/config,/CONFIG-SECRETS/config")
 fi
 
+# Opt-in mode for jobs that run tmt container guests, set `CITOOL_HOST_PODMAN=1` to use it.
+# Instead of a nested podman, tmt drives the podman of the worker host via its API socket. A single
+# podman instance then owns all networks, so concurrent jobs cannot pick the same subnet or bridge.
+# The host resolves the volume sources passed by tmt, so the run directory has to be reachable
+# at the same path on the host, link it to /var/ARTIFACTS/<request-id>.
+RUN_DIR_MOUNT=(-v "${CITOOL_RUN_DIR}:/var/ARTIFACTS:Z")
+HOST_PODMAN_ARGS=()
+if [ -n "$CITOOL_HOST_PODMAN" ]; then
+  if [ -z "$REQUEST_ID" ]; then
+    echo "ERROR: REQUEST_ID is required with CITOOL_HOST_PODMAN"
+    exit 1
+  fi
+
+  mkdir -p /var/ARTIFACTS
+  ln -sfn "$CITOOL_RUN_DIR" "/var/ARTIFACTS/${REQUEST_ID}"
+
+  RUN_DIR_MOUNT=(-v "${CITOOL_RUN_DIR}:/var/ARTIFACTS/${REQUEST_ID}:Z")
+  HOST_PODMAN_ARGS=(--workdir "/var/ARTIFACTS/${REQUEST_ID}"
+                    -v /run/podman/podman.sock:/run/podman/podman.sock
+                    -e CONTAINER_HOST=unix:///run/podman/podman.sock)
+fi
+
 echo "Known images:"
 podman images
 
@@ -153,7 +175,8 @@ exec podman run --init \
                 --network=host \
                 --name ${REQUEST_ID:-no-request-$RANDOM} \
                 ${CONFIG_MOUNT} \
-                -v ${CITOOL_RUN_DIR}:/var/ARTIFACTS:Z \
+                "${RUN_DIR_MOUNT[@]}" \
+                "${HOST_PODMAN_ARGS[@]}" \
                 -v /root/.ssh:/root/.ssh:Z \
                 -e SENTRY_DSN={[ sentry_dsn ]} \
                 -e SENTRY_BASE_URL={[ sentry_base_url ]} \

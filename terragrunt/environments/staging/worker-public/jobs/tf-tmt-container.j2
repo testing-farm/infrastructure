@@ -59,6 +59,21 @@ set_request_timeout
 set_citool_image
 set_citool_config_image
 
+# With `CITOOL_HOST_PODMAN` the tmt containers live on the host podman and a killed citool container
+# does not take them along. Remove the tmt networks of this run, `--force` removes the attached
+# containers too. tmt names them `tmt-<workdir>-<plan>-network`.
+cleanup_host_podman() {
+    for workdir in work-*/; do
+        [ -d "$workdir" ] || continue
+        podman network ls --quiet --filter "name=^tmt-${workdir%/}-" | xargs -r podman network rm --force
+    done
+    rm -f "/var/ARTIFACTS/$REQUEST_ID"
+}
+trap cleanup_host_podman EXIT
+
+# tmt drives the podman of the host
+export CITOOL_HOST_PODMAN=1
+
 # run citool via container with a timeout
 timeout --preserve-status --foreground --signal=SIGUSR1 $REQUEST_TIMEOUT \
 citool-container.sh rules-engine \

@@ -77,6 +77,20 @@
         state: started
         daemon_reload: true
 
+    - name: "Create /var/ARTIFACTS directory"
+      file:
+        path: /var/ARTIFACTS
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: "Enable and start podman socket"
+      systemd:
+        name: podman.socket
+        enabled: true
+        state: started
+
     - name: "Create /root/.docker directory"
       file:
         path: /root/.docker
