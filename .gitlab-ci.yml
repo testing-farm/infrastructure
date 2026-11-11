@@ -586,18 +586,29 @@ update/composes/public:
     - !reference [.rules, only_schedule]
     - if: '$SCHEDULED_JOB == "compose/update/public"'
 
-renew/certs:
+.renew/certs:
   extends: .direnv
   stage: deploy
   # Not idempotent: a retry requests the certificates again (Let's Encrypt
   # duplicate-certificate limit) and fails to push the existing branch.
   retry: 0
+  rules:
+    - !reference [.rules, only_schedule]
+    - if: '$SCHEDULED_JOB == "renew/certs"'
+
+renew/certs/staging:
+  extends: .renew/certs
   script:
     - !reference [.direnv, script]
     # Renews the staging and staging-ci Let's Encrypt wildcard certs via DNS-01
     # (Route53) and opens an MR with the re-encrypted vault files. Merge then
     # redeploy staging to bake the new certs into the server ignition.
-    - setup/renew_certs.sh
-  rules:
-    - !reference [.rules, only_schedule]
-    - if: '$SCHEDULED_JOB == "renew/certs"'
+    - setup/renew_certs.sh '*.staging.testing-farm.io,staging.testing-farm.io' '*.staging-ci.testing-farm.io'
+
+renew/certs/artifacts:
+  extends: .renew/certs
+  script:
+    - !reference [.direnv, script]
+    # Renews the cert of the production Red Hat artifact storage server and
+    # opens an MR with the re-encrypted vault files (TFT-4795, TFT-4797).
+    - setup/renew_certs.sh artifacts.redhat.testing.farm
