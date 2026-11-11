@@ -29,6 +29,8 @@
           service-name: TestingFarm
           # Testing Farm AWS migration tag
           map-migrated: migZZ8SDMVO5T
+          # Instances with this tag are stopped and started by the worker scaler
+          TestingFarmScaler: managed
         key_name: tft-redhat-worker-key
         instance_type: i3.2xlarge
         # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-1-gp3-0
@@ -37,6 +39,13 @@
         count: "{{ count|default(1) }}"
         network:
           assign_public_ip: false
+        # The read-only worker image store lives on the root disk, see `worker_stop_start`
+        volumes:
+          - device_name: /dev/sda1
+            ebs:
+              volume_size: 15
+              volume_type: gp3
+              delete_on_termination: true
         instance_initiated_shutdown_behavior: terminate
         # TFT-1755 - use ARR-TestingFarm-US-East-1, which has correctly setup DNS
         security_group: sg-0cb20f3b88c57fa30
@@ -81,6 +90,7 @@
     volume_attached_device_mount_path: /data
     volume_attached_device_owner: root
     volume_attached_device_group: root
+    volume_attached_device_mount_opts: defaults,nofail,x-systemd.device-timeout=10s
   roles:
     - volume
 
@@ -104,6 +114,7 @@
     - import_tasks: ../tasks/config.yaml
     - import_tasks: ../tasks/secrets.yaml
     - import_tasks: ../tasks/image.yaml
+    - import_tasks: ../tasks/instance-store.yaml
   roles:
     - name: geerlingguy.swap
       vars:

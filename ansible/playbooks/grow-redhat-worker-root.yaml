@@ -1,0 +1,92 @@
+---
+# One-off: grow the root EBS volume of the existing Red Hat ranch workers to hold the read-only image store.
+#
+# Usage: ansible-playbook -e deployment=production -l testing_farm_redhat_workers ansible/playbooks/grow-redhat-worker-root.yaml
+# Add `-e root_volume_size=N` to change the size, the default is 15 GB.
+- hosts: testing_farm_redhat_workers
+  gather_facts: false
+  serial: 5
+  vars:
+    root_volume_size: 15
+  tasks:
+    - name: Find the root volume of the instance
+      amazon.aws.ec2_instance_info:
+        profile: redhat_us_east_1_create_worker
+        region: us-east-1
+        instance_ids:
+          - "{{ instance_id }}"
+      delegate_to: localhost
+      register: instance_info
+
+    - name: Set the root volume facts
+      set_fact:
+        root_volume: >-
+          {{ (instance_info.instances[0].block_device_mappings
+              | selectattr('device_name', 'equalto', instance_info.instances[0].root_device_name)
+              | first).ebs.volume_id }}
+
+    - name: Grow the root volume
+      amazon.aws.ec2_vol:
+        profile: redhat_us_east_1_create_worker
+        region: us-east-1
+        id: "{{ root_volume }}"
+        volume_size: "{{ root_volume_size }}"
+        modify_volume: true
+      delegate_to: localhost
+
+    - name: Grow the root partition and filesystem
+      become: true
+      block:
+        - name: Install growpart
+          package:
+            name: cloud-utils-growpart
+            state: present
+
+        - name: Get the filesystem type of the root filesystem
+          command: findmnt -no FSTYPE /
+          register: root_fstype
+          changed_when: false
+
+        # btrfs shows the subvolume in brackets, e.g. `/dev/nvme1n1p5[/root]`
+        - name: Get the root partition
+          shell: findmnt -no SOURCE / | sed 's/\[.*//'
+          register: root_partition
+          changed_when: false
+
+        - name: Get the parent disk and the partition number
+          shell: |
+            name=$(basename {{ root_partition.stdout }})
+            echo "/dev/$(lsblk -no PKNAME {{ root_partition.stdout }}) $(cat /sys/class/block/$name/partition)"
+          register: root_disk
+          changed_when: false
+
+        - name: Wait for the new size to be visible
+          command: lsblk -bno SIZE {{ root_disk.stdout.split()[0] }}
+          register: disk_size
+          until: disk_size.stdout_lines[0] | int >= (root_volume_size | int) * 1073741824
+          retries: 30
+          delay: 10
+          changed_when: false
+
+        - name: Grow the partition
+          command: growpart {{ root_disk.stdout }}
+          register: growpart
+          failed_when: growpart.rc not in [0, 1]
+          changed_when: growpart.rc == 0
+
+        - name: Resize the ext4 filesystem
+          command: resize2fs {{ root_partition.stdout }}
+          when: root_fstype.stdout == 'ext4'
+
+        - name: Resize the xfs filesystem
+          command: xfs_growfs /
+          when: root_fstype.stdout == 'xfs'
+
+        - name: Resize the btrfs filesystem
+          command: btrfs filesystem resize max /
+          when: root_fstype.stdout == 'btrfs'
+
+        - name: Fail on an unsupported filesystem
+          fail:
+            msg: "Unsupported root filesystem {{ root_fstype.stdout }}"
+          when: root_fstype.stdout not in ['ext4', 'xfs', 'btrfs']

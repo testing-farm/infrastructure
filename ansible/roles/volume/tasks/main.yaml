@@ -38,7 +38,7 @@
         path: "{{ volume_attached_device_mount_path }}"
         src: "{{ volume_attached_device }}{{ partition }}"
         fstype: ext4
-        opts: defaults
+        opts: "{{ volume_attached_device_mount_opts | default('defaults') }}"
         passno: '2'
         state: mounted
 

@@ -1,0 +1,50 @@
+---
+# Rebuild `/data` on the instance store after a stop/start of the instance
+- block:
+    - name: "Install instance store init script"
+      copy:
+        src: "{{ ansible_dir }}/files/tf-instance-store-init.sh"
+        dest: /usr/local/bin/tf-instance-store-init.sh
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: "Install instance store init systemd unit"
+      copy:
+        src: "{{ ansible_dir }}/files/tf-instance-store-init.service"
+        dest: /etc/systemd/system/tf-instance-store-init.service
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: "Create nomad systemd drop-in directory"
+      file:
+        path: /etc/systemd/system/nomad.service.d
+        state: directory
+        mode: 0755
+
+    - name: "Make nomad wait for the instance store init"
+      copy:
+        src: "{{ ansible_dir }}/files/tf-instance-store-init-nomad.conf"
+        dest: /etc/systemd/system/nomad.service.d/instance-store.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: "Do not hang the boot when the instance store is empty"
+      ansible.posix.mount:
+        path: /data
+        src: /dev/nvme0n1p1
+        fstype: ext4
+        opts: "{{ volume_attached_device_mount_opts | default('defaults,nofail,x-systemd.device-timeout=10s') }}"
+        passno: '2'
+        state: present
+
+    - name: "Enable instance store init"
+      systemd:
+        name: tf-instance-store-init.service
+        enabled: true
+        daemon_reload: true
+
+  become: true
+  when: worker_stop_start | default(false)
