@@ -53,10 +53,11 @@ Every step runs on the Testing Farm *Red Hat ranch*, because the base image
 * `qcow2.fmf` imports the upstream
   https://gitlab.com/testing-farm/tests/-/tree/main/image-mode/qcow2[`/image-mode/qcow2/build`]
   plan, which builds a qcow2 from the pushed image with `bootc-image-builder`.
-* The `upload.fmf` plan runs the upstream `/testing-farm/upload-qcow2` test, which
-  uploads the qcow2 to AWS with `tft-admin`. Its prepare step derives the qcow2 URL
-  from the build request with `qcow2-url.py`, inside Testing Farm, because the GitLab
-  runner cannot reach the Red Hat ranch artifact server.
+* `upload.fmf` imports the upstream `/testing-farm/upload-qcow2/aws` plan, which
+  uploads the qcow2 to AWS with `tft-admin`. `make image/artifacts/ami` first derives
+  the qcow2 URL from the build request with `qcow2-url.py`. It reads the URL from the
+  Testing Farm API, because the GitLab runner cannot reach the Red Hat ranch artifact
+  server.
 
 The `dgoss.fmf` plan runs the upstream `/dgoss/dgoss-tests` test against the pushed image.
 The `goss.yaml` holds the checks for the container image, `goss-vm.yaml` holds the checks for

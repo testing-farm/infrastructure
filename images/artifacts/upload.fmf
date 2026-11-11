@@ -1,61 +1,33 @@
 summary: Upload the artifact-server qcow2 to AWS as an AMI
 
 description: |
-    Run the upstream testing-farm/tests ``/testing-farm/upload-qcow2`` test
-    (``tft-admin``, inside the cnc image) on the qcow2 produced by a
-    ``/image-mode/qcow2/build`` request.
+    Import the upstream testing-farm/tests ``/testing-farm/upload-qcow2/aws`` plan
+    (https://gitlab.com/testing-farm/tests/-/tree/main/testing-farm/upload-qcow2),
+    which uploads a qcow2 to AWS with ``tft-admin`` inside the cnc image, and
+    copies it to us-east-2.
 
-    The prepare step derives QCOW2_URL from QCOW2_REQUEST inside Testing Farm,
-    where the Red Hat ranch artifact server is reachable (the GitLab runner cannot
-    resolve it), and hands it to the test through the plan environment.
+    The Makefile derives QCOW2_URL from the qcow2 build request with
+    ``qcow2-url.py`` before it submits this plan.
 
     Required variables:
 
-      QCOW2_REQUEST ... The /image-mode/qcow2/build request id. Ignored if
-                        QCOW2_URL is set.
+      QCOW2_URL         ... Download URL of the qcow2.
 
-      IMAGE_NAME    ... Image name under which it is stored in the cloud.
+      IMAGE_NAME        ... Image name under which it is stored in the cloud.
 
-      QCOW2_ARCH    ... Arch of the qcow2, passed to tft-admin.
+      QCOW2_ARCH        ... Arch of the qcow2, passed to tft-admin.
 
     Optional variables:
 
-      QCOW2_URL         ... Download URL of the qcow2, skips the derivation.
-
-      QCOW2_FILE        ... Name of the qcow2 file, default artifacts-bootc.qcow2.
-
       REMOVE_AFTER_TEST ... When set, delete the uploaded image after the upload.
-                            Only the us-east-1 copy is removed.
 
     Secret variables:
 
-      VAULT_SECRET_ID ... Hashicorp Vault secret id for the cnc container. Pass as a
-                          Testing Farm secret (``-s``).
+      VAULT_SECRET_ID   ... Hashicorp Vault secret id for the cnc container. Pass as a
+                            Testing Farm secret (``-s``).
 
-environment:
-  CLOUD: arr-aws
-  QCOW2_FILE: artifacts-bootc.qcow2
-
-discover:
-  how: fmf
-  url: https://gitlab.com/testing-farm/tests
-  test:
-    - /testing-farm/upload-qcow2
-
-provision:
-  how: container
-  image: quay.io/testing-farm/cnc:latest
-  user: cnc
-
-prepare:
-  - name: Derive the qcow2 URL
-    how: shell
-    script: |
-      set -euo pipefail
-      if [ -z "${QCOW2_URL:-}" ]; then
-        url=$(python3 "$TMT_TREE/images/artifacts/qcow2-url.py" "${QCOW2_REQUEST:?QCOW2_REQUEST or QCOW2_URL must be set}")
-        echo "QCOW2_URL=$url" >> "$TMT_PLAN_ENVIRONMENT_FILE"
-      fi
-
-execute:
-  how: tmt
+plan:
+  import:
+    url: https://gitlab.com/testing-farm/tests
+    ref: main
+    name: /testing-farm/upload-qcow2/aws

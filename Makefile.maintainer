@@ -627,12 +627,14 @@ image/artifacts/qcow2-url: .FORCE  ## Derive the qcow2 download URL from a qcow2
 QCOW2_ARCH ?= x86_64
 IMAGE_NAME ?= artifacts-bootc-$(QCOW2_ARCH)
 
-# Pass QCOW2_REQUEST or a ready QCOW2_URL. IMAGE_NAME must be unique per upload
+# Pass QCOW2_REQUEST or a ready QCOW2_URL. A QCOW2_REQUEST is turned into the URL
+# here, from the Testing Farm API. IMAGE_NAME must be unique per upload
 # (tft-admin no-ops on an existing name). REMOVE_AFTER_TEST=1 deletes the upload.
 image/artifacts/ami: .FORCE  ## Upload artifact-server qcow2 to AWS as an AMI via Testing Farm (needs QCOW2_REQUEST or QCOW2_URL, and VAULT_SECRET_ID)
+	qcow2_url="$(QCOW2_URL)"; \
+	[ -n "$$qcow2_url" ] || qcow2_url=$$(images/artifacts/qcow2-url.py "$(QCOW2_REQUEST)") || exit 1; \
 	testing-farm request --skip-summary \
-		$(if $(QCOW2_REQUEST),-e QCOW2_REQUEST="$(QCOW2_REQUEST)") \
-		$(if $(QCOW2_URL),-e QCOW2_URL="$(QCOW2_URL)") \
+		-e QCOW2_URL="$$qcow2_url" \
 		$(if $(REMOVE_AFTER_TEST),-e REMOVE_AFTER_TEST="$(REMOVE_AFTER_TEST)") \
 		-e IMAGE_NAME="$(IMAGE_NAME)" \
 		-e QCOW2_ARCH="$(QCOW2_ARCH)" \
