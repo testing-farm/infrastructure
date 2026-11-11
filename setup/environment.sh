@@ -173,10 +173,12 @@ Host $host
 EOF
     done
 
-    printf "#!/bin/sh\n/usr/bin/ssh -F $PROJECT_ROOT/.direnv/ssh_config \$@\n" > $TOOLS_PATH/ssh
+    # `exec`, so a signal sent to the wrapper reaches ssh itself. Without it, tmt
+    # hangs when it terminates its SSH master: https://github.com/teemtee/tmt/issues/5329
+    printf "#!/bin/sh\nexec /usr/bin/ssh -F $PROJECT_ROOT/.direnv/ssh_config \"\$@\"\n" > $TOOLS_PATH/ssh
     chmod +x $TOOLS_PATH/ssh
 
-    echo "/usr/bin/scp -F $PROJECT_ROOT/.direnv/ssh_config \$@" > $TOOLS_PATH/scp
+    printf "#!/bin/sh\nexec /usr/bin/scp -F $PROJECT_ROOT/.direnv/ssh_config \"\$@\"\n" > $TOOLS_PATH/scp
     chmod +x $TOOLS_PATH/scp
 fi
 
