@@ -84,7 +84,7 @@ the required CI/CD variables.
 * Each pipeline pushes its own image tag (`:mr-<iid>-<pipeline-id>` on MRs,
   `:<commit-sha>` plus `:latest` on the default branch), and builds the qcow2 from it.
 * MRs upload `artifacts-bootc-x86_64-mr-<iid>-<pipeline-id>` with `REMOVE_AFTER_TEST`,
-  which removes only the us-east-1 copy; the us-east-2 copy stays.
+  which removes the AMI and its snapshot in both us-east-1 and us-east-2.
 * The default branch uploads an immutable `artifacts-bootc-x86_64-<commit-sha>`. The
   deploy picks the newest AMI matching `^artifacts-bootc-x86_64-[0-9a-f]{8}$`, so keep
   that name.
