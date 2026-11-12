@@ -51,10 +51,10 @@
           podman system prune --force --volumes --filter label!=testing-farm.citool-config
         special_time: daily
 
-    # tmt container guests pull their images into the host storage, and tmt pulls only missing images.
-    # Remove unused images hourly, so tests do not run against stale mutable tags like `fedora:rawhide`
-    # and the storage does not fill up. Keep the worker images, `citool:latest` is a local tag and
-    # cannot be pulled again.
+    # tmt container guests pull their images into the host storage. Remove unused images hourly, so
+    # the storage does not fill up. Keep the worker and config images, both carry the `maintainer`
+    # label. `citool:latest` is a local tag and cannot be pulled again, and a cached config image
+    # lets jobs run during a registry outage.
     - name: "Add crontab for removing unused podman images"
       cron:
         name: remove unused podman images hourly
