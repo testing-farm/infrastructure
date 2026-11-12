@@ -598,10 +598,12 @@ test/terraform/modules:  ## Run terratest tests for Teraform modules
 TARGET_IMAGE ?= images.paas.redhat.com/testingfarm/artifacts:latest
 IMAGE ?= $(TARGET_IMAGE)
 
+# testing-farm shlex-splits each -e value again, so the inner quotes keep
+# space-separated IMAGE_TAGS in one variable.
 image/artifacts/container: .FORCE  ## Build & push RHEL 10 bootc artifact-server image | Testing Farm
 	testing-farm request --skip-summary \
 		-e ENABLE_PUSH=yes -e TARGET_IMAGE="$(TARGET_IMAGE)" \
-		$(if $(IMAGE_TAGS),-e IMAGE_TAGS="$(IMAGE_TAGS)") \
+		$(if $(IMAGE_TAGS),-e "IMAGE_TAGS='$(IMAGE_TAGS)'") \
 		-s AUTH_JSON="$$AUTH_JSON_IMAGES_PAAS" \
 		--plan /images/artifacts/container
 
