@@ -103,7 +103,7 @@ func TestTerraformMatchesDeploymentPolicies(t *testing.T) {
 	}
 	writeFile(t, filepath.Join(work, "terraform.tfvars.json"), variables)
 	credentials := filepath.Join(work, "credentials")
-	writeFile(t, credentials, []byte("[redhat_us_east_1_storage]\naws_access_key_id = offline-test\naws_secret_access_key = offline-test\n"))
+	writeFile(t, credentials, []byte("[redhat_us_east_1_artifacts_deploy]\naws_access_key_id = offline-test\naws_secret_access_key = offline-test\n"))
 	config := filepath.Join(work, "aws-config")
 	writeFile(t, config, nil)
 	cliConfig := filepath.Join(work, "terraform.rc")

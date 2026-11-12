@@ -11,7 +11,7 @@ The module provisions:
 * An S3 Files mount target inside the designated private subnet.
 * Two IAM roles, both capped by the administrator-managed permissions boundary supplied through `permissions_boundary_arn`:
 ** *Service Role*: Assumed by `elasticfilesystem.amazonaws.com` with scoped bucket sync and EventBridge event management permissions.
-** *Client Role & Instance Profile*: Assumed by the EC2 server, with inline `s3files:ClientMount`, `s3files:ClientWrite`, and `s3files:ClientRootAccess` permissions limited to this filesystem, plus bucket-scoped S3 read/list permissions. Root access is retained for filesystem ownership setup.
+** *Client Role & Instance Profile*: Assumed by the EC2 server, with an inline `s3files:ClientMount` permission limited to this filesystem, plus bucket-scoped S3 read/list permissions. The server mounts the filesystem read-only; workers upload to the bucket directly, so the role has no `s3files:ClientWrite` or `s3files:ClientRootAccess`.
 * Security groups restricting NFS (TCP 2049) strictly to the client security group.
 
 == Requirements

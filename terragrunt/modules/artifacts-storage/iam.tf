@@ -137,15 +137,11 @@ resource "aws_iam_role" "ec2_client" {
   permissions_boundary = var.permissions_boundary_arn
 }
 
-# Preserve root access for ownership setup, limited to this filesystem.
+# Read-only mount of this filesystem; workers upload to the bucket directly.
 data "aws_iam_policy_document" "ec2_client_s3files" {
   statement {
-    effect = "Allow"
-    actions = [
-      "s3files:ClientMount",
-      "s3files:ClientWrite",
-      "s3files:ClientRootAccess"
-    ]
+    effect    = "Allow"
+    actions   = ["s3files:ClientMount"]
     resources = [aws_s3files_file_system.artifacts.arn]
   }
 }

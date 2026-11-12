@@ -44,20 +44,6 @@
       ]
     },
     {
-      "Sid": "DetachLegacyClientPolicy",
-      "Effect": "Allow",
-      "Action": "iam:DetachRolePolicy",
-      "Resource": "arn:aws:iam::727920394381:role/testing-farm-artifacts-redhat-ec2-client-role",
-      "Condition": {
-        "ArnEquals": {
-          "iam:PolicyARN": "arn:aws:iam::aws:policy/AmazonS3FilesClientFullAccess"
-        },
-        "StringEquals": {
-          "iam:PermissionsBoundary": "arn:aws:iam::727920394381:policy/arr-testing-farm.prod.role-boundary"
-        }
-      }
-    },
-    {
       "Sid": "ManageInstanceProfile",
       "Effect": "Allow",
       "Action": [

@@ -17,7 +17,6 @@ const (
 	clientRole      = "arn:aws:iam::727920394381:role/testing-farm-artifacts-redhat-ec2-client-role"
 	profile         = "arn:aws:iam::727920394381:instance-profile/testing-farm-artifacts-redhat-instance-profile"
 	boundary        = "arn:aws:iam::727920394381:policy/arr-testing-farm.prod.role-boundary"
-	clientPolicy    = "arn:aws:iam::aws:policy/AmazonS3FilesClientFullAccess"
 	bucket          = "arn:aws:s3:::testing-farm-artifacts-redhat"
 	backend         = "testing-farm-artifacts-redhat"
 )
@@ -154,18 +153,13 @@ func TestIAMDelegationIsBounded(t *testing.T) {
 	requireValues(t, s.Action, "iam:CreateRole", "iam:PutRolePermissionsBoundary")
 	requireValues(t, findStatement(t, p, "DenyBoundaryRemoval").Action, "iam:DeleteRolePermissionsBoundary")
 	requireValues(t, findStatement(t, p, "DenyBoundaryPolicyMutation").Resource, boundary)
-	s = findStatement(t, p, "DetachLegacyClientPolicy")
-	requireValues(t, s.Action, "iam:DetachRolePolicy")
-	requireValues(t, s.Resource, clientRole)
-	requireValues(t, s.Condition["ArnEquals"]["iam:PolicyARN"], clientPolicy)
-	requireValues(t, s.Condition["StringEquals"]["iam:PermissionsBoundary"], boundary)
 	for _, s := range p.Statement {
 		if s.Effect != "Allow" {
 			continue
 		}
 		for _, action := range values(t, s.Action) {
-			if action == "iam:AttachRolePolicy" {
-				t.Errorf("%s must not allow managed-policy attachment", s.Sid)
+			if action == "iam:AttachRolePolicy" || action == "iam:DetachRolePolicy" {
+				t.Errorf("%s must not allow managed-policy attachment changes", s.Sid)
 			}
 		}
 	}
@@ -192,7 +186,7 @@ func TestRuntimeBoundarySeparatesRoles(t *testing.T) {
 		}
 		for _, action := range values(t, s.Action) {
 			if principal[0] == clientRole {
-				if action != "s3:ListBucket" && action != "s3:GetObject*" && action != "s3files:ClientMount" && action != "s3files:ClientWrite" && action != "s3files:ClientRootAccess" {
+				if action != "s3:ListBucket" && action != "s3:GetObject*" && action != "s3files:ClientMount" {
 					t.Errorf("unexpected client privilege: %s", action)
 				}
 			} else if !strings.HasPrefix(action, "s3:") && !strings.HasPrefix(action, "events:") {
@@ -201,6 +195,7 @@ func TestRuntimeBoundarySeparatesRoles(t *testing.T) {
 		}
 	}
 	s := findStatement(t, p, "ClientMountAccess")
+	requireValues(t, s.Action, "s3files:ClientMount")
 	requireValues(t, s.Resource, "arn:aws:s3files:us-east-1:727920394381:file-system/*")
 	requireValues(t, s.Condition["StringEquals"]["aws:ResourceTag/StorageBackend"], backend)
 	requireValues(t, findStatement(t, p, "ServiceObjectSync").Resource, bucket+"/*")

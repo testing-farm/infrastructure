@@ -33,7 +33,7 @@ generate "provider" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 provider "aws" {
-  profile             = "redhat_us_east_1_storage"
+  profile             = "redhat_us_east_1_artifacts_deploy"
   region              = "us-east-1"
   allowed_account_ids = ["727920394381"]
 

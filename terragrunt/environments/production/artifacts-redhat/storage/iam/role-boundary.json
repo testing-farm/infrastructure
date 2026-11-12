@@ -95,7 +95,7 @@
     {
       "Sid": "ClientMountAccess",
       "Effect": "Allow",
-      "Action": ["s3files:ClientMount", "s3files:ClientWrite", "s3files:ClientRootAccess"],
+      "Action": "s3files:ClientMount",
       "Resource": "arn:aws:s3files:us-east-1:727920394381:file-system/*",
       "Condition": {
         "ArnEquals": {
