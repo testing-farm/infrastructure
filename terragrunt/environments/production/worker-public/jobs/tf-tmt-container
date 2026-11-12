@@ -72,8 +72,10 @@ cleanup_host_podman() {
 trap cleanup_host_podman EXIT
 
 # Nomad sends `kill_signal` to this script only and SIGKILLs it after `kill_timeout`. Stop the citool
-# container right away, so the script gets to the cleanup before that.
+# container right away, so the script gets to the cleanup before that. Signal the pipeline too, before
+# `exec podman run` there is no container to stop yet. `timeout` forwards the signal to the wrapper.
 stop_citool() {
+    [ -n "$citool_pid" ] && kill -TERM "$citool_pid" 2>/dev/null
     podman stop --time 10 "$REQUEST_ID" >/dev/null 2>&1 || true
 }
 trap stop_citool INT TERM
