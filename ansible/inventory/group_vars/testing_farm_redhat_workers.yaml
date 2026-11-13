@@ -79,9 +79,9 @@ citool_config_podman_secrets:
   - name: archive
     content: |
       [default]
-      aws-access-key-id = {{ credentials.aws.profiles.redhat_us_east_1_storage.access_key }}
-      aws-secret-access-key = {{ credentials.aws.profiles.redhat_us_east_1_storage.secret_key }}
-      aws-region = {{ credentials.aws.profiles.redhat_us_east_1_storage.region }}
+      aws-access-key-id = {{ credentials.aws.profiles.redhat_us_east_1_artifacts_upload.access_key }}
+      aws-secret-access-key = {{ credentials.aws.profiles.redhat_us_east_1_artifacts_upload.secret_key }}
+      aws-region = {{ credentials.aws.profiles.redhat_us_east_1_artifacts_upload.region }}
     target: /CONFIG-SECRETS/config/archive
 
   # The citool image links `/root/.git-credentials` to `/CONFIG/git-credentials`, the config image does not ship it.
