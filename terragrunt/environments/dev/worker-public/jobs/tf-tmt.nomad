@@ -52,7 +52,8 @@ job "tf-tmt" {
       }
 
       config {
-        image        = "quay.io/testing-farm/worker-public:latest"
+        image        = "{{ citool_container_image }}"
+        force_pull   = true
         network_mode = "host"
         init         = true
         security_opt = ["label=type:tf_worker.process"]
@@ -92,7 +93,7 @@ job "tf-tmt" {
         ARTIFACTS_URL  = "http://{{ artifacts_hostname }}"
 
         CITOOL_CONFIG_IMAGE         = "${NOMAD_META_CITOOL_CONFIG_IMAGE}"
-        CITOOL_CONFIG_IMAGE_DEFAULT = "quay.io/testing-farm/ranch-public:latest"
+        CITOOL_CONFIG_IMAGE_DEFAULT = "{{ citool_config_container_image }}"
 
         REQUEST_TIMEOUT = "${NOMAD_META_REQUEST_TIMEOUT}"
       }
