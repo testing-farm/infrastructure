@@ -51,6 +51,33 @@ jobs:
   - tf-tmt-multihost
   - tf-sti
 
+# worker instance details
+worker_instance_type: i3.2xlarge
+worker_image_id: ami-09b0323f2cbc423c7  # Fedora-Cloud-Base-AmazonEC2.x86_64-44-20260524.0
+# TFT-1755 - use ARR-TestingFarm-US-East-1, which has correctly setup DNS
+worker_subnet: subnet-036ad213c3fb0eb7e
+worker_security_group: sg-0cb20f3b88c57fa30
+
+worker_resource_tags:
+  # Old tags used for reporting
+  AppCode: TFT-001
+  ServiceOwner: TFT
+  ServicePhase: Prod
+  ServiceName: TestingFarm
+  ServiceComponent: Worker
+  # Unified tagging policy
+  # https://source.redhat.com/departments/it/devit/it-infrastructure/itcloudservices/itpubliccloudpage/cloud/docs/consumer/public_cloud_tagging_policy_for_cloud_providers
+  # https://source.redhat.com/departments/it/devit/it-infrastructure/itcloudservices/itpubliccloudpage/cloud/it_aws_annoucements/updated_it_public_cloud_tagging_policy
+  app-code: TFT-001
+  service-owner: TFT
+  service-component: Worker
+  service-phase: prod
+  service-name: TestingFarm
+  # Testing Farm AWS migration tag
+  map-migrated: migZZ8SDMVO5T
+
+worker_group_name: testing_farm_redhat_workers
+
 # podman secrets for citool-config container workflow
 citool_config_podman_secrets:
   - name: testing-farm-request

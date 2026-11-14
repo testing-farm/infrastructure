@@ -3,6 +3,10 @@
   vars_files:
     - ../secrets/credentials.yaml
   tasks:
+    - name: Include worker instance details
+      include_vars:
+        file: ../inventory/group_vars/testing_farm_redhat_workers.yaml
+
     - name: Generate worker name
       set_fact:
         worker_name: "testing-farm-worker-{{ lookup('pipe', 'uuidgen | sed s/-.*//') }}"
@@ -11,42 +15,23 @@
       amazon.aws.ec2_instance:
         profile: redhat_us_east_1_create_worker
         state: running
-        tags:
-          Name: "{{ worker_name }}"
-          # Old tags used for reporting
-          AppCode: TFT-001
-          ServiceOwner: TFT
-          ServicePhase: Prod
-          ServiceName: TestingFarm
-          ServiceComponent: Worker
-          # Unified tagging policy
-          # https://source.redhat.com/departments/it/devit/it-infrastructure/itcloudservices/itpubliccloudpage/cloud/docs/consumer/public_cloud_tagging_policy_for_cloud_providers
-          # https://source.redhat.com/departments/it/devit/it-infrastructure/itcloudservices/itpubliccloudpage/cloud/it_aws_annoucements/updated_it_public_cloud_tagging_policy
-          app-code: TFT-001
-          service-owner: TFT
-          service-component: Worker
-          service-phase: prod
-          service-name: TestingFarm
-          # Testing Farm AWS migration tag
-          map-migrated: migZZ8SDMVO5T
+        tags: "{{ worker_resource_tags | combine({'Name': worker_name}) }}"
         key_name: tft-redhat-worker-key
-        instance_type: i3.2xlarge
-        # Fedora-Cloud-Base-39-1.5.x86_64-hvm-us-east-1-gp3-0
-        image_id: ami-0746fc234df9c1ee0
+        instance_type: "{{ worker_instance_type }}"
+        image_id: "{{ worker_image_id }}"
         wait: true
         count: "{{ count|default(1) }}"
         network:
+          subnet_id: "{{ worker_subnet }}"
           assign_public_ip: false
         instance_initiated_shutdown_behavior: terminate
-        # TFT-1755 - use ARR-TestingFarm-US-East-1, which has correctly setup DNS
-        security_group: sg-0cb20f3b88c57fa30
-        vpc_subnet_id: subnet-036ad213c3fb0eb7e
+        security_group: "{{ worker_security_group }}"
       register: ec2
 
     - name: Add new instance to host group
       add_host:
         hostname: "{{ item.private_ip_address }}"
-        groupname: testing_farm_redhat_workers
+        groupname: "{{ worker_group_name }}"
         worker_name: "{{ worker_name }}"
       loop: "{{ ec2.instances }}"
 
