@@ -229,16 +229,6 @@ data "aws_route53_zone" "testing_farm_zone" {
   name = var.route53_zone
 }
 
-data "ansiblevault_path" "pool_access_key_aws" {
-  path = var.ansible_vault_credentials
-  key  = "credentials.aws.profiles.fedora_us_east_2.access_key"
-}
-
-data "ansiblevault_path" "pool_secret_key_aws" {
-  path = var.ansible_vault_credentials
-  key  = "credentials.aws.profiles.fedora_us_east_2.secret_key"
-}
-
 resource "aws_route53_record" "eks-friendly-endpoint" {
   zone_id = data.aws_route53_zone.testing_farm_zone.zone_id
   name    = "api.${module.eks.cluster_name}.eks.${data.aws_route53_zone.testing_farm_zone.name}"
@@ -365,34 +355,16 @@ resource "kubernetes_namespace" "kube-addons-ns" {
   }
 }
 
-resource "kubernetes_secret" "aws-credentials-secret" {
-  depends_on = [kubernetes_namespace.kube-addons-ns]
-
-  metadata {
-    name      = "aws-credentials"
-    namespace = local.kube_addons_namespace
-  }
-
-  data = {
-    "credentials" = <<EOF
-[default]
-aws_access_key_id = ${sensitive(data.ansiblevault_path.pool_access_key_aws.value)}
-aws_secret_access_key = ${sensitive(data.ansiblevault_path.pool_secret_key_aws.value)}
-EOF
-  }
-}
-
 resource "helm_release" "external-dns" {
   depends_on = [
     kubernetes_namespace.kube-addons-ns,
-    kubernetes_secret.aws-credentials-secret,
     helm_release.aws_load_balancer_controller,
   ]
 
   name       = "external-dns"
   repository = "https://kubernetes-sigs.github.io/external-dns/"
   chart      = "external-dns"
-  version    = "1.20.0"
+  version    = "1.24.0"
 
   namespace = local.kube_addons_namespace
 
@@ -427,20 +399,10 @@ resource "helm_release" "external-dns" {
   values = [
     <<EOF
 env:
-  - name: AWS_SHARED_CREDENTIALS_FILE
-    value: /.aws/credentials
   # Required since external-dns v0.15.1 migrated to aws-sdk-go-v2 which
   # needs an explicit region. Route 53 is global so any region works.
   - name: AWS_DEFAULT_REGION
     value: us-east-1
-extraVolumes:
-  - name: aws-credentials
-    secret:
-      secretName: aws-credentials
-extraVolumeMounts:
-  - name: aws-credentials
-    mountPath: /.aws
-    readOnly: true
 EOF
   ]
 
