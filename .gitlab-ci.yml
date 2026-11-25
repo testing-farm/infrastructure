@@ -128,7 +128,7 @@ workflow:
         - terragrunt/environments/staging/worker-local/**/*
 
   terragrunt_production:
-    - !reference [.rules, infrastructure]
+    - !reference [.rules, terragrunt_testing_farm]
     - changes:
         - terragrunt/environments/production/**/*
 
