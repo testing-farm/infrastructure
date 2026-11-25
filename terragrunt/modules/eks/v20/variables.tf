@@ -13,11 +13,6 @@ variable "ansible_vault_password_file" {
   type        = string
 }
 
-variable "ansible_vault_credentials" {
-  description = "Path to ansible vault-encrypted credentials."
-  type        = string
-}
-
 variable "ansible_vault_secrets_root" {
   description = "Path to the root directory with ansible vault secrets."
   type        = string

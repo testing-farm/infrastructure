@@ -24,7 +24,7 @@ artemis:
     replicaCount: ${artemis_api_replicas}
     service:
       annotations:
-        external-dns.alpha.kubernetes.io/hostname: ${artemis_api_domain}
+        external-dns.kubernetes.io/hostname: ${artemis_api_domain}
         # Use a separately managed security group instead of loadBalancerSourceRanges
         # https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/service/annotations/#security-groups
         service.beta.kubernetes.io/aws-load-balancer-security-groups: ${artemis_api_lb_security_group_id}
