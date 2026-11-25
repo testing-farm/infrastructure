@@ -24,6 +24,11 @@ job "tf-tmt-container" {
       size = "50000"
     }
 
+    meta {
+      CITOOL_IMAGE        = "{{ citool_container_image }}"
+      CITOOL_CONFIG_IMAGE = "{{ citool_config_container_image }}"
+    }
+
     # The worker container sees the allocation directory as /var/ARTIFACTS/<request-id>.
     # tmt hands that path to the host podman as a volume source, so the same path must
     # exist on the host too. Link it there for the lifetime of the allocation.
@@ -54,7 +59,7 @@ job "tf-tmt-container" {
       }
 
       config {
-        image        = "{{ citool_container_image }}"
+        image        = "${NOMAD_META_CITOOL_IMAGE}"
         force_pull   = true
         network_mode = "host"
         init         = true
@@ -94,8 +99,7 @@ job "tf-tmt-container" {
         API_URL        = "http://{{ api_hostname }}/v0.1"
         ARTIFACTS_URL  = "http://{{ artifacts_hostname }}"
 
-        CITOOL_CONFIG_IMAGE         = "${NOMAD_META_CITOOL_CONFIG_IMAGE}"
-        CITOOL_CONFIG_IMAGE_DEFAULT = "{{ citool_config_container_image }}"
+        CITOOL_CONFIG_IMAGE = "${NOMAD_META_CITOOL_CONFIG_IMAGE}"
 
         REQUEST_TIMEOUT = "${NOMAD_META_REQUEST_TIMEOUT}"
       }
